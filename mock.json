@@ -1,0 +1,371 @@
+{
+  "dashboardStats": [
+    {
+      "label": "TASKS COMPLETED",
+      "value": "24/28",
+      "description": "THIS WEEK",
+      "intent": "positive",
+      "icon": "gear",
+      "direction": "up"
+    },
+    {
+      "label": "CURRENT POINTS",
+      "value": "385",
+      "description": "RECOGNITION BALANCE",
+      "intent": "positive",
+      "icon": "proccesor",
+      "tag": "7 DAY STREAK 🔥"
+    },
+    {
+      "label": "REWARDS EARNED",
+      "value": "12",
+      "description": "MEANINGFUL RECOGNITION",
+      "intent": "positive",
+      "icon": "boom",
+      "direction": "up"
+    }
+  ],
+  "chartData": {
+    "week": [
+      {
+        "date": "06/07",
+        "spendings": 45,
+        "sales": 75,
+        "coffee": 30
+      },
+      {
+        "date": "07/07",
+        "spendings": 60,
+        "sales": 90,
+        "coffee": 25
+      },
+      {
+        "date": "08/07",
+        "spendings": 30,
+        "sales": 55,
+        "coffee": 20
+      },
+      {
+        "date": "09/07",
+        "spendings": 50,
+        "sales": 75,
+        "coffee": 35
+      },
+      {
+        "date": "10/07",
+        "spendings": 40,
+        "sales": 60,
+        "coffee": 22
+      },
+      {
+        "date": "11/07",
+        "spendings": 55,
+        "sales": 85,
+        "coffee": 28
+      },
+      {
+        "date": "12/07",
+        "spendings": 50,
+        "sales": 80,
+        "coffee": 30
+      }
+    ],
+    "month": [
+      { "date": "Week 1", "spendings": 180, "sales": 270, "coffee": 100 },
+      { "date": "Week 2", "spendings": 220, "sales": 330, "coffee": 120 },
+      { "date": "Week 3", "spendings": 240, "sales": 385, "coffee": 140 },
+      { "date": "Week 4", "spendings": 200, "sales": 295, "coffee": 110 }
+    ],
+    "year": [
+      { "date": "Jan", "spendings": 950, "sales": 1420, "coffee": 500 },
+      { "date": "Feb", "spendings": 880, "sales": 1320, "coffee": 480 },
+      { "date": "Mar", "spendings": 1020, "sales": 1530, "coffee": 550 },
+      { "date": "Apr", "spendings": 960, "sales": 1440, "coffee": 520 },
+      { "date": "May", "spendings": 1100, "sales": 1650, "coffee": 580 },
+      { "date": "Jun", "spendings": 1040, "sales": 1560, "coffee": 540 }
+    ]
+  },
+  "rebelsRanking": [
+    {
+      "id": 1,
+      "name": "KEVIN WIESNER",
+      "handle": "@KevinW",
+      "streak": "7 DAY STREAK 🔥",
+      "points": 385,
+      "avatar": "/avatars/kevin_wiesner.jpg",
+      "featured": true,
+      "subtitle": "Submissive • Exceptional Service"
+    },
+    {
+      "id": 2,
+      "name": "SIMEON BOWMAN",
+      "handle": "@SimeonB",
+      "streak": "",
+      "points": 0,
+      "avatar": "/avatars/simeon_bowman.jpg",
+      "subtitle": "Dominant • Guiding Partner"
+    }
+  ],
+  "partnerProfiles": {
+    "dominant": {
+      "id": "dom-1",
+      "name": "Simeon Bowman",
+      "role": "Dominant",
+      "handle": "@SimeonB",
+      "avatar": "/avatars/simeon_bowman.jpg",
+      "pronouns": "he/him",
+      "joinDate": "2024-01-15",
+      "preferences": {
+        "primaryLoveLanguage": "Words of Affirmation",
+        "secondaryLoveLanguage": "Quality Time"
+      }
+    },
+    "submissive": {
+      "id": "sub-1",
+      "name": "Kevin Wiesner",
+      "role": "Submissive",
+      "handle": "@KevinW",
+      "avatar": "/avatars/kevin_wiesner.jpg",
+      "pronouns": "he/him",
+      "joinDate": "2024-01-15",
+      "currentStreak": 7,
+      "totalPoints": 385,
+      "preferences": {
+        "primaryLoveLanguage": "Physical Touch",
+        "secondaryLoveLanguage": "Quality Time"
+      }
+    }
+  },
+  "recentRewards": [
+    {
+      "id": "reward-1",
+      "name": "Extended Cuddle Session",
+      "type": "Meaningful Reward",
+      "category": "Physical Touch",
+      "recognitionTier": "Weekly",
+      "dateEarned": "2024-07-10",
+      "points": 0,
+      "description": "Hour-long cuddle session for completing all daily tasks this week",
+      "status": "Redeemed",
+      "earnedBy": "Kevin Wiesner"
+    },
+    {
+      "id": "reward-2",
+      "name": "Detailed Praise Message",
+      "type": "Meaningful Reward",
+      "category": "Words of Affirmation",
+      "recognitionTier": "Daily",
+      "dateEarned": "2024-07-09",
+      "points": 0,
+      "description": "Written appreciation for excellent attitude and initiative",
+      "status": "Completed",
+      "earnedBy": "Kevin Wiesner"
+    },
+    {
+      "id": "reward-3",
+      "name": "Movie Night Choice",
+      "type": "Meaningful Reward",
+      "category": "Quality Time",
+      "recognitionTier": "Weekly",
+      "dateEarned": "2024-07-08",
+      "points": 75,
+      "description": "Choice of movie and snacks for perfect task completion",
+      "status": "Completed",
+      "earnedBy": "Kevin Wiesner"
+    },
+    {
+      "id": "reward-4",
+      "name": "7-Day Streak Achievement",
+      "type": "Achievement Badge",
+      "category": null,
+      "recognitionTier": "Milestone",
+      "dateEarned": "2024-07-07",
+      "points": 100,
+      "description": "Completed all tasks for 7 consecutive days",
+      "status": "Completed",
+      "earnedBy": "Kevin Wiesner"
+    },
+    {
+      "id": "reward-5",
+      "name": "Morning Massage",
+      "type": "Meaningful Reward",
+      "category": "Acts of Service",
+      "recognitionTier": "Weekly",
+      "dateEarned": "2024-07-05",
+      "points": 0,
+      "description": "20-minute massage for exceptional service this week",
+      "status": "Completed",
+      "earnedBy": "Kevin Wiesner"
+    }
+  ],
+  "availableRewards": [
+    {
+      "id": "avail-1",
+      "name": "Choose Next Scene Activity",
+      "type": "Meaningful Reward",
+      "category": "Quality Time",
+      "pointCost": 100,
+      "loveLanguage": "Quality Time",
+      "description": "Select the activities for our next play session"
+    },
+    {
+      "id": "avail-2",
+      "name": "Extended Aftercare",
+      "type": "Meaningful Reward",
+      "category": "Physical Touch",
+      "pointCost": 75,
+      "loveLanguage": "Physical Touch",
+      "description": "Extended cuddling, massage, and gentle affection"
+    },
+    {
+      "id": "avail-3",
+      "name": "Date Night Planning",
+      "type": "Meaningful Reward",
+      "category": "Quality Time",
+      "pointCost": 150,
+      "loveLanguage": "Quality Time",
+      "description": "Plan and choose the restaurant and activity for date night"
+    },
+    {
+      "id": "avail-4",
+      "name": "Breakfast in Bed",
+      "type": "Meaningful Reward",
+      "category": "Acts of Service",
+      "pointCost": 50,
+      "loveLanguage": "Acts of Service",
+      "description": "Simeon prepares and serves your favorite breakfast"
+    },
+    {
+      "id": "avail-5",
+      "name": "Personal Voice Message",
+      "type": "Meaningful Reward",
+      "category": "Words of Affirmation",
+      "pointCost": 25,
+      "loveLanguage": "Words of Affirmation",
+      "description": "Detailed voice message expressing appreciation and pride"
+    },
+    {
+      "id": "avail-6",
+      "name": "Toy from Wishlist",
+      "type": "Meaningful Reward",
+      "category": "Thoughtful Gifts",
+      "pointCost": 200,
+      "loveLanguage": "Thoughtful Gifts",
+      "description": "Choose one item from your kink toy wishlist"
+    }
+  ],
+  "currentTasks": [
+    {
+      "id": "task-1",
+      "title": "Morning Check-in",
+      "description": "Send morning greeting and mood update to Simeon",
+      "priority": "High",
+      "dueDate": "2024-07-13T09:00:00Z",
+      "points": 10,
+      "category": "Communication",
+      "status": "Not Started",
+      "recurring": "Daily"
+    },
+    {
+      "id": "task-2",
+      "title": "Evening Reflection",
+      "description": "Write journal entry about today's experiences and feelings",
+      "priority": "Medium",
+      "dueDate": "2024-07-13T21:00:00Z",
+      "points": 15,
+      "category": "Personal Development",
+      "status": "Not Started",
+      "recurring": "Daily"
+    },
+    {
+      "id": "task-3",
+      "title": "Complete Workout",
+      "description": "30-minute workout routine with photo proof",
+      "priority": "High",
+      "dueDate": "2024-07-13T18:00:00Z",
+      "points": 20,
+      "category": "Personal Development",
+      "status": "In Progress",
+      "recurring": "Daily",
+      "proofRequired": true
+    },
+    {
+      "id": "task-4",
+      "title": "Meal Planning",
+      "description": "Plan and prep healthy meals for the week",
+      "priority": "Medium",
+      "dueDate": "2024-07-14T12:00:00Z",
+      "points": 25,
+      "category": "Service",
+      "status": "Not Started",
+      "recurring": "Weekly"
+    }
+  ],
+  "securityStatus": [
+    {
+      "title": "ACTIVE CONTRACT",
+      "value": "v2.1",
+      "status": "[CURRENT]",
+      "variant": "success"
+    },
+    {
+      "title": "BOUNDARIES SET",
+      "value": "28/28",
+      "status": "[DOCUMENTED]",
+      "variant": "success"
+    },
+    {
+      "title": "CHECK-INS",
+      "value": "Daily",
+      "status": "[SCHEDULED]",
+      "variant": "success"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif-1",
+      "title": "NEW TASK ASSIGNED",
+      "message": "Simeon assigned you: 'Morning Check-in' - Complete by 9:00 AM",
+      "timestamp": "2024-07-13T07:00:00Z",
+      "type": "info",
+      "read": false,
+      "priority": "high"
+    },
+    {
+      "id": "notif-2",
+      "title": "PRAISE RECEIVED",
+      "message": "Simeon: 'Excellent work on completing all tasks yesterday. Your dedication is inspiring.'",
+      "timestamp": "2024-07-12T22:15:00Z",
+      "type": "success",
+      "read": false,
+      "priority": "medium"
+    },
+    {
+      "id": "notif-3",
+      "title": "REWARD UNLOCKED",
+      "message": "You've earned enough points to redeem 'Date Night Planning'!",
+      "timestamp": "2024-07-12T20:30:00Z",
+      "type": "success",
+      "read": true,
+      "priority": "medium"
+    },
+    {
+      "id": "notif-4",
+      "title": "SCENE SCHEDULED",
+      "message": "Play session scheduled for Saturday 8:00 PM. Pre-scene checklist ready.",
+      "timestamp": "2024-07-12T18:45:00Z",
+      "type": "info",
+      "read": true,
+      "priority": "high"
+    }
+  ],
+  "widgetData": {
+    "location": "San Francisco, CA",
+    "timezone": "UTC-7",
+    "temperature": "22°C",
+    "weather": "Sunny",
+    "date": "Saturday, July 13th, 2024",
+    "dynamicGreeting": "Good morning, Kevin",
+    "moodStatus": "Green"
+  }
+}
