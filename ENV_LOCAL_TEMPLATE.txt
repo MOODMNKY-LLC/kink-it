@@ -1,0 +1,53 @@
+# ============================================
+# SUPABASE LOCAL DEVELOPMENT (REQUIRED)
+# ============================================
+# 
+# INSTRUCTIONS:
+# 1. Copy this content to a new file named .env.local
+# 2. Run: supabase status (or open Studio at https://127.0.0.1:55323)
+#    Note: First time accessing HTTPS, accept the self-signed certificate warning
+# 3. Copy the anon_key and service_role_key values
+# 4. Restart your dev server: pnpm dev
+
+# Supabase Project URL (from supabase status) - USE HTTPS (TLS enabled for Notion OAuth)
+NEXT_PUBLIC_SUPABASE_URL=https://127.0.0.1:55321
+
+# Supabase Anon Key (get from Supabase Studio: Settings > API > anon key)
+# Example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_ANON_KEY_HERE
+
+# Supabase Service Role Key (get from Supabase Studio: Settings > API > service_role key)
+# ⚠️ IMPORTANT: Never expose this key to the client! Server-side only!
+SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY_HERE
+
+# ============================================
+# NOTION INTEGRATION (OPTIONAL)
+# ============================================
+NOTION_API_KEY=YOUR_NOTION_API_KEY_HERE
+NOTION_APP_IDEAS_DATABASE_ID=cc491ef5f0a64eac8e05a6ea10dfb735
+
+# ============================================
+# DEVELOPMENT (OPTIONAL)
+# ============================================
+NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=http://localhost:3000/auth/callback
+
+# ============================================
+# DISCORD BOT INTEGRATION (OPTIONAL)
+# ============================================
+DISCORD_APPLICATION_ID=1457590161528459411
+DISCORD_PUBLIC_KEY=2932528ccf27ddec18cdf1521c91ad814586b0f330d10c2f7be723cd84d77a0e
+DISCORD_CLIENT_ID=1457590161528459411
+DISCORD_CLIENT_SECRET=yMR7KNpMQTnCezTqkOn9yo7oabOSeUh9
+DISCORD_BOT_TOKEN=YOUR_DISCORD_BOT_TOKEN_HERE
+
+# ============================================
+# DISCORD WEBHOOK INTEGRATION (OPTIONAL)
+# ============================================
+# Webhook URL for sending messages to Discord channels
+# Get from Discord Server Settings > Integrations > Webhooks
+# Format: https://discord.com/api/webhooks/{WEBHOOK_ID}/{WEBHOOK_TOKEN}
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN
+DISCORD_WEBHOOK_ID=YOUR_WEBHOOK_ID_HERE
+DISCORD_WEBHOOK_CHANNEL_ID=YOUR_CHANNEL_ID_HERE
+DISCORD_WEBHOOK_GUILD_ID=YOUR_GUILD_ID_HERE
+

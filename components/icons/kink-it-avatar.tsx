@@ -1,0 +1,62 @@
+import React from "react"
+import Image from "next/image"
+
+interface KinkItAvatarProps {
+  className?: string
+  size?: number
+  variant?: "logo" | "decorative" | "full"
+  opacity?: number
+}
+
+/**
+ * KINK IT Avatar Logo Component
+ * Uses the official KINK IT avatar SVG for branding
+ * 
+ * Variants:
+ * - logo: Standard logo size for headers (default)
+ * - decorative: Subtle background decoration with low opacity
+ * - full: Full-size avatar display
+ */
+export function KinkItAvatar({ 
+  className, 
+  size = 64, 
+  variant = "logo",
+  opacity = 1 
+}: KinkItAvatarProps) {
+  const baseClasses = "transition-all duration-300"
+  
+  if (variant === "decorative") {
+    return (
+      <div 
+        className={`absolute inset-0 flex items-center justify-center pointer-events-none ${className}`}
+        style={{ opacity: opacity * 0.08 }}
+      >
+        <Image
+          src="/assets/kink-it-avatar.svg"
+          alt="KINK IT Avatar"
+          width={size * 3}
+          height={size * 4.5}
+          className="object-contain"
+          priority={false}
+        />
+      </div>
+    )
+  }
+
+  return (
+    <div 
+      className={`${baseClasses} ${className}`}
+      style={{ opacity }}
+    >
+      <Image
+        src="/assets/kink-it-avatar.svg"
+        alt="KINK IT"
+        width={size}
+        height={Math.round(size * 1.5)}
+        className="object-contain drop-shadow-lg"
+        priority={variant === "logo"}
+      />
+    </div>
+  )
+}
+

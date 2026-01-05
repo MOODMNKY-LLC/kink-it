@@ -49,41 +49,47 @@ export function UserNav({ profile }: UserNavProps) {
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
             <AvatarImage src={profile.avatar_url || "/placeholder.svg"} alt={profile.email} />
-            <AvatarFallback className="bg-purple-600 text-white">{initials}</AvatarFallback>
+            <AvatarFallback className="bg-primary text-primary-foreground">{initials}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 bg-zinc-900 border-zinc-800" align="end" forceMount>
+      <DropdownMenuContent className="w-56 bg-card/95 backdrop-blur-xl border-primary/20" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-2">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium leading-none text-zinc-100">
+              <p className="text-sm font-medium leading-none text-foreground">
                 {profile.full_name || profile.display_name || "User"}
               </p>
               {profile.system_role === "admin" && (
-                <Badge variant="secondary" className="bg-purple-600/20 text-purple-400 border-purple-600/30 text-xs">
+                <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/30 text-xs">
                   <Shield className="h-3 w-3 mr-1" />
                   Admin
                 </Badge>
               )}
             </div>
-            <p className="text-xs leading-none text-zinc-400">{profile.email}</p>
-            <Badge variant="outline" className="border-zinc-700 text-zinc-300 w-fit text-xs">
+            <p className="text-xs leading-none text-muted-foreground">{profile.email}</p>
+            <Badge variant="outline" className="border-primary/30 text-primary w-fit text-xs">
               {dynamicRoleDisplay}
             </Badge>
           </div>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator className="bg-zinc-800" />
-        <DropdownMenuItem className="text-zinc-300 focus:text-zinc-100 focus:bg-zinc-800">
+        <DropdownMenuSeparator className="bg-border" />
+        <DropdownMenuItem 
+          className="text-foreground focus:text-foreground focus:bg-accent/10"
+          onClick={() => router.push("/account/profile")}
+        >
           <User className="mr-2 h-4 w-4" />
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem className="text-zinc-300 focus:text-zinc-100 focus:bg-zinc-800">
+        <DropdownMenuItem 
+          className="text-foreground focus:text-foreground focus:bg-accent/10"
+          onClick={() => router.push("/account/settings")}
+        >
           <Settings className="mr-2 h-4 w-4" />
           Settings
         </DropdownMenuItem>
-        <DropdownMenuSeparator className="bg-zinc-800" />
-        <DropdownMenuItem className="text-red-400 focus:text-red-300 focus:bg-red-950/20" onClick={handleSignOut}>
+        <DropdownMenuSeparator className="bg-border" />
+        <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={handleSignOut}>
           <LogOut className="mr-2 h-4 w-4" />
           Sign Out
         </DropdownMenuItem>

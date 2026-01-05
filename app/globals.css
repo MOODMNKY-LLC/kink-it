@@ -70,117 +70,119 @@
   --animate-marquee-pulse: marquee-pulse 1s linear infinite;
 }
 
-/* Updated color scheme to match the app icon with cyan blues and orange accents */
+/* Color scheme matching app icon: vibrant orange-red hair with sparkling cyan-blue background */
 :root {
   --radius: 0.75rem;
 
-  /* Light theme - Cyan/Blue primary with orange accents */
-  /* Fixed light background to be more visible with subtle blue tint */
-  --background: oklch(0.97 0.01 220);
-  --foreground: oklch(0.2 0.02 250);
+  /* Light theme - Soft blue-white background with vibrant orange-red accents */
+  /* Inspired by the sparkling blue bokeh background from app icon */
+  --background: oklch(0.98 0.008 220);
+  --foreground: oklch(0.15 0.02 250);
   --card: oklch(0.99 0.005 220);
-  --card-foreground: oklch(0.2 0.02 250);
+  --card-foreground: oklch(0.15 0.02 250);
   --popover: oklch(0.99 0.005 220);
-  --popover-foreground: oklch(0.2 0.02 250);
+  --popover-foreground: oklch(0.15 0.02 250);
 
-  /* Bright cyan from icon */
-  --primary: oklch(0.68 0.15 205);
+  /* Vibrant cyan-blue from sparkling background - primary actions */
+  --primary: oklch(0.65 0.18 220);
   --primary-foreground: oklch(0.99 0 0);
 
-  /* Deep navy blue from icon background */
-  --secondary: oklch(0.35 0.06 240);
+  /* Deep navy blue from icon background - secondary elements */
+  --secondary: oklch(0.35 0.08 240);
   --secondary-foreground: oklch(0.99 0 0);
 
-  /* Improved muted colors for better visibility */
-  --muted: oklch(0.93 0.015 220);
+  /* Soft muted colors with blue tint */
+  --muted: oklch(0.95 0.01 220);
   --muted-foreground: oklch(0.45 0.03 240);
 
-  --accent: oklch(0.68 0.15 205);
+  /* Vibrant orange-red accent from hair/beard - accent color */
+  --accent: oklch(0.65 0.18 30);
   --accent-foreground: oklch(0.99 0 0);
 
-  --border: oklch(0.85 0.02 220);
-  --pop: oklch(0.88 0.02 220);
-  --input: oklch(0.88 0.02 220);
-  --ring: oklch(0.68 0.15 205);
+  --border: oklch(0.88 0.015 220);
+  --pop: oklch(0.92 0.02 220);
+  --input: oklch(0.92 0.02 220);
+  --ring: oklch(0.65 0.18 220);
 
-  /* Orange accent from hair/beard */
-  --warning: oklch(0.68 0.19 35);
+  /* Vibrant orange-red warning/accent from hair */
+  --warning: oklch(0.65 0.18 30);
   --success: oklch(0.7 0.18 155);
-  --destructive: oklch(0.62 0.22 25);
+  --destructive: oklch(0.62 0.22 15);
 
-  /* Chart colors matching the theme */
-  --chart-1: oklch(0.68 0.15 205);
-  --chart-2: oklch(0.68 0.19 35);
-  --chart-3: oklch(0.35 0.06 240);
+  /* Chart colors: cyan-blue, orange-red, navy, green, red */
+  --chart-1: oklch(0.65 0.18 220);
+  --chart-2: oklch(0.65 0.18 30);
+  --chart-3: oklch(0.35 0.08 240);
   --chart-4: oklch(0.7 0.18 155);
-  --chart-5: oklch(0.62 0.22 25);
+  --chart-5: oklch(0.62 0.22 15);
 
-  --sidebar: oklch(0.98 0.008 220);
-  --sidebar-foreground: oklch(0.2 0.02 250);
-  --sidebar-primary: oklch(0.68 0.15 205);
+  --sidebar: oklch(0.97 0.01 220);
+  --sidebar-foreground: oklch(0.15 0.02 250);
+  --sidebar-primary: oklch(0.65 0.18 220);
   --sidebar-primary-foreground: oklch(0.99 0 0);
   --sidebar-accent: oklch(0.93 0.015 220);
-  --sidebar-accent-foreground: oklch(0.2 0.02 250);
-  --sidebar-border: oklch(0.85 0.02 220);
-  --sidebar-ring: oklch(0.68 0.15 205);
+  --sidebar-accent-foreground: oklch(0.15 0.02 250);
+  --sidebar-border: oklch(0.88 0.015 220);
+  --sidebar-ring: oklch(0.65 0.18 220);
 
   --gap: 2rem;
   --sides: 1rem;
   --header-mobile: 3.8rem;
 }
 
-/* Dark theme with deep navy background and cyan/orange accents */
+/* Dark theme - Deep navy/black background with vibrant cyan and orange-red accents */
+/* Inspired by avatar's black background with tactical orange-red hair */
 .dark {
-  /* Deep navy background inspired by icon */
-  --background: oklch(0.2 0.04 240);
+  /* Deep black/navy background from avatar */
+  --background: oklch(0.12 0.02 240);
   --foreground: oklch(0.98 0.01 220);
-  --card: oklch(0.23 0.04 240);
+  --card: oklch(0.15 0.03 240);
   --card-foreground: oklch(0.98 0.01 220);
-  --popover: oklch(0.23 0.04 240);
+  --popover: oklch(0.15 0.03 240);
   --popover-foreground: oklch(0.98 0.01 220);
 
-  /* Bright cyan primary */
-  --primary: oklch(0.72 0.17 205);
-  --primary-foreground: oklch(0.15 0.04 240);
+  /* Vibrant cyan-blue primary - sparkling bokeh effect */
+  --primary: oklch(0.70 0.20 220);
+  --primary-foreground: oklch(0.12 0.02 240);
 
-  /* Slightly lighter navy for secondary elements */
-  --secondary: oklch(0.28 0.05 240);
+  /* Deep navy for secondary elements */
+  --secondary: oklch(0.25 0.06 240);
   --secondary-foreground: oklch(0.98 0 0);
 
-  --muted: oklch(0.25 0.04 240);
-  --muted-foreground: oklch(0.65 0.03 220);
+  --muted: oklch(0.20 0.03 240);
+  --muted-foreground: oklch(0.70 0.05 220);
 
-  /* Cyan accent with subtle glow effect */
-  --accent: oklch(0.3 0.05 240);
-  --accent-foreground: oklch(0.72 0.17 205);
+  /* Vibrant orange-red accent from hair - glowing effect */
+  --accent: oklch(0.70 0.20 30);
+  --accent-foreground: oklch(0.12 0.02 240);
 
-  --border: oklch(0.3 0.04 240);
-  --pop: oklch(0.28 0.04 240);
-  --input: oklch(0.28 0.04 240);
-  --ring: oklch(0.72 0.17 205);
+  --border: oklch(0.25 0.04 240);
+  --pop: oklch(0.22 0.04 240);
+  --input: oklch(0.22 0.04 240);
+  --ring: oklch(0.70 0.20 220);
 
-  /* Orange warning/accent color from icon */
-  --warning: oklch(0.68 0.19 35);
+  /* Vibrant orange-red warning from hair */
+  --warning: oklch(0.70 0.20 30);
   --success: oklch(0.7 0.18 155);
-  --destructive: oklch(0.65 0.22 25);
+  --destructive: oklch(0.68 0.22 15);
 
-  /* Chart colors for dark theme */
-  --chart-1: oklch(0.72 0.17 205);
-  --chart-2: oklch(0.68 0.19 35);
-  --chart-3: oklch(0.6 0.14 220);
+  /* Chart colors: vibrant cyan, orange-red, navy, green, red */
+  --chart-1: oklch(0.70 0.20 220);
+  --chart-2: oklch(0.70 0.20 30);
+  --chart-3: oklch(0.50 0.12 220);
   --chart-4: oklch(0.7 0.18 155);
-  --chart-5: oklch(0.65 0.22 25);
+  --chart-5: oklch(0.68 0.22 15);
 
-  /* Sidebar with deep navy background */
-  --sidebar: oklch(0.18 0.04 240);
+  /* Sidebar with deep black/navy background */
+  --sidebar: oklch(0.10 0.02 240);
   --sidebar-foreground: oklch(0.98 0.01 220);
-  --sidebar-primary: oklch(0.72 0.17 205);
-  --sidebar-primary-foreground: oklch(0.15 0.04 240);
-  --sidebar-accent: oklch(0.25 0.04 240);
-  --sidebar-accent-hover: oklch(0.3 0.05 240);
+  --sidebar-primary: oklch(0.70 0.20 220);
+  --sidebar-primary-foreground: oklch(0.12 0.02 240);
+  --sidebar-accent: oklch(0.18 0.03 240);
+  --sidebar-accent-hover: oklch(0.25 0.05 240);
   --sidebar-accent-foreground: oklch(0.98 0.01 220);
-  --sidebar-border: oklch(0.3 0.04 240);
-  --sidebar-ring: oklch(0.72 0.17 205);
+  --sidebar-border: oklch(0.25 0.04 240);
+  --sidebar-ring: oklch(0.70 0.20 220);
 }
 
 @layer base {
@@ -188,8 +190,40 @@
     @apply border-border outline-ring/50 overscroll-none;
   }
   body {
-    /* Changed from bg-muted to bg-background for proper theming */
+    /* Dark mode first - deep black background matching character */
     @apply bg-background text-foreground font-mono;
+  }
+  html {
+    /* Force dark mode as default */
+    color-scheme: dark;
+  }
+}
+
+/* Background utility classes for character-based designs */
+@layer utilities {
+  .bg-character-corner {
+    background-image: url("/images/avatar/kink-it-avatar.svg");
+    background-size: 400px 600px;
+    background-position: bottom right;
+    background-repeat: no-repeat;
+    opacity: 0.08;
+  }
+  
+  .bg-character-hero {
+    background-image: url("/images/avatar/kink-it-avatar.svg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.15;
+  }
+  
+  .bg-character-pattern {
+    background-image: url("/images/avatar/kink-it-avatar.svg");
+    background-size: 200px 300px;
+    background-repeat: repeat;
+    opacity: 0.12;
+    mask-image: radial-gradient(circle, black 0%, transparent 70%);
+    -webkit-mask-image: radial-gradient(circle, black 0%, transparent 70%);
   }
 }
 
@@ -259,6 +293,32 @@
     opacity: 0.6;
     transform: scale(1.02) translateY(-1px);
   }
+}
+
+@keyframes shine {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: -200% 0%;
+  }
+}
+
+.animate-shine {
+  animation: shine var(--duration, 14s) linear infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
 }
 
 /* Hover interactions */

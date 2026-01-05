@@ -13,7 +13,13 @@ import Widget from "@/components/dashboard/widget"
 import Notifications from "@/components/dashboard/notifications"
 import { MobileChat } from "@/components/chat/mobile-chat"
 import Chat from "@/components/chat"
-import { getUserProfile } from "@/lib/auth/get-user"
+import { getCurrentUser } from "@/lib/auth/get-user"
+import { createClient } from "@/lib/supabase/server"
+import type { Profile } from "@/types/profile"
+import { CharacterBackground } from "@/components/backgrounds/character-background"
+import { GradientMesh } from "@/components/backgrounds/gradient-mesh"
+import { BokehEffect } from "@/components/backgrounds/bokeh-effect"
+import { Toaster } from "sonner"
 
 const mockData = mockDataJson as MockData
 
@@ -44,23 +50,48 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const profile = await getUserProfile()
+  // Use getCurrentUser() instead of getUserProfile() to avoid redirect loops
+  // getCurrentUser() doesn't redirect - it just returns null if no user
+  const user = await getCurrentUser()
+  
+  // Only fetch profile if user exists (prevents redirect loop on auth pages)
+  let profile: Profile | null = null
+  if (user) {
+    const supabase = await createClient()
+    const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+    
+    if (error) {
+      // Log error but don't block layout rendering
+      console.error("[Layout] Error fetching profile:", {
+        code: error.code,
+        message: error.message,
+        userId: user.id,
+      })
+    } else {
+      profile = data as Profile | null
+    }
+  }
 
   return (
     <html lang="en">
       <head>
         <link rel="preload" href="/fonts/Rebels-Fett.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
-      <body className={`${rebelGrotesk.variable} ${robotoMono.variable} antialiased`}>
+      <body className={`${rebelGrotesk.variable} ${robotoMono.variable} antialiased`} suppressHydrationWarning>
         <V0Provider isV0={isV0}>
           {profile ? (
-            <div className="dark min-h-screen bg-background">
+            <div className="dark min-h-screen bg-background relative overflow-hidden">
+              {/* Character-based backgrounds - dark mode first */}
+              <CharacterBackground variant="corner" opacity={0.08} />
+              <GradientMesh intensity="subtle" />
+              <BokehEffect count={15} />
+              
               <SidebarProvider>
                 {/* Mobile Header - only visible on mobile */}
                 <MobileHeader mockData={mockData} />
 
                 {/* Desktop Layout */}
-                <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-gap lg:px-sides">
+                <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-gap lg:px-sides relative z-10">
                   <div className="hidden lg:block col-span-2 top-0 relative">
                     <DashboardSidebar profile={profile} />
                   </div>
@@ -82,6 +113,7 @@ export default async function RootLayout({
             <>{children}</>
           )}
         </V0Provider>
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   )

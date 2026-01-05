@@ -1,0 +1,90 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "Your Project Name",
+  "logo": {
+    "dark": "/logo-dark.svg",
+    "light": "/logo-light.svg"
+  },
+  "favicon": "/favicon.ico",
+  "theme": "mint",
+  "colors": {
+    "primary": "#4F46E5",
+    "light": "#EEF2FF",
+    "dark": "#1E1B4B"
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": [
+          "introduction",
+          "quickstart",
+          "installation"
+        ]
+      },
+      {
+        "group": "Core Concepts",
+        "pages": [
+          "architecture",
+          "authentication",
+          "configuration"
+        ]
+      },
+      {
+        "group": "API Reference",
+        "pages": [
+          "api/overview",
+          "api/auth",
+          "api/endpoints"
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          "guides/usage",
+          "guides/integrations",
+          "guides/deployment"
+        ]
+      }
+    ]
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/your-org/your-repo"
+      },
+      {
+        "label": "Website",
+        "href": "https://yourdomain.com"
+      }
+    ]
+  },
+  "footer": {
+    "links": [
+      {
+        "title": "Legal",
+        "items": [
+          {
+            "label": "Privacy Policy",
+            "href": "/privacy"
+          },
+          {
+            "label": "Terms of Service",
+            "href": "/terms"
+          }
+        ]
+      }
+    ],
+    "socials": {}
+  },
+  "search": {
+    "enabled": true
+  },
+  "analytics": {
+    "ga4": {
+      "measurementId": "G-XXXXXXXXXX"
+    }
+  }
+}
+  

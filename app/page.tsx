@@ -33,12 +33,15 @@ export default async function DashboardOverview() {
       }}
     >
       {profile && (
-        <div className="mb-4 p-4 bg-gradient-to-r from-purple-950/30 to-pink-950/30 border border-purple-900/50 rounded-lg">
-          <h2 className="text-lg font-semibold text-zinc-100">
-            Welcome back, {profile.display_name || profile.full_name}
+        <div className="mb-4 p-4 bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 rounded-lg backdrop-blur-sm">
+          <h2 className="text-lg font-semibold text-foreground">
+            Welcome back, {profile.display_name || profile.full_name || profile.email}
           </h2>
-          <p className="text-sm text-zinc-400">
-            Role: <span className="text-purple-400 capitalize">{profile.role}</span>
+          <p className="text-sm text-muted-foreground">
+            Role: <span className="text-primary capitalize">{profile.dynamic_role}</span>
+            {profile.system_role === "admin" && (
+              <span className="ml-2 text-xs text-primary">(Admin)</span>
+            )}
           </p>
         </div>
       )}

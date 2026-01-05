@@ -32,8 +32,46 @@ export async function getUserProfile(): Promise<Profile | null> {
 
   const { data: profile, error } = await supabase.from("profiles").select("*").eq("id", user.id).single()
 
-  if (error || !profile) {
-    console.error("[v0] Error fetching profile:", error)
+  if (error) {
+    // Log detailed error information
+    console.error("[v0] Error fetching profile:", {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      userId: user.id,
+    })
+    
+    // If profile doesn't exist (PGRST116), try to create it
+    if (error.code === "PGRST116") {
+      console.log("[v0] Profile not found, attempting to create profile for user:", user.id)
+      
+      // Try to create profile with default values
+      const { data: newProfile, error: createError } = await supabase
+        .from("profiles")
+        .insert({
+          id: user.id,
+          email: user.email || "",
+          display_name: user.email?.split("@")[0] || "User",
+          dynamic_role: "submissive",
+          system_role: "user",
+        })
+        .select()
+        .single()
+      
+      if (createError) {
+        console.error("[v0] Error creating profile:", createError)
+        return null
+      }
+      
+      return newProfile as Profile
+    }
+    
+    return null
+  }
+
+  if (!profile) {
+    console.warn("[v0] Profile query returned null for user:", user.id)
     return null
   }
 
