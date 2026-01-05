@@ -63,3 +63,8 @@ Desktop.ini
 *.temp
 .cache/
 
+
+.vercel
+
+# Vercel production env file
+.env.production
