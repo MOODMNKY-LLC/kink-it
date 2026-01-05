@@ -10,35 +10,35 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import mockDataJson from "@/mock.json";
 import { Bullet } from "@/components/ui/bullet";
-import type { MockData, TimePeriod } from "@/types/dashboard";
-
-const mockData = mockDataJson as MockData;
+import type { TimePeriod } from "@/types/dashboard";
 
 type ChartDataPoint = {
   date: string;
-  spendings: number;
-  sales: number;
-  coffee: number;
+  completions: number;
+  points: number;
 };
 
+interface DashboardChartProps {
+  chartData: {
+    week: ChartDataPoint[];
+    month: ChartDataPoint[];
+    year: ChartDataPoint[];
+  };
+}
+
 const chartConfig = {
-  spendings: {
-    label: "Spendings",
-    color: "var(--chart-1)",
+  completions: {
+    label: "Completions",
+    color: "hsl(var(--chart-1))",
   },
-  sales: {
-    label: "Sales",
-    color: "var(--chart-2)",
-  },
-  coffee: {
-    label: "Coffee",
-    color: "var(--chart-3)",
+  points: {
+    label: "Points Earned",
+    color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
 
-export default function DashboardChart() {
+export default function DashboardChart({ chartData }: DashboardChartProps) {
   const [activeTab, setActiveTab] = React.useState<TimePeriod>("week");
 
   const handleTabChange = (value: string) => {
@@ -76,39 +76,27 @@ export default function DashboardChart() {
             }}
           >
             <defs>
-              <linearGradient id="fillSpendings" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="fillCompletions" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor="var(--color-spendings)"
+                  stopColor="hsl(var(--chart-1))"
                   stopOpacity={0.8}
                 />
                 <stop
                   offset="95%"
-                  stopColor="var(--color-spendings)"
+                  stopColor="hsl(var(--chart-1))"
                   stopOpacity={0.1}
                 />
               </linearGradient>
-              <linearGradient id="fillSales" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="fillPoints" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor="var(--color-sales)"
+                  stopColor="hsl(var(--chart-2))"
                   stopOpacity={0.8}
                 />
                 <stop
                   offset="95%"
-                  stopColor="var(--color-sales)"
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-              <linearGradient id="fillCoffee" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-coffee)"
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-coffee)"
+                  stopColor="hsl(var(--chart-2))"
                   stopOpacity={0.1}
                 />
               </linearGradient>
@@ -146,31 +134,21 @@ export default function DashboardChart() {
               }
             />
             <Area
-              dataKey="spendings"
+              dataKey="completions"
               type="linear"
-              fill="url(#fillSpendings)"
+              fill="url(#fillCompletions)"
               fillOpacity={0.4}
-              stroke="var(--color-spendings)"
+              stroke="hsl(var(--chart-1))"
               strokeWidth={2}
               dot={false}
               activeDot={{ r: 4 }}
             />
             <Area
-              dataKey="sales"
+              dataKey="points"
               type="linear"
-              fill="url(#fillSales)"
+              fill="url(#fillPoints)"
               fillOpacity={0.4}
-              stroke="var(--color-sales)"
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 4 }}
-            />
-            <Area
-              dataKey="coffee"
-              type="linear"
-              fill="url(#fillCoffee)"
-              fillOpacity={0.4}
-              stroke="var(--color-coffee)"
+              stroke="hsl(var(--chart-2))"
               strokeWidth={2}
               dot={false}
               activeDot={{ r: 4 }}
@@ -200,13 +178,13 @@ export default function DashboardChart() {
         </div>
       </div>
       <TabsContent value="week" className="space-y-4">
-        {renderChart(mockData.chartData.week)}
+        {renderChart(chartData.week)}
       </TabsContent>
       <TabsContent value="month" className="space-y-4">
-        {renderChart(mockData.chartData.month)}
+        {renderChart(chartData.month)}
       </TabsContent>
       <TabsContent value="year" className="space-y-4">
-        {renderChart(mockData.chartData.year)}
+        {renderChart(chartData.year)}
       </TabsContent>
     </Tabs>
   );

@@ -1,0 +1,87 @@
+"use client"
+
+import React from "react"
+import { cn } from "@/lib/utils"
+
+interface OnboardingProgressProps {
+  currentStep: number
+  totalSteps: number
+  completedSteps: number[]
+}
+
+export default function OnboardingProgress({
+  currentStep,
+  totalSteps,
+  completedSteps,
+}: OnboardingProgressProps) {
+  const stepLabels = [
+    "Welcome",
+    "Bond Setup",
+    "Notion Setup",
+    "Verification",
+    "Discord",
+    "Complete",
+  ]
+
+  return (
+    <div className="w-full">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold">Onboarding Progress</h2>
+        <span className="text-sm text-muted-foreground">
+          Step {currentStep} of {totalSteps}
+        </span>
+      </div>
+      <div className="flex items-center gap-2">
+        {Array.from({ length: totalSteps }).map((_, index) => {
+          const stepNumber = index + 1
+          const isCompleted = completedSteps.includes(stepNumber)
+          const isCurrent = currentStep === stepNumber
+          const isPast = stepNumber < currentStep
+
+          return (
+            <React.Fragment key={stepNumber}>
+              <div className="flex flex-col items-center flex-1">
+                <div
+                  className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors",
+                    {
+                      "bg-primary text-primary-foreground": isCurrent,
+                      "bg-primary/20 text-primary": isCompleted || isPast,
+                      "bg-muted text-muted-foreground": !isCurrent && !isCompleted && !isPast,
+                    }
+                  )}
+                >
+                  {isCompleted ? "✓" : stepNumber}
+                </div>
+                <span
+                  className={cn(
+                    "text-xs mt-2 text-center",
+                    {
+                      "text-primary font-medium": isCurrent,
+                      "text-muted-foreground": !isCurrent,
+                    }
+                  )}
+                >
+                  {stepLabels[index]}
+                </span>
+              </div>
+              {index < totalSteps - 1 && (
+                <div
+                  className={cn(
+                    "h-1 flex-1 mx-2 transition-colors",
+                    {
+                      "bg-primary": isPast || isCompleted,
+                      "bg-muted": !isPast && !isCompleted,
+                    }
+                  )}
+                />
+              )}
+            </React.Fragment>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+

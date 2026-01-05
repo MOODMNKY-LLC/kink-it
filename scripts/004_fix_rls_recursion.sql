@@ -67,3 +67,5 @@ create policy "app_ideas_update_policy"
     or public.is_admin(auth.uid())
   );
 
+
+

@@ -7,12 +7,12 @@ import localFont from "next/font/local"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { MobileHeader } from "@/components/dashboard/mobile-header"
 import { DashboardSidebar } from "@/components/dashboard/sidebar"
-import mockDataJson from "@/mock.json"
-import type { MockData } from "@/types/dashboard"
 import Widget from "@/components/dashboard/widget"
 import Notifications from "@/components/dashboard/notifications"
-import { MobileChat } from "@/components/chat/mobile-chat"
-import Chat from "@/components/chat"
+// Mobile Chat disabled until Module 7 (Communication Hub) is built
+// import { MobileChat } from "@/components/chat/mobile-chat"
+// Chat component disabled until Module 7 (Communication Hub) is built
+// import Chat from "@/components/chat"
 import { getCurrentUser } from "@/lib/auth/get-user"
 import { createClient } from "@/lib/supabase/server"
 import type { Profile } from "@/types/profile"
@@ -20,18 +20,22 @@ import { CharacterBackground } from "@/components/backgrounds/character-backgrou
 import { GradientMesh } from "@/components/backgrounds/gradient-mesh"
 import { BokehEffect } from "@/components/backgrounds/bokeh-effect"
 import { Toaster } from "sonner"
-
-const mockData = mockDataJson as MockData
+import { getNotifications } from "@/lib/notifications/get-notifications"
+import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register"
+import { InstallPrompt } from "@/components/pwa/install-prompt"
 
 const robotoMono = Roboto_Mono({
   variable: "--font-roboto-mono",
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
 })
 
 const rebelGrotesk = localFont({
   src: "../public/fonts/Rebels-Fett.woff2",
   variable: "--font-rebels",
   display: "swap",
+  preload: true,
 })
 
 const isV0 = process.env["VERCEL_URL"]?.includes("vusercontent.net") ?? false
@@ -42,7 +46,58 @@ export const metadata: Metadata = {
     default: "KINK IT",
   },
   description: "D/s relationship management application for Dominants and submissives.",
-    generator: 'v0.app'
+  generator: 'v0.app',
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "KINK IT",
+    startupImage: [
+      "/icons/apple-splash-2048-2732.png",
+      "/icons/apple-splash-1668-2388.png",
+      "/icons/apple-splash-1536-2048.png",
+      "/icons/apple-splash-1242-2688.png",
+      "/icons/apple-splash-1125-2436.png",
+      "/icons/apple-splash-828-1792.png",
+      "/icons/apple-splash-750-1334.png",
+      "/icons/apple-splash-640-1136.png",
+    ],
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    icon: "/icons/icon-192x192.png",
+    apple: "/icons/icon-192x192.png",
+  },
+  openGraph: {
+    title: "KINK IT",
+    description: "D/s relationship management application for Dominants and submissives.",
+    type: "website",
+    images: [
+      {
+        url: "/images/kink-it-banner.png",
+        width: 1200,
+        height: 630,
+        alt: "KINK IT",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "KINK IT",
+    description: "D/s relationship management application for Dominants and submissives.",
+    images: ["/images/kink-it-banner.png"],
+  },
+}
+
+export const viewport = {
+  themeColor: "#0ea5e9",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: "cover" as const, // For safe area insets
 }
 
 export default async function RootLayout({
@@ -76,6 +131,10 @@ export default async function RootLayout({
     <html lang="en">
       <head>
         <link rel="preload" href="/fonts/Rebels-Fett.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
+        <meta name="theme-color" content="#0ea5e9" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <link rel="manifest" href="/manifest.json" />
       </head>
       <body className={`${rebelGrotesk.variable} ${robotoMono.variable} antialiased`} suppressHydrationWarning>
         <V0Provider isV0={isV0}>
@@ -88,7 +147,7 @@ export default async function RootLayout({
               
               <SidebarProvider>
                 {/* Mobile Header - only visible on mobile */}
-                <MobileHeader mockData={mockData} />
+                {profile && <MobileHeader />}
 
                 {/* Desktop Layout */}
                 <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-gap lg:px-sides relative z-10">
@@ -98,21 +157,39 @@ export default async function RootLayout({
                   <div className="col-span-1 lg:col-span-7">{children}</div>
                   <div className="col-span-3 hidden lg:block">
                     <div className="space-y-gap py-sides min-h-screen max-h-screen sticky top-0 overflow-clip">
-                      <Widget widgetData={mockData.widgetData} />
-                      <Notifications initialNotifications={mockData.notifications} />
-                      <Chat />
+                      {profile && (
+                        <>
+                          <Widget
+                            userName={
+                              profile.display_name ||
+                              profile.full_name ||
+                              profile.email.split("@")[0]
+                            }
+                            timezone={Intl.DateTimeFormat().resolvedOptions().timeZone}
+                          />
+                          <Notifications
+                            initialNotifications={
+                              await getNotifications(profile.id)
+                            }
+                          />
+                        </>
+                      )}
+                      {/* Chat disabled until Module 7 (Communication Hub) is built */}
+                      {/* <Chat /> */}
                     </div>
                   </div>
                 </div>
 
-                {/* Mobile Chat - floating CTA with drawer */}
-                <MobileChat />
+                {/* Mobile Chat - disabled until Module 7 (Communication Hub) is built */}
+                {/* <MobileChat /> */}
               </SidebarProvider>
             </div>
           ) : (
             <>{children}</>
           )}
         </V0Provider>
+        <ServiceWorkerRegister />
+        <InstallPrompt />
         <Toaster position="top-right" richColors />
       </body>
     </html>

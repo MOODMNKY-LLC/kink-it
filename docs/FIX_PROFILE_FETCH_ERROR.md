@@ -109,3 +109,5 @@ After applying the fix:
 - `scripts/002_create_profiles.sql` - Profile creation trigger
 - `scripts/003_enhance_profile_trigger.sql` - Enhanced trigger for Notion metadata
 
+
+

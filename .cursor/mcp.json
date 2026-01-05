@@ -101,6 +101,20 @@
     },
     "supabase": {
       "url": "https://mcp.supabase.com/mcp?project_ref=rbloeqwxivfzxmfropek"
+    },
+    "mcp-discord": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "DISCORD_TOKEN",
+        "mcp/mcp-discord"
+      ],
+      "env": {
+        "DISCORD_TOKEN": "YOUR_DISCORD_BOT_TOKEN_HERE"
+      }
     }
   },
   "registries": {

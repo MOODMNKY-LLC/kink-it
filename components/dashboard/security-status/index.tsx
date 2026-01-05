@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import DashboardCard from "@/components/dashboard/card";
 import type { SecurityStatus as SecurityStatusType } from "@/types/dashboard";
-import Image from "next/image";
+// Using regular img tag for animated GIFs to avoid hydration issues
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { Bullet } from "@/components/ui/bullet";
@@ -73,13 +73,14 @@ export default function SecurityStatus({ statuses }: SecurityStatusProps) {
           ))}
         </div>
         <picture className="md:absolute md:top-0 md:right-0 w-full md:w-auto md:h-full aspect-square min-[2160px]:right-[10%]">
-          <Image
+          {/* Using regular img tag for animated GIF to avoid Next.js Image hydration issues */}
+          <img
             src="/assets/bot_greenprint.gif"
             alt="Security Status"
             width={1000}
             height={1000}
-            quality={90}
             className="size-full object-contain"
+            loading="lazy"
           />
         </picture>
       </div>

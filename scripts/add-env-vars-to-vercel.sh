@@ -16,3 +16,5 @@ echo "Paste the DISCORD_BOT_TOKEN value from your .env.local file"
 echo ""
 echo "✅ Done! Environment variables added to Vercel production."
 
+
+

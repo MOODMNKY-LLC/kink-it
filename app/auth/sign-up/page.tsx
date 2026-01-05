@@ -147,9 +147,10 @@ export default function SignUpPage() {
                   className={`overflow-hidden transition-all duration-300 ease-in-out ${
                     showEmailPassword ? "max-h-[800px] opacity-100 mt-4" : "max-h-0 opacity-0"
                   }`}
+                  suppressHydrationWarning
                 >
-                  <form onSubmit={handleSignUp} className="space-y-3">
-                    <div className="grid gap-1.5">
+                  <form onSubmit={handleSignUp} className="space-y-3" suppressHydrationWarning>
+                    <div className="grid gap-1.5" suppressHydrationWarning>
                       <Label htmlFor="fullName" className="text-xs text-foreground">
                         Full Name
                       </Label>

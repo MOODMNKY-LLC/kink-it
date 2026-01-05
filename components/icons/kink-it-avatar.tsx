@@ -38,6 +38,7 @@ export function KinkItAvatar({
           height={size * 4.5}
           className="object-contain"
           priority={false}
+          loading="lazy"
         />
       </div>
     )
@@ -55,6 +56,7 @@ export function KinkItAvatar({
         height={Math.round(size * 1.5)}
         className="object-contain drop-shadow-lg"
         priority={variant === "logo"}
+        loading={variant === "logo" ? undefined : "lazy"}
       />
     </div>
   )

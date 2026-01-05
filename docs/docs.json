@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "Your Project Name",
+  "name": "KINK IT Documentation",
   "logo": {
     "dark": "/logo-dark.svg",
     "light": "/logo-light.svg"
@@ -8,9 +8,9 @@
   "favicon": "/favicon.ico",
   "theme": "mint",
   "colors": {
-    "primary": "#4F46E5",
+    "primary": "#0ea5e9",
     "light": "#EEF2FF",
-    "dark": "#1E1B4B"
+    "dark": "#000000"
   },
   "navigation": {
     "groups": [
@@ -19,7 +19,18 @@
         "pages": [
           "introduction",
           "quickstart",
-          "installation"
+          "installation",
+          "user-guides/onboarding-guide",
+          "terminology-glossary"
+        ]
+      },
+      {
+        "group": "User Guides",
+        "pages": [
+          "user-guides/bonds-system-guide",
+          "user-guides/kink-identity-guide",
+          "user-guides/safety-and-consent",
+          "user-guides/onboarding-guide"
         ]
       },
       {
@@ -27,7 +38,10 @@
         "pages": [
           "architecture",
           "authentication",
-          "configuration"
+          "configuration",
+          "bonds-overview",
+          "kink-identity-overview",
+          "terminology-glossary"
         ]
       },
       {
@@ -35,7 +49,17 @@
         "pages": [
           "api/overview",
           "api/auth",
+          "api/bonds-api",
           "api/endpoints"
+        ]
+      },
+      {
+        "group": "Developer Guides",
+        "pages": [
+          "developer/bonds-implementation",
+          "developer/kink-identity-implementation",
+          "developer/database-schema",
+          "developer/rls-policies"
         ]
       },
       {
@@ -43,7 +67,18 @@
         "pages": [
           "guides/usage",
           "guides/integrations",
-          "guides/deployment"
+          "guides/deployment",
+          "guides/notion-integration",
+          "guides/discord-integration"
+        ]
+      },
+      {
+        "group": "Safety & Privacy",
+        "pages": [
+          "user-guides/safety-and-consent",
+          "safety/privacy-policy",
+          "safety/consent-frameworks",
+          "safety/best-practices"
         ]
       }
     ]

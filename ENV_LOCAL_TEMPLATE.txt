@@ -21,10 +21,19 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_ANON_KEY_HERE
 SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY_HERE
 
 # ============================================
-# NOTION INTEGRATION (OPTIONAL)
+# NOTION INTEGRATION (REQUIRED FOR ONBOARDING)
 # ============================================
+# Notion API Key for template verification and database discovery
 NOTION_API_KEY=YOUR_NOTION_API_KEY_HERE
+
+# Notion App Ideas Database ID (for app ideas feature)
 NOTION_APP_IDEAS_DATABASE_ID=cc491ef5f0a64eac8e05a6ea10dfb735
+
+# Notion Template URL for user onboarding
+# This is the public template that users will duplicate during onboarding
+# Template Page ID: 2dfcd2a6-5422-81bc-ba14-ffa2099160d8
+# Public Template URL: https://www.notion.so/mood-mnky/KINK-IT-User-Template-2dfcd2a6542281bcba14ffa2099160d8
+NEXT_PUBLIC_NOTION_TEMPLATE_URL=https://www.notion.so/mood-mnky/KINK-IT-User-Template-2dfcd2a6542281bcba14ffa2099160d8
 
 # ============================================
 # DEVELOPMENT (OPTIONAL)
@@ -34,20 +43,57 @@ NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=http://localhost:3000/auth/callback
 # ============================================
 # DISCORD BOT INTEGRATION (OPTIONAL)
 # ============================================
-DISCORD_APPLICATION_ID=1457590161528459411
-DISCORD_PUBLIC_KEY=2932528ccf27ddec18cdf1521c91ad814586b0f330d10c2f7be723cd84d77a0e
-DISCORD_CLIENT_ID=1457590161528459411
-DISCORD_CLIENT_SECRET=yMR7KNpMQTnCezTqkOn9yo7oabOSeUh9
+# Get these values from Discord Developer Portal:
+# 1. Application ID: Developer Portal > General Information > Application ID
+# 2. Public Key: Developer Portal > General Information > Public Key
+# 3. Client ID: Same as Application ID
+# 4. Client Secret: Developer Portal > OAuth2 > Client Secret (click "Reset" to generate)
+# 5. Bot Token: Developer Portal > Bot > Token (click "Reset Token" to generate)
+#
+# ⚠️ IMPORTANT: Never expose these values publicly or commit to version control!
+# See docs/DISCORD_BOT_SETUP_GUIDE.md for complete setup instructions
+
+DISCORD_APPLICATION_ID=YOUR_APPLICATION_ID_HERE
+DISCORD_PUBLIC_KEY=YOUR_PUBLIC_KEY_HERE
+DISCORD_CLIENT_ID=YOUR_CLIENT_ID_HERE
+DISCORD_CLIENT_SECRET=YOUR_CLIENT_SECRET_HERE
 DISCORD_BOT_TOKEN=YOUR_DISCORD_BOT_TOKEN_HERE
+
+# ============================================
+# DISCORD OAUTH FOR USER AUTHENTICATION (OPTIONAL - DISABLED BY DEFAULT)
+# ============================================
+# These are used ONLY if you enable Discord OAuth user authentication in supabase/config.toml
+# Currently disabled - KINK IT uses Notion OAuth for user authentication
+# Discord is only used for bot notifications (different from user OAuth)
+#
+# If enabling Discord OAuth, use the same Client ID and Secret as above:
+# SUPABASE_AUTH_EXTERNAL_DISCORD_CLIENT_ID=YOUR_CLIENT_ID_HERE
+# SUPABASE_AUTH_EXTERNAL_DISCORD_SECRET=YOUR_CLIENT_SECRET_HERE
 
 # ============================================
 # DISCORD WEBHOOK INTEGRATION (OPTIONAL)
 # ============================================
 # Webhook URL for sending messages to Discord channels
-# Get from Discord Server Settings > Integrations > Webhooks
+# Get from Discord Server Settings > Integrations > Webhooks > New Webhook
 # Format: https://discord.com/api/webhooks/{WEBHOOK_ID}/{WEBHOOK_TOKEN}
-DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN
-DISCORD_WEBHOOK_ID=YOUR_WEBHOOK_ID_HERE
-DISCORD_WEBHOOK_CHANNEL_ID=YOUR_CHANNEL_ID_HERE
-DISCORD_WEBHOOK_GUILD_ID=YOUR_GUILD_ID_HERE
+#
+# Current webhook for #announcements channel:
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/1457594153109164134/s6eRp1w03Gw-clh0QF_-uL70LAS7hdE8jgpz16-18kBmmCbEJ08PMBX4RXB4TqOlPknj
+DISCORD_WEBHOOK_ID=1457594153109164134
+DISCORD_WEBHOOK_CHANNEL_ID=1457594125590462548
+DISCORD_WEBHOOK_GUILD_ID=1069695816001933332
+
+# ============================================
+# PWA PUSH NOTIFICATIONS (OPTIONAL)
+# ============================================
+# VAPID keys for Web Push notifications
+# Generate using: pnpm run generate:vapid-keys
+# Or: node scripts/generate-vapid-keys.js
+# Or: web-push generate-vapid-keys
+#
+# ⚠️ IMPORTANT: Never expose VAPID_PRIVATE_KEY to the client!
+# Only NEXT_PUBLIC_VAPID_PUBLIC_KEY should be public
+
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=YOUR_VAPID_PUBLIC_KEY_HERE
+VAPID_PRIVATE_KEY=YOUR_VAPID_PRIVATE_KEY_HERE
 

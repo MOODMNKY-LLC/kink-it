@@ -62,3 +62,5 @@ The error `"Could not find the table 'public.profiles' in the schema cache"` has
 
 The app should now work correctly when you log in!
 
+
+

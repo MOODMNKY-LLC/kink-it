@@ -165,3 +165,5 @@ NEXT_PUBLIC_SUPABASE_URL=https://127.0.0.1:55321
 **Status**: ✅ Fixed - Node.js now accepts self-signed certificates  
 **Next**: Restart your dev server and test OAuth flow
 
+
+

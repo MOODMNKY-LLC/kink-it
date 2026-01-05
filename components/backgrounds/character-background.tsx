@@ -48,6 +48,7 @@ export function CharacterBackground({
             className="object-contain object-right-bottom opacity-[var(--opacity,0.08)]"
             style={{ opacity }}
             aria-hidden="true"
+            loading="lazy"
           />
         </div>
       )
@@ -78,6 +79,7 @@ export function CharacterBackground({
               className="object-contain object-bottom-right"
               style={{ opacity }}
               aria-hidden="true"
+              loading="lazy"
             />
           </div>
         </div>
@@ -95,6 +97,7 @@ export function CharacterBackground({
               className="object-contain object-right-bottom"
               style={{ opacity }}
               aria-hidden="true"
+              loading="lazy"
             />
           </div>
           <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
@@ -105,6 +108,8 @@ export function CharacterBackground({
       return null
   }
 }
+
+
 
 
 

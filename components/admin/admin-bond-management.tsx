@@ -1,0 +1,483 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { MagicCard } from "@/components/ui/magic-card"
+import { NumberTicker } from "@/components/ui/number-ticker"
+import { 
+  Search, 
+  Filter, 
+  Users, 
+  Shield, 
+  TrendingUp, 
+  Activity,
+  Edit,
+  Trash2,
+  Eye,
+  MoreVertical
+} from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
+import { toast } from "sonner"
+import { formatDistanceToNow } from "date-fns"
+
+interface Bond {
+  id: string
+  name: string
+  description: string | null
+  bond_type: string
+  bond_status: string
+  created_by: string
+  created_at: string
+  updated_at: string
+  last_activity_at: string | null
+  invite_code: string | null
+  member_count?: number
+  creator_name?: string
+}
+
+interface BondStats {
+  total: number
+  active: number
+  forming: number
+  paused: number
+  dissolved: number
+  total_members: number
+  avg_members_per_bond: number
+}
+
+export function AdminBondManagement() {
+  const [bonds, setBonds] = useState<Bond[]>([])
+  const [stats, setStats] = useState<BondStats | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [statusFilter, setStatusFilter] = useState<string>("all")
+  const [typeFilter, setTypeFilter] = useState<string>("all")
+  const [selectedBond, setSelectedBond] = useState<Bond | null>(null)
+
+  useEffect(() => {
+    fetchBonds()
+    fetchStats()
+  }, [])
+
+  const fetchBonds = async () => {
+    const supabase = createClient()
+    const { data, error } = await supabase
+      .from("bonds")
+      .select(`
+        *,
+        creator:profiles!bonds_created_by_fkey(display_name, full_name, email)
+      `)
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("Error fetching bonds:", error)
+      toast.error("Failed to load bonds")
+      return
+    }
+
+    // Get member counts for each bond
+    const bondsWithCounts = await Promise.all(
+      (data || []).map(async (bond: any) => {
+        const { count } = await supabase
+          .from("bond_members")
+          .select("*", { count: "exact", head: true })
+          .eq("bond_id", bond.id)
+          .eq("is_active", true)
+
+        return {
+          ...bond,
+          member_count: count || 0,
+          creator_name: bond.creator?.display_name || bond.creator?.full_name || bond.creator?.email || "Unknown",
+        }
+      })
+    )
+
+    setBonds(bondsWithCounts)
+    setLoading(false)
+  }
+
+  const fetchStats = async () => {
+    const supabase = createClient()
+    
+    // Get bond counts by status
+    const { count: total } = await supabase
+      .from("bonds")
+      .select("*", { count: "exact", head: true })
+
+    const { count: active } = await supabase
+      .from("bonds")
+      .select("*", { count: "exact", head: true })
+      .eq("bond_status", "active")
+
+    const { count: forming } = await supabase
+      .from("bonds")
+      .select("*", { count: "exact", head: true })
+      .eq("bond_status", "forming")
+
+    const { count: paused } = await supabase
+      .from("bonds")
+      .select("*", { count: "exact", head: true })
+      .eq("bond_status", "paused")
+
+    const { count: dissolved } = await supabase
+      .from("bonds")
+      .select("*", { count: "exact", head: true })
+      .eq("bond_status", "dissolved")
+
+    // Get total members
+    const { count: totalMembers } = await supabase
+      .from("bond_members")
+      .select("*", { count: "exact", head: true })
+      .eq("is_active", true)
+
+    setStats({
+      total: total || 0,
+      active: active || 0,
+      forming: forming || 0,
+      paused: paused || 0,
+      dissolved: dissolved || 0,
+      total_members: totalMembers || 0,
+      avg_members_per_bond: total && total > 0 ? Math.round((totalMembers || 0) / total) : 0,
+    })
+  }
+
+  const filteredBonds = bonds.filter((bond) => {
+    const matchesSearch =
+      bond.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      bond.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      bond.invite_code?.toLowerCase().includes(searchQuery.toLowerCase())
+    
+    const matchesStatus = statusFilter === "all" || bond.bond_status === statusFilter
+    const matchesType = typeFilter === "all" || bond.bond_type === typeFilter
+
+    return matchesSearch && matchesStatus && matchesType
+  })
+
+  const handleDeleteBond = async (bondId: string) => {
+    if (!confirm("Are you sure you want to delete this bond? This action cannot be undone.")) {
+      return
+    }
+
+    const supabase = createClient()
+    const { error } = await supabase
+      .from("bonds")
+      .delete()
+      .eq("id", bondId)
+
+    if (error) {
+      toast.error("Failed to delete bond")
+      return
+    }
+
+    toast.success("Bond deleted successfully")
+    fetchBonds()
+    fetchStats()
+  }
+
+  const handleUpdateStatus = async (bondId: string, newStatus: string) => {
+    const supabase = createClient()
+    const { error } = await supabase
+      .from("bonds")
+      .update({ bond_status: newStatus })
+      .eq("id", bondId)
+
+    if (error) {
+      toast.error("Failed to update bond status")
+      return
+    }
+
+    toast.success("Bond status updated")
+    fetchBonds()
+    fetchStats()
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "active":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+      case "forming":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+      case "paused":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+      case "dissolved":
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
+    }
+  }
+
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case "dyad":
+        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+      case "polycule":
+        return "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200"
+      case "household":
+        return "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200"
+      case "dynamic":
+        return "bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200"
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Statistics Cards */}
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <MagicCard gradientFrom="#9E7AFF" gradientTo="#FE8BBB">
+            <Card className="border-0 shadow-none bg-transparent">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  Total Bonds
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  <NumberTicker value={stats.total} />
+                </div>
+              </CardContent>
+            </Card>
+          </MagicCard>
+
+          <MagicCard gradientFrom="#4FACFE" gradientTo="#00F2FE">
+            <Card className="border-0 shadow-none bg-transparent">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Shield className="h-4 w-4" />
+                  Active Bonds
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  <NumberTicker value={stats.active} />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {stats.total > 0 ? Math.round((stats.active / stats.total) * 100) : 0}% of total
+                </p>
+              </CardContent>
+            </Card>
+          </MagicCard>
+
+          <MagicCard gradientFrom="#FE8BBB" gradientTo="#FF6B9D">
+            <Card className="border-0 shadow-none bg-transparent">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  Total Members
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  <NumberTicker value={stats.total_members} />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Avg: {stats.avg_members_per_bond} per bond
+                </p>
+              </CardContent>
+            </Card>
+          </MagicCard>
+
+          <MagicCard gradientFrom="#00F2FE" gradientTo="#4FACFE">
+            <Card className="border-0 shadow-none bg-transparent">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4" />
+                  Forming
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  <NumberTicker value={stats.forming} />
+                </div>
+              </CardContent>
+            </Card>
+          </MagicCard>
+        </div>
+      )}
+
+      {/* Filters and Search */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Bond Management</CardTitle>
+          <CardDescription>View and manage all bonds in the system</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row gap-4 mb-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search bonds..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full md:w-[180px]">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="forming">Forming</SelectItem>
+                <SelectItem value="paused">Paused</SelectItem>
+                <SelectItem value="dissolved">Dissolved</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-full md:w-[180px]">
+                <SelectValue placeholder="Filter by type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="dyad">Dyad</SelectItem>
+                <SelectItem value="polycule">Polycule</SelectItem>
+                <SelectItem value="household">Household</SelectItem>
+                <SelectItem value="dynamic">Dynamic</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Bonds Table */}
+          {loading ? (
+            <div className="text-center py-8 text-muted-foreground">Loading bonds...</div>
+          ) : filteredBonds.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">No bonds found</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Members</TableHead>
+                    <TableHead>Creator</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead>Last Activity</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredBonds.map((bond) => (
+                    <TableRow key={bond.id}>
+                      <TableCell className="font-medium">{bond.name}</TableCell>
+                      <TableCell>
+                        <Badge className={getTypeColor(bond.bond_type)}>
+                          {bond.bond_type}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getStatusColor(bond.bond_status)}>
+                          {bond.bond_status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{bond.member_count || 0}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {bond.creator_name}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {new Date(bond.created_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {bond.last_activity_at
+                          ? formatDistanceToNow(new Date(bond.last_activity_at), {
+                              addSuffix: true,
+                            })
+                          : "Never"}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSelectedBond(bond)}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                              <DialogHeader>
+                                <DialogTitle>Bond Details</DialogTitle>
+                                <DialogDescription>
+                                  View and manage bond information
+                                </DialogDescription>
+                              </DialogHeader>
+                              {selectedBond && (
+                                <div className="space-y-4">
+                                  <div>
+                                    <label className="text-sm font-medium">Status</label>
+                                    <Select
+                                      value={selectedBond.bond_status}
+                                      onValueChange={(value) =>
+                                        handleUpdateStatus(selectedBond.id, value)
+                                      }
+                                    >
+                                      <SelectTrigger>
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="active">Active</SelectItem>
+                                        <SelectItem value="forming">Forming</SelectItem>
+                                        <SelectItem value="paused">Paused</SelectItem>
+                                        <SelectItem value="dissolved">Dissolved</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <Button
+                                    variant="destructive"
+                                    onClick={() => handleDeleteBond(selectedBond.id)}
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Delete Bond
+                                  </Button>
+                                </div>
+                              )}
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+

@@ -14,14 +14,14 @@ export default function NotFound() {
     >
       <div className="flex flex-col items-center justify-center gap-10 flex-1">
         <picture className="w-1/4 aspect-square grayscale opacity-50">
-          <Image
+          {/* Using regular img tag for animated GIF to avoid Next.js Image hydration issues */}
+          <img
             src="/assets/bot_greenprint.gif"
             alt="Security Status"
             width={1000}
             height={1000}
-            quality={90}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="size-full object-contain"
+            loading="lazy"
           />
         </picture>
 

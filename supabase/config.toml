@@ -334,6 +334,24 @@ skip_nonce_check = false
 # If enabled, it will allow the user to successfully authenticate when the provider does not return an email address
 email_optional = false
 
+# Discord OAuth provider - DISABLED (KINK IT uses Discord Bot for notifications, not user authentication)
+# If you want to enable Discord user authentication, set enabled = true and configure credentials below
+# Note: Discord OAuth requires different scopes (identify, email) than bot installation (bot scope)
+[auth.external.discord]
+enabled = false
+client_id = "env(SUPABASE_AUTH_EXTERNAL_DISCORD_CLIENT_ID)"
+# DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead:
+secret = "env(SUPABASE_AUTH_EXTERNAL_DISCORD_SECRET)"
+# Overrides the default auth redirectUrl (uses default: https://127.0.0.1:55321/auth/v1/callback with TLS enabled)
+# Leave empty to use default HTTPS callback URL
+redirect_uri = ""
+# Overrides the default auth provider URL (leave empty for standard Discord OAuth)
+url = ""
+# If enabled, the nonce check will be skipped
+skip_nonce_check = false
+# If enabled, it will allow the user to authenticate when the provider does not return an email address
+email_optional = false
+
 # Allow Solana wallet holders to sign in to your project via the Sign in with Solana (SIWS, EIP-4361) standard.
 # You can configure "web3" rate limit in the [auth.rate_limit] section and set up [auth.captcha] if self-hosting.
 [auth.web3.solana]

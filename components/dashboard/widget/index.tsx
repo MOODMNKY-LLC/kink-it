@@ -4,14 +4,15 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import TVNoise from "@/components/ui/tv-noise";
-import type { WidgetData } from "@/types/dashboard";
-import Image from "next/image";
+// Using regular img tag for animated GIFs to avoid hydration issues
 
 interface WidgetProps {
-  widgetData: WidgetData;
+  userName: string;
+  timezone?: string;
+  location?: string;
 }
 
-export default function Widget({ widgetData }: WidgetProps) {
+export default function Widget({ userName, timezone, location }: WidgetProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -42,7 +43,15 @@ export default function Widget({ widgetData }: WidgetProps) {
     return { dayOfWeek, restOfDate };
   };
 
+  const getGreeting = (date: Date, name: string): string => {
+    const hour = date.getHours();
+    if (hour < 12) return `Good morning, ${name}`;
+    if (hour < 17) return `Good afternoon, ${name}`;
+    return `Good evening, ${name}`;
+  };
+
   const dateInfo = formatDate(currentTime);
+  const greeting = getGreeting(currentTime, userName);
 
   return (
     <Card className="w-full aspect-[2] relative overflow-hidden">
@@ -56,24 +65,31 @@ export default function Widget({ widgetData }: WidgetProps) {
           <div className="text-5xl font-display" suppressHydrationWarning>
             {formatTime(currentTime)}
           </div>
+          <div className="text-sm text-muted-foreground mt-2">
+            {greeting}
+          </div>
         </div>
 
-        <div className="flex justify-between items-center">
-          <span className="opacity-50">{widgetData.temperature}</span>
-          <span>{widgetData.location}</span>
-
-          <Badge variant="secondary" className="bg-accent">
-            {widgetData.timezone}
-          </Badge>
-        </div>
+        {(location || timezone) && (
+          <div className="flex justify-between items-center">
+            {location && <span>{location}</span>}
+            {timezone && (
+              <Badge variant="secondary" className="bg-accent">
+                {timezone}
+              </Badge>
+            )}
+          </div>
+        )}
 
         <div className="absolute inset-0 -z-[1]">
-          <Image
+          {/* Using regular img tag for animated GIF to avoid Next.js Image hydration issues */}
+          <img
             src="/assets/pc_blueprint.gif"
             alt="logo"
             width={250}
             height={250}
             className="size-full object-contain"
+            loading="lazy"
           />
         </div>
       </CardContent>

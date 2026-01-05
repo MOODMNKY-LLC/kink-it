@@ -143,3 +143,5 @@ The theme overhaul maintains the tactical/military aesthetic seen in the auth pa
 - Animated borders and hover effects
 - Consistent use of theme variables throughout
 
+
+

@@ -46,6 +46,31 @@ export async function getUserProfile(): Promise<Profile | null> {
     if (error.code === "PGRST116") {
       console.log("[v0] Profile not found, attempting to create profile for user:", user.id)
       
+      // Check if any admin already exists (prevents seeded users from blocking admin assignment)
+      const { count: adminCount, error: adminCountError } = await supabase
+        .from("profiles")
+        .select("id", { count: "exact", head: true })
+        .eq("system_role", "admin")
+
+      if (adminCountError) {
+        console.error("[v0] Error counting existing admins:", adminCountError)
+        return null
+      }
+
+      // Check if user is authenticating via OAuth (has provider metadata)
+      // This distinguishes real authenticated users from seeded/test users
+      const hasOAuthMetadata = !!(
+        user.app_metadata?.provider ||
+        user.user_metadata?.provider ||
+        user.user_metadata?.avatar_url ||
+        user.user_metadata?.full_name ||
+        user.user_metadata?.name
+      )
+
+      // Only assign admin if no admin exists AND user is authenticating via OAuth
+      // This ensures seeded users don't get admin, but first real authenticated user does
+      const isFirstAuthenticatedUser = (adminCount === 0 && hasOAuthMetadata)
+
       // Try to create profile with default values
       const { data: newProfile, error: createError } = await supabase
         .from("profiles")
@@ -53,8 +78,8 @@ export async function getUserProfile(): Promise<Profile | null> {
           id: user.id,
           email: user.email || "",
           display_name: user.email?.split("@")[0] || "User",
-          dynamic_role: "submissive",
-          system_role: "user",
+          dynamic_role: isFirstAuthenticatedUser ? "dominant" : "submissive",
+          system_role: isFirstAuthenticatedUser ? "admin" : "user",
         })
         .select()
         .single()
