@@ -6,7 +6,10 @@
     "build": "next build",
     "dev": "node server.js",
     "dev:http": "next dev",
+    "dev:http:turbo": "next dev --turbopack",
     "dev:https": "node server.js",
+    "dev:turbo": "next dev --turbopack",
+    "dev:https:turbo": "TURBOPACK=1 node server.js",
     "lint": "eslint .",
     "start": "next start"
   },
