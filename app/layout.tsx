@@ -54,7 +54,7 @@ export default async function RootLayout({
       <body className={`${rebelGrotesk.variable} ${robotoMono.variable} antialiased`}>
         <V0Provider isV0={isV0}>
           {profile ? (
-            <div className="dark">
+            <div className="dark min-h-screen bg-background">
               <SidebarProvider>
                 {/* Mobile Header - only visible on mobile */}
                 <MobileHeader mockData={mockData} />
@@ -79,7 +79,7 @@ export default async function RootLayout({
               </SidebarProvider>
             </div>
           ) : (
-            children
+            <>{children}</>
           )}
         </V0Provider>
       </body>
