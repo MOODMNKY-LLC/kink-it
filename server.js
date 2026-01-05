@@ -36,13 +36,13 @@ if (!fs.existsSync(certPath) || !fs.existsSync(keyPath)) {
 console.log('🔐 Certificates found, initializing Next.js...')
 console.log(`📦 Mode: ${dev ? 'development' : 'production'}`)
 console.log(`🌐 Hostname: ${hostname}, Port: ${port}`)
-if (turboEnabled) {
-  console.log('⚡ Turbopack enabled (faster builds)')
-}
 
 // Enable Turbopack if TURBOPACK env var is set
 // Note: Turbopack support in custom servers may vary by Next.js version
 const turboEnabled = process.env.TURBOPACK === '1' || process.env.TURBOPACK === 'true'
+if (turboEnabled) {
+  console.log('⚡ Turbopack enabled (faster builds)')
+}
 const nextOptions = { 
   dev, 
   hostname, 
