@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "node -e \"process.env.TURBOPACK=''; require('child_process').execSync('next build', {stdio: 'inherit'})\"",
     "dev": "node server.js",
     "dev:http": "next dev",
     "dev:http:turbo": "next dev --turbopack",
@@ -91,6 +91,7 @@
     "@types/node": "^22.0.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cross-env": "^10.1.0",
     "postcss": "^8.5",
     "tailwindcss": "^4.1.9",
     "tw-animate-css": "1.3.3",
