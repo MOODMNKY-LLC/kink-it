@@ -1,0 +1,646 @@
+---
+description: Guidelines for using v0 MCP to generate UI components for KINK IT app
+globs: ["**/*.tsx", "**/*.ts", "**/components/**", "**/app/**"]
+alwaysApply: false
+---
+
+# Using v0 MCP for Component Generation in KINK IT
+
+## 🎯 Purpose
+
+This rule guides the AI assistant on when and how to use v0 MCP (Model Context Protocol) to generate React/Next.js components for the KINK IT application. v0 MCP provides AI-powered component generation that accelerates UI development while maintaining code quality and design consistency.
+
+---
+
+## 🚨 CRITICAL: When to Use v0 MCP
+
+### ✅ USE v0 MCP For:
+
+1. **UI Component Generation**
+   - Dashboard widgets and cards
+   - Form components
+   - Layout components
+   - Display components (lists, grids, cards)
+   - Navigation components
+
+2. **Design Exploration**
+   - Multiple design variations
+   - Rapid prototyping
+   - A/B testing different layouts
+   - Responsive design exploration
+
+3. **Component Variations**
+   - Different styles of the same component
+   - Mobile vs desktop versions
+   - Light/dark theme variations
+
+4. **Accessibility-First Components**
+   - Components with proper ARIA labels
+   - Keyboard navigation support
+   - Screen reader compatibility
+
+### ❌ NEVER Use v0 MCP For:
+
+1. **Security-Critical Code**
+   - Authentication logic
+   - Authorization checks
+   - RLS policy implementation
+   - API route security
+
+2. **Complex Business Logic**
+   - Data transformation logic
+   - Complex state management
+   - Algorithm implementation
+   - Database query optimization
+
+3. **Infrastructure Code**
+   - Database migrations
+   - Edge functions
+   - Middleware logic
+   - Environment configuration
+
+4. **Integration Code**
+   - Supabase client setup
+   - API route handlers
+   - Server actions with RLS
+   - Real-time subscription logic
+
+---
+
+## 📋 v0 MCP Workflow
+
+### Step 1: Assess Component Requirements
+
+Before using v0 MCP, determine:
+- [ ] Is this a UI component? (Yes → proceed)
+- [ ] Does it require security logic? (Yes → don't use v0)
+- [ ] Does it need Supabase integration? (Yes → generate UI only, integrate manually)
+- [ ] Is it a simple display/form component? (Yes → perfect for v0)
+
+### Step 2: Create v0 Chat with Detailed Prompt
+
+**Template Structure**:
+```typescript
+{
+  "tool": "mcp_v0_createChat",
+  "parameters": {
+    "message": `[Component description]
+
+Requirements:
+- [Specific features]
+- [Design constraints]
+- [Accessibility needs]
+
+Design System:
+- Dark theme with orange-red accents (oklch(0.70 0.20 30))
+- Use shadcn/ui components: [list components]
+- Magic UI effects: [BorderBeam, ShineBorder, etc.]
+- Responsive design (mobile + desktop)
+
+Reference Existing Patterns:
+- components/dashboard/card/index.tsx (for structure)
+- components/account/profile-form.tsx (for form patterns)
+- app/globals.css (for theme variables)
+
+Technical:
+- TypeScript with strict types
+- React Server Components where possible
+- Client components for interactivity
+- Match existing component patterns`,
+    "modelConfiguration": {
+      "modelId": "v0-1.5-md" // or v0-1.5-lg for complex components
+    }
+  }
+}
+```
+
+### Step 3: Review Generated Code
+
+**Review Checklist**:
+- [ ] Matches KINK IT design system
+- [ ] Uses correct theme variables
+- [ ] TypeScript types are proper
+- [ ] Accessibility features included
+- [ ] Responsive design implemented
+- [ ] No hardcoded values (use theme vars)
+- [ ] Follows existing component patterns
+
+### Step 4: Adapt to KINK IT Patterns
+
+**Required Adaptations**:
+
+1. **Add Supabase Integration** (if needed):
+```typescript
+// Add to generated component
+import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/get-user'
+
+export default async function Component() {
+  const user = await getCurrentUser()
+  const supabase = await createClient()
+  
+  // Add RLS-protected queries
+  const { data } = await supabase
+    .from('table_name')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+}
+```
+
+2. **Apply Theme Variables**:
+```typescript
+// Replace hardcoded colors with theme variables
+className="bg-background text-foreground border-border"
+// Use accent color: text-primary or bg-primary/20
+```
+
+3. **Add TypeScript Types**:
+```typescript
+// Import from types directory
+import type { Task } from '@/types/tasks'
+import type { Profile } from '@/types/profile'
+```
+
+4. **Add Magic UI Effects**:
+```typescript
+import { BorderBeam } from '@/components/ui/border-beam'
+import { ShineBorder } from '@/components/ui/shine-border'
+import { MagicCard } from '@/components/ui/magic-card'
+```
+
+5. **Add Error Handling**:
+```typescript
+// Add proper error boundaries and loading states
+if (error) {
+  return <ErrorComponent error={error} />
+}
+if (loading) {
+  return <LoadingSkeleton />
+}
+```
+
+### Step 5: Integrate and Test
+
+- [ ] Test component functionality
+- [ ] Verify accessibility (keyboard nav, screen reader)
+- [ ] Check responsive design
+- [ ] Test with real data
+- [ ] Verify RLS policies work correctly
+- [ ] Add error handling
+- [ ] Add loading states
+
+---
+
+## 🎨 KINK IT Design System Reference
+
+### Theme Variables (from `app/globals.css`)
+
+```css
+/* Always use these variables in generated components */
+--background: oklch(0.05 0 0);
+--foreground: oklch(0.99 0 0);
+--primary: oklch(0.70 0.20 30); /* Orange-red accent */
+--accent: oklch(0.70 0.20 30);
+--muted: oklch(0.15 0.01 240);
+--border: oklch(0.20 0.01 240);
+--card: oklch(0.08 0.01 240);
+--popover: oklch(0.10 0.01 240);
+```
+
+### Component Patterns
+
+**Card Pattern** (reference: `components/dashboard/card/index.tsx`):
+```typescript
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+
+<Card className="bg-background border-border">
+  <CardHeader>
+    <CardTitle className="text-foreground">Title</CardTitle>
+  </CardHeader>
+  <CardContent>
+    {/* Content */}
+  </CardContent>
+</Card>
+```
+
+**Form Pattern** (reference: `components/account/profile-form.tsx`):
+```typescript
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { toast } from 'sonner'
+
+const schema = z.object({
+  // fields
+})
+
+export function FormComponent() {
+  const form = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {}
+  })
+  
+  const onSubmit = async (data) => {
+    // Server action or API call
+    toast.success('Success!')
+  }
+  
+  return (
+    <form onSubmit={form.handleSubmit(onSubmit)}>
+      {/* Form fields */}
+    </form>
+  )
+}
+```
+
+**Data Fetching Pattern** (reference: `app/page.tsx`):
+```typescript
+import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/get-user'
+
+export default async function Page() {
+  const user = await getCurrentUser()
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase
+    .from('table_name')
+    .select('*')
+    .eq('user_id', user.id)
+    
+  if (error) {
+    console.error('Error:', error)
+    return <ErrorComponent />
+  }
+  
+  return <Component data={data} />
+}
+```
+
+---
+
+## 📝 Prompt Engineering Guidelines
+
+### ✅ Good Prompt Example
+
+```
+Create a task card component for KINK IT dashboard.
+
+Requirements:
+- Display task title, description, due date, assignee, status
+- Status badge with colors: pending (yellow), in-progress (blue), completed (green)
+- Click handler to open task detail modal
+- Dark theme with orange-red accents
+- Use shadcn/ui Card, Badge, Button components
+- Magic UI BorderBeam effect on hover
+- Responsive design (stack on mobile, grid on desktop)
+- TypeScript with Task type from types/tasks.ts
+
+Reference Existing Patterns:
+- components/dashboard/card/index.tsx for card structure
+- components/ui/badge.tsx for status display
+- app/globals.css for theme variables (--primary, --background, etc.)
+
+Technical:
+- React Server Component (fetch data server-side)
+- Client component wrapper for interactivity
+- Proper TypeScript types
+- Accessibility: ARIA labels, keyboard navigation
+```
+
+### ❌ Bad Prompt Example
+
+```
+Create a task component
+```
+**Problems**: Too vague, no design system reference, no technical details
+
+---
+
+## 🔒 Security Checklist
+
+When reviewing v0 MCP generated code, ALWAYS verify:
+
+- [ ] **No Hardcoded Secrets**: No API keys, tokens, or credentials
+- [ ] **User Authentication**: Components that need auth check `getCurrentUser()`
+- [ ] **RLS Compliance**: Data queries use RLS-protected patterns
+- [ ] **Input Validation**: All user inputs validated with Zod schemas
+- [ ] **XSS Prevention**: React's automatic escaping is sufficient
+- [ ] **Environment Variables**: Use `process.env.NEXT_PUBLIC_*` for client-side
+- [ ] **Server Actions**: Use server actions, not client-side API calls for mutations
+
+---
+
+## 🎯 Feature-Specific v0 MCP Strategies
+
+### Task Management Components
+
+**Prompt Template**:
+```
+Create a [component name] for KINK IT task management.
+
+Features:
+- [Specific features]
+- Display tasks with status badges
+- Filter by status (pending, in-progress, completed)
+- Search functionality
+- Responsive grid/list layout
+
+Design:
+- Match components/dashboard/card/index.tsx structure
+- Use theme variables from app/globals.css
+- Magic UI BorderBeam on cards
+- Dark theme with orange-red accents
+
+Technical:
+- TypeScript with Task type
+- Server component for data fetching
+- Client component for interactivity
+- Supabase integration ready (add manually)
+```
+
+### Scene Logging Components
+
+**Prompt Template**:
+```
+Create a scene logging [component type] for KINK IT.
+
+Form Fields:
+- Date & time picker
+- Participants selection
+- Scene type dropdown
+- Activities (multi-select tags)
+- Duration input
+- Safewords tracking
+- Aftercare notes (rich text)
+- Consent confirmation
+- Rating (1-5 stars)
+
+Design:
+- Dark theme with orange-red accents
+- shadcn/ui form components
+- Magic UI ShineBorder on submit button
+- Responsive layout
+
+Technical:
+- React Hook Form + Zod validation
+- TypeScript with Scene type
+- Server action for submission
+- Toast notifications (sonner)
+```
+
+### Communication Log Components
+
+**Prompt Template**:
+```
+Create a communication log [component] for KINK IT.
+
+Features:
+- Message list with timestamps
+- Rich text composer
+- Date range filter
+- Search functionality
+- Message categories
+- Read/unread status
+- Reply threading
+
+Design:
+- Chat-like interface
+- Dark theme
+- Magic UI effects on message cards
+- Responsive design
+
+Technical:
+- Real-time updates ready (Supabase Realtime)
+- Optimistic UI updates
+- Infinite scroll pagination
+- TypeScript types
+- Server + Client component pattern
+```
+
+---
+
+## 🔄 Integration Workflow
+
+### Complete Component Generation Process
+
+```
+1. User Request
+   ↓
+2. Assess: Is this suitable for v0 MCP?
+   ↓
+3. Create v0 Chat with detailed prompt
+   ↓
+4. Review generated code
+   ↓
+5. Adapt to KINK IT patterns:
+   - Add Supabase integration
+   - Apply theme variables
+   - Add TypeScript types
+   - Add Magic UI effects
+   - Add error handling
+   ↓
+6. Test component
+   ↓
+7. Integrate into app
+   ↓
+8. Commit with clear message
+```
+
+---
+
+## 📚 Reference Files for Prompts
+
+When creating v0 MCP prompts, reference these files:
+
+**Component Structure**:
+- `components/dashboard/card/index.tsx` - Card component pattern
+- `components/dashboard/layout/index.tsx` - Layout wrapper pattern
+- `components/account/profile-form.tsx` - Form component pattern
+
+**Theme & Styling**:
+- `app/globals.css` - All theme variables
+- `components/ui/*` - shadcn/ui component library
+- `components/ui/border-beam.tsx` - Magic UI effects
+
+**Data Patterns**:
+- `lib/supabase/server.ts` - Server client pattern
+- `lib/supabase/client.ts` - Browser client pattern
+- `lib/auth/get-user.ts` - Authentication pattern
+
+**Type Definitions**:
+- `types/tasks.ts` - Task types
+- `types/profile.ts` - Profile types
+- `types/dashboard.ts` - Dashboard types
+
+---
+
+## ✅ Quality Assurance Checklist
+
+Before integrating v0 MCP generated code:
+
+### Code Quality
+- [ ] TypeScript types are correct and strict
+- [ ] No `any` types
+- [ ] Proper error handling
+- [ ] Loading states implemented
+- [ ] No console.logs in production code
+
+### Design Consistency
+- [ ] Matches KINK IT theme
+- [ ] Uses theme variables (not hardcoded colors)
+- [ ] Responsive design works
+- [ ] Magic UI effects applied correctly
+- [ ] Matches existing component patterns
+
+### Functionality
+- [ ] Component works as expected
+- [ ] Integrates with Supabase correctly
+- [ ] RLS policies enforced
+- [ ] Form validation works
+- [ ] Error states handled
+
+### Accessibility
+- [ ] ARIA labels present
+- [ ] Keyboard navigation works
+- [ ] Screen reader compatible
+- [ ] Focus management correct
+- [ ] Color contrast meets WCAG AA
+
+---
+
+## 🚫 Common Mistakes to Avoid
+
+### ❌ Mistake 1: Using v0 for Security Code
+```typescript
+// ❌ DON'T generate auth logic with v0
+const isAuthorized = user.role === 'admin' // Generate this manually
+```
+
+### ❌ Mistake 2: Hardcoded Colors
+```typescript
+// ❌ DON'T use hardcoded colors
+className="bg-[#1a1a1a] text-[#ffffff]"
+
+// ✅ DO use theme variables
+className="bg-background text-foreground"
+```
+
+### ❌ Mistake 3: Missing RLS Checks
+```typescript
+// ❌ DON'T forget RLS
+const { data } = await supabase.from('tasks').select('*')
+
+// ✅ DO include user filter
+const { data } = await supabase
+  .from('tasks')
+  .select('*')
+  .eq('user_id', user.id)
+```
+
+### ❌ Mistake 4: Client-Side Data Mutations
+```typescript
+// ❌ DON'T mutate from client component
+const handleSubmit = async () => {
+  await fetch('/api/tasks', { method: 'POST' })
+}
+
+// ✅ DO use server actions
+'use server'
+export async function createTask(data) {
+  const supabase = await createClient()
+  // RLS-protected insert
+}
+```
+
+---
+
+## 🎓 Example: Complete Component Generation
+
+### User Request
+"Create a rewards display widget for the dashboard"
+
+### Step 1: Create v0 Chat
+```typescript
+await mcp_v0_createChat({
+  message: `Create a rewards display widget for KINK IT dashboard.
+
+Requirements:
+- Display current points balance prominently
+- Show recent rewards earned
+- Display available rewards to redeem
+- Points history timeline
+- Dark theme with orange-red accents
+- Use shadcn/ui Card, Badge components
+- Magic UI BorderBeam effect
+- Responsive design
+
+Reference:
+- components/dashboard/card/index.tsx for structure
+- components/dashboard/stat/index.tsx for stat display
+- app/globals.css for theme variables
+
+Technical:
+- TypeScript with Reward type
+- Server component for data fetching
+- Client component for interactivity`,
+  modelConfiguration: { modelId: "v0-1.5-md" }
+})
+```
+
+### Step 2: Review Generated Code
+- Check structure matches existing patterns
+- Verify theme variables used
+- Ensure TypeScript types present
+
+### Step 3: Adapt to KINK IT
+```typescript
+// Add Supabase integration
+import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/get-user'
+import type { Reward } from '@/types/rewards'
+
+export default async function RewardsWidget() {
+  const user = await getCurrentUser()
+  const supabase = await createClient()
+  
+  const { data: rewards, error } = await supabase
+    .from('rewards')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('earned_at', { ascending: false })
+    .limit(5)
+    
+  if (error) {
+    console.error('Error fetching rewards:', error)
+    return null
+  }
+  
+  return <RewardsWidgetClient rewards={rewards} />
+}
+```
+
+### Step 4: Test & Integrate
+- Test with real data
+- Verify RLS policies
+- Check responsive design
+- Test accessibility
+
+---
+
+## 📖 Additional Resources
+
+- **v0 Documentation**: https://v0.app/docs/api/platform
+- **v0 MCP Guide**: `docs/V0_MCP_COMPREHENSIVE_GUIDE.md`
+- **KINK IT Components**: `components/` directory
+- **Design System**: `app/globals.css`
+
+---
+
+## 🎯 Summary
+
+**Use v0 MCP for**: UI components, design exploration, rapid prototyping  
+**Always**: Review, adapt, integrate, test  
+**Never**: Use for security code, complex logic, infrastructure  
+
+**Remember**: v0 MCP generates a starting point. Always adapt generated code to match KINK IT's patterns, add Supabase integration, implement RLS, and test thoroughly before deploying.
