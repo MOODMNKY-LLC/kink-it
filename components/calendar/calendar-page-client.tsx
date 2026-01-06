@@ -145,7 +145,14 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
       toast.success("Opening in Notion Calendar...")
     } catch (error) {
       console.error("Error opening in Notion Calendar:", error)
-      toast.error("Failed to open in Notion Calendar. Make sure Notion Calendar is installed.")
+      const errorMessage = error instanceof Error ? error.message : "Failed to open in Notion Calendar"
+      toast.error(errorMessage, {
+        duration: 5000,
+        action: {
+          label: "Download",
+          onClick: () => window.open("https://www.notion.so/calendar", "_blank"),
+        },
+      })
     }
   }
 

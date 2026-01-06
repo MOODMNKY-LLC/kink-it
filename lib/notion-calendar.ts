@@ -103,9 +103,73 @@ export async function openInNotionCalendar(url: string): Promise<void> {
     throw new Error('openInNotionCalendar can only be called in a browser environment')
   }
 
-  // Try to open the cron:// URL
-  // This will open Notion Calendar if installed, or prompt to install
-  window.location.href = url
+  // For custom URL schemes like cron://, we need to navigate directly
+  // Browsers will handle opening the app if installed, or show an error if not
+  // We use a hidden iframe first to avoid navigating the main page
+  return new Promise((resolve, reject) => {
+    try {
+      // Create a hidden iframe to attempt opening the URL
+      // This prevents the main page from navigating if the app isn't installed
+      const iframe = document.createElement('iframe')
+      iframe.style.position = 'fixed'
+      iframe.style.top = '-1000px'
+      iframe.style.left = '-1000px'
+      iframe.style.width = '1px'
+      iframe.style.height = '1px'
+      iframe.style.opacity = '0'
+      iframe.style.pointerEvents = 'none'
+      
+      // Set a timeout - if the iframe doesn't trigger quickly, the app likely isn't installed
+      const timeout = setTimeout(() => {
+        // Clean up iframe
+        if (document.body.contains(iframe)) {
+          document.body.removeChild(iframe)
+        }
+        // Try direct navigation as fallback
+        try {
+          window.location.href = url
+          // Give it a moment, then resolve (we can't really know if it worked)
+          setTimeout(() => resolve(), 100)
+        } catch (err) {
+          reject(new Error('Failed to open Notion Calendar. Please make sure Notion Calendar is installed from https://www.notion.so/calendar'))
+        }
+      }, 250)
+
+      // If iframe loads successfully, the URL scheme worked
+      iframe.onload = () => {
+        clearTimeout(timeout)
+        setTimeout(() => {
+          if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe)
+          }
+          resolve()
+        }, 100)
+      }
+
+      // Add iframe to document and set src
+      document.body.appendChild(iframe)
+      iframe.src = url
+
+      // Also set a shorter timeout to resolve if iframe doesn't error
+      // (some browsers may not trigger onload for custom schemes)
+      setTimeout(() => {
+        if (document.body.contains(iframe)) {
+          // If iframe is still there after 200ms, assume it worked
+          clearTimeout(timeout)
+          document.body.removeChild(iframe)
+          resolve()
+        }
+      }, 200)
+    } catch (error) {
+      // If iframe approach fails, try direct navigation
+      try {
+        window.location.href = url
+        setTimeout(() => resolve(), 100)
+      } catch (navError) {
+        reject(new Error('Failed to open Notion Calendar. Please make sure Notion Calendar is installed from https://www.notion.so/calendar'))
+      }
+    }
+  })
 }
 
 /**
