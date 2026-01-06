@@ -19,27 +19,31 @@ export async function GET(req: Request) {
   const userId = searchParams.get("user_id") || user.id
   const status = searchParams.get("status") // 'available', 'redeemed', 'completed', 'in_progress'
 
-  // Verify user can access this data
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, partner_id, system_role")
-    .eq("id", user.id)
-    .single()
-
-  if (!profile) {
-    return NextResponse.json({ error: "Profile not found" }, { status: 404 })
-  }
-
-  const canAccess =
-    userId === user.id ||
-    profile.partner_id === userId ||
-    profile.system_role === "admin"
-
-  if (!canAccess) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-  }
-
   try {
+    // Verify user can access this data
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("id, partner_id, system_role")
+      .eq("id", user.id)
+      .single()
+
+    if (profileError || !profile) {
+      console.error("[Rewards] Profile lookup error:", profileError)
+      return NextResponse.json(
+        { error: "Profile not found", details: profileError?.message },
+        { status: 404 }
+      )
+    }
+
+    const canAccess =
+      userId === user.id ||
+      profile.partner_id === userId ||
+      profile.system_role === "admin"
+
+    if (!canAccess) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
     let query = supabase
       .from("rewards")
       .select("*")
@@ -53,9 +57,13 @@ export async function GET(req: Request) {
     const { data: rewards, error } = await query
 
     if (error) {
-      console.error("[Rewards] Error:", error)
+      console.error("[Rewards] Query error:", error)
+      // Return empty array instead of 500 if RLS blocks access
+      if (error.code === "42501" || error.message?.includes("permission")) {
+        return NextResponse.json({ rewards: [] })
+      }
       return NextResponse.json(
-        { error: "Failed to fetch rewards" },
+        { error: "Failed to fetch rewards", details: error.message },
         { status: 500 }
       )
     }
@@ -64,7 +72,10 @@ export async function GET(req: Request) {
   } catch (error) {
     console.error("[Rewards] Unexpected error:", error)
     return NextResponse.json(
-      { error: "Internal server error" },
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 }
     )
   }

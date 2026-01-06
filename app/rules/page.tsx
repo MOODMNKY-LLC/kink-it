@@ -1,8 +1,10 @@
 import { requireAuth, getUserProfile } from "@/lib/auth/get-user"
 import DashboardPageLayout from "@/components/dashboard/layout"
 import { FileText } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { RulesPageClient } from "@/components/rules/rules-page-client"
+import { CharacterBackground } from "@/components/backgrounds/character-background"
+import { GradientMesh } from "@/components/backgrounds/gradient-mesh"
+import { BokehEffect } from "@/components/backgrounds/bokeh-effect"
 
 export default async function RulesPage() {
   await requireAuth()
@@ -13,68 +15,27 @@ export default async function RulesPage() {
   }
 
   return (
-    <DashboardPageLayout
-      header={{
-        title: "Rules & Protocols",
-        description: "Manage standing rules, situational protocols, and expectations",
-        icon: FileText,
-      }}
-    >
-      <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Rules & Protocols Management</CardTitle>
-            <CardDescription>
-              Create and manage standing rules, situational protocols, temporary expectations, and protocol templates.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <p className="text-muted-foreground">
-                This module allows you to manage the rules and protocols that govern your D/s dynamic. Create standing
-                rules that are always active, situational rules for specific contexts, temporary expectations for
-                time-limited periods, and reusable protocol templates.
-              </p>
-
-              {profile.dynamic_role === "dominant" && (
-                <div className="space-y-2">
-                  <h3 className="font-semibold">For Dominants</h3>
-                  <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                    <li>Create, edit, and deactivate rules</li>
-                    <li>Create protocol templates (morning routine, bedtime ritual, etc.)</li>
-                    <li>Link rules to tasks</li>
-                    <li>View violation history</li>
-                    <li>Review and update rules periodically</li>
-                  </ul>
-                </div>
-              )}
-
-              {profile.dynamic_role === "submissive" && (
-                <div className="space-y-2">
-                  <h3 className="font-semibold">For Submissives</h3>
-                  <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                    <li>View active rules</li>
-                    <li>Filter by type or context</li>
-                    <li>See linked tasks</li>
-                    <li>View rule history</li>
-                  </ul>
-                </div>
-              )}
-
-              <div className="pt-4 border-t">
-                <p className="text-sm text-muted-foreground italic">
-                  This module is currently under development. Full functionality will be available in Phase 2 of
-                  development.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="relative min-h-full">
+      {/* Character-based backgrounds - matching auth section */}
+      <CharacterBackground variant="corner" opacity={0.08} />
+      <GradientMesh intensity="subtle" />
+      <BokehEffect count={15} />
+      
+      <div className="relative z-10">
+        <DashboardPageLayout
+          header={{
+            title: "Rules & Protocols",
+            description: "Manage standing rules, situational protocols, and expectations",
+            icon: FileText,
+          }}
+        >
+          <RulesPageClient
+            userId={profile.id}
+            userRole={profile.dynamic_role}
+            bondId={profile.bond_id}
+          />
+        </DashboardPageLayout>
       </div>
-    </DashboardPageLayout>
+    </div>
   )
 }
-
-
-
-

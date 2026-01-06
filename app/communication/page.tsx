@@ -2,6 +2,9 @@ import { requireAuth, getUserProfile } from "@/lib/auth/get-user"
 import DashboardPageLayout from "@/components/dashboard/layout"
 import { MessageSquare } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { CharacterBackground } from "@/components/backgrounds/character-background"
+import { GradientMesh } from "@/components/backgrounds/gradient-mesh"
+import { BokehEffect } from "@/components/backgrounds/bokeh-effect"
 
 export default async function CommunicationPage() {
   await requireAuth()
@@ -12,13 +15,20 @@ export default async function CommunicationPage() {
   }
 
   return (
-    <DashboardPageLayout
-      header={{
-        title: "Communication Hub",
-        description: "Private messaging, daily check-ins, and scene debriefs",
-        icon: MessageSquare,
-      }}
-    >
+    <div className="relative min-h-full">
+      {/* Character-based backgrounds */}
+      <CharacterBackground variant="corner" opacity={0.08} />
+      <GradientMesh intensity="subtle" />
+      <BokehEffect count={15} />
+      
+      <div className="relative z-10">
+        <DashboardPageLayout
+          header={{
+            title: "Communication Hub",
+            description: "Private messaging, daily check-ins, and scene debriefs",
+            icon: MessageSquare,
+          }}
+        >
       <div className="space-y-6">
         <Card>
           <CardHeader>
@@ -70,7 +80,9 @@ export default async function CommunicationPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardPageLayout>
+        </DashboardPageLayout>
+      </div>
+    </div>
   )
 }
 

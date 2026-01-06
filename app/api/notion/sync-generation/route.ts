@@ -62,33 +62,42 @@ async function ensurePropsPropertyExists(apiKey: string, databaseId: string): Pr
 }
 
 /**
+ * Sanitize multi_select option name for Notion API
+ * Notion doesn't allow commas in multi_select option names
+ */
+function sanitizeMultiSelectName(name: string): string {
+  // Remove commas and replace with spaces, then trim extra spaces
+  return name.replace(/,/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+/**
  * Flatten props object into array of strings for Notion multiselect
  */
 function flattenPropsToMultiSelect(props: GenerationProps): Array<{ name: string }> {
   const items: string[] = []
 
   if (props.physical) {
-    if (props.physical.height) items.push(`Height: ${props.physical.height}`)
-    if (props.physical.weight) items.push(`Weight: ${props.physical.weight}`)
-    if (props.physical.build) items.push(`Build: ${props.physical.build.split(",")[0]}`)
-    if (props.physical.hair) items.push(`Hair: ${props.physical.hair.split(" ")[0]}`)
-    if (props.physical.beard && props.physical.beard !== "none") items.push(`Beard: ${props.physical.beard}`)
-    if (props.physical.eyes) items.push(`Eyes: ${props.physical.eyes.split(",")[0]}`)
-    if (props.physical.skin_tone) items.push(`Skin: ${props.physical.skin_tone}`)
+    if (props.physical.height) items.push(`Height: ${sanitizeMultiSelectName(props.physical.height)}`)
+    if (props.physical.weight) items.push(`Weight: ${sanitizeMultiSelectName(props.physical.weight)}`)
+    if (props.physical.build) items.push(`Build: ${sanitizeMultiSelectName(props.physical.build.split(",")[0])}`)
+    if (props.physical.hair) items.push(`Hair: ${sanitizeMultiSelectName(props.physical.hair.split(" ")[0])}`)
+    if (props.physical.beard && props.physical.beard !== "none") items.push(`Beard: ${sanitizeMultiSelectName(props.physical.beard)}`)
+    if (props.physical.eyes) items.push(`Eyes: ${sanitizeMultiSelectName(props.physical.eyes.split(",")[0])}`)
+    if (props.physical.skin_tone) items.push(`Skin: ${sanitizeMultiSelectName(props.physical.skin_tone)}`)
   }
 
   if (props.clothing) {
     if (props.clothing.top && props.clothing.top.length > 0) {
-      props.clothing.top.forEach((item) => items.push(`Top: ${item}`))
+      props.clothing.top.forEach((item) => items.push(`Top: ${sanitizeMultiSelectName(item)}`))
     }
     if (props.clothing.bottom && props.clothing.bottom.length > 0) {
-      props.clothing.bottom.forEach((item) => items.push(`Bottom: ${item}`))
+      props.clothing.bottom.forEach((item) => items.push(`Bottom: ${sanitizeMultiSelectName(item)}`))
     }
     if (props.clothing.footwear && props.clothing.footwear.length > 0) {
-      props.clothing.footwear.forEach((item) => items.push(`Footwear: ${item}`))
+      props.clothing.footwear.forEach((item) => items.push(`Footwear: ${sanitizeMultiSelectName(item)}`))
     }
     if (props.clothing.accessories && props.clothing.accessories.length > 0) {
-      props.clothing.accessories.forEach((item) => items.push(`Accessory: ${item}`))
+      props.clothing.accessories.forEach((item) => items.push(`Accessory: ${sanitizeMultiSelectName(item)}`))
     }
   }
 
@@ -102,15 +111,15 @@ function flattenPropsToMultiSelect(props: GenerationProps): Array<{ name: string
     if (accessories.leather && accessories.leather.length > 0) {
       accessories.leather.forEach((item) => {
         const displayItem = item === "harness" ? "straps" : item
-        items.push(`Leather: ${displayItem}`)
+        items.push(`Leather: ${sanitizeMultiSelectName(displayItem)}`)
       })
     }
   }
 
   if (props.background) {
-    if (props.background.type) items.push(`BG Type: ${props.background.type}`)
-    if (props.background.color) items.push(`BG Color: ${props.background.color}`)
-    if (props.background.environment) items.push(`BG Env: ${props.background.environment}`)
+    if (props.background.type) items.push(`BG Type: ${sanitizeMultiSelectName(props.background.type)}`)
+    if (props.background.color) items.push(`BG Color: ${sanitizeMultiSelectName(props.background.color)}`)
+    if (props.background.environment) items.push(`BG Env: ${sanitizeMultiSelectName(props.background.environment)}`)
   }
 
   return items.map((item) => ({ name: item }))

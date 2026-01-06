@@ -32,6 +32,16 @@ interface KinkyTerminalProps {
 
 type TerminalView = "notifications" | "calendar" | "inbox"
 
+interface CalendarEvent {
+  id: string
+  title: string
+  event_type: "scene" | "task_deadline" | "check_in" | "ritual" | "milestone" | "other"
+  start_date: string
+  end_date: string | null
+  all_day: boolean
+  ical_uid: string | null
+}
+
 export default function KinkyTerminal({
   userId,
   userName,
@@ -42,7 +52,9 @@ export default function KinkyTerminal({
 }: KinkyTerminalProps) {
   const [activeView, setActiveView] = useState<TerminalView>("notifications")
   const [notifications, setNotifications] = useState<Notification[]>([])
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingEvents, setIsLoadingEvents] = useState(false)
   const [currentTime, setCurrentTime] = useState(new Date())
   const [showAllNotifications, setShowAllNotifications] = useState(false)
   const [bannerText, setBannerText] = useState<string>("")
@@ -67,6 +79,66 @@ export default function KinkyTerminal({
   const displayedNotifications = showAllNotifications
     ? notifications
     : notifications.slice(0, 3)
+
+  // Load calendar events when calendar view is active
+  useEffect(() => {
+    if (activeView === "calendar" && effectiveUserId) {
+      loadCalendarEvents()
+    }
+  }, [activeView, effectiveUserId, profile?.bond_id])
+
+  const loadCalendarEvents = async () => {
+    try {
+      setIsLoadingEvents(true)
+      const params = new URLSearchParams()
+      if (profile?.bond_id) params.append("bond_id", profile.bond_id)
+      // Load events for current month
+      const startOfMonth = new Date()
+      startOfMonth.setDate(1)
+      startOfMonth.setHours(0, 0, 0, 0)
+      const endOfMonth = new Date(startOfMonth.getFullYear(), startOfMonth.getMonth() + 1, 0)
+      endOfMonth.setHours(23, 59, 59, 999)
+      params.append("start_date", startOfMonth.toISOString())
+      params.append("end_date", endOfMonth.toISOString())
+
+      const response = await fetch(`/api/calendar?${params.toString()}`)
+      const data = await response.json()
+
+      if (response.ok) {
+        setCalendarEvents(data.events || [])
+      } else {
+        console.error("Failed to load calendar events:", data.error)
+      }
+    } catch (error) {
+      console.error("Error loading calendar events:", error)
+    } finally {
+      setIsLoadingEvents(false)
+    }
+  }
+
+  // Get events for a specific date
+  const getEventsForDate = (date: Date): CalendarEvent[] => {
+    const dateStr = date.toISOString().split("T")[0]
+    return calendarEvents.filter((event) => {
+      const eventDate = new Date(event.start_date).toISOString().split("T")[0]
+      return eventDate === dateStr
+    })
+  }
+
+  // Get event type color
+  const getEventTypeColor = (type: string): string => {
+    const colors: Record<string, string> = {
+      scene: "bg-primary/20 text-primary",
+      task_deadline: "bg-warning/20 text-warning",
+      check_in: "bg-accent/20 text-accent",
+      ritual: "bg-secondary/20 text-secondary-foreground",
+      milestone: "bg-success/20 text-success",
+      other: "bg-muted text-muted-foreground",
+    }
+    return colors[type] || colors.other
+  }
+
+  // Ensure getEventTypeColor is accessible in DayButton component scope
 
   // Update time every second
   useEffect(() => {
@@ -762,7 +834,19 @@ export default function KinkyTerminal({
                         }}
                         components={{
                           DayButton: ({ day, modifiers, className, ...props }) => {
-                            // day is an object with a date property, not a Date directly
+                            // Safely handle day prop - react-day-picker passes day as object with date property
+                            if (!day || !day.date) {
+                              // Fallback to default button if day is invalid
+                              return (
+                                <button
+                                  {...props}
+                                  className={className}
+                                >
+                                  {day?.date?.getDate() || ""}
+                                </button>
+                              )
+                            }
+
                             const date = day.date
                             const dateStr = date.toLocaleDateString("en-US", {
                               weekday: "long",
@@ -771,6 +855,8 @@ export default function KinkyTerminal({
                               day: "numeric",
                             })
                             const isToday = date.toDateString() === new Date().toDateString()
+                            const dayEvents = getEventsForDate(date)
+                            const hasEvents = dayEvents.length > 0
                             
                             return (
                               <Tooltip>
@@ -780,21 +866,49 @@ export default function KinkyTerminal({
                                     data-day={date.toLocaleDateString()}
                                     className={cn(
                                       className,
-                                      isToday && "bg-primary/20 font-semibold"
+                                      isToday && "bg-primary/20 font-semibold",
+                                      hasEvents && "relative"
                                     )}
                                   >
                                     {date.getDate()}
+                                    {hasEvents && (
+                                      <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+                                    )}
                                   </button>
                                 </TooltipTrigger>
-                                <TooltipContent className="font-mono text-xs">
-                                  <div className="space-y-1">
+                                <TooltipContent className="font-mono text-xs max-w-xs">
+                                  <div className="space-y-2">
                                     <div className="font-semibold">{dateStr}</div>
                                     {isToday && (
                                       <div className="text-primary">Today</div>
                                     )}
-                                    <div className="text-muted-foreground">
-                                      Notion calendar sync coming soon...
-                                    </div>
+                                    {hasEvents ? (
+                                      <div className="space-y-1">
+                                        <div className="text-xs font-semibold mb-1">
+                                          {dayEvents.length} event{dayEvents.length !== 1 ? "s" : ""}
+                                        </div>
+                                        {dayEvents.slice(0, 3).map((event) => (
+                                          <div
+                                            key={event.id}
+                                            className={cn(
+                                              "text-xs px-1.5 py-0.5 rounded",
+                                              getEventTypeColor(event.event_type)
+                                            )}
+                                          >
+                                            {event.title}
+                                          </div>
+                                        ))}
+                                        {dayEvents.length > 3 && (
+                                          <div className="text-xs text-muted-foreground">
+                                            +{dayEvents.length - 3} more
+                                          </div>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      <div className="text-muted-foreground text-xs">
+                                        No events scheduled
+                                      </div>
+                                    )}
                                   </div>
                                 </TooltipContent>
                               </Tooltip>

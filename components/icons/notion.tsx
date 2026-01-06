@@ -1,5 +1,4 @@
 import React from "react"
-import Image from "next/image"
 
 interface NotionIconProps {
   className?: string
@@ -16,9 +15,10 @@ interface NotionIconProps {
  */
 export function NotionIcon({ className, size = 24, variant = "gradient" }: NotionIconProps) {
   // Official Notion icon from SVG file
+  // Using regular img tag instead of Next.js Image to avoid loader issues with SVG files
   if (variant === "official") {
     return (
-      <Image
+      <img
         src="/icons/notion-app-icon.svg"
         alt="Notion"
         width={size}

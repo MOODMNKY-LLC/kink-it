@@ -1,17 +1,25 @@
 console.log('🚀 Starting HTTPS dev server...')
 
+const { createServer } = require('https')
+const { parse } = require('url')
+const next = require('next')
+const fs = require('fs')
+const path = require('path')
+const os = require('os')
+
+// Ensure process.platform is available for Next.js/Turbopack
+// Fixes "Cannot read properties of undefined (reading 'os')" error
+// This is a safeguard for Turbopack's lockfile patching mechanism
+if (!process.platform) {
+  process.platform = os.platform()
+}
+
 // Allow self-signed certificates for local development (Supabase TLS)
 // This is safe for local development only - NEVER use in production
 if (process.env.NODE_ENV !== 'production') {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
   console.log('⚠️  Self-signed certificates enabled for local development')
 }
-
-const { createServer } = require('https')
-const { parse } = require('url')
-const next = require('next')
-const fs = require('fs')
-const path = require('path')
 
 const dev = process.env.NODE_ENV !== 'production'
 const hostname = '127.0.0.1'

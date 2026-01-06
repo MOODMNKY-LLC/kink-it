@@ -4,6 +4,10 @@ node_modules/
 .pnp
 .pnp.js
 
+# Lockfiles (keep only pnpm-lock.yaml)
+package-lock.json
+yarn.lock
+
 # Testing
 coverage/
 .nyc_output/

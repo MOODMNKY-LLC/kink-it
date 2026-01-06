@@ -28,11 +28,25 @@ This is a known issue with **Next.js 15.5.9** and Turbopack's lockfile patching 
 
 ## Solutions
 
-### Option 1: Ignore the Warning (Recommended)
+### Option 1: Remove Conflicting Lockfile (Recommended Fix)
+
+The project uses `pnpm`, but `package-lock.json` (from npm) exists and causes conflicts:
+
+```powershell
+# Remove npm lockfile (project uses pnpm)
+Remove-Item package-lock.json
+
+# Reinstall to ensure clean state
+pnpm install
+```
+
+This should resolve the lockfile patching error.
+
+### Option 2: Ignore the Warning
 
 Since the error doesn't affect functionality, you can safely ignore it. The server will work normally.
 
-### Option 2: Use Webpack Instead of Turbopack
+### Option 3: Use Webpack Instead of Turbopack
 
 If the warning bothers you, you can disable Turbopack:
 
@@ -44,7 +58,7 @@ pnpm dev:http
 pnpm dev:turbo
 ```
 
-### Option 3: Clear Cache and Reinstall
+### Option 4: Clear Cache and Reinstall
 
 ```powershell
 # Clear Next.js cache

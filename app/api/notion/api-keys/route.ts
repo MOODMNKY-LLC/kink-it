@@ -125,8 +125,13 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error("Error storing API key:", error)
+      console.error("Error details:", JSON.stringify(error, null, 2))
       return NextResponse.json(
-        { error: "Failed to store API key" },
+        { 
+          error: "Failed to store API key",
+          details: error.message || "Unknown error",
+          code: error.code || "UNKNOWN"
+        },
         { status: 500 }
       )
     }
