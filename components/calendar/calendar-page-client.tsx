@@ -473,53 +473,53 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
       </div>
 
       {/* Calendar Grid Layout */}
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
         {/* Calendar View */}
         <Card className="lg:col-span-2 relative overflow-hidden border-primary/20 bg-card/90 backdrop-blur-xl">
           <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 opacity-50 blur-xl" />
           <div className="absolute inset-[1px] rounded-lg bg-card/95 backdrop-blur-xl" />
           
-          <CardHeader className="relative z-10">
-            <CardTitle className="text-lg bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+          <CardHeader className="relative z-10 pb-4">
+            <CardTitle className="text-xl bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
               Calendar
             </CardTitle>
             <CardDescription className="text-foreground/70">
               Select a date to view events
             </CardDescription>
           </CardHeader>
-          <CardContent className="relative z-10">
+          <CardContent className="relative z-10 pt-0">
             <Calendar
               mode="single"
               selected={selectedDate}
               onSelect={setSelectedDate}
-              className="rounded-lg border border-primary/20 bg-card/50 backdrop-blur-sm"
+              className="rounded-lg border border-primary/20 bg-card/50 backdrop-blur-sm w-full"
               classNames={{
-                months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                month: "space-y-4",
-                caption: "flex justify-center pt-1 relative items-center",
-                caption_label: "text-sm font-medium text-foreground",
+                months: "flex flex-col space-y-4",
+                month: "space-y-6",
+                caption: "flex justify-center pt-2 pb-4 relative items-center mb-2",
+                caption_label: "text-lg font-semibold text-foreground",
                 nav: "space-x-1 flex items-center",
                 nav_button: cn(
-                  "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 text-foreground hover:bg-primary/10 border border-primary/20 rounded-md transition-all"
+                  "h-10 w-10 sm:h-8 sm:w-8 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 bg-transparent p-0 opacity-70 hover:opacity-100 text-foreground hover:bg-primary/10 border border-primary/20 rounded-md transition-all hover:scale-105 touch-target-small"
                 ),
-                nav_button_previous: "absolute left-1",
-                nav_button_next: "absolute right-1",
-                table: "w-full border-collapse space-y-1",
-                head_row: "flex",
-                head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
-                row: "flex w-full mt-2",
-                cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                nav_button_previous: "absolute left-2",
+                nav_button_next: "absolute right-2",
+                table: "w-full border-collapse",
+                head_row: "flex mb-2",
+                head_cell: "text-foreground/60 rounded-md w-12 font-medium text-sm flex-1",
+                row: "flex w-full mb-1",
+                cell: "h-10 w-10 sm:h-12 sm:w-12 text-center text-sm p-0 relative flex-1 [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/30 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
                 day: cn(
-                  "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-primary/10 rounded-md transition-all",
-                  "data-[selected]:bg-primary data-[selected]:text-primary-foreground",
-                  "data-[today]:bg-accent/20 data-[today]:text-accent data-[today]:font-semibold"
+                  "h-10 w-10 sm:h-12 sm:w-12 p-0 font-medium text-foreground aria-selected:opacity-100 hover:bg-primary/10 hover:text-primary rounded-lg transition-all duration-200 touch-target-small",
+                  "data-[selected]:bg-primary data-[selected]:text-primary-foreground data-[selected]:shadow-md data-[selected]:shadow-primary/30",
+                  "data-[today]:bg-primary/20 data-[today]:text-primary data-[today]:font-bold data-[today]:border-2 data-[today]:border-primary/50"
                 ),
                 day_range_end: "day-range-end",
-                day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-                day_today: "bg-accent/20 text-accent font-semibold",
-                day_outside: "day-outside text-muted-foreground opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30",
-                day_disabled: "text-muted-foreground opacity-50",
-                day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground shadow-md shadow-primary/30",
+                day_today: "bg-primary/20 text-primary font-bold border-2 border-primary/50",
+                day_outside: "day-outside text-foreground/30 opacity-50 aria-selected:bg-accent/30 aria-selected:text-foreground/50 aria-selected:opacity-30",
+                day_disabled: "text-foreground/20 opacity-30 cursor-not-allowed",
+                day_range_middle: "aria-selected:bg-accent/50 aria-selected:text-accent-foreground",
                 day_hidden: "invisible",
               }}
               components={{
@@ -532,7 +532,8 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
                       {...props}
                       className={cn(
                         className,
-                        hasEvents && "relative after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:rounded-full after:bg-primary"
+                        "text-foreground",
+                        hasEvents && "relative after:absolute after:bottom-1.5 after:left-1/2 after:-translate-x-1/2 after:w-1.5 after:h-1.5 after:rounded-full after:bg-primary"
                       )}
                     >
                       {day.date.getDate()}

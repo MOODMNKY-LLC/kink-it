@@ -2,6 +2,7 @@ import { requireAuth, getUserProfile } from "@/lib/auth/get-user"
 import { createClient } from "@/lib/supabase/server"
 import DashboardPageLayout from "@/components/dashboard/layout"
 import { RewardsPageClient } from "@/components/rewards/rewards-page-client"
+import { Gift } from "lucide-react"
 
 export default async function RewardsPage() {
   await requireAuth()
@@ -39,6 +40,7 @@ export default async function RewardsPage() {
       header={{
         title: "Rewards",
         description: "Redeem your earned rewards",
+        icon: Gift,
       }}
     >
       <RewardsPageClient

@@ -406,7 +406,7 @@ export function DashboardSidebar({ profile, className, ...props }: DashboardSide
                       <div className="py-1">
                         <button
                           onClick={handleSignOut}
-                          className="w-full flex items-center px-4 py-2.5 text-sm text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+                          className="w-full flex items-center px-4 py-2.5 min-h-[44px] text-sm text-destructive hover:bg-destructive/10 transition-colors cursor-pointer touch-target-small"
                         >
                           <LogOut className="mr-3 h-4 w-4" />
                           <span>Sign Out</span>

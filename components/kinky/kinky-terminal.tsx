@@ -816,21 +816,28 @@ export default function KinkyTerminal({
                   </TypingAnimation>
                 </AnimatedSpan>
                 <AnimatedSpan className="flex-1 min-h-0 overflow-hidden">
-                  <div className="h-full flex items-center justify-center py-2">
+                  <div className="h-full flex items-center justify-center py-4 px-2">
                     <TooltipProvider>
                       <Calendar
                         mode="single"
                         selected={currentTime}
-                        className="w-full h-full rounded-md border border-border bg-background/80 backdrop-blur-sm"
+                        className="w-full h-full rounded-md border border-border/50 bg-background/80 backdrop-blur-sm text-foreground"
                         classNames={{
                           root: "w-full h-full flex flex-col",
                           months: "flex-1 flex",
                           month: "flex-1 flex flex-col",
                           table: "flex-1 w-full",
                           week: "flex-1",
-                          day: "font-mono text-xs hover:bg-accent/50 transition-colors",
-                          weekday: "font-mono text-xs",
-                          caption_label: "font-mono text-sm",
+                          day: cn(
+                            "font-mono text-sm text-foreground hover:bg-accent/50 hover:text-foreground transition-colors min-h-[44px] min-w-[44px] touch-target-small",
+                            "data-[selected]:bg-primary data-[selected]:text-primary-foreground",
+                            "data-[today]:bg-primary/20 data-[today]:text-primary data-[today]:font-semibold"
+                          ),
+                          weekday: "font-mono text-sm text-foreground/70",
+                          caption_label: "font-mono text-base text-foreground font-semibold",
+                          nav_button: "text-foreground/70 hover:text-foreground hover:bg-accent/50",
+                          nav_button_previous: "absolute left-1",
+                          nav_button_next: "absolute right-1",
                         }}
                         components={{
                           DayButton: ({ day, modifiers, className, ...props }) => {
@@ -840,7 +847,7 @@ export default function KinkyTerminal({
                               return (
                                 <button
                                   {...props}
-                                  className={className}
+                                  className={cn(className, "text-foreground/50")}
                                 >
                                   {day?.date?.getDate() || ""}
                                 </button>
@@ -866,25 +873,26 @@ export default function KinkyTerminal({
                                     data-day={date.toLocaleDateString()}
                                     className={cn(
                                       className,
-                                      isToday && "bg-primary/20 font-semibold",
+                                      "text-foreground",
+                                      isToday && "bg-primary/20 font-semibold text-primary",
                                       hasEvents && "relative"
                                     )}
                                   >
                                     {date.getDate()}
                                     {hasEvents && (
-                                      <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+                                      <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary" />
                                     )}
                                   </button>
                                 </TooltipTrigger>
-                                <TooltipContent className="font-mono text-xs max-w-xs">
+                                <TooltipContent className="font-mono text-xs max-w-xs bg-card border-border text-foreground">
                                   <div className="space-y-2">
-                                    <div className="font-semibold">{dateStr}</div>
+                                    <div className="font-semibold text-foreground">{dateStr}</div>
                                     {isToday && (
                                       <div className="text-primary">Today</div>
                                     )}
                                     {hasEvents ? (
                                       <div className="space-y-1">
-                                        <div className="text-xs font-semibold mb-1">
+                                        <div className="text-xs font-semibold mb-1 text-foreground">
                                           {dayEvents.length} event{dayEvents.length !== 1 ? "s" : ""}
                                         </div>
                                         {dayEvents.slice(0, 3).map((event) => (
@@ -899,13 +907,13 @@ export default function KinkyTerminal({
                                           </div>
                                         ))}
                                         {dayEvents.length > 3 && (
-                                          <div className="text-xs text-muted-foreground">
+                                          <div className="text-xs text-foreground/70">
                                             +{dayEvents.length - 3} more
                                           </div>
                                         )}
                                       </div>
                                     ) : (
-                                      <div className="text-muted-foreground text-xs">
+                                      <div className="text-foreground/70 text-xs">
                                         No events scheduled
                                       </div>
                                     )}
