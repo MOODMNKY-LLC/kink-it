@@ -4,8 +4,9 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Calendar as CalendarIcon, ExternalLink } from "lucide-react"
+import { Plus, Calendar as CalendarIcon, ExternalLink, RefreshCw, Loader2 } from "lucide-react"
 import { generateNotionCalendarUrl, openInNotionCalendar, isValidGoogleEmail } from "@/lib/notion-calendar"
+import { useNotionSyncStatus } from "@/components/playground/shared/use-notion-sync-status"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import {
@@ -60,10 +61,12 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
   const [showGoogleEmailDialog, setShowGoogleEmailDialog] = useState(false)
   const [googleEmail, setGoogleEmail] = useState<string>("")
   const [userGoogleEmail, setUserGoogleEmail] = useState<string | null>(null)
+  const [syncingEventId, setSyncingEventId] = useState<string | null>(null)
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split("T")[0]
   )
   const supabase = createClient()
+  const { status: notionSyncStatus, isSynced: isNotionSynced } = useNotionSyncStatus()
 
   useEffect(() => {
     loadEvents()
@@ -156,6 +159,49 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
     }
   }
 
+  const handleSyncToNotion = async (event: CalendarEvent) => {
+    if (!isNotionSynced) {
+      toast.error("Notion database not synced", {
+        description: "Please sync your Notion template in Account Settings to enable calendar syncing.",
+        duration: 5000,
+      })
+      return
+    }
+
+    setSyncingEventId(event.id)
+    try {
+      const response = await fetch("/api/notion/sync-calendar-event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          eventId: event.id,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to sync to Notion")
+      }
+
+      toast.success("Event synced to Notion successfully!", {
+        description: "The event is now available in your Notion Calendar Events database.",
+        duration: 5000,
+      })
+    } catch (error) {
+      console.error("Failed to sync event to Notion:", error)
+      toast.error(
+        error instanceof Error ? error.message : "Failed to sync to Notion",
+        {
+          description: "Make sure your Notion template is synced and you have a Calendar Events database.",
+          duration: 5000,
+        }
+      )
+    } finally {
+      setSyncingEventId(null)
+    }
+  }
+
   const loadEvents = async () => {
     try {
       setIsLoading(true)
@@ -224,6 +270,16 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
       if (response.ok) {
         toast.success("Event created successfully")
         setShowCreateDialog(false)
+        const newEvent = data.event as CalendarEvent
+        
+        // Optionally auto-sync to Notion if template is synced
+        if (isNotionSynced && newEvent) {
+          // Auto-sync after a short delay
+          setTimeout(() => {
+            handleSyncToNotion(newEvent)
+          }, 1000)
+        }
+        
         loadEvents()
       } else {
         toast.error(data.error || "Failed to create event")
@@ -429,6 +485,27 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
               )}
               <CardContent>
                 <div className="flex justify-end gap-2">
+                  {isNotionSynced && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleSyncToNotion(event)}
+                      disabled={syncingEventId === event.id}
+                      className="bg-secondary/5 hover:bg-secondary/10 border-secondary/20"
+                    >
+                      {syncingEventId === event.id ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Syncing...
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2" />
+                          Sync to Notion
+                        </>
+                      )}
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     size="sm"
