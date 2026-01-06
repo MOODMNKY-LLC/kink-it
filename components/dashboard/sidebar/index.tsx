@@ -160,8 +160,8 @@ export function DashboardSidebar({ profile, className, ...props }: DashboardSide
             />
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="text-2xl font-display">KINK IT</span>
-            <span className="text-xs uppercase">D/s Relationship Manager</span>
+            <span className="text-2xl font-display bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">KINK IT</span>
+            <span className="text-xs uppercase text-sidebar-foreground/70">D/s Relationship Manager</span>
           </div>
         </div>
         {/* Context Switcher */}

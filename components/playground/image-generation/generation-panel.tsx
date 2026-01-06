@@ -89,12 +89,15 @@ export function GenerationPanel() {
   return (
     <div className="space-y-6">
       {/* Mode Selection */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Generation Mode</CardTitle>
-          <CardDescription>Choose how you want to generate images</CardDescription>
+      <Card className="relative overflow-hidden border-primary/20 bg-card/90 backdrop-blur-xl">
+        <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 opacity-50 blur-xl" />
+        <div className="absolute inset-[1px] rounded-lg bg-card/95 backdrop-blur-xl" />
+        
+        <CardHeader className="relative z-10">
+          <CardTitle className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">Generation Mode</CardTitle>
+          <CardDescription className="text-foreground/70">Choose how you want to generate images</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative z-10">
           <div className="flex gap-2">
             <Button
               variant={mode === "single" ? "default" : "outline"}
@@ -129,55 +132,58 @@ export function GenerationPanel() {
       )}
 
       {/* Character Data Editor */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Character Data</CardTitle>
-          <CardDescription>Define your character's attributes</CardDescription>
+      <Card className="relative overflow-hidden border-primary/20 bg-card/90 backdrop-blur-xl">
+        <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 opacity-50 blur-xl" />
+        <div className="absolute inset-[1px] rounded-lg bg-card/95 backdrop-blur-xl" />
+        
+        <CardHeader className="relative z-10">
+          <CardTitle className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">Character Data</CardTitle>
+          <CardDescription className="text-foreground/70">Define your character's attributes</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 relative z-10">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label>Name</Label>
+              <Label className="text-foreground">Name</Label>
               <input
                 type="text"
                 value={characterData.name}
                 onChange={(e) =>
                   setCharacterData({ ...characterData, name: e.target.value })
                 }
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                className="w-full rounded-md border border-border bg-muted/50 text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm px-3 py-2 text-sm"
               />
             </div>
             <div className="space-y-2">
-              <Label>Archetype</Label>
+              <Label className="text-foreground">Archetype</Label>
               <input
                 type="text"
                 value={characterData.archetype}
                 onChange={(e) =>
                   setCharacterData({ ...characterData, archetype: e.target.value })
                 }
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                className="w-full rounded-md border border-border bg-muted/50 text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm px-3 py-2 text-sm"
               />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <Label>Appearance Description</Label>
+              <Label className="text-foreground">Appearance Description</Label>
               <textarea
                 value={characterData.appearance}
                 onChange={(e) =>
                   setCharacterData({ ...characterData, appearance: e.target.value })
                 }
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[100px]"
+                className="w-full rounded-md border border-border bg-muted/50 text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm px-3 py-2 text-sm min-h-[100px]"
                 placeholder="Describe the character's appearance..."
               />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <Label>Personality Traits</Label>
+              <Label className="text-foreground">Personality Traits</Label>
               <input
                 type="text"
                 value={characterData.personality}
                 onChange={(e) =>
                   setCharacterData({ ...characterData, personality: e.target.value })
                 }
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                className="w-full rounded-md border border-border bg-muted/50 text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm px-3 py-2 text-sm"
                 placeholder="e.g., playful, authoritative, creative"
               />
             </div>
@@ -200,34 +206,37 @@ export function GenerationPanel() {
       />
 
       {/* Generation Options */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Generation Options</CardTitle>
+      <Card className="relative overflow-hidden border-primary/20 bg-card/90 backdrop-blur-xl">
+        <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 opacity-50 blur-xl" />
+        <div className="absolute inset-[1px] rounded-lg bg-card/95 backdrop-blur-xl" />
+        
+        <CardHeader className="relative z-10">
+          <CardTitle className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">Generation Options</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 relative z-10">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label>Image Size</Label>
+              <Label className="text-foreground">Image Size</Label>
               <Select value={size} onValueChange={(v: any) => setSize(v)}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-muted/50 border-border text-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1024x1024">Square (1024×1024)</SelectItem>
-                  <SelectItem value="1792x1024">Landscape (1792×1024)</SelectItem>
-                  <SelectItem value="1024x1792">Portrait (1024×1792)</SelectItem>
+                <SelectContent className="bg-card/95 backdrop-blur-xl border-primary/20">
+                  <SelectItem value="1024x1024" className="text-foreground">Square (1024×1024)</SelectItem>
+                  <SelectItem value="1792x1024" className="text-foreground">Landscape (1792×1024)</SelectItem>
+                  <SelectItem value="1024x1792" className="text-foreground">Portrait (1024×1792)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Quality</Label>
+              <Label className="text-foreground">Quality</Label>
               <Select value={quality} onValueChange={(v: any) => setQuality(v)}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-muted/50 border-border text-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="standard">Standard</SelectItem>
-                  <SelectItem value="hd">HD (Higher Quality)</SelectItem>
+                <SelectContent className="bg-card/95 backdrop-blur-xl border-primary/20">
+                  <SelectItem value="standard" className="text-foreground">Standard</SelectItem>
+                  <SelectItem value="hd" className="text-foreground">HD (Higher Quality)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -236,8 +245,11 @@ export function GenerationPanel() {
       </Card>
 
       {/* Generation Button & Progress */}
-      <Card>
-        <CardContent className="pt-6">
+      <Card className="relative overflow-hidden border-primary/20 bg-card/90 backdrop-blur-xl">
+        <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 opacity-50 blur-xl" />
+        <div className="absolute inset-[1px] rounded-lg bg-card/95 backdrop-blur-xl" />
+        
+        <CardContent className="pt-6 relative z-10">
           <div className="space-y-4">
             {isGenerating && (
               <div className="space-y-2">
@@ -285,7 +297,7 @@ export function GenerationPanel() {
               <Button
                 onClick={handleGenerate}
                 disabled={isGenerating}
-                className="w-full"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-[1.02]"
                 size="lg"
               >
                 {isGenerating ? (

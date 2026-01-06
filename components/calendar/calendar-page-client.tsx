@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Calendar as CalendarIcon, ExternalLink, RefreshCw, Loader2 } from "lucide-react"
+import { Plus, Calendar as CalendarIcon, ExternalLink, RefreshCw, Loader2, Clock } from "lucide-react"
 import { generateNotionCalendarUrl, openInNotionCalendar, isValidGoogleEmail } from "@/lib/notion-calendar"
 import { useNotionSyncStatus } from "@/components/playground/shared/use-notion-sync-status"
 import { createClient } from "@/lib/supabase/client"
@@ -27,6 +27,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Calendar } from "@/components/ui/calendar"
+import { cn } from "@/lib/utils"
+import { format, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval } from "date-fns"
 
 interface CalendarEvent {
   id: string
@@ -62,9 +65,8 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
   const [googleEmail, setGoogleEmail] = useState<string>("")
   const [userGoogleEmail, setUserGoogleEmail] = useState<string | null>(null)
   const [syncingEventId, setSyncingEventId] = useState<string | null>(null)
-  const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
-  )
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
+  const [selectedEvents, setSelectedEvents] = useState<CalendarEvent[]>([])
   const supabase = createClient()
   const { status: notionSyncStatus, isSynced: isNotionSynced } = useNotionSyncStatus()
 
@@ -72,6 +74,18 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
     loadEvents()
     loadUserGoogleEmail()
   }, [bondId])
+
+  useEffect(() => {
+    if (selectedDate) {
+      const dayEvents = events.filter((event) => {
+        const eventDate = new Date(event.start_date)
+        return isSameDay(eventDate, selectedDate)
+      })
+      setSelectedEvents(dayEvents)
+    } else {
+      setSelectedEvents([])
+    }
+  }, [selectedDate, events])
 
   const loadUserGoogleEmail = async () => {
     try {
@@ -114,26 +128,22 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
   }
 
   const handleOpenInNotionCalendar = async (event: CalendarEvent) => {
-    // Check if user has Google account email set
     if (!userGoogleEmail) {
       setShowGoogleEmailDialog(true)
       return
     }
 
-    // Check if event has iCalUID
     if (!event.ical_uid) {
       toast.error("Event is missing calendar identifier. Please refresh and try again.")
       return
     }
 
     try {
-      // Calculate end date (use end_date or default to 1 hour after start)
       const startDate = new Date(event.start_date)
-      const endDate = event.end_date 
+      const endDate = event.end_date
         ? new Date(event.end_date)
-        : new Date(startDate.getTime() + 60 * 60 * 1000) // Default: 1 hour
+        : new Date(startDate.getTime() + 60 * 60 * 1000)
 
-      // Generate Notion Calendar URL
       const url = generateNotionCalendarUrl({
         accountEmail: userGoogleEmail,
         iCalUID: event.ical_uid,
@@ -143,7 +153,6 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
         ref: "kink-it",
       })
 
-      // Open in Notion Calendar
       await openInNotionCalendar(url)
       toast.success("Opening in Notion Calendar...")
     } catch (error) {
@@ -207,12 +216,12 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
       setIsLoading(true)
       const params = new URLSearchParams()
       if (bondId) params.append("bond_id", bondId)
+      
       // Load events for current month
-      const startOfMonth = new Date()
-      startOfMonth.setDate(1)
-      const endOfMonth = new Date(startOfMonth.getFullYear(), startOfMonth.getMonth() + 1, 0)
-      params.append("start_date", startOfMonth.toISOString())
-      params.append("end_date", endOfMonth.toISOString())
+      const startOfMonthDate = selectedDate ? startOfMonth(selectedDate) : startOfMonth(new Date())
+      const endOfMonthDate = endOfMonth(startOfMonthDate)
+      params.append("start_date", startOfMonthDate.toISOString())
+      params.append("end_date", endOfMonthDate.toISOString())
 
       const response = await fetch(`/api/calendar?${params.toString()}`)
       const data = await response.json()
@@ -272,9 +281,7 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
         setShowCreateDialog(false)
         const newEvent = data.event as CalendarEvent
         
-        // Optionally auto-sync to Notion if template is synced
         if (isNotionSynced && newEvent) {
-          // Auto-sync after a short delay
           setTimeout(() => {
             handleSyncToNotion(newEvent)
           }, 1000)
@@ -306,6 +313,21 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
     })
   }
 
+  const formatEventTime = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    })
+  }
+
+  const getEventsForDate = (date: Date) => {
+    return events.filter((event) => {
+      const eventDate = new Date(event.start_date)
+      return isSameDay(eventDate, date)
+    })
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -316,6 +338,7 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
 
   return (
     <div className="space-y-6">
+      {/* Header Actions */}
       <div className="flex justify-end">
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogTrigger asChild>
@@ -324,32 +347,34 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
               Create Event
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-card/95 backdrop-blur-xl border-primary/20">
+          <DialogContent className="bg-card/95 backdrop-blur-xl border-primary/20 max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Create Calendar Event</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                Create Calendar Event
+              </DialogTitle>
+              <DialogDescription className="text-foreground/70">
                 Add a new event to your calendar
               </DialogDescription>
             </DialogHeader>
             <form action={handleCreateEvent} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Event Title</Label>
+                <Label htmlFor="title" className="text-foreground">Event Title</Label>
                 <Input
                   id="title"
                   name="title"
                   required
-                  className="bg-muted/50 border-border backdrop-blur-sm"
+                  className="bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="event_type">Event Type</Label>
+                <Label htmlFor="event_type" className="text-foreground">Event Type</Label>
                 <Select name="event_type" defaultValue="other">
-                  <SelectTrigger className="bg-muted/50 border-border backdrop-blur-sm">
+                  <SelectTrigger className="bg-muted/50 border-border text-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-card/95 backdrop-blur-xl border-primary/20">
                     {EVENT_TYPES.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
+                      <SelectItem key={type.value} value={type.value} className="text-foreground">
                         {type.label}
                       </SelectItem>
                     ))}
@@ -357,53 +382,53 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description" className="text-foreground">Description</Label>
                 <Textarea
                   id="description"
                   name="description"
                   rows={3}
-                  className="bg-muted/50 border-border backdrop-blur-sm"
+                  className="bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="start_date">Start Date</Label>
+                  <Label htmlFor="start_date" className="text-foreground">Start Date</Label>
                   <Input
                     id="start_date"
                     name="start_date"
                     type="date"
                     required
-                    defaultValue={selectedDate}
-                    className="bg-muted/50 border-border backdrop-blur-sm"
+                    defaultValue={selectedDate ? format(selectedDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd")}
+                    className="bg-muted/50 border-border text-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="start_time">Start Time</Label>
+                  <Label htmlFor="start_time" className="text-foreground">Start Time</Label>
                   <Input
                     id="start_time"
                     name="start_time"
                     type="time"
-                    className="bg-muted/50 border-border backdrop-blur-sm"
+                    className="bg-muted/50 border-border text-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm"
                   />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="end_date">End Date (Optional)</Label>
+                  <Label htmlFor="end_date" className="text-foreground">End Date (Optional)</Label>
                   <Input
                     id="end_date"
                     name="end_date"
                     type="date"
-                    className="bg-muted/50 border-border backdrop-blur-sm"
+                    className="bg-muted/50 border-border text-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="end_time">End Time</Label>
+                  <Label htmlFor="end_time" className="text-foreground">End Time</Label>
                   <Input
                     id="end_time"
                     name="end_time"
                     type="time"
-                    className="bg-muted/50 border-border backdrop-blur-sm"
+                    className="bg-muted/50 border-border text-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm"
                   />
                 </div>
               </div>
@@ -414,16 +439,16 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
                   name="all_day"
                   className="rounded border-border"
                 />
-                <Label htmlFor="all_day">All Day Event</Label>
+                <Label htmlFor="all_day" className="text-foreground">All Day Event</Label>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="reminder_minutes">Reminder (minutes before)</Label>
+                <Label htmlFor="reminder_minutes" className="text-foreground">Reminder (minutes before)</Label>
                 <Input
                   id="reminder_minutes"
                   name="reminder_minutes"
                   type="number"
                   placeholder="60"
-                  className="bg-muted/50 border-border backdrop-blur-sm"
+                  className="bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm"
                 />
               </div>
               <div className="flex justify-end gap-2">
@@ -431,12 +456,13 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
                   type="button"
                   variant="outline"
                   onClick={() => setShowCreateDialog(false)}
+                  className="border-border text-foreground hover:bg-muted/50"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/30"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-[1.02]"
                 >
                   Create Event
                 </Button>
@@ -446,102 +472,191 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
         </Dialog>
       </div>
 
-      {events.length === 0 ? (
-        <Card className="border-primary/20 bg-card/90 backdrop-blur-xl">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <CalendarIcon className="h-12 w-12 text-foreground/60 mb-4" />
-            <p className="text-foreground/70 text-center">
-              No events scheduled. Create your first event to get started.
-            </p>
+      {/* Calendar Grid Layout */}
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Calendar View */}
+        <Card className="lg:col-span-2 relative overflow-hidden border-primary/20 bg-card/90 backdrop-blur-xl">
+          <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 opacity-50 blur-xl" />
+          <div className="absolute inset-[1px] rounded-lg bg-card/95 backdrop-blur-xl" />
+          
+          <CardHeader className="relative z-10">
+            <CardTitle className="text-lg bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+              Calendar
+            </CardTitle>
+            <CardDescription className="text-foreground/70">
+              Select a date to view events
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="relative z-10">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={setSelectedDate}
+              className="rounded-lg border border-primary/20 bg-card/50 backdrop-blur-sm"
+              classNames={{
+                months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                month: "space-y-4",
+                caption: "flex justify-center pt-1 relative items-center",
+                caption_label: "text-sm font-medium text-foreground",
+                nav: "space-x-1 flex items-center",
+                nav_button: cn(
+                  "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 text-foreground hover:bg-primary/10 border border-primary/20 rounded-md transition-all"
+                ),
+                nav_button_previous: "absolute left-1",
+                nav_button_next: "absolute right-1",
+                table: "w-full border-collapse space-y-1",
+                head_row: "flex",
+                head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
+                row: "flex w-full mt-2",
+                cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                day: cn(
+                  "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-primary/10 rounded-md transition-all",
+                  "data-[selected]:bg-primary data-[selected]:text-primary-foreground",
+                  "data-[today]:bg-accent/20 data-[today]:text-accent data-[today]:font-semibold"
+                ),
+                day_range_end: "day-range-end",
+                day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                day_today: "bg-accent/20 text-accent font-semibold",
+                day_outside: "day-outside text-muted-foreground opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30",
+                day_disabled: "text-muted-foreground opacity-50",
+                day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                day_hidden: "invisible",
+              }}
+              components={{
+                DayButton: ({ day, modifiers, className, ...props }) => {
+                  const dateEvents = getEventsForDate(day.date)
+                  const hasEvents = dateEvents.length > 0
+                  
+                  return (
+                    <button
+                      {...props}
+                      className={cn(
+                        className,
+                        hasEvents && "relative after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:rounded-full after:bg-primary"
+                      )}
+                    >
+                      {day.date.getDate()}
+                    </button>
+                  )
+                },
+              }}
+            />
           </CardContent>
         </Card>
-      ) : (
-        <div className="grid gap-4">
-          {events.map((event) => (
-            <Card
-              key={event.id}
-              className="border-primary/20 bg-card/90 backdrop-blur-xl hover:border-primary/40 transition-all duration-300"
-            >
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <CardTitle className="text-lg text-foreground">{event.title}</CardTitle>
-                      <Badge className={getTypeColor(event.event_type)}>
-                        {event.event_type}
-                      </Badge>
-                    </div>
-                    <CardDescription className="text-foreground/70">
-                      {formatEventDate(event.start_date)}
-                      {event.end_date && ` - ${formatEventDate(event.end_date)}`}
-                    </CardDescription>
-                  </div>
+
+        {/* Events List */}
+        <div className="space-y-4">
+          <Card className="relative overflow-hidden border-primary/20 bg-card/90 backdrop-blur-xl">
+            <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 opacity-50 blur-xl" />
+            <div className="absolute inset-[1px] rounded-lg bg-card/95 backdrop-blur-xl" />
+            
+            <CardHeader className="relative z-10">
+              <CardTitle className="text-lg bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                {selectedDate ? format(selectedDate, "MMMM d, yyyy") : "Select a Date"}
+              </CardTitle>
+              <CardDescription className="text-foreground/70">
+                {selectedEvents.length} event{selectedEvents.length !== 1 ? "s" : ""}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="relative z-10 space-y-3 max-h-[600px] overflow-y-auto">
+              {selectedEvents.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <CalendarIcon className="h-12 w-12 text-foreground/60 mb-4" />
+                  <p className="text-sm text-foreground/70">
+                    No events scheduled for this date
+                  </p>
                 </div>
-              </CardHeader>
-              {event.description && (
-                <CardContent>
-                  <p className="text-sm text-foreground/80">{event.description}</p>
-                </CardContent>
-              )}
-              <CardContent>
-                <div className="flex justify-end gap-2">
-                  {isNotionSynced && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleSyncToNotion(event)}
-                      disabled={syncingEventId === event.id}
-                      className="bg-secondary/5 hover:bg-secondary/10 border-secondary/20"
-                    >
-                      {syncingEventId === event.id ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Syncing...
-                        </>
-                      ) : (
-                        <>
-                          <RefreshCw className="h-4 w-4 mr-2" />
-                          Sync to Notion
-                        </>
-                      )}
-                    </Button>
-                  )}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleOpenInNotionCalendar(event)}
-                    className="bg-primary/5 hover:bg-primary/10 border-primary/20"
+              ) : (
+                selectedEvents.map((event) => (
+                  <Card
+                    key={event.id}
+                    className="border-primary/20 bg-card/50 backdrop-blur-sm hover:border-primary/40 transition-all duration-300"
                   >
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    Open in Notion Calendar
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-base text-foreground mb-1">{event.title}</CardTitle>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Badge className={getTypeColor(event.event_type)}>
+                              {EVENT_TYPES.find((t) => t.value === event.event_type)?.label}
+                            </Badge>
+                            {!event.all_day && (
+                              <div className="flex items-center gap-1 text-xs text-foreground/70">
+                                <Clock className="h-3 w-3" />
+                                {formatEventTime(event.start_date)}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    {event.description && (
+                      <CardContent className="pt-0">
+                        <p className="text-sm text-foreground/80">{event.description}</p>
+                      </CardContent>
+                    )}
+                    <CardContent className="pt-0 flex justify-end gap-2">
+                      {isNotionSynced && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSyncToNotion(event)}
+                          disabled={syncingEventId === event.id}
+                          className="bg-secondary/5 hover:bg-secondary/10 border-secondary/20 text-foreground"
+                        >
+                          {syncingEventId === event.id ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Syncing...
+                            </>
+                          ) : (
+                            <>
+                              <RefreshCw className="h-4 w-4 mr-2" />
+                              Sync
+                            </>
+                          )}
+                        </Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleOpenInNotionCalendar(event)}
+                        className="bg-primary/5 hover:bg-primary/10 border-primary/20 text-foreground"
+                      >
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Open
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </CardContent>
+          </Card>
         </div>
-      )}
+      </div>
 
       {/* Google Account Email Setup Dialog */}
       <Dialog open={showGoogleEmailDialog} onOpenChange={setShowGoogleEmailDialog}>
         <DialogContent className="bg-card/95 backdrop-blur-xl border-primary/20">
           <DialogHeader>
-            <DialogTitle>Set Google Account Email</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+              Set Google Account Email
+            </DialogTitle>
+            <DialogDescription className="text-foreground/70">
               Enter your Google account email to enable Notion Calendar integration.
               This email should match the Google account connected to your Notion Calendar.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="google_email">Google Account Email</Label>
+              <Label htmlFor="google_email" className="text-foreground">Google Account Email</Label>
               <Input
                 id="google_email"
                 type="email"
                 placeholder="[email protected]"
                 value={googleEmail}
                 onChange={(e) => setGoogleEmail(e.target.value)}
-                className="bg-muted/50 border-border backdrop-blur-sm"
+                className="bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm"
               />
               <p className="text-xs text-foreground/70">
                 This email is used to generate calendar links for Notion Calendar.
@@ -555,13 +670,14 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
                   setShowGoogleEmailDialog(false)
                   setGoogleEmail("")
                 }}
+                className="border-border text-foreground hover:bg-muted/50"
               >
                 Cancel
               </Button>
               <Button
                 type="button"
                 onClick={handleSetGoogleEmail}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-[1.02]"
               >
                 Save
               </Button>
@@ -572,4 +688,3 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
     </div>
   )
 }
-

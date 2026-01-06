@@ -30,14 +30,17 @@ export default async function CommunicationPage() {
           }}
         >
       <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Communication Tools</CardTitle>
-            <CardDescription>
+        <Card className="relative overflow-hidden border-primary/20 bg-card/90 backdrop-blur-xl">
+          <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 opacity-50 blur-xl" />
+          <div className="absolute inset-[1px] rounded-lg bg-card/95 backdrop-blur-xl" />
+          
+          <CardHeader className="relative z-10">
+            <CardTitle className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">Communication Tools</CardTitle>
+            <CardDescription className="text-foreground/70">
               Private messaging, daily check-ins (Green/Yellow/Red), prompted conversations, and scene debrief forms.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative z-10">
             <div className="space-y-4">
               <p className="text-muted-foreground">
                 This module provides comprehensive communication tools designed specifically for D/s relationships,
@@ -46,8 +49,8 @@ export default async function CommunicationPage() {
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <h3 className="font-semibold">Messaging & Check-Ins</h3>
-                  <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                  <h3 className="font-semibold text-foreground">Messaging & Check-Ins</h3>
+                  <ul className="list-disc list-inside space-y-1 text-sm text-foreground/70">
                     <li>Direct messages between partners</li>
                     <li>Message threading</li>
                     <li>Read receipts</li>
@@ -58,8 +61,8 @@ export default async function CommunicationPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <h3 className="font-semibold">Conversations & Debriefs</h3>
-                  <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                  <h3 className="font-semibold text-foreground">Conversations & Debriefs</h3>
+                  <ul className="list-disc list-inside space-y-1 text-sm text-foreground/70">
                     <li>Pre-written conversation starters</li>
                     <li>Scheduled check-in prompts</li>
                     <li>Reflection prompts</li>
@@ -70,8 +73,8 @@ export default async function CommunicationPage() {
                 </div>
               </div>
 
-              <div className="pt-4 border-t">
-                <p className="text-sm text-muted-foreground italic">
+              <div className="pt-4 border-t border-primary/20">
+                <p className="text-sm text-foreground/70 italic">
                   This module is currently under development. Full functionality will be available in Phase 2 of
                   development. Chat components are temporarily disabled until this module is complete.
                 </p>
