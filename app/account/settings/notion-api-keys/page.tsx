@@ -24,8 +24,9 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
-import { Plus, Trash2, TestTube, Key, Shield, AlertCircle } from "lucide-react"
+import { Plus, Trash2, TestTube, Key, Shield, AlertCircle, BarChart3 } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import Link from "next/link"
 
 interface ApiKey {
   id: string
@@ -188,7 +189,14 @@ export default function NotionApiKeysPage() {
             {apiKeys.length} {apiKeys.length === 1 ? "key" : "keys"} configured
           </p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <div className="flex gap-2">
+          <Link href="/account/settings/notion-integration-status">
+            <Button variant="outline">
+              <BarChart3 className="mr-2 h-4 w-4" />
+              Integration Status
+            </Button>
+          </Link>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
@@ -237,6 +245,7 @@ export default function NotionApiKeysPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {loading ? (
@@ -312,4 +321,5 @@ export default function NotionApiKeysPage() {
     </div>
   )
 }
+
 

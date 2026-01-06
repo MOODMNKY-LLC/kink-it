@@ -40,8 +40,8 @@ export default function Notifications({
   };
 
   return (
-    <Card className="h-full">
-      <CardHeader className="flex items-center justify-between pl-3 pr-1">
+    <Card className="h-full max-h-[400px] flex flex-col">
+      <CardHeader className="flex items-center justify-between pl-3 pr-1 flex-shrink-0">
         <CardTitle className="flex items-center gap-2.5 text-sm font-medium uppercase">
           {unreadCount > 0 ? <Badge>{unreadCount}</Badge> : <Bullet />}
           Notifications
@@ -58,7 +58,7 @@ export default function Notifications({
         )}
       </CardHeader>
 
-      <CardContent className="bg-accent p-1.5 overflow-hidden">
+      <CardContent className="bg-accent p-1.5 overflow-y-auto flex-1 min-h-0">
         <div className="space-y-2">
           <AnimatePresence initial={false} mode="popLayout">
             {displayedNotifications.map((notification) => (

@@ -66,8 +66,8 @@
   --animate-marquee-up: marquee-up 6s ease-in-out infinite;
   --animate-marquee-down: marquee-down 6s ease-in-out infinite;
   --animate-marquee-pulse: marquee-pulse 3s ease-in-out infinite;
-
-  --animate-marquee-pulse: marquee-pulse 1s linear infinite;
+  --animate-marquee: marquee var(--duration, 40s) linear infinite;
+  --animate-marquee-vertical: marquee-vertical var(--duration, 40s) linear infinite;
 }
 
 /* Color scheme matching app icon: vibrant orange-red hair with sparkling cyan-blue background */
@@ -212,7 +212,7 @@
 /* Background utility classes for character-based designs */
 @layer utilities {
   .bg-character-corner {
-    background-image: url("/images/avatar/kink-it-avatar.svg");
+    background-image: url("/images/kinky/kinky-avatar.svg");
     background-size: 400px 600px;
     background-position: bottom right;
     background-repeat: no-repeat;
@@ -220,7 +220,7 @@
   }
   
   .bg-character-hero {
-    background-image: url("/images/avatar/kink-it-avatar.svg");
+    background-image: url("/images/kinky/kinky-avatar.svg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -228,7 +228,7 @@
   }
   
   .bg-character-pattern {
-    background-image: url("/images/avatar/kink-it-avatar.svg");
+    background-image: url("/images/kinky/kinky-avatar.svg");
     background-size: 200px 300px;
     background-repeat: repeat;
     opacity: 0.12;
@@ -352,6 +352,24 @@
   75% {
     opacity: 0.6;
     transform: scale(1.02) translateY(-1px);
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes marquee-vertical {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-100%);
   }
 }
 

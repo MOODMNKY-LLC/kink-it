@@ -51,7 +51,10 @@ export default function BondSetupStep({ onNext, onBack, initialData }: BondSetup
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to create bond")
+        // Provide more detailed error message
+        const errorMsg = data.error || "Failed to create bond"
+        const details = data.details ? `: ${data.details}` : ""
+        throw new Error(`${errorMsg}${details}`)
       }
 
       toast.success("Bond created successfully")

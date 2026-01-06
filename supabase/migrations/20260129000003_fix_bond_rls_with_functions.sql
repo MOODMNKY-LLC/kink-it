@@ -171,3 +171,5 @@ WITH CHECK (
   OR public.is_admin((SELECT auth.uid()))
 );
 
+
+

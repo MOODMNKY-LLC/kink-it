@@ -35,38 +35,36 @@ export function useChatStream({
   useEffect(() => {
     if (!conversationId) return
 
-    const channel = supabase.channel(`chat-${conversationId}`, {
-      config: {
-        broadcast: { self: true, ack: true },
-        private: true,
-      },
-    })
-
-    channel
-      .on("broadcast", { event: "message_chunk" }, (payload) => {
-        const { chunk, message_id, chunk_index } = payload.payload as any
-        setCurrentStreamingMessage((prev) => prev + chunk)
-      })
-      .on("broadcast", { event: "message_complete" }, (payload) => {
-        const { message_id, content } = payload.payload as any
-        setCurrentStreamingMessage("")
-        setIsStreaming(false)
-        
-        const newMessage: ChatMessage = {
-          id: message_id,
-          role: "assistant",
-          content,
+    const channel = supabase
+      .channel(`chat:${conversationId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => {
+          const newMessage = payload.new as any
+          if (newMessage.role === "assistant" && !newMessage.is_streaming) {
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: newMessage.id,
+                role: "assistant",
+                content: newMessage.content,
+              },
+            ])
+          }
         }
-        
-        setMessages((prev) => [...prev, newMessage])
-        onMessageComplete?.(newMessage)
-      })
+      )
       .subscribe()
 
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [conversationId, supabase, onMessageComplete])
+  }, [conversationId, supabase])
 
   const sendMessage = useCallback(
     async (
@@ -77,6 +75,8 @@ export function useChatStream({
         tools?: any[]
         model?: string
         temperature?: number
+        fileUrls?: string[] // URLs of uploaded files/images
+        realtime?: boolean // Use OpenAI Responses SDK realtime mode
       }
     ) => {
       if (!content.trim()) return
@@ -87,6 +87,7 @@ export function useChatStream({
         content,
       }
       setMessages((prev) => [...prev, userMessage])
+
       setIsStreaming(true)
       setCurrentStreamingMessage("")
 
@@ -94,48 +95,106 @@ export function useChatStream({
       abortControllerRef.current = new AbortController()
 
       try {
-        // Get session token
+        // Get session token using Supabase client (same method as avatar generator)
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
         if (sessionError || !sessionData?.session?.access_token) {
           throw new Error("Not authenticated. Please log in.")
         }
 
         const accessToken = sessionData.session.access_token
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+        
+        // Get Supabase URL and anon key from client configuration (more reliable)
+        // The Supabase client stores these internally
+        const supabaseUrl = (supabase as any).supabaseUrl || process.env.NEXT_PUBLIC_SUPABASE_URL
+        const anonKey = (supabase as any).supabaseKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
         if (!supabaseUrl) {
-          throw new Error("Supabase URL not configured")
+          throw new Error("Supabase URL not configured. Check NEXT_PUBLIC_SUPABASE_URL environment variable.")
         }
 
-        // Call Edge Function for streaming
-        // Note: For local development, start the function with: pnpm functions:serve
+        if (!anonKey) {
+          throw new Error("Supabase anon key not configured. Check NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable.")
+        }
+
+        // Detect if we're in local development
+        const isLocalDev = supabaseUrl.includes("127.0.0.1") || supabaseUrl.includes("localhost") || supabaseUrl.includes("::1")
+        
+        // Construct function URL (same pattern as avatar generator)
         const functionUrl = `${supabaseUrl}/functions/v1/chat-stream`
         console.log("🔗 Connecting to Edge Function:", functionUrl)
         console.log("📍 Supabase URL:", supabaseUrl)
-        console.log("💡 If connection fails, start the function with: pnpm functions:serve")
+        console.log("🔑 Using anon key:", anonKey.substring(0, 10) + "...")
+        console.log("🌍 Environment:", isLocalDev ? "Local Development" : "Production")
         
+        if (isLocalDev) {
+          console.log("💡 Local dev detected - ensure function is running:")
+          console.log("   pnpm functions:serve")
+          console.log("   OR")
+          console.log("   supabase functions serve chat-stream --no-verify-jwt")
+          
+          // Health check: Try to connect to the function first
+          try {
+            const healthCheckUrl = functionUrl.replace("/chat-stream", "/health") || `${supabaseUrl}/functions/v1/health`
+            const healthResponse = await fetch(healthCheckUrl, {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "apikey": anonKey,
+              },
+              signal: abortControllerRef.current.signal,
+            }).catch(() => null)
+            
+            // If health check fails, try a simple OPTIONS request to the actual function
+            const optionsResponse = await fetch(functionUrl, {
+              method: "OPTIONS",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "apikey": anonKey,
+              },
+              signal: abortControllerRef.current.signal,
+            }).catch(() => null)
+            
+            if (!optionsResponse || !optionsResponse.ok) {
+              console.warn("⚠️ Edge Function may not be running. Starting connection attempt anyway...")
+              console.warn("💡 If connection fails, start the function with: pnpm functions:serve")
+            } else {
+              console.log("✅ Edge Function is reachable")
+            }
+          } catch (healthError) {
+            console.warn("⚠️ Could not verify Edge Function availability:", healthError)
+            console.warn("💡 If connection fails, start the function with: pnpm functions:serve")
+          }
+        }
+        
+        // Prepare request payload
+        const payload = {
+          user_id: userId,
+          conversation_id: conversationId,
+          messages: [...messages, userMessage].map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+          agent_name: options?.agentName,
+          agent_instructions: options?.agentInstructions,
+          tools: options?.tools,
+          model: options?.model || "gpt-4o-mini",
+          temperature: options?.temperature ?? 0.7,
+          file_urls: options?.fileUrls || [],
+          stream: !options?.realtime,
+          realtime: options?.realtime || false,
+        }
+
+        // Create SSE connection with proper auth headers (matching avatar generator pattern)
         const eventSource = new SSE(
           functionUrl,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
               "Content-Type": "application/json",
-              "apikey": process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+              "apikey": anonKey,
+              "x-client-info": "kink-it-web@1.0.0",
             },
-            payload: JSON.stringify({
-              user_id: userId,
-              conversation_id: conversationId,
-              messages: [...messages, userMessage].map((m) => ({
-                role: m.role,
-                content: m.content,
-              })),
-              agent_name: options?.agentName,
-              agent_instructions: options?.agentInstructions,
-              tools: options?.tools,
-              model: options?.model || "gpt-4o-mini",
-              temperature: options?.temperature ?? 0.7,
-              stream: true,
-            }),
+            payload: JSON.stringify(payload),
             method: "POST",
             withCredentials: true,
           }
@@ -143,7 +202,8 @@ export function useChatStream({
 
         // Add open event listener for debugging
         eventSource.addEventListener("open", () => {
-          console.log("SSE connection opened successfully")
+          console.log("✅ SSE connection opened successfully")
+          console.log("📡 Streaming chat messages...")
         })
 
         let assistantMessageId: string | undefined
@@ -188,16 +248,21 @@ export function useChatStream({
           const xhr = (eventSource as any).xhr
           const status = xhr?.status
           const statusText = xhr?.statusText
+          const responseText = xhr?.responseText
           
-          console.error("SSE error:", error)
-          console.error("SSE error details:", {
+          console.error("❌ SSE connection error:", error)
+          console.error("📋 SSE error details:", {
             type: error.type,
             target: error.target,
             readyState: eventSource.readyState,
-            url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/chat-stream`,
+            url: functionUrl,
             httpStatus: status,
             statusText: statusText,
-            response: xhr?.responseText?.substring(0, 200), // First 200 chars of response
+            response: responseText?.substring(0, 500), // First 500 chars of response
+            supabaseUrl,
+            isLocalDev,
+            hasAnonKey: !!anonKey,
+            hasAccessToken: !!accessToken,
           })
           
           // Check readyState and HTTP status to determine error type
@@ -205,21 +270,41 @@ export function useChatStream({
           let errorMsg = "Connection error. Please try again."
           
           if (status === 404) {
-            errorMsg = "Edge Function not found. Please ensure 'supabase functions serve chat-stream --no-verify-jwt' is running."
+            if (isLocalDev) {
+              errorMsg = `Edge Function not found at ${functionUrl}.\n\nFor local development, start the function:\n  pnpm functions:serve\n\nOr:\n  supabase functions serve chat-stream --no-verify-jwt\n\nThen refresh this page.`
+            } else {
+              errorMsg = `Edge Function not found at ${functionUrl}. Check if the function is deployed.`
+            }
           } else if (status === 401 || status === 403) {
             errorMsg = "Authentication failed. Please log in again."
+            console.error("🔐 Auth error - check access token:", accessToken ? "present" : "missing")
           } else if (status === 500) {
-            errorMsg = "Server error. Check Edge Function logs."
+            let errorDetail = "Unknown"
+            try {
+              if (responseText) {
+                const parsed = JSON.parse(responseText)
+                errorDetail = parsed.error || responseText.substring(0, 100)
+              }
+            } catch {
+              errorDetail = responseText?.substring(0, 100) || "Unknown"
+            }
+            errorMsg = `Server error: ${errorDetail}. Check Edge Function logs.`
           } else if (status === 0 || !status) {
             // No HTTP status means connection failed (CORS, network, or function not running)
-            if (eventSource.readyState === SSE.CONNECTING) {
-              errorMsg = "Cannot connect to Edge Function. Start it with: supabase functions serve chat-stream --no-verify-jwt"
-            } else if (eventSource.readyState === SSE.CLOSED) {
+            if (eventSource.readyState === SSE.CONNECTING || eventSource.readyState === 0) {
+              if (isLocalDev) {
+                errorMsg = `Cannot connect to Edge Function at ${functionUrl}.\n\n⚠️ The function is not running locally.\n\nStart it with:\n  pnpm functions:serve\n\nOr:\n  supabase functions serve chat-stream --no-verify-jwt\n\nThen refresh this page.`
+              } else {
+                errorMsg = `Cannot connect to Edge Function at ${functionUrl}. Check network connection and function deployment status.`
+              }
+            } else if (eventSource.readyState === SSE.CLOSED || eventSource.readyState === 2) {
               errorMsg = "Connection closed. Check if the Edge Function is running."
+            } else {
+              errorMsg = `Connection failed. Check network and ensure function is running. URL: ${functionUrl}`
             }
-          } else if (eventSource.readyState === SSE.CONNECTING) {
+          } else if (eventSource.readyState === SSE.CONNECTING || eventSource.readyState === 0) {
             errorMsg = `Connecting... (HTTP ${status})`
-          } else if (eventSource.readyState === SSE.CLOSED) {
+          } else if (eventSource.readyState === SSE.CLOSED || eventSource.readyState === 2) {
             errorMsg = `Connection closed (HTTP ${status}). Check Edge Function logs.`
           }
           
@@ -236,6 +321,7 @@ export function useChatStream({
         setIsStreaming(false)
         setCurrentStreamingMessage("")
         const errorMsg = error.message || "Failed to send message"
+        console.error("❌ Error sending message:", error)
         toast.error(errorMsg)
         onError?.(errorMsg)
       }
@@ -243,7 +329,7 @@ export function useChatStream({
     [userId, conversationId, messages, supabase, onMessageComplete, onError]
   )
 
-  const stopStreaming = useCallback(() => {
+  const cancelStream = useCallback(() => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
       setIsStreaming(false)
@@ -251,18 +337,11 @@ export function useChatStream({
     }
   }, [])
 
-  const clearMessages = useCallback(() => {
-    setMessages([])
-    setCurrentStreamingMessage("")
-  }, [])
-
   return {
     messages,
-    sendMessage,
     isStreaming,
     currentStreamingMessage,
-    stopStreaming,
-    clearMessages,
+    sendMessage,
+    cancelStream,
   }
 }
-

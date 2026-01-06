@@ -97,3 +97,5 @@ COMMENT ON FUNCTION public.handle_new_user() IS
   'Creates a profile when a new user signs up. First user becomes admin with dominant role. Subsequent users default to submissive role unless specified in metadata.';
 
 
+
+

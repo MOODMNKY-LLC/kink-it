@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import WelcomeStep from "./steps/welcome-step"
@@ -19,6 +20,8 @@ interface OnboardingWizardProps {
 }
 
 export default function OnboardingWizard({ initialStep = 1, urlParams }: OnboardingWizardProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [currentStep, setCurrentStep] = useState(initialStep)
   const [completedSteps, setCompletedSteps] = useState<number[]>([])
   const [wizardData, setWizardData] = useState<Record<string, any>>({})
@@ -58,15 +61,26 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
     } else {
       const savedStep = localStorage.getItem("onboarding_step")
       if (savedStep) {
-        setCurrentStep(parseInt(savedStep, 10))
+        const step = parseInt(savedStep, 10)
+        setCurrentStep(step)
       }
     }
-
+    
+    // Load saved data from localStorage
     const savedData = localStorage.getItem("onboarding_data")
     if (savedData) {
       try {
         const parsed = JSON.parse(savedData)
         setWizardData(parsed)
+        
+        // Infer completed steps from saved step number
+        const savedStep = localStorage.getItem("onboarding_step")
+        if (savedStep) {
+          const stepNum = parseInt(savedStep, 10)
+          // All steps before the saved step are considered completed
+          const inferredCompleted = Array.from({ length: stepNum - 1 }, (_, i) => i + 1)
+          setCompletedSteps(inferredCompleted)
+        }
         
         // If Discord was installed via URL param, update wizard data
         if (urlParams?.discord_installed === "true" && !parsed.discord_installed) {
@@ -98,13 +112,45 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
 
     const newStep = currentStep + 1
     setCurrentStep(newStep)
-    setCompletedSteps([...completedSteps, currentStep])
+    
+    // Add current step to completed steps if not already there
+    if (!completedSteps.includes(currentStep)) {
+      setCompletedSteps([...completedSteps, currentStep])
+    }
+    
+    updateUrlStep(newStep)
   }
 
   const handleBack = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1)
+      const newStep = currentStep - 1
+      setCurrentStep(newStep)
+      updateUrlStep(newStep)
     }
+  }
+
+  // Jump to any previous or completed step
+  const handleStepJump = (stepNumber: number) => {
+    // Allow jumping to:
+    // - Any step <= currentStep (can go back)
+    // - Any completed step (can edit)
+    // - Current step (no-op, but allow for re-render)
+    if (stepNumber === currentStep) return
+    
+    // Don't allow jumping forward to uncompleted steps
+    if (stepNumber > currentStep && !completedSteps.includes(stepNumber)) {
+      return
+    }
+
+    setCurrentStep(stepNumber)
+    updateUrlStep(stepNumber)
+  }
+
+  // Update URL with step parameter
+  const updateUrlStep = (step: number) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("step", step.toString())
+    router.push(`/onboarding?${params.toString()}`, { scroll: false })
   }
 
   const handleComplete = async () => {
@@ -128,6 +174,7 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
         return (
           <WelcomeStep
             onNext={handleNext}
+            onBack={currentStep > 1 ? handleBack : undefined}
             initialData={wizardData}
           />
         )
@@ -181,6 +228,7 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
         currentStep={currentStep}
         totalSteps={TOTAL_STEPS}
         completedSteps={completedSteps}
+        onStepClick={handleStepJump}
       />
       <Card className="mt-8 p-6">
         {renderStep()}

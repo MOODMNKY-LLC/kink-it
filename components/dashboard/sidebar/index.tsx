@@ -26,7 +26,6 @@ import ProcessorIcon from "@/components/icons/proccesor"
 import CuteRobotIcon from "@/components/icons/cute-robot"
 import EmailIcon from "@/components/icons/email"
 import GearIcon from "@/components/icons/gear"
-import MonkeyIcon from "@/components/icons/monkey"
 import DotsVerticalIcon from "@/components/icons/dots-vertical"
 import { Bullet } from "@/components/ui/bullet"
 import LockIcon from "@/components/icons/lock"
@@ -57,6 +56,8 @@ import { useState, useEffect } from "react"
 import { getNavigationConfig } from "./navigation-config"
 import { ContextSwitcher } from "./context-switcher"
 import { ChevronDown, ChevronRight } from "lucide-react"
+import { NotionSyncStatusBadge } from "@/components/playground/shared/notion-sync-status-badge"
+import { SidebarNotifications } from "./sidebar-notifications"
 
 interface DashboardSidebarProps extends React.ComponentProps<typeof Sidebar> {
   profile?: Profile | null
@@ -153,7 +154,7 @@ export function DashboardSidebar({ profile, className, ...props }: DashboardSide
         <div className="flex gap-3 flex-row">
           <div className="flex overflow-clip size-12 shrink-0 items-center justify-center rounded bg-sidebar-primary-foreground/10 transition-colors group-hover:bg-sidebar-primary text-sidebar-primary-foreground">
             <img 
-              src="/kink-it-logo.png" 
+              src="/images/kinky/kinky-avatar.svg" 
               alt="KINK IT" 
               className="size-10 object-contain group-hover:scale-[1.1] origin-center transition-transform"
             />
@@ -249,7 +250,30 @@ export function DashboardSidebar({ profile, className, ...props }: DashboardSide
         })}
       </SidebarContent>
 
-      <SidebarFooter className="p-0">
+      <SidebarFooter className="p-0 flex flex-col gap-2">
+        {/* Notion Sync Status */}
+        {profile && (
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <div className="px-3 py-2">
+                <NotionSyncStatusBadge showButton={true} showBadge={true} />
+              </div>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {/* Notifications */}
+        {profile && (
+          <SidebarGroup className="flex-1 min-h-0">
+            <SidebarGroupContent className="flex-1 min-h-0">
+              <div className="px-3 pb-2 flex-1 min-h-0">
+                <SidebarNotifications />
+              </div>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {/* User Profile */}
         <SidebarGroup>
           <SidebarGroupLabel>
             <Bullet className="mr-2" />

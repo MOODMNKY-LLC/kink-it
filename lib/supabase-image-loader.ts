@@ -60,3 +60,5 @@ export default function supabaseImageLoader({ src, width, quality = 75 }: Loader
   return `https://${projectId}.supabase.co/storage/v1/object/public/${bucket}/${src}?width=${width}&quality=${quality}`
 }
 
+
+

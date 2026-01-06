@@ -5,6 +5,7 @@
 ALTER TABLE realtime.messages ENABLE ROW LEVEL SECURITY;
 
 -- Policy: Users can receive message chunks for their conversations
+DROP POLICY IF EXISTS "Users can receive their conversation message chunks" ON realtime.messages;
 CREATE POLICY "Users can receive their conversation message chunks"
 ON realtime.messages FOR SELECT
 TO authenticated
@@ -18,6 +19,7 @@ USING (
 );
 
 -- Policy: Service role can broadcast message chunks
+DROP POLICY IF EXISTS "Service role can broadcast message chunks" ON realtime.messages;
 CREATE POLICY "Service role can broadcast message chunks"
 ON realtime.messages FOR INSERT
 TO service_role
@@ -54,6 +56,7 @@ END;
 $$;
 
 -- Trigger for message updates
+DROP TRIGGER IF EXISTS broadcast_message_update_trigger ON public.messages;
 CREATE TRIGGER broadcast_message_update_trigger
 AFTER INSERT OR UPDATE ON public.messages
 FOR EACH ROW

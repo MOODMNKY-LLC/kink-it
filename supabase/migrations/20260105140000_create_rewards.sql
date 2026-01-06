@@ -178,3 +178,5 @@ GRANT EXECUTE ON FUNCTION public.get_available_rewards(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_completed_rewards_count(uuid) TO authenticated;
 
 
+
+

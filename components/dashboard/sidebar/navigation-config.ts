@@ -26,6 +26,10 @@ import {
   Library,
   Users,
   Link as LinkIcon,
+  Sparkles,
+  Wand2,
+  Image as ImageIcon,
+  User,
 } from "lucide-react"
 
 export interface NavigationItem {
@@ -137,6 +141,21 @@ export const userNavigation: NavigationGroup[] = [
         title: "Ideas",
         url: "/ideas",
         icon: LightbulbIcon,
+      },
+    ],
+  },
+  {
+    title: "Kinky's Playground",
+    items: [
+      {
+        title: "KINKSTER Creator",
+        url: "/playground/kinkster-creator",
+        icon: Users,
+      },
+      {
+        title: "Scene Builder",
+        url: "/playground/scene-builder",
+        icon: Wand2,
       },
     ],
   },

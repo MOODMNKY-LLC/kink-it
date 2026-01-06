@@ -155,3 +155,5 @@ Each archetype has default stat allocations.
 - Avatar generation requires OpenAI API key
 - Images are currently stored as OpenAI URLs (should be migrated to Supabase Storage)
 
+
+

@@ -131,3 +131,5 @@ const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 3. **Alternative Approach**: Consider using Supabase Admin API for testing instead of cookies
 
 
+
+

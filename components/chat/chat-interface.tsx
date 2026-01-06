@@ -85,7 +85,9 @@ export function ChatInterface({
   return (
     <Card className="flex flex-col h-[600px]">
       <CardHeader>
-        <CardTitle>Chat with {agentName}</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          Chat with {agentName === "Assistant" || agentName === "KINK IT Assistant" || agentName === "Kinky" || agentName === "Kinky Kincade" ? "Kinky Kincade" : agentName}
+        </CardTitle>
         <CardDescription>
           {conversationId ? "Continue conversation" : "Start a new conversation"}
         </CardDescription>

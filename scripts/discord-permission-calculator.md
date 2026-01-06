@@ -73,3 +73,5 @@ https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=53
 Replace `536951424` with your calculated permission integer.
 
 
+
+

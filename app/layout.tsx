@@ -7,7 +7,7 @@ import localFont from "next/font/local"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { MobileHeader } from "@/components/dashboard/mobile-header"
 import { DashboardSidebar } from "@/components/dashboard/sidebar"
-import Widget from "@/components/dashboard/widget"
+import TerminalWidget from "@/components/dashboard/widget/terminal-widget"
 import Notifications from "@/components/dashboard/notifications"
 // Mobile Chat disabled until Module 7 (Communication Hub) is built
 // import { MobileChat } from "@/components/chat/mobile-chat"
@@ -39,6 +39,9 @@ const rebelGrotesk = localFont({
 })
 
 const isV0 = process.env["VERCEL_URL"]?.includes("vusercontent.net") ?? false
+
+// Force dynamic rendering since layout depends on user authentication state
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: {
@@ -159,18 +162,14 @@ export default async function RootLayout({
                     <div className="space-y-gap py-sides min-h-screen max-h-screen sticky top-0 overflow-clip">
                       {profile && (
                         <>
-                          <Widget
+                          <TerminalWidget
                             userName={
                               profile.display_name ||
                               profile.full_name ||
                               profile.email.split("@")[0]
                             }
                             timezone={Intl.DateTimeFormat().resolvedOptions().timeZone}
-                          />
-                          <Notifications
-                            initialNotifications={
-                              await getNotifications(profile.id)
-                            }
+                            profile={profile}
                           />
                         </>
                       )}

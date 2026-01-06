@@ -6,7 +6,7 @@ import OnboardingWizard from "@/components/onboarding/onboarding-wizard"
 export default async function OnboardingPage({
   searchParams,
 }: {
-  searchParams: { step?: string; discord_installed?: string; error?: string }
+  searchParams: Promise<{ step?: string; discord_installed?: string; error?: string }>
 }) {
   await requireAuth()
   const profile = await getUserProfile()
@@ -17,8 +17,11 @@ export default async function OnboardingPage({
     redirect("/")
   }
 
+  // Await searchParams before accessing properties (Next.js 15 requirement)
+  const params = await searchParams
+  
   // Get current onboarding step from URL params (priority) or database
-  const urlStep = searchParams?.step ? parseInt(searchParams.step, 10) : null
+  const urlStep = params?.step ? parseInt(params.step, 10) : null
   const dbStep = profile?.onboarding_step || 1
   const currentStep = urlStep && urlStep >= 1 && urlStep <= 6 ? urlStep : dbStep
 
@@ -26,7 +29,7 @@ export default async function OnboardingPage({
     <div className="min-h-screen bg-background">
       <OnboardingWizard 
         initialStep={currentStep}
-        urlParams={searchParams}
+        urlParams={params}
       />
     </div>
   )

@@ -8,12 +8,16 @@ interface MessageListProps {
   messages: ChatMessage[]
 }
 
+import { KinkyEmptyState } from "@/components/kinky/kinky-empty-state"
+
 export function MessageList({ messages }: MessageListProps) {
   if (messages.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full text-muted-foreground">
-        <p>No messages yet. Start a conversation!</p>
-      </div>
+      <KinkyEmptyState
+        title="Start a conversation"
+        description="Ask me anything about KINK IT"
+        size="sm"
+      />
     )
   }
 

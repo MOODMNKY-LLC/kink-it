@@ -42,3 +42,5 @@ Write-Host ""
 Write-Host "Or restart Cursor IDE completely after running this script." -ForegroundColor Gray
 
 
+
+

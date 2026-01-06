@@ -133,3 +133,5 @@ GRANT EXECUTE ON FUNCTION public.get_avatar_generation_status(uuid) TO authentic
 -- Only service role can run cleanup function
 GRANT EXECUTE ON FUNCTION public.mark_temporary_avatars_for_cleanup() TO service_role;
 
+
+

@@ -84,3 +84,5 @@ After generating icons:
 
 ⚠️ **Icons need to be generated** - The manifest references icon files that need to be created from the source image at `public/images/app-icon/kink-it-icon.png`.
 
+
+

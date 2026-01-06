@@ -1,8 +1,9 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
+import type { GenerationProps } from "@/lib/image/props"
 
 interface AvatarGenerationProgress {
   status: "generating" | "downloading" | "uploading" | "completed" | "error"
@@ -29,53 +30,89 @@ export function useAvatarGeneration({
   const [progress, setProgress] = useState<AvatarGenerationProgress | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
   const supabase = createClient()
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null)
 
   // Subscribe to Realtime updates
   useEffect(() => {
     if (!userId) return
 
+    // Check if already subscribed to prevent multiple subscriptions
+    if (channelRef.current) {
+      const channel = channelRef.current
+      if (channel.state === "SUBSCRIBED") {
+        return
+      }
+    }
+
     const topic = kinksterId
       ? `kinkster:${kinksterId}:avatar`
       : `user:${userId}:avatar`
 
-    const channel = supabase.channel(`avatar-generation-${topic}`, {
+    // Channel name must match the topic exactly (what Edge Function broadcasts to)
+    const channel = supabase.channel(topic, {
       config: {
         broadcast: { self: true, ack: true },
-        private: true,
+        private: true, // Required for RLS authorization
       },
     })
 
+    channelRef.current = channel
+
+    // Set auth before subscribing
+    supabase.realtime.setAuth()
+
     channel
       .on("broadcast", { event: "avatar_generation_progress" }, (payload) => {
+        console.log(`[AvatarGeneration] Received broadcast event:`, payload)
         const progressData = payload.payload as AvatarGenerationProgress
+        console.log(`[AvatarGeneration] Progress data:`, {
+          status: progressData.status,
+          message: progressData.message,
+          storage_url: progressData.storage_url ? `${progressData.storage_url.substring(0, 50)}...` : undefined,
+        })
+        
         setProgress(progressData)
 
         if (progressData.status === "completed" && progressData.storage_url) {
+          console.log(`[AvatarGeneration] ✅ Completion received, calling onComplete with URL: ${progressData.storage_url.substring(0, 50)}...`)
           setIsGenerating(false)
           toast.success("Avatar generated and stored successfully")
           onComplete?.(progressData.storage_url)
         } else if (progressData.status === "error") {
+          console.error(`[AvatarGeneration] ❌ Error received:`, progressData.error || progressData.message)
           setIsGenerating(false)
           const errorMsg = progressData.error || progressData.message || "Avatar generation failed"
           toast.error(errorMsg)
           onError?.(errorMsg)
+        } else {
+          console.log(`[AvatarGeneration] Progress update: ${progressData.status} - ${progressData.message}`)
         }
       })
-      .subscribe((status) => {
+      .subscribe((status, err) => {
         if (status === "SUBSCRIBED") {
-          console.log(`Subscribed to avatar generation progress: ${topic}`)
+          console.log(`[AvatarGeneration] Successfully subscribed to: ${topic}`)
         } else if (status === "CHANNEL_ERROR") {
-          console.error("Error subscribing to avatar generation channel")
+          console.error("[AvatarGeneration] Channel error:", err)
+          const errorMsg = err?.message || "Failed to subscribe to avatar generation channel"
+          onError?.(errorMsg)
+        } else if (status === "TIMED_OUT") {
+          console.warn("[AvatarGeneration] Subscription timed out")
+        } else if (status === "CLOSED") {
+          console.log("[AvatarGeneration] Channel closed")
         }
       })
 
+    // Cleanup on unmount
     return () => {
-      supabase.removeChannel(channel)
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current)
+        channelRef.current = null
+      }
     }
   }, [userId, kinksterId, supabase, onComplete, onError])
 
   const generateAvatar = useCallback(
-    async (characterData: any, customPrompt?: string) => {
+    async (characterData: any, props?: GenerationProps) => {
       setIsGenerating(true)
       setProgress({
         status: "generating",
@@ -89,13 +126,24 @@ export function useAvatarGeneration({
           body: {
             user_id: userId,
             kinkster_id: kinksterId,
-            character_data: characterData,
-            custom_prompt: customPrompt,
+            character_data: {
+              ...characterData,
+              props,
+            },
+            // No custom_prompt - always use synthesized prompt from character_data.props
           },
         })
 
         if (error) {
-          throw new Error(error.message || "Failed to invoke avatar generation")
+          console.error("Edge Function error details:", error)
+          // Check if error has a message or context
+          const errorMessage = error.message || error.context?.message || "Failed to invoke avatar generation"
+          throw new Error(errorMessage)
+        }
+
+        // Ensure data exists
+        if (!data) {
+          throw new Error("No data returned from Edge Function")
         }
 
         // If status is "completed", call onComplete immediately

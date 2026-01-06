@@ -46,3 +46,5 @@ Write-Host "To start Cursor with environment variables:" -ForegroundColor Gray
 Write-Host "  cursor ." -ForegroundColor White
 
 
+
+

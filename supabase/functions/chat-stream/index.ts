@@ -9,7 +9,6 @@
  */
 
 import { createClient } from "npm:@supabase/supabase-js@2.39.3"
-import { Agent, run } from "npm:@openai/agents@0.3.7"
 
 interface ChatMessage {
   role: "user" | "assistant" | "system"
@@ -25,6 +24,7 @@ interface RequestPayload {
   tools?: any[]
   model?: string
   temperature?: number
+  file_urls?: string[] // URLs of uploaded files/images
   stream?: boolean
 }
 
@@ -94,6 +94,7 @@ Deno.serve(async (req: Request) => {
       tools = [],
       model = "gpt-4o-mini",
       temperature = 0.7,
+      file_urls = [],
       stream = true,
     } = payload
 
@@ -137,6 +138,13 @@ Deno.serve(async (req: Request) => {
       )
     }
 
+    // Enhance message content with file URLs if provided
+    let enhancedContent = lastUserMessage.content
+    if (file_urls && file_urls.length > 0) {
+      const fileList = file_urls.map((url, idx) => `[Image ${idx + 1}: ${url}]`).join("\n")
+      enhancedContent = enhancedContent ? `${enhancedContent}\n\n${fileList}` : fileList
+    }
+
     // Create or get conversation
     let convId = conversation_id
     if (!convId) {
@@ -144,7 +152,7 @@ Deno.serve(async (req: Request) => {
         .from("conversations")
         .insert({
           user_id,
-          title: lastUserMessage.content.substring(0, 100),
+          title: enhancedContent.substring(0, 100),
           agent_name,
           agent_config: {
             instructions: agent_instructions,
@@ -169,24 +177,16 @@ Deno.serve(async (req: Request) => {
       convId = newConv.id
     }
 
-    // Save user message
+    // Save user message (use enhanced content with file URLs)
     const { error: msgError } = await supabase.from("messages").insert({
       conversation_id: convId,
       role: "user",
-      content: lastUserMessage.content,
+      content: enhancedContent,
     })
 
     if (msgError) {
       console.error("Error saving user message:", msgError)
     }
-
-    // Create agent
-    const agent = new Agent({
-      name: agent_name,
-      instructions: agent_instructions || "You are a helpful assistant.",
-      tools: tools.length > 0 ? tools : undefined,
-      model,
-    })
 
     // Create streaming message record
     const { data: streamingMessage, error: streamMsgError } = await supabase
@@ -207,6 +207,234 @@ Deno.serve(async (req: Request) => {
 
     const messageId = streamingMessage?.id
 
+    // Dynamically import OpenAI Agents SDK to avoid bus errors during module initialization
+    // This prevents the SDK from being loaded at startup, which can cause Deno runtime crashes
+    let Agent: any, run: any, tool: any
+    try {
+      const agentsModule = await import("npm:@openai/agents@0.3.7")
+      Agent = agentsModule.Agent
+      run = agentsModule.run
+      tool = agentsModule.tool
+    } catch (importError: any) {
+      console.error("Failed to import OpenAI Agents SDK:", importError)
+      return new Response(
+        JSON.stringify({ error: "Failed to load AI agents SDK", details: importError.message }),
+        {
+          status: 500,
+          headers: { 
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        }
+      )
+    }
+
+    // Check if user has Notion API key and create Notion tools
+    let notionTools: any[] = []
+    try {
+      const { data: notionKeys } = await supabase
+        .from("user_notion_api_keys")
+        .select("id")
+        .eq("user_id", user_id)
+        .eq("is_active", true)
+        .limit(1)
+
+      if (notionKeys && notionKeys.length > 0) {
+        // User has Notion API key, create Notion tools
+        // Use environment variable or construct from request
+        const apiBaseUrl = Deno.env.get("NEXT_PUBLIC_APP_URL") || 
+          Deno.env.get("VERCEL_URL") ? `https://${Deno.env.get("VERCEL_URL")}` :
+          "http://localhost:3000"
+
+        notionTools = [
+          tool({
+            name: "notion_search",
+            description: "Search Notion workspace for pages, databases, or content. Use this to find tasks, ideas, image generations, KINKSTER profiles, or any other content in the user's Notion workspace.",
+            parameters: {
+              type: "object",
+              properties: {
+                query: {
+                  type: "string",
+                  description: "Search query (e.g., 'tasks due today', 'latest image generation', 'KINKSTER profile for [name]')",
+                },
+                database_type: {
+                  type: "string",
+                  enum: ["tasks", "ideas", "image_generations", "kinksters", "rules", "rewards", "journal", "scene_logs"],
+                  description: "Optional: Filter results by database type",
+                },
+              },
+              required: ["query"],
+            },
+            execute: async ({ query, database_type }: { query: string; database_type?: string }) => {
+              const response = await fetch(`${apiBaseUrl}/api/notion/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  tool_name: "notion_search",
+                  args: { query, database_type },
+                  user_id,
+                }),
+              })
+              const result = await response.json()
+              return result.formatted || JSON.stringify(result.data)
+            },
+          }),
+          tool({
+            name: "notion_fetch_page",
+            description: "Fetch a specific Notion page or database entry by its ID. Use this after searching to get full details of a page, including all properties and content.",
+            parameters: {
+              type: "object",
+              properties: {
+                page_id: {
+                  type: "string",
+                  description: "Notion page ID (UUID format)",
+                },
+              },
+              required: ["page_id"],
+            },
+            execute: async ({ page_id }: { page_id: string }) => {
+              const response = await fetch(`${apiBaseUrl}/api/notion/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  tool_name: "notion_fetch_page",
+                  args: { page_id },
+                  user_id,
+                }),
+              })
+              const result = await response.json()
+              return result.formatted || JSON.stringify(result.data)
+            },
+          }),
+          tool({
+            name: "notion_query_database",
+            description: "Query a Notion database with filters and sorting. Use this to get tasks due today, latest image generations, KINKSTER profiles, etc.",
+            parameters: {
+              type: "object",
+              properties: {
+                database_type: {
+                  type: "string",
+                  enum: ["tasks", "ideas", "image_generations", "kinksters", "rules", "rewards", "journal", "scene_logs"],
+                  description: "Type of database to query",
+                },
+                filter: {
+                  type: "object",
+                  description: "Notion filter object (e.g., { property: 'Due Date', date: { equals: 'today' } })",
+                },
+                sorts: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      property: { type: "string" },
+                      direction: { type: "string", enum: ["ascending", "descending"] },
+                    },
+                  },
+                  description: "Sort options (e.g., [{ property: 'Created', direction: 'descending' }])",
+                },
+              },
+              required: ["database_type"],
+            },
+            execute: async ({ database_type, filter, sorts }: { database_type: string; filter?: any; sorts?: any[] }) => {
+              const response = await fetch(`${apiBaseUrl}/api/notion/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  tool_name: "notion_query_database",
+                  args: { database_type, filter, sorts },
+                  user_id,
+                }),
+              })
+              const result = await response.json()
+              return result.formatted || JSON.stringify(result.data)
+            },
+          }),
+        ]
+
+        // Get user profile to check role for create operations
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("dynamic_role, system_role")
+          .eq("id", user_id)
+          .single()
+
+        const isDomOrAdmin = profile?.dynamic_role === "dominant" || profile?.system_role === "admin"
+
+        if (isDomOrAdmin) {
+          notionTools.push(
+            tool({
+              name: "notion_create_task",
+              description: "Create a new task in the Notion Tasks database. Only available to Dominants and Admins.",
+              parameters: {
+                type: "object",
+                properties: {
+                  title: { type: "string", description: "Task title" },
+                  description: { type: "string", description: "Task description or instructions" },
+                  priority: { type: "string", enum: ["low", "medium", "high"], description: "Task priority" },
+                  due_date: { type: "string", description: "Due date in ISO 8601 format (e.g., '2026-02-01')" },
+                  assigned_to: { type: "string", description: "Partner user ID (optional, for assigning to submissive)" },
+                },
+                required: ["title"],
+              },
+              execute: async (args: any) => {
+                const response = await fetch(`${apiBaseUrl}/api/notion/chat-tools`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    tool_name: "notion_create_task",
+                    args,
+                    user_id,
+                  }),
+                })
+                const result = await response.json()
+                return result.formatted || JSON.stringify(result.data)
+              },
+            }),
+            tool({
+              name: "notion_create_idea",
+              description: "Create a new idea in the Notion Ideas database. Only available to Dominants and Admins.",
+              parameters: {
+                type: "object",
+                properties: {
+                  title: { type: "string", description: "Idea title" },
+                  description: { type: "string", description: "Idea description or details" },
+                  category: { type: "string", description: "Idea category (e.g., 'scene', 'rule', 'reward')" },
+                },
+                required: ["title"],
+              },
+              execute: async (args: any) => {
+                const response = await fetch(`${apiBaseUrl}/api/notion/chat-tools`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    tool_name: "notion_create_idea",
+                    args,
+                    user_id,
+                  }),
+                })
+                const result = await response.json()
+                return result.formatted || JSON.stringify(result.data)
+              },
+            })
+          )
+        }
+      }
+    } catch (notionError) {
+      console.error("Error setting up Notion tools:", notionError)
+      // Continue without Notion tools if there's an error
+    }
+
+    // Combine user-provided tools with Notion tools
+    const allTools = [...tools, ...notionTools]
+
+    // Create agent
+    const agent = new Agent({
+      name: agent_name,
+      instructions: agent_instructions || "You are a helpful assistant.",
+      tools: allTools.length > 0 ? allTools : undefined,
+      model,
+    })
+
     // Set OpenAI API key for Agents SDK
     // Note: Agents SDK uses OPENAI_API_KEY env var
     Deno.env.set("OPENAI_API_KEY", openaiApiKey)
@@ -220,8 +448,8 @@ Deno.serve(async (req: Request) => {
             let fullContent = ""
             let chunkIndex = 0
 
-            // Run agent with streaming
-            const agentStream = await run(agent, lastUserMessage.content, {
+            // Run agent with streaming (use enhanced content with file URLs)
+            const agentStream = await run(agent, enhancedContent, {
               stream: true,
               openai: { apiKey: openaiApiKey },
             })
@@ -243,17 +471,40 @@ Deno.serve(async (req: Request) => {
                 encoder.encode(`data: ${data}\n\n`)
               )
 
-              // Broadcast via Realtime (optional, for multi-client sync)
-              await supabase.realtime.send(
-                `conversation:${convId}:messages`,
-                "message_chunk",
-                {
-                  message_id: messageId,
-                  chunk: chunk,
-                  chunk_index: chunkIndex,
-                },
-                false
-              )
+              // Broadcast via Realtime REST API (optional, for multi-client sync)
+              // Note: supabase.realtime.send() doesn't work in Edge Functions
+              // Use REST API instead
+              try {
+                const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? ""
+                const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+                
+                if (supabaseUrl && serviceRoleKey) {
+                  await fetch(`${supabaseUrl}/realtime/v1/api/broadcast`, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "apikey": serviceRoleKey,
+                      "Authorization": `Bearer ${serviceRoleKey}`,
+                    },
+                    body: JSON.stringify({
+                      messages: [
+                        {
+                          topic: `conversation:${convId}:messages`,
+                          event: "message_chunk",
+                          payload: {
+                            message_id: messageId,
+                            chunk: chunk,
+                            chunk_index: chunkIndex,
+                          },
+                        },
+                      ],
+                    }),
+                  })
+                }
+              } catch (broadcastError) {
+                // Ignore broadcast errors - SSE is the primary communication method
+                console.error("Failed to broadcast chunk:", broadcastError)
+              }
             }
 
             // Wait for agent stream completion
@@ -282,16 +533,37 @@ Deno.serve(async (req: Request) => {
               encoder.encode(`data: ${completionData}\n\n`)
             )
 
-            // Broadcast completion
-            await supabase.realtime.send(
-              `conversation:${convId}:messages`,
-              "message_complete",
-              {
-                message_id: messageId,
-                content: fullContent,
-              },
-              false
-            )
+            // Broadcast completion via Realtime REST API
+            try {
+              const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? ""
+              const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+              
+              if (supabaseUrl && serviceRoleKey) {
+                await fetch(`${supabaseUrl}/realtime/v1/api/broadcast`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "apikey": serviceRoleKey,
+                    "Authorization": `Bearer ${serviceRoleKey}`,
+                  },
+                  body: JSON.stringify({
+                    messages: [
+                      {
+                        topic: `conversation:${convId}:messages`,
+                        event: "message_complete",
+                        payload: {
+                          message_id: messageId,
+                          content: fullContent,
+                        },
+                      },
+                    ],
+                  }),
+                })
+              }
+            } catch (broadcastError) {
+              // Ignore broadcast errors - SSE is the primary communication method
+              console.error("Failed to broadcast completion:", broadcastError)
+            }
 
             controller.close()
           } catch (error: any) {
@@ -329,7 +601,22 @@ Deno.serve(async (req: Request) => {
       })
     } else {
       // Non-streaming response
-      const result = await run(agent, lastUserMessage.content, {
+      // Ensure SDK is loaded (should already be loaded above, but double-check)
+      if (!Agent || !run) {
+        const agentsModule = await import("npm:@openai/agents@0.3.7")
+        Agent = agentsModule.Agent
+        run = agentsModule.run
+      }
+      
+      // Create agent for non-streaming
+      const agent = new Agent({
+        name: agent_name,
+        instructions: agent_instructions || "You are a helpful assistant.",
+        tools: tools.length > 0 ? tools : undefined,
+        model,
+      })
+      
+      const result = await run(agent, enhancedContent, {
         openai: { apiKey: openaiApiKey },
       })
 

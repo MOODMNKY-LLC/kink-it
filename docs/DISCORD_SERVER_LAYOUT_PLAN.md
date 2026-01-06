@@ -411,3 +411,5 @@ CREATE TABLE discord_channels (
 This Discord server structure provides a comprehensive notification and communication hub for KINK IT while maintaining the app's core principles of authority preservation, consent-first design, and role-appropriate access. The structure is scalable, organized, and follows Discord best practices while serving the unique needs of D/s relationship management.
 
 
+
+

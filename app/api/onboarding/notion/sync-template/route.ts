@@ -13,11 +13,45 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    // Get Notion API key from environment
-    const notionApiKey = process.env.NOTION_API_KEY
-    if (!notionApiKey) {
+    // Get user's Notion API key from database
+    const encryptionKey = process.env.NOTION_API_KEY_ENCRYPTION_KEY || process.env.SUPABASE_ENCRYPTION_KEY
+    if (!encryptionKey) {
       return NextResponse.json(
-        { error: "Notion API key not configured" },
+        { error: "Server configuration error: Encryption key not configured" },
+        { status: 500 }
+      )
+    }
+
+    // Get active API key for user
+    const { data: apiKeys, error: keysError } = await supabase
+      .from("user_notion_api_keys")
+      .select("id, key_name")
+      .eq("user_id", user.id)
+      .eq("is_active", true)
+      .order("last_validated_at", { ascending: false, nullsFirst: false })
+      .limit(1)
+      .single()
+
+    if (keysError || !apiKeys) {
+      return NextResponse.json(
+        { 
+          error: "No active Notion API key found",
+          suggestion: "Please add your Notion API key in Settings > Notion API Keys"
+        },
+        { status: 400 }
+      )
+    }
+
+    // Decrypt API key
+    const { data: notionApiKey, error: decryptError } = await supabase.rpc("get_user_notion_api_key", {
+      p_user_id: user.id,
+      p_key_id: apiKeys.id,
+      p_encryption_key: encryptionKey,
+    })
+
+    if (decryptError || !notionApiKey) {
+      return NextResponse.json(
+        { error: "Failed to retrieve API key" },
         { status: 500 }
       )
     }
@@ -163,10 +197,29 @@ export async function POST(request: NextRequest) {
           const dbId = block.id || block.database?.id
           const dbName = block.child_database?.title || block.database?.title?.[0]?.plain_text || "Untitled Database"
           
-          // Try to determine database type from name
-          const nameLower = dbName.toLowerCase()
+          // Try to determine database type from name (handle emojis and variations)
+          // Remove emojis and normalize for matching
+          const nameWithoutEmoji = dbName.replace(/[\u{1F300}-\u{1F9FF}]/gu, "").trim()
+          const nameLower = nameWithoutEmoji.toLowerCase()
           let dbType = "unknown"
-          if (nameLower.includes("task")) dbType = "tasks"
+          
+          // Check for image generations (handle emoji prefix like "🎨 Image Generations")
+          if (nameLower.includes("image") && nameLower.includes("generation")) {
+            dbType = "image_generations"
+          }
+          // Check for KINKSTER profiles
+          else if (nameLower.includes("kinkster") || (nameLower.includes("profile") && nameLower.includes("kink"))) {
+            dbType = "kinkster_profiles"
+          }
+          // Check for tasks
+          else if (nameLower.includes("task")) {
+            dbType = "tasks"
+          }
+          // Check for ideas
+          else if (nameLower.includes("idea") || nameLower.includes("app idea")) {
+            dbType = "ideas"
+          }
+          // Other database types
           else if (nameLower.includes("rule")) dbType = "rules"
           else if (nameLower.includes("reward")) dbType = "rewards"
           else if (nameLower.includes("point")) dbType = "points"
@@ -207,19 +260,82 @@ export async function POST(request: NextRequest) {
         parent_page_id: parentPageId,
       }))
 
+      // Validate records before insert
+      const invalidRecords = dbRecords.filter(
+        (record) => !record.database_id || !record.database_name || !record.parent_page_id
+      )
+
+      if (invalidRecords.length > 0) {
+        console.error("Invalid database records:", invalidRecords)
+        return NextResponse.json(
+          {
+            error: "Some databases have invalid data",
+            invalid_count: invalidRecords.length,
+            databases,
+          },
+          { status: 400 }
+        )
+      }
+
       // Delete existing databases for this user and insert new ones
-      await supabase.from("notion_databases").delete().eq("user_id", user.id)
-      await supabase.from("notion_databases").insert(dbRecords)
+      const { error: deleteError } = await supabase
+        .from("notion_databases")
+        .delete()
+        .eq("user_id", user.id)
+
+      if (deleteError) {
+        console.error("Error deleting existing databases:", deleteError)
+        return NextResponse.json(
+          { error: "Failed to clear existing databases", details: deleteError.message },
+          { status: 500 }
+        )
+      }
+
+      const { data: insertedData, error: insertError } = await supabase
+        .from("notion_databases")
+        .insert(dbRecords)
+        .select()
+
+      if (insertError) {
+        console.error("Error inserting databases:", insertError)
+        return NextResponse.json(
+          {
+            error: "Failed to store databases",
+            details: insertError.message,
+            databases,
+          },
+          { status: 500 }
+        )
+      }
+
+      // Log successful sync
+      console.log(`Successfully synced ${insertedData?.length || 0} databases for user ${user.id}`)
+    } else {
+      return NextResponse.json(
+        {
+          error: "No databases found in template",
+          suggestion: "Ensure your template page contains child databases",
+        },
+        { status: 404 }
+      )
     }
+
+    // Get synced database counts by type
+    const syncedByType = databases.reduce((acc: Record<string, number>, db) => {
+      acc[db.type] = (acc[db.type] || 0) + 1
+      return acc
+    }, {})
 
     return NextResponse.json({
       success: true,
       parentPageId,
       databases,
+      databases_count: databases.length,
+      synced_by_type: syncedByType,
       pageTitle: templatePage.properties?.title?.title?.[0]?.plain_text || 
                  templatePage.properties?.Name?.title?.[0]?.plain_text || 
                  "KINK IT Template",
-      message: `Found template "${templatePage.properties?.title?.title?.[0]?.plain_text || 'KINK IT Template'}" with ${databases.length} databases`,
+      message: `Successfully synced ${databases.length} database(s) from template "${templatePage.properties?.title?.title?.[0]?.plain_text || 'KINK IT Template'}"`,
     })
   } catch (error) {
     console.error("Error syncing Notion template:", error)

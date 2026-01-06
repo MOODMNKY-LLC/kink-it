@@ -73,3 +73,5 @@ const supabase = createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 - `@supabase/ssr` package - `createBrowserClient` function
 
 
+
+

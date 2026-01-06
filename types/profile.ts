@@ -30,4 +30,7 @@ export interface Profile {
   experience_level?: ExperienceLevel | null
   scene_preferences?: string[]
   kink_identity_public?: boolean
+  // Widget customization fields
+  banner_text?: string | null
+  widget_image_url?: string | null
 }

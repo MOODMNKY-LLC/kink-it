@@ -257,3 +257,5 @@ ALTER TABLE profiles ADD COLUMN discord_notifications_enabled BOOLEAN DEFAULT fa
 The Discord MCP server provides a solid foundation for one-way notifications to Discord channels. While it has limitations (no rich formatting, no file uploads, no read capabilities), it perfectly matches the PRD's requirement for Discord as a "delivery channel" for notifications and reminders. The implementation should focus on reliable text-based notifications with proper error handling and user preferences.
 
 
+
+

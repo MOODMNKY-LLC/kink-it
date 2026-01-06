@@ -45,3 +45,5 @@ Write-Host '   "Login to Discord with bot token"' -ForegroundColor Gray
 Write-Host '   "Send test message to channel 1457594125590462548"' -ForegroundColor Gray
 
 
+
+

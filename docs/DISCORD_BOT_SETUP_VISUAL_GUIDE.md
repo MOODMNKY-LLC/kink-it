@@ -260,3 +260,5 @@ export $(grep DISCORD_BOT_TOKEN .env.local | xargs)
 **Follow the detailed guide**: `docs/DISCORD_BOT_SETUP_GUIDE.md`
 
 
+
+

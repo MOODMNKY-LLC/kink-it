@@ -62,3 +62,5 @@ Write-Host "1. Restart PowerShell or run: . `$PROFILE" -ForegroundColor Yellow
 Write-Host "2. Restart Cursor IDE" -ForegroundColor Yellow
 Write-Host "3. DISCORD_TOKEN will be auto-loaded from .env.local" -ForegroundColor Yellow
 
+
+

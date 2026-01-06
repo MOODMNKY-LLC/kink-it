@@ -16,6 +16,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    // Verify user has a profile
+    const { data: profile, error: profileCheckError } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("id", user.id)
+      .single()
+
+    if (profileCheckError || !profile) {
+      console.error("User profile not found:", profileCheckError)
+      return NextResponse.json(
+        { error: "User profile not found. Please complete your profile setup." },
+        { status: 400 }
+      )
+    }
+
     const body = await request.json()
     const { name, description, bond_type } = body
 
@@ -27,13 +42,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate invite code - try RPC first, fallback to client-side generation
-    let inviteCode: string
+    let inviteCode: string | null = null
     const { data: inviteCodeData, error: inviteError } = await supabase.rpc(
       "generate_bond_invite_code"
     )
 
     if (inviteError || !inviteCodeData) {
-      console.warn("RPC function failed, using fallback:", inviteError)
+      console.warn("RPC function failed, using fallback:", inviteError?.message || inviteError)
       // Fallback: Generate code client-side
       // Check for uniqueness in a loop
       let attempts = 0
@@ -43,25 +58,30 @@ export async function POST(request: NextRequest) {
       while (!isUnique && attempts < maxAttempts) {
         // Generate 8-character alphanumeric code
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-        inviteCode = ""
-        for (let i = 0; i < 8; i++) {
-          inviteCode += chars.charAt(Math.floor(Math.random() * chars.length))
-        }
+        const generatedCode = Array.from({ length: 8 }, () => 
+          chars.charAt(Math.floor(Math.random() * chars.length))
+        ).join("")
         
         // Check if code exists
-        const { data: existing } = await supabase
+        const { data: existing, error: checkError } = await supabase
           .from("bonds")
           .select("id")
-          .eq("invite_code", inviteCode)
-          .single()
+          .eq("invite_code", generatedCode)
+          .maybeSingle()
+        
+        if (checkError) {
+          console.error("Error checking invite code uniqueness:", checkError)
+          break
+        }
         
         if (!existing) {
+          inviteCode = generatedCode
           isUnique = true
         }
         attempts++
       }
       
-      if (!isUnique) {
+      if (!isUnique || !inviteCode) {
         console.error("Failed to generate unique invite code after", maxAttempts, "attempts")
         return NextResponse.json(
           { error: "Failed to generate unique invite code. Please try again." },
@@ -70,6 +90,13 @@ export async function POST(request: NextRequest) {
       }
     } else {
       inviteCode = inviteCodeData
+    }
+
+    if (!inviteCode) {
+      return NextResponse.json(
+        { error: "Failed to generate invite code" },
+        { status: 500 }
+      )
     }
 
     // Create bond
@@ -88,8 +115,16 @@ export async function POST(request: NextRequest) {
 
     if (bondError) {
       console.error("Error creating bond:", bondError)
+      // Provide more detailed error message
+      const errorMessage = bondError.message || "Failed to create bond"
+      const errorDetails = bondError.details || bondError.hint || ""
+      
       return NextResponse.json(
-        { error: "Failed to create bond" },
+        { 
+          error: errorMessage,
+          details: errorDetails,
+          code: bondError.code
+        },
         { status: 500 }
       )
     }

@@ -164,3 +164,5 @@ After proper setup:
 **Last Updated**: 2026-01-27  
 **Next Step**: Set DISCORD_TOKEN as Windows system environment variable and restart Cursor
 
+
+

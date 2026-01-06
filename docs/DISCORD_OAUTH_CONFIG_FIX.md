@@ -86,3 +86,5 @@ Added section documenting Discord OAuth environment variables (for future refere
 The error should no longer occur, and if it does, it will be handled gracefully with user-friendly error messages.
 
 
+
+

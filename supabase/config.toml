@@ -2,7 +2,7 @@
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
-project_id = "kink-it"
+project_id = "KINK-IT"
 
 [api]
 enabled = true
@@ -400,8 +400,14 @@ inspector_port = 8083
 # The Deno major version to use.
 deno_version = 2
 
-# [edge_runtime.secrets]
-# secret_key = "env(SECRET_VALUE)"
+# Edge Function secrets - these environment variables are passed to Edge Functions at runtime
+# Format: secret_name = "env(ENVIRONMENT_VARIABLE_NAME)"
+# Make sure these environment variables are set in your shell/environment before running `supabase start`
+[edge_runtime.secrets]
+# OpenAI API key for image generation (DALL-E 3)
+openai_api_key = "env(OPENAI_API_KEY)"
+# Note: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are automatically provided by Supabase
+# and don't need to be configured here
 
 [analytics]
 enabled = true

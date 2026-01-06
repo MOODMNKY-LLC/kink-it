@@ -236,3 +236,5 @@ export const TOTAL_STAT_POINTS = 60 // Starting points to allocate
 export const MAX_STAT_VALUE = 20
 export const MIN_STAT_VALUE = 1
 
+
+

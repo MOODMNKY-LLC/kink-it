@@ -1,10 +1,9 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { ChevronLeft, ChevronRight, Sparkles, Loader2, RefreshCw } from "lucide-react"
@@ -13,6 +12,11 @@ import { toast } from "sonner"
 import supabaseImageLoader from "@/lib/supabase-image-loader"
 import { useAvatarGeneration } from "@/hooks/use-avatar-generation"
 import { createClient } from "@/lib/supabase/client"
+import { PropsSelector } from "@/components/playground/image-generation/props-selector"
+import { PromptPreview } from "@/components/playground/image-generation/prompt-preview"
+import type { GenerationProps } from "@/lib/image/props"
+import { KINKY_DEFAULT_PROPS } from "@/lib/image/props"
+import { buildAvatarPrompt } from "@/lib/image/shared-utils"
 
 interface AvatarGenerationStepProps {
   onNext: (data: Partial<KinksterCreationData>) => void
@@ -27,10 +31,10 @@ export default function AvatarGenerationStep({
   initialData,
   updateData,
 }: AvatarGenerationStepProps) {
-  const [customPrompt, setCustomPrompt] = useState(initialData?.avatar_prompt || "")
   const [avatarUrl, setAvatarUrl] = useState(initialData?.avatar_url || "")
   const [previewPrompt, setPreviewPrompt] = useState("")
   const [userId, setUserId] = useState<string>("")
+  const [props, setProps] = useState<GenerationProps>(KINKY_DEFAULT_PROPS)
   const supabase = createClient()
 
   // Get user ID
@@ -44,19 +48,87 @@ export default function AvatarGenerationStep({
     fetchUserId()
   }, [supabase])
 
+  // Update preview prompt when props change
+  useEffect(() => {
+    if (initialData?.name) {
+      const characterData = {
+        name: initialData.name,
+        appearance_description: initialData.appearance_description,
+        physical_attributes: initialData.physical_attributes,
+        archetype: initialData.archetype,
+        role_preferences: initialData.role_preferences,
+        personality_traits: initialData.personality_traits,
+        props,
+      }
+      const synthesizedPrompt = buildAvatarPrompt(characterData)
+      setPreviewPrompt(synthesizedPrompt)
+    }
+  }, [props, initialData])
+
+  // Memoize callbacks to prevent useEffect re-runs in useAvatarGeneration hook
+  // This ensures stable function references and prevents subscription issues
+  const handleComplete = useCallback(
+    (storageUrl: string) => {
+      console.log(`[AvatarGenerationStep] onComplete called with URL: ${storageUrl}`)
+      // Transform URL if it uses internal Docker network address (local dev only)
+      // In production, the Edge Function should already return the correct URL
+      let transformedUrl = storageUrl
+      const isLocalDev = storageUrl.includes("kong:8000") || 
+                         storageUrl.includes("127.0.0.1:8000") ||
+                         storageUrl.includes("localhost:8000")
+      
+      if (isLocalDev) {
+        // Replace internal Docker URL with public URL
+        const urlPath = storageUrl.replace(/^https?:\/\/[^\/]+/, "")
+        // Use NEXT_PUBLIC_SUPABASE_URL which is set correctly for both local and production
+        const publicApiUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://127.0.0.1:55321"
+        transformedUrl = `${publicApiUrl.replace(/\/$/, "")}${urlPath}`
+        console.log(`[AvatarGenerationStep] Local dev detected, transformed URL: ${transformedUrl}`)
+      } else if (storageUrl.includes("supabase.co")) {
+        // Production URL - use as-is (should already be correct from Edge Function)
+        console.log(`[AvatarGenerationStep] Production URL detected, using as-is`)
+      } else {
+        // Fallback - URL should already be correct, but log for debugging
+        console.log(`[AvatarGenerationStep] Using URL as-is: ${transformedUrl}`)
+      }
+      
+      setAvatarUrl(transformedUrl)
+      console.log(`[AvatarGenerationStep] Avatar URL set to: ${transformedUrl}`)
+      
+      // Generate prompt from character data and props for storage
+      const characterDataWithProps = {
+        name: initialData?.name || "",
+        appearance_description: initialData?.appearance_description,
+        physical_attributes: initialData?.physical_attributes,
+        archetype: initialData?.archetype,
+        role_preferences: initialData?.role_preferences,
+        personality_traits: initialData?.personality_traits,
+        props,
+      }
+      const synthesizedPrompt = buildAvatarPrompt(characterDataWithProps)
+      setPreviewPrompt(synthesizedPrompt)
+      updateData({
+        avatar_url: transformedUrl,
+        avatar_prompt: synthesizedPrompt,
+      })
+      console.log(`[AvatarGenerationStep] Data updated with avatar URL`)
+    },
+    [initialData, props, updateData]
+  )
+
+  const handleError = useCallback(
+    (error: string) => {
+      console.error("[AvatarGenerationStep] Avatar generation error:", error)
+      toast.error(error)
+    },
+    []
+  )
+
   const { generateAvatar, progress, isGenerating } = useAvatarGeneration({
     userId,
     kinksterId: undefined, // Will be set after creation
-    onComplete: (storageUrl) => {
-      setAvatarUrl(storageUrl)
-      updateData({
-        avatar_url: storageUrl,
-        avatar_prompt: previewPrompt || customPrompt,
-      })
-    },
-    onError: (error) => {
-      console.error("Avatar generation error:", error)
-    },
+    onComplete: handleComplete,
+    onError: handleError,
   })
 
   const handleGenerate = async () => {
@@ -78,23 +150,25 @@ export default function AvatarGenerationStep({
         archetype: initialData.archetype,
         role_preferences: initialData.role_preferences,
         personality_traits: initialData.personality_traits,
+        props, // Include props in character data
       }
+
+      // Synthesize prompt for preview
+      const synthesizedPrompt = buildAvatarPrompt(characterData)
+      setPreviewPrompt(synthesizedPrompt)
 
       const result = await generateAvatar(
         characterData,
-        customPrompt.trim() || undefined
+        undefined, // No custom prompt - always use synthesized
+        props
       )
-
-      if (result?.prompt) {
-        setPreviewPrompt(result.prompt)
-      }
 
       // If we got an immediate response with image_url, set it
       if (result?.image_url && !result.storage_url) {
         setAvatarUrl(result.image_url)
         updateData({
           avatar_url: result.image_url,
-          avatar_prompt: result.prompt,
+          avatar_prompt: synthesizedPrompt,
           avatar_generation_config: result.generation_config,
         })
       }
@@ -112,7 +186,7 @@ export default function AvatarGenerationStep({
 
     onNext({
       avatar_url: avatarUrl,
-      avatar_prompt: previewPrompt || customPrompt,
+      avatar_prompt: previewPrompt,
     })
   }
 
@@ -129,27 +203,23 @@ export default function AvatarGenerationStep({
       </div>
 
       <div className="space-y-6">
-        {/* Prompt Customization */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Avatar Prompt (Optional)</CardTitle>
-            <CardDescription>
-              Customize the prompt used for avatar generation, or leave blank to use auto-generated prompt
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Textarea
-              value={customPrompt}
-              onChange={(e) => setCustomPrompt(e.target.value)}
-              placeholder="Leave blank to auto-generate based on your character details..."
-              className="min-h-24"
-              maxLength={500}
-            />
-            <p className="text-sm text-muted-foreground mt-2">
-              {customPrompt.length}/500 characters
-            </p>
-          </CardContent>
-        </Card>
+        {/* Props Selector */}
+        <PropsSelector props={props} onPropsChange={setProps} defaultToKinky={true} />
+
+        {/* Prompt Preview (Read-only) */}
+        {initialData?.name && (
+          <PromptPreview
+            characterData={{
+              name: initialData.name,
+              appearance_description: initialData.appearance_description,
+              physical_attributes: initialData.physical_attributes,
+              archetype: initialData.archetype,
+              role_preferences: initialData.role_preferences,
+              personality_traits: initialData.personality_traits,
+              props,
+            }}
+          />
+        )}
 
         {/* Generation Button */}
         <div className="flex justify-center">

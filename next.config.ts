@@ -42,6 +42,38 @@ const nextConfig: NextConfig = {
         hostname: 'public.notion-static.com',
         pathname: '/**',
       },
+      // Supabase Storage (production)
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
+      // Local development (Supabase local instance)
+      {
+        protocol: 'https',
+        hostname: '127.0.0.1',
+        port: '55321',
+        pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'localhost',
+        port: '55321',
+        pathname: '/storage/v1/object/public/**',
+      },
+      // Local development (HTTP fallback)
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '55321',
+        pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '55321',
+        pathname: '/storage/v1/object/public/**',
+      },
     ],
   },
   webpack: (config, { isServer }) => {

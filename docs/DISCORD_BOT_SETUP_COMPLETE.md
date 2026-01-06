@@ -214,3 +214,5 @@ Once `DISCORD_TOKEN` is exported, test MCP connectivity.
 **Ready to proceed?** Follow `docs/DISCORD_BOT_SETUP_GUIDE.md` for detailed step-by-step instructions!
 
 
+
+

@@ -39,3 +39,5 @@ CREATE INDEX IF NOT EXISTS idx_realtime_messages_topic_avatar
 ON realtime.messages(topic)
 WHERE topic LIKE 'kinkster:%:avatar' OR topic LIKE 'user:%:avatar';
 
+
+

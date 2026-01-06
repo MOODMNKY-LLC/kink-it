@@ -26,7 +26,7 @@ export function CharacterBackground({
         <div className={cn("absolute inset-0 overflow-hidden", className)}>
           <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background" />
           <Image
-            src="/images/avatar/kink-it-avatar.svg"
+            src="/images/kinky/kinky-avatar.svg"
             alt="KINK IT Character"
             fill
             className="object-cover object-center opacity-[var(--opacity,0.15)]"
@@ -42,7 +42,7 @@ export function CharacterBackground({
       return (
         <div className={cn("absolute inset-0 overflow-hidden", className)}>
           <Image
-            src="/images/avatar/kink-it-avatar.svg"
+            src="/images/kinky/kinky-avatar.svg"
             alt=""
             fill
             className="object-contain object-right-bottom opacity-[var(--opacity,0.08)]"
@@ -57,7 +57,7 @@ export function CharacterBackground({
       return (
         <div className={cn("absolute inset-0 overflow-hidden", className)}>
           <div className="absolute inset-0" style={{
-            backgroundImage: `url(/images/avatar/kink-it-avatar.svg)`,
+            backgroundImage: `url(/images/kinky/kinky-avatar.svg)`,
             backgroundSize: "200px 300px",
             backgroundRepeat: "repeat",
             backgroundPosition: "0 0",
@@ -73,7 +73,7 @@ export function CharacterBackground({
         <div className={cn("absolute inset-0 overflow-hidden", className)}>
           <div className="absolute bottom-0 right-0 w-[400px] h-[600px] opacity-[var(--opacity,0.12)]">
             <Image
-              src="/images/avatar/kink-it-avatar.svg"
+              src="/images/kinky/kinky-avatar.svg"
               alt=""
               fill
               className="object-contain object-bottom-right"
@@ -91,7 +91,7 @@ export function CharacterBackground({
           <div className="absolute inset-0 bg-gradient-to-br from-background via-background/98 to-background" />
           <div className="absolute bottom-0 right-0 w-full h-full opacity-[var(--opacity,0.1)]">
             <Image
-              src="/images/avatar/kink-it-avatar.svg"
+              src="/images/kinky/kinky-avatar.svg"
               alt=""
               fill
               className="object-contain object-right-bottom"

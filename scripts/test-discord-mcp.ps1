@@ -33,3 +33,5 @@ Write-Host "2. Test Discord MCP functions in Cursor chat" -ForegroundColor Gray
 Write-Host "3. Use channel ID: 1457594125590462548 (#announcements)" -ForegroundColor Gray
 
 
+
+

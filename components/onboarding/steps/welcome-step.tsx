@@ -9,10 +9,11 @@ import { Bullet } from "@/components/ui/bullet"
 
 interface WelcomeStepProps {
   onNext: (data: Record<string, any>) => void
+  onBack?: () => void
   initialData?: Record<string, any>
 }
 
-export default function WelcomeStep({ onNext, initialData }: WelcomeStepProps) {
+export default function WelcomeStep({ onNext, onBack, initialData }: WelcomeStepProps) {
   const [dynamicRole, setDynamicRole] = useState<"dominant" | "submissive" | "switch" | "">(
     initialData?.dynamic_role || ""
   )
@@ -74,13 +75,24 @@ export default function WelcomeStep({ onNext, initialData }: WelcomeStepProps) {
             )}
           </div>
 
-          <Button
-            onClick={handleNext}
-            disabled={!dynamicRole}
-            className="w-full"
-          >
-            Continue
-          </Button>
+          <div className="flex gap-3">
+            {onBack && (
+              <Button
+                onClick={onBack}
+                variant="outline"
+                className="flex-1"
+              >
+                Back
+              </Button>
+            )}
+            <Button
+              onClick={handleNext}
+              disabled={!dynamicRole}
+              className={onBack ? "flex-1" : "w-full"}
+            >
+              Continue
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

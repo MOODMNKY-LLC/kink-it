@@ -2,19 +2,22 @@
 
 import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Camera, Upload, X } from 'lucide-react'
+import { Camera, Upload, X, Loader2 } from 'lucide-react'
 import Image from 'next/image'
+import { toast } from 'sonner'
+import { validateProofFile } from '@/lib/image/shared-utils'
 
 interface ProofUploadProps {
-  onUpload: (file: File) => Promise<void>
+  onUploadComplete?: (proofUrl: string, proofId: string) => void
   existingProof?: string
   taskId: string
 }
 
-export function ProofUpload({ onUpload, existingProof, taskId }: ProofUploadProps) {
+export function ProofUpload({ onUploadComplete, existingProof, taskId }: ProofUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [preview, setPreview] = useState<string | null>(existingProof || null)
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
 
   const handleCapture = () => {
     inputRef.current?.click()
@@ -24,15 +27,10 @@ export function ProofUpload({ onUpload, existingProof, taskId }: ProofUploadProp
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file')
-      return
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Image size must be less than 5MB')
+    // Validate file
+    const validation = validateProofFile(file)
+    if (!validation.valid) {
+      toast.error(validation.error || 'Invalid file')
       return
     }
 
@@ -43,20 +41,46 @@ export function ProofUpload({ onUpload, existingProof, taskId }: ProofUploadProp
     }
     reader.readAsDataURL(file)
 
-    // Upload file
+    // Upload file to Supabase Storage via API
     setUploading(true)
+    setUploadProgress(0)
+
     try {
-      await onUpload(file)
-    } catch (error) {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch(`/api/tasks/${taskId}/proof/upload`, {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to upload proof')
+      }
+
+      const data = await response.json()
+      setPreview(data.proof_url)
+      toast.success('Proof uploaded successfully')
+      
+      if (onUploadComplete) {
+        onUploadComplete(data.proof_url, data.proof_id)
+      }
+    } catch (error: any) {
       console.error('Upload failed:', error)
-      alert('Failed to upload proof. Please try again.')
+      toast.error(error.message || 'Failed to upload proof. Please try again.')
       setPreview(null)
     } finally {
       setUploading(false)
+      setUploadProgress(0)
+      if (inputRef.current) {
+        inputRef.current.value = ''
+      }
     }
   }
 
-  const handleRemove = () => {
+  const handleRemove = async () => {
+    // TODO: Implement delete functionality if needed
     setPreview(null)
     if (inputRef.current) {
       inputRef.current.value = ''
@@ -81,10 +105,19 @@ export function ProofUpload({ onUpload, existingProof, taskId }: ProofUploadProp
           className="touch-target"
           variant="outline"
         >
-          <Camera className="mr-2 h-4 w-4" />
-          {preview ? 'Change Photo' : 'Capture Proof'}
+          {uploading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Uploading...
+            </>
+          ) : (
+            <>
+              <Camera className="mr-2 h-4 w-4" />
+              {preview ? 'Change Proof' : 'Upload Proof'}
+            </>
+          )}
         </Button>
-        {preview && (
+        {preview && !uploading && (
           <Button
             onClick={handleRemove}
             disabled={uploading}
@@ -99,16 +132,25 @@ export function ProofUpload({ onUpload, existingProof, taskId }: ProofUploadProp
 
       {preview && (
         <div className="relative w-full max-w-md aspect-video rounded-lg overflow-hidden border border-border">
-          <Image
-            src={preview}
-            alt="Proof"
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 400px"
-          />
+          {preview.startsWith('data:') || preview.startsWith('http') ? (
+            <Image
+              src={preview}
+              alt="Proof"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 400px"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center bg-muted">
+              <p className="text-sm text-muted-foreground">Proof uploaded</p>
+            </div>
+          )}
           {uploading && (
             <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
-              <Upload className="h-8 w-8 animate-spin" />
+              <div className="text-center">
+                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
+                <p className="text-sm">Uploading proof...</p>
+              </div>
             </div>
           )}
         </div>

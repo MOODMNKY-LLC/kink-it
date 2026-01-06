@@ -2,9 +2,8 @@
 
 import React from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Bot } from "lucide-react"
 import ReactMarkdown from "react-markdown"
+import { KinkyAvatar } from "@/components/kinky/kinky-avatar"
 
 interface StreamingMessageProps {
   content: string
@@ -13,11 +12,7 @@ interface StreamingMessageProps {
 export function StreamingMessage({ content }: StreamingMessageProps) {
   return (
     <div className="flex gap-3 flex-row">
-      <Avatar className="shrink-0">
-        <AvatarFallback>
-          <Bot className="h-4 w-4" />
-        </AvatarFallback>
-      </Avatar>
+      <KinkyAvatar size={32} variant="chat" />
       <Card className="max-w-[80%]">
         <CardContent className="p-4">
           <div className="prose prose-sm dark:prose-invert max-w-none">

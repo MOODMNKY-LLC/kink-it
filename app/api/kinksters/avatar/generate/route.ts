@@ -1,77 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getUserProfile } from "@/lib/auth/get-user"
+import { createClient } from "@/lib/supabase/server"
 import OpenAI from "openai"
-
-// Backend preset configurations for consistent avatar generation
-const AVATAR_GENERATION_PRESETS = {
-  artStyle: "digital art, character portrait, fantasy art style, detailed, professional illustration",
-  lighting: "dramatic lighting, professional portrait lighting, cinematic lighting",
-  composition: "centered composition, character portrait, high detail, professional quality",
-  quality: "high quality, 4k resolution, detailed, professional, polished",
-  theme: "mature, sophisticated, artistic, tasteful, elegant",
-}
-
-function buildAvatarPrompt(characterData: {
-  name: string
-  appearance_description?: string
-  physical_attributes?: Record<string, any>
-  archetype?: string
-  role_preferences?: string[]
-  personality_traits?: string[]
-}): string {
-  const {
-    name,
-    appearance_description,
-    physical_attributes,
-    archetype,
-    role_preferences,
-    personality_traits,
-  } = characterData
-
-  // Build physical description
-  let physicalDesc = appearance_description || ""
-  
-  if (physical_attributes) {
-    const parts: string[] = []
-    if (physical_attributes.height) parts.push(`${physical_attributes.height} height`)
-    if (physical_attributes.build) parts.push(`${physical_attributes.build} build`)
-    if (physical_attributes.hair) parts.push(`${physical_attributes.hair} hair`)
-    if (physical_attributes.eyes) parts.push(`${physical_attributes.eyes} eyes`)
-    if (physical_attributes.skin_tone) parts.push(`${physical_attributes.skin_tone} skin`)
-    
-    if (parts.length > 0) {
-      physicalDesc = physicalDesc
-        ? `${physicalDesc}, ${parts.join(", ")}`
-        : parts.join(", ")
-    }
-  }
-
-  // Build character context
-  const contextParts: string[] = []
-  if (archetype) contextParts.push(`archetype: ${archetype}`)
-  if (role_preferences && role_preferences.length > 0) {
-    contextParts.push(`role: ${role_preferences.join(", ")}`)
-  }
-  if (personality_traits && personality_traits.length > 0) {
-    contextParts.push(`personality: ${personality_traits.slice(0, 3).join(", ")}`)
-  }
-
-  // Construct final prompt
-  const promptParts = [
-    AVATAR_GENERATION_PRESETS.artStyle,
-    `character portrait of ${name}`,
-    physicalDesc || "distinctive appearance",
-    contextParts.length > 0 ? `reflecting ${contextParts.join(", ")}` : "",
-    "wearing stylish, tasteful clothing",
-    "confident pose, expressive eyes",
-    AVATAR_GENERATION_PRESETS.lighting,
-    AVATAR_GENERATION_PRESETS.composition,
-    AVATAR_GENERATION_PRESETS.quality,
-    AVATAR_GENERATION_PRESETS.theme,
-  ].filter(Boolean)
-
-  return promptParts.join(", ")
-}
+import { buildAvatarPrompt, getFileExtension, KINKY_DEFAULT_PRESET, type CharacterData } from "@/lib/image/shared-utils"
 
 export async function POST(request: NextRequest) {
   try {
@@ -89,17 +20,29 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { characterData, customPrompt } = body
+    const { characterData, size = "1024x1024", quality = "standard", props } = body
 
-    if (!characterData || !characterData.name) {
+    // Use KINKY default preset if no character data provided
+    const finalCharacterData = characterData && characterData.name
+      ? { ...characterData, props }
+      : { ...KINKY_DEFAULT_PRESET, props }
+
+    if (!finalCharacterData.name) {
       return NextResponse.json(
         { error: "Character data with name is required" },
         { status: 400 }
       )
     }
 
-    // Build prompt using backend presets
-    const prompt = customPrompt || buildAvatarPrompt(characterData)
+    // Validate size
+    const validSizes = ["1024x1024", "1792x1024", "1024x1792"]
+    const imageSize = validSizes.includes(size) ? size : "1024x1024"
+
+    // Validate quality
+    const imageQuality = quality === "hd" ? "hd" : "standard"
+
+    // Build prompt using shared utility (automatically optimized, always uses props)
+    const prompt = buildAvatarPrompt(finalCharacterData as CharacterData)
 
     // Initialize OpenAI client
     const openai = new OpenAI({ apiKey })
@@ -108,8 +51,8 @@ export async function POST(request: NextRequest) {
     const response = await openai.images.generate({
       model: "dall-e-3",
       prompt: prompt,
-      size: "1024x1024",
-      quality: "standard",
+      size: imageSize as "1024x1024" | "1792x1024" | "1024x1792",
+      quality: imageQuality as "standard" | "hd",
       n: 1,
     })
 
@@ -132,11 +75,7 @@ export async function POST(request: NextRequest) {
       const arrayBuffer = await imageResponse.arrayBuffer()
       const buffer = Buffer.from(arrayBuffer)
       const contentType = imageResponse.headers.get("content-type") || "image/png"
-      const extension = contentType.includes("jpeg") || contentType.includes("jpg")
-        ? "jpg"
-        : contentType.includes("webp")
-        ? "webp"
-        : "png"
+      const extension = getFileExtension(contentType)
 
       // Generate unique filename
       const timestamp = Date.now()
@@ -175,15 +114,16 @@ export async function POST(request: NextRequest) {
       } = supabase.storage.from("kinkster-avatars").getPublicUrl(filePath)
 
       return NextResponse.json({
-        image_url: publicUrl, // Return Supabase Storage URL
+        avatarUrl: publicUrl, // Return Supabase Storage URL
+        image_url: publicUrl, // Alias for compatibility
         storage_url: publicUrl,
         storage_path: filePath,
         openai_url: imageUrl, // Keep original for reference
         prompt: prompt,
         generation_config: {
           model: "dall-e-3",
-          size: "1024x1024",
-          quality: "standard",
+          size: imageSize,
+          quality: imageQuality,
         },
       })
     } catch (storageError: any) {

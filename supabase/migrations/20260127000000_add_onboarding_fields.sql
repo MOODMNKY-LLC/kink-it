@@ -64,3 +64,5 @@ COMMENT ON COLUMN public.profiles.onboarding_data IS 'Additional onboarding data
 COMMENT ON TABLE public.notion_databases IS 'Tracks Notion databases discovered during onboarding';
 
 
+
+

@@ -89,6 +89,8 @@ export async function POST(request: NextRequest) {
           else if (nameLower.includes("resource")) dbType = "resources"
           else if (nameLower.includes("communication") || nameLower.includes("check")) dbType = "communication"
           else if (nameLower.includes("analytics") || nameLower.includes("report")) dbType = "analytics"
+          else if (nameLower.includes("image") && nameLower.includes("generation")) dbType = "image_generations"
+          else if (nameLower.includes("image generation")) dbType = "image_generations"
 
           databases.push({
             id: dbId,
@@ -137,5 +139,6 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+
 
 

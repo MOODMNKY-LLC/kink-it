@@ -4,15 +4,19 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import TVNoise from "@/components/ui/tv-noise";
+import { Marquee } from "@/components/ui/marquee";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import type { Profile } from "@/types/profile";
 // Using regular img tag for animated GIFs to avoid hydration issues
 
 interface WidgetProps {
   userName: string;
   timezone?: string;
   location?: string;
+  profile?: Profile | null;
 }
 
-export default function Widget({ userName, timezone, location }: WidgetProps) {
+export default function Widget({ userName, timezone, location, profile }: WidgetProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -52,6 +56,8 @@ export default function Widget({ userName, timezone, location }: WidgetProps) {
 
   const dateInfo = formatDate(currentTime);
   const greeting = getGreeting(currentTime, userName);
+  const bannerText = profile?.banner_text || null;
+  const widgetImageUrl = profile?.widget_image_url || null;
 
   return (
     <Card className="w-full aspect-[2] relative overflow-hidden">
@@ -68,6 +74,19 @@ export default function Widget({ userName, timezone, location }: WidgetProps) {
           <div className="text-sm text-muted-foreground mt-2">
             {greeting}
           </div>
+          {profile && (
+            <div className="flex items-center justify-center gap-2 mt-3">
+              <Avatar className="h-8 w-8 border-2 border-white/20">
+                <AvatarImage src={profile.avatar_url || undefined} alt={profile.display_name || profile.full_name || "User"} />
+                <AvatarFallback className="text-xs">
+                  {profile.display_name?.[0] || profile.full_name?.[0] || profile.email?.[0] || "U"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="text-xs text-muted-foreground">
+                {profile.display_name || profile.full_name || profile.email.split("@")[0]}
+              </div>
+            </div>
+          )}
         </div>
 
         {(location || timezone) && (
@@ -81,11 +100,20 @@ export default function Widget({ userName, timezone, location }: WidgetProps) {
           </div>
         )}
 
+        {/* Customizable Banner */}
+        {bannerText && (
+          <div className="mt-2 overflow-hidden">
+            <Marquee pauseOnHover className="text-xs text-muted-foreground">
+              <span className="mx-4">{bannerText}</span>
+            </Marquee>
+          </div>
+        )}
+
         <div className="absolute inset-0 -z-[1]">
-          {/* Using regular img tag for animated GIF to avoid Next.js Image hydration issues */}
+          {/* Using regular img tag for animated GIF/image to avoid Next.js Image hydration issues */}
           <img
-            src="/assets/pc_blueprint.gif"
-            alt="logo"
+            src={widgetImageUrl || "/assets/pc_blueprint.gif"}
+            alt={widgetImageUrl ? "Custom widget background" : "logo"}
             width={250}
             height={250}
             className="size-full object-contain"

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import MonkeyIcon from "@/components/icons/monkey";
+import { KinkyIcon } from "@/components/kinky/kinky-avatar";
 import MobileNotifications from "@/components/dashboard/notifications/mobile-notifications";
 import BellIcon from "@/components/icons/bell";
 import { useNotifications } from "@/hooks/use-notifications";
@@ -20,11 +20,11 @@ export function MobileHeader() {
         {/* Left: Sidebar Menu */}
         <SidebarTrigger />
 
-        {/* Center: Monkey Logo + Time */}
+        {/* Center: Kinky Logo */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <div className="h-8 w-16 bg-primary rounded flex items-center justify-center">
-              <MonkeyIcon className="size-6 text-primary-foreground" />
+              <KinkyIcon size={24} className="text-primary-foreground" />
             </div>
           </div>
         </div>

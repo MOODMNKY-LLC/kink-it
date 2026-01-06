@@ -10,7 +10,7 @@ interface KinkItAvatarProps {
 
 /**
  * KINK IT Avatar Logo Component
- * Uses the official KINK IT avatar SVG for branding
+ * Uses the new KINKSTER avatar for branding consistency
  * 
  * Variants:
  * - logo: Standard logo size for headers (default)
@@ -32,7 +32,7 @@ export function KinkItAvatar({
         style={{ opacity: opacity * 0.08 }}
       >
         <Image
-          src="/assets/kink-it-avatar.svg"
+          src="/images/kinky/kinky-avatar.svg"
           alt="KINK IT Avatar"
           width={size * 3}
           height={size * 4.5}
@@ -50,7 +50,7 @@ export function KinkItAvatar({
       style={{ opacity }}
     >
       <Image
-        src="/assets/kink-it-avatar.svg"
+        src="/images/kinky/kinky-avatar.svg"
         alt="KINK IT"
         width={size}
         height={Math.round(size * 1.5)}

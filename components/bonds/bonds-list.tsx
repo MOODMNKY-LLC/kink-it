@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import type { Profile } from "@/types/profile"
 import { formatDistanceToNow } from "date-fns"
+import { KinkyEmptyState } from "@/components/kinky/kinky-empty-state"
 
 interface BondsListProps {
   profile: Profile | null
@@ -88,28 +89,13 @@ export function BondsList({ profile }: BondsListProps) {
 
   if (bonds.length === 0) {
     return (
-      <Card>
-        <CardContent className="py-12 text-center">
-          <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-          <CardTitle className="mb-2">No Bonds Yet</CardTitle>
-          <CardDescription className="mb-6">
-            Create a new bond or join an existing one to get started
-          </CardDescription>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button asChild>
-              <Link href="/account/profile">
-                <Plus className="h-4 w-4 mr-2" />
-                Create Bond
-              </Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link href="/account/profile">
-                Join Bond
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <KinkyEmptyState
+        title="No bonds yet"
+        description="Create a new bond or join an existing one to get started"
+        actionLabel="Create Bond"
+        onAction={() => router.push("/account/profile")}
+        size="md"
+      />
     )
   }
 

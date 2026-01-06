@@ -95,3 +95,5 @@ COMMENT ON COLUMN public.profiles.scene_preferences IS
 COMMENT ON COLUMN public.profiles.kink_identity_public IS 
   'Whether the user wants their kink identity visible to others in the app';
 
+
+

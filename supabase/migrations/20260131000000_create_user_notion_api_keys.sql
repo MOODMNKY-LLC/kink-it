@@ -71,7 +71,7 @@ CREATE OR REPLACE FUNCTION public.encrypt_notion_api_key(
 ) RETURNS bytea
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 AS $$
 BEGIN
   -- Validate API key format (Notion API keys start with 'secret_' or 'ntn_')
@@ -79,8 +79,8 @@ BEGIN
     RAISE EXCEPTION 'Invalid Notion API key format. Keys must start with "secret_" or "ntn_"';
   END IF;
 
-  -- Use pgcrypto to encrypt the API key
-  RETURN pgp_sym_encrypt(p_api_key, p_encryption_key);
+  -- Use pgcrypto to encrypt the API key (functions are in extensions schema)
+  RETURN extensions.pgp_sym_encrypt(p_api_key, p_encryption_key);
 END;
 $$;
 
@@ -91,11 +91,11 @@ CREATE OR REPLACE FUNCTION public.decrypt_notion_api_key(
 ) RETURNS text
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 AS $$
 BEGIN
-  -- Use pgcrypto to decrypt the API key
-  RETURN pgp_sym_decrypt(p_encrypted_key, p_encryption_key);
+  -- Use pgcrypto to decrypt the API key (functions are in extensions schema)
+  RETURN extensions.pgp_sym_decrypt(p_encrypted_key, p_encryption_key);
 EXCEPTION
   WHEN OTHERS THEN
     RAISE EXCEPTION 'Failed to decrypt API key. The encryption key may be incorrect.';
@@ -232,4 +232,5 @@ COMMENT ON TABLE public.user_notion_api_keys IS 'Stores encrypted Notion API key
 COMMENT ON COLUMN public.user_notion_api_keys.encrypted_key IS 'Encrypted API key using pgcrypto pgp_sym_encrypt';
 COMMENT ON COLUMN public.user_notion_api_keys.key_hash IS 'First 8 characters of the API key for display/validation purposes';
 COMMENT ON COLUMN public.user_notion_api_keys.last_validated_at IS 'Timestamp when the key was last validated against Notion API';
+
 
