@@ -309,7 +309,7 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-muted-foreground">Loading events...</div>
+        <div className="text-foreground/70">Loading events...</div>
       </div>
     )
   }
