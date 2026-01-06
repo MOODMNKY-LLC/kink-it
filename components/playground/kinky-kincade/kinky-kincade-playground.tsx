@@ -286,6 +286,78 @@ export function KinkyKincadePlayground() {
     }
   }, [selectedGeneration])
 
+  const handleRemoveBackground = useCallback(async () => {
+    if (!selectedGeneration?.imageUrl) return
+
+    try {
+      const toastId = toast.loading("Removing background...")
+      const formData = new FormData()
+      formData.append("imageUrl", selectedGeneration.imageUrl)
+
+      const response = await fetch("/api/image/remove-background", {
+        method: "POST",
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to remove background")
+      }
+
+      // Add processed image to generations
+      addGeneration({
+        id: `bg-removed-${Date.now()}`,
+        prompt: `${selectedGeneration.prompt} (BG Removed)`,
+        imageUrl: data.imageUrl,
+        status: "complete",
+        progress: 100,
+        createdAt: new Date().toISOString(),
+      })
+
+      toast.success("Background removed successfully", { id: toastId })
+    } catch (error) {
+      console.error("Error removing background:", error)
+      toast.error(error instanceof Error ? error.message : "Failed to remove background")
+    }
+  }, [selectedGeneration, addGeneration])
+
+  const handleVectorize = useCallback(async () => {
+    if (!selectedGeneration?.imageUrl) return
+
+    try {
+      const toastId = toast.loading("Vectorizing image...")
+      const formData = new FormData()
+      formData.append("imageUrl", selectedGeneration.imageUrl)
+
+      const response = await fetch("/api/image/vectorize", {
+        method: "POST",
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to vectorize image")
+      }
+
+      // Add vectorized image to generations
+      addGeneration({
+        id: `vectorized-${Date.now()}`,
+        prompt: `${selectedGeneration.prompt} (Vectorized)`,
+        imageUrl: data.imageUrl,
+        status: "complete",
+        progress: 100,
+        createdAt: new Date().toISOString(),
+      })
+
+      toast.success("Image vectorized successfully", { id: toastId })
+    } catch (error) {
+      console.error("Error vectorizing image:", error)
+      toast.error(error instanceof Error ? error.message : "Failed to vectorize image")
+    }
+  }, [selectedGeneration, addGeneration])
+
   const handleNavigateFullscreen = useCallback(
     (direction: "prev" | "next") => {
       const completedGenerations = generations.filter((g) => g.status === "complete" && g.imageUrl)
@@ -324,7 +396,11 @@ export function KinkyKincadePlayground() {
   )
 
   return (
-    <div className="relative flex h-screen w-full overflow-hidden bg-black text-white">
+    <div className="relative flex h-screen w-full overflow-hidden text-white">
+      {/* Gradient Background with Glassmorphism */}
+      <div className="absolute inset-0 bg-gradient-to-br from-oklch(0.70 0.20 30) via-oklch(0.70 0.20 220) to-oklch(0.7 0.18 155) opacity-90" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)]" />
+      
       {/* Global Drop Zone */}
       {dropZoneHover !== null && (
         <GlobalDropZone
@@ -335,9 +411,9 @@ export function KinkyKincadePlayground() {
       )}
 
       {/* Main Layout */}
-      <div className="flex flex-1 min-w-0">
+      <div className="relative flex flex-1 min-w-0 z-10">
         {/* Left Panel - Input */}
-        <div className="flex flex-col w-full md:w-2/5 border-r border-gray-800/50 p-4 overflow-hidden bg-black/30 backdrop-blur-xl">
+        <div className="flex flex-col w-full md:w-2/5 border-r border-white/20 p-4 overflow-hidden bg-white/10 dark:bg-black/20 backdrop-blur-md rounded-r-2xl mr-2 shadow-xl">
           <InputSection
             prompt={prompt}
             setPrompt={setPrompt}
@@ -371,7 +447,7 @@ export function KinkyKincadePlayground() {
         </div>
 
         {/* Right Panel - Output */}
-        <div className="hidden md:flex flex-col w-3/5 border-l border-gray-800/50 p-4 overflow-hidden bg-black/30 backdrop-blur-xl">
+        <div className="hidden md:flex flex-col w-3/5 border-l border-white/20 p-4 overflow-hidden bg-white/10 dark:bg-black/20 backdrop-blur-md rounded-l-2xl ml-2 shadow-xl">
           <OutputSection
             selectedGeneration={selectedGeneration}
             generations={generations}
@@ -388,19 +464,22 @@ export function KinkyKincadePlayground() {
             onCopy={handleCopy}
             onDownload={handleDownload}
             onOpenInNewTab={handleOpenInNewTab}
+            onRemoveBackground={handleRemoveBackground}
+            onVectorize={handleVectorize}
+            props={props}
           />
         </div>
       </div>
 
       {/* Generation History Sidebar - Collapsible */}
-      <div className="hidden lg:flex flex-col border-l border-gray-800/50 bg-black/30 backdrop-blur-xl transition-all duration-300 ease-in-out overflow-hidden"
+      <div className="hidden lg:flex flex-col border-l border-white/20 bg-white/10 dark:bg-black/20 backdrop-blur-md rounded-l-2xl ml-2 shadow-xl transition-all duration-300 ease-in-out overflow-hidden"
         style={{ width: historySidebarOpen ? '288px' : '56px' }}
       >
         {/* Toggle Button */}
-        <div className="flex-shrink-0 p-2 border-b border-gray-800/50">
+        <div className="flex-shrink-0 p-2 border-b border-white/20">
           <button
             onClick={() => setHistorySidebarOpen(!historySidebarOpen)}
-            className="w-full flex items-center justify-center gap-2 px-2 py-2 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-2 py-2 text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors backdrop-blur-sm"
             aria-label={historySidebarOpen ? "Collapse history" : "Expand history"}
           >
             <svg
@@ -471,12 +550,12 @@ export function KinkyKincadePlayground() {
 
       {/* API Key Warning */}
       {apiKeyMissing && (
-        <div className="fixed bottom-6 right-6 bg-zinc-900/95 border border-zinc-700/50 rounded-lg p-4 shadow-2xl max-w-sm z-50 backdrop-blur-sm">
+        <div className="fixed bottom-6 right-6 bg-white/15 dark:bg-black/30 border border-white/30 rounded-lg p-4 shadow-2xl max-w-sm z-50 backdrop-blur-md">
           <div className="flex gap-3">
-            <div className="w-5 h-5 text-zinc-400 flex-shrink-0 mt-0.5">⚠️</div>
+            <div className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5">⚠️</div>
             <div>
-              <h3 className="text-zinc-200 font-semibold text-sm mb-1">AI Gateway API Key Required</h3>
-              <p className="text-zinc-400 text-xs leading-relaxed">
+              <h3 className="text-white font-semibold text-sm mb-1">AI Gateway API Key Required</h3>
+              <p className="text-white/80 text-xs leading-relaxed">
                 Gemini 3 Pro Image Preview requires an AI Gateway API key. DALL-E 3 will still work.
               </p>
             </div>

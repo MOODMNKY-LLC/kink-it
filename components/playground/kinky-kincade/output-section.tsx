@@ -8,8 +8,12 @@
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { ProgressBar } from "./progress-bar"
+import { PropsBadges } from "@/components/playground/image-generation/props-badges"
 import type { Generation } from "./types"
-import { useEffect } from "react"
+import type { GenerationProps } from "@/lib/image/props"
+import { useEffect, useState } from "react"
+import Image from "next/image"
+import supabaseImageLoader from "@/lib/supabase-image-loader"
 
 interface OutputSectionProps {
   selectedGeneration: Generation | undefined
@@ -27,6 +31,9 @@ interface OutputSectionProps {
   onCopy: () => void
   onDownload: () => void
   onOpenInNewTab: () => void
+  onVectorize?: () => void
+  onRemoveBackground?: () => void
+  props?: GenerationProps
 }
 
 export function OutputSection({
@@ -45,7 +52,11 @@ export function OutputSection({
   onCopy,
   onDownload,
   onOpenInNewTab,
+  onRemoveBackground,
+  onVectorize,
+  props,
 }: OutputSectionProps) {
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeElement = document.activeElement
@@ -84,7 +95,7 @@ export function OutputSection({
       : null
 
   const renderButtons = () => (
-    <div className="flex items-center justify-center gap-2">
+    <div className="flex items-center justify-center gap-2 flex-wrap">
       <Button
         onClick={onLoadAsInput}
         disabled={!generatedImage}
@@ -97,6 +108,34 @@ export function OutputSection({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
       </Button>
+      {onRemoveBackground && (
+        <Button
+          onClick={onRemoveBackground}
+          disabled={!generatedImage}
+          variant="ghost"
+          size="sm"
+          className="h-8 px-2 text-xs text-gray-400 hover:text-white disabled:opacity-30"
+          title="Remove Background"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </Button>
+      )}
+      {onVectorize && (
+        <Button
+          onClick={onVectorize}
+          disabled={!generatedImage}
+          variant="ghost"
+          size="sm"
+          className="h-8 px-2 text-xs text-gray-400 hover:text-white disabled:opacity-30"
+          title="Vectorize"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </Button>
+      )}
       <Button
         onClick={onCopy}
         disabled={!generatedImage}
@@ -147,16 +186,28 @@ export function OutputSection({
         ) : generatedImage ? (
           <div className="absolute inset-0 flex flex-col select-none">
             <div className="flex-1 flex items-center justify-center relative group max-w-full max-h-full overflow-hidden">
-              <img
-                src={generatedImage.url || "/placeholder.svg"}
-                alt="Generated"
-                className={cn(
-                  "max-w-full max-h-full transition-all duration-300 ease-out cursor-pointer rounded",
-                  imageLoaded ? "opacity-100" : "opacity-0"
-                )}
-                onLoad={() => setImageLoaded(true)}
-                onClick={onOpenFullscreen}
-              />
+              {/* Use Next.js Image with Supabase loader for optimized images */}
+              {generatedImage.url && (
+                <Image
+                  loader={supabaseImageLoader}
+                  src={generatedImage.url}
+                  alt="Generated"
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+                  className={cn(
+                    "object-contain transition-all duration-300 ease-out cursor-pointer rounded",
+                    imageLoaded ? "opacity-100" : "opacity-0"
+                  )}
+                  onLoad={() => setImageLoaded(true)}
+                  onClick={onOpenFullscreen}
+                  unoptimized={
+                    generatedImage.url?.includes("blob:") ||
+                    generatedImage.url?.includes("127.0.0.1") ||
+                    generatedImage.url?.includes("localhost") ||
+                    false
+                  }
+                />
+              )}
             </div>
           </div>
         ) : (
@@ -175,6 +226,15 @@ export function OutputSection({
                 </svg>
               </div>
               <p className="text-xs text-gray-500 font-medium">Ready to generate</p>
+            </div>
+          </div>
+        )}
+
+        {/* Props Badges - Display selected props */}
+        {props && (
+          <div className="absolute top-4 left-4 right-4 z-20 pointer-events-none">
+            <div className="pointer-events-auto">
+              <PropsBadges props={props} />
             </div>
           </div>
         )}

@@ -104,7 +104,7 @@ export default function NotionSetupStep({ onNext, onBack, initialData }: NotionS
       <div>
         <h2 className="text-2xl font-bold mb-2">Set Up Notion Integration</h2>
         <p className="text-muted-foreground">
-          KINK IT integrates with Notion to help you manage your dynamic. If you duplicated the template during Notion authentication, we can automatically find and connect it.
+          KINK IT integrates with Notion to help you manage your dynamic. We'll use your Notion OAuth connection to automatically find and connect your duplicated template.
         </p>
       </div>
 
@@ -115,7 +115,7 @@ export default function NotionSetupStep({ onNext, onBack, initialData }: NotionS
             Step 1: Sync with Notion
           </CardTitle>
           <CardDescription>
-            Search your Notion workspace for the duplicated template and automatically connect it.
+            Search your Notion workspace for the duplicated template and automatically connect it using your Notion OAuth connection.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -144,6 +144,11 @@ export default function NotionSetupStep({ onNext, onBack, initialData }: NotionS
               <div>
                 <p className="font-medium">Sync failed</p>
                 <p className="text-muted-foreground mt-1">{error}</p>
+                {error.includes("authentication required") && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Please make sure you authenticated with Notion OAuth when signing in. If you signed in with email, please sign out and sign in with Notion instead.
+                  </p>
+                )}
                 {error.includes("not found") && (
                   <p className="text-xs text-muted-foreground mt-2">
                     Make sure you duplicated the template during Notion authentication. You can also enter the parent page ID manually below.
@@ -154,7 +159,7 @@ export default function NotionSetupStep({ onNext, onBack, initialData }: NotionS
           )}
 
           <p className="text-sm text-muted-foreground">
-            This will search your Notion workspace for the KINK IT template you duplicated during authentication.
+            This will search your Notion workspace for the KINK IT template you duplicated. We'll use your Notion OAuth connection to access your workspace.
           </p>
         </CardContent>
       </Card>

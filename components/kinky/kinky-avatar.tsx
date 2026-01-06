@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
+import supabaseImageLoader from '@/lib/supabase-image-loader'
 
 interface KinkyAvatarProps {
   size?: number | string
@@ -53,6 +54,7 @@ export function KinkyAvatar({
       style={{ width: finalSize, height: finalSize }}
     >
       <Image
+        loader={supabaseImageLoader}
         src="/images/kinky/kinky-avatar.svg"
         alt="Kinky - AI Assistant"
         width={finalSize}

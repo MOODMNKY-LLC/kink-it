@@ -42,6 +42,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     full_name: profile.full_name || "",
     display_name: profile.display_name || "",
     dynamic_role: profile.dynamic_role,
+    tagline: profile.tagline || "",
   })
 
   // Fetch current partner info
@@ -134,6 +135,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           full_name: formData.full_name || null,
           display_name: formData.display_name || null,
           dynamic_role: formData.dynamic_role,
+          tagline: formData.tagline || null,
           updated_at: new Date().toISOString(),
         })
         .eq("id", profile.id)
@@ -214,6 +216,25 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             }
             className="bg-muted/50 border-border focus:border-primary focus:ring-primary/20"
           />
+        </div>
+
+        {/* Tagline */}
+        <div className="grid gap-2">
+          <Label htmlFor="tagline">Tagline</Label>
+          <Input
+            id="tagline"
+            type="text"
+            placeholder="A short tagline displayed in your terminal widget"
+            value={formData.tagline}
+            onChange={(e) =>
+              setFormData({ ...formData, tagline: e.target.value })
+            }
+            maxLength={200}
+            className="bg-muted/50 border-border focus:border-primary focus:ring-primary/20"
+          />
+          <p className="text-xs text-muted-foreground">
+            This tagline appears in the scrolling banner of your terminal widget. Keep it short and personal.
+          </p>
         </div>
 
         {/* Dynamic Role */}

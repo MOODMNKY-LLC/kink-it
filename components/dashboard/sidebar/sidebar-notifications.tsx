@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client"
 /**
  * Client-side wrapper for Terminal Notifications with Realtime support
  * This allows the sidebar (client component) to display notifications
+ * NOTE: This is separate from the top-right Kinky Terminal widget
  */
 export function SidebarNotifications() {
   const [userId, setUserId] = useState<string>("")

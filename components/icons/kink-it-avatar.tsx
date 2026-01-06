@@ -1,5 +1,6 @@
 import React from "react"
 import Image from "next/image"
+import supabaseImageLoader from "@/lib/supabase-image-loader"
 
 interface KinkItAvatarProps {
   className?: string
@@ -32,6 +33,7 @@ export function KinkItAvatar({
         style={{ opacity: opacity * 0.08 }}
       >
         <Image
+          loader={supabaseImageLoader}
           src="/images/kinky/kinky-avatar.svg"
           alt="KINK IT Avatar"
           width={size * 3}
@@ -50,6 +52,7 @@ export function KinkItAvatar({
       style={{ opacity }}
     >
       <Image
+        loader={supabaseImageLoader}
         src="/images/kinky/kinky-avatar.svg"
         alt="KINK IT"
         width={size}

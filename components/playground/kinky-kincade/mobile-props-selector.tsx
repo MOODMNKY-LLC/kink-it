@@ -175,9 +175,9 @@ export function MobilePropsSelector({
       </SheetTrigger>
       <SheetContent
         side="bottom"
-        className="h-[85vh] max-h-[85vh] flex flex-col p-0 border-t border-gray-800/50 bg-black/80 backdrop-blur-xl"
+        className="h-[85vh] max-h-[85vh] flex flex-col p-0 border-t border-white/20 bg-white/15 dark:bg-black/40 backdrop-blur-xl"
       >
-        <SheetHeader className="flex-shrink-0 px-4 pt-4 pb-3 border-b border-gray-800/50">
+        <SheetHeader className="flex-shrink-0 px-4 pt-4 pb-3 border-b border-white/20">
           <div className="flex items-center justify-between">
             <div>
               <SheetTitle className="text-lg font-semibold text-white">Customize Your Generation</SheetTitle>
@@ -213,7 +213,7 @@ export function MobilePropsSelector({
                   value={pendingProps.physical?.height || ""}
                   onValueChange={(value) => updatePhysical({ height: value as any })}
                 >
-                  <SelectTrigger className="h-11 text-sm bg-black/30 backdrop-blur-md border-gray-700/50">
+                  <SelectTrigger className="h-11 text-sm bg-white/10 dark:bg-black/30 backdrop-blur-md border-white/20 text-white">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -231,7 +231,7 @@ export function MobilePropsSelector({
                   value={pendingProps.physical?.weight || ""}
                   onValueChange={(value) => updatePhysical({ weight: value as any })}
                 >
-                  <SelectTrigger className="h-11 text-sm bg-black/30 backdrop-blur-md border-gray-700/50">
+                  <SelectTrigger className="h-11 text-sm bg-white/10 dark:bg-black/30 backdrop-blur-md border-white/20 text-white">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -249,7 +249,7 @@ export function MobilePropsSelector({
                   value={pendingProps.physical?.build || ""}
                   onValueChange={(value) => updatePhysical({ build: value as any })}
                 >
-                  <SelectTrigger className="h-11 text-sm bg-black/30 backdrop-blur-md border-gray-700/50">
+                  <SelectTrigger className="h-11 text-sm bg-white/10 dark:bg-black/30 backdrop-blur-md border-white/20 text-white">
                     <SelectValue placeholder="Select build" />
                   </SelectTrigger>
                   <SelectContent>
@@ -267,7 +267,7 @@ export function MobilePropsSelector({
                   value={pendingProps.physical?.hair || ""}
                   onValueChange={(value) => updatePhysical({ hair: value as any })}
                 >
-                  <SelectTrigger className="h-11 text-sm bg-black/30 backdrop-blur-md border-gray-700/50">
+                  <SelectTrigger className="h-11 text-sm bg-white/10 dark:bg-black/30 backdrop-blur-md border-white/20 text-white">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -285,7 +285,7 @@ export function MobilePropsSelector({
                   value={pendingProps.physical?.beard || ""}
                   onValueChange={(value) => updatePhysical({ beard: value as any })}
                 >
-                  <SelectTrigger className="h-11 text-sm bg-black/30 backdrop-blur-md border-gray-700/50">
+                  <SelectTrigger className="h-11 text-sm bg-white/10 dark:bg-black/30 backdrop-blur-md border-white/20 text-white">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -303,7 +303,7 @@ export function MobilePropsSelector({
                   value={pendingProps.physical?.eyes || ""}
                   onValueChange={(value) => updatePhysical({ eyes: value as any })}
                 >
-                  <SelectTrigger className="h-11 text-sm bg-black/30 backdrop-blur-md border-gray-700/50">
+                  <SelectTrigger className="h-11 text-sm bg-white/10 dark:bg-black/30 backdrop-blur-md border-white/20 text-white">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -321,7 +321,7 @@ export function MobilePropsSelector({
                   value={pendingProps.physical?.skin_tone || ""}
                   onValueChange={(value) => updatePhysical({ skin_tone: value as any })}
                 >
-                  <SelectTrigger className="h-11 text-sm bg-black/30 backdrop-blur-md border-gray-700/50">
+                  <SelectTrigger className="h-11 text-sm bg-white/10 dark:bg-black/30 backdrop-blur-md border-white/20 text-white">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -479,7 +479,7 @@ export function MobilePropsSelector({
                   value={pendingProps.background?.type || "solid"}
                   onValueChange={(value: any) => updateBackground({ type: value })}
                 >
-                  <SelectTrigger className="h-11 text-sm bg-black/30 backdrop-blur-md border-gray-700/50">
+                  <SelectTrigger className="h-11 text-sm bg-white/10 dark:bg-black/30 backdrop-blur-md border-white/20 text-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -497,7 +497,7 @@ export function MobilePropsSelector({
                     value={pendingProps.background?.color || ""}
                     onValueChange={(value) => updateBackground({ color: value as any })}
                   >
-                    <SelectTrigger className="h-11 text-sm bg-black/30 backdrop-blur-md border-gray-700/50">
+                    <SelectTrigger className="h-11 text-sm bg-white/10 dark:bg-black/30 backdrop-blur-md border-white/20 text-white">
                       <SelectValue placeholder="Select color" />
                     </SelectTrigger>
                     <SelectContent>
@@ -517,7 +517,7 @@ export function MobilePropsSelector({
                     value={pendingProps.background?.environment || ""}
                     onValueChange={(value) => updateBackground({ environment: value as any })}
                   >
-                    <SelectTrigger className="h-11 text-sm bg-black/30 backdrop-blur-md border-gray-700/50">
+                    <SelectTrigger className="h-11 text-sm bg-white/10 dark:bg-black/30 backdrop-blur-md border-white/20 text-white">
                       <SelectValue placeholder="Select environment" />
                     </SelectTrigger>
                     <SelectContent>
@@ -535,7 +535,7 @@ export function MobilePropsSelector({
         </div>
 
         {/* Footer with Confirmation Buttons */}
-        <SheetFooter className="flex-shrink-0 px-4 py-3 border-t border-gray-800/50 bg-black/50 backdrop-blur-md">
+        <SheetFooter className="flex-shrink-0 px-4 py-3 border-t border-white/20 bg-white/10 dark:bg-black/30 backdrop-blur-md">
           <div className="flex w-full gap-3">
             <Button
               variant="outline"

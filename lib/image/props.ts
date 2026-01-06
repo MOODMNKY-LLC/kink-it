@@ -42,14 +42,14 @@ export interface ClothingItems {
   accessories?: ClothingAccessory[]
 }
 
-export interface KinkAccessories {
-  collars?: boolean // Tasteful collar accessory
-  pup_mask?: boolean // Pet play mask (SFW)
-  locks?: boolean // Decorative locks/chains
-  long_socks?: boolean // Long socks/knee-highs
-  leather?: string[] // Leather items: ["jacket", "pants", "harness", "gloves"] - predefined options only
-  harness?: boolean // Chest/body harness
-  // other removed - no custom kink accessories allowed
+export interface CharacterAccessories {
+  decorative_collar?: boolean // Decorative neck accessory for character design
+  character_mask?: boolean // Theatrical or character mask for artistic expression
+  ornamental_chains?: boolean // Decorative chains and ornamental accessories
+  long_socks?: boolean // Long socks/knee-highs for character styling
+  leather?: string[] // Leather items: ["jacket", "pants", "straps", "gloves"] - predefined options only
+  fashion_straps?: boolean // Decorative body straps for fashion/character design
+  // other removed - no custom accessories allowed
 }
 
 export interface BackgroundSettings {
@@ -62,8 +62,10 @@ export interface BackgroundSettings {
 export interface GenerationProps {
   physical?: PhysicalAttributes
   clothing?: ClothingItems
-  kink_accessories?: KinkAccessories
+  character_accessories?: CharacterAccessories
   background?: BackgroundSettings
+  // Legacy support - map old kink_accessories to new character_accessories
+  kink_accessories?: CharacterAccessories
 }
 
 import {
@@ -113,8 +115,8 @@ export const KINKY_DEFAULT_PROPS: GenerationProps = {
     footwear: [CLOTHING_FOOTWEAR_OPTIONS[0]], // "combat boots"
     accessories: [CLOTHING_ACCESSORIES_OPTIONS[3]], // "knee pads"
   },
-  kink_accessories: {
-    // Kinky's default doesn't include kink accessories, but they can be added
+  character_accessories: {
+    // Kinky's default doesn't include character accessories, but they can be added
   },
   background: {
     type: "solid",
@@ -205,8 +207,9 @@ export function validateProps(props: GenerationProps): {
   }
 
   // Warnings for conflicting combinations
-  if (props.kink_accessories?.pup_mask && props.clothing?.accessories?.includes("black-framed glasses")) {
-    warnings.push("Pup mask and glasses may conflict visually")
+  const accessories = props.character_accessories || props.kink_accessories
+  if (accessories?.character_mask && props.clothing?.accessories?.includes("black-framed glasses")) {
+    warnings.push("Character mask and glasses may conflict visually")
   }
 
   if (
@@ -268,34 +271,36 @@ export function propsToPrompt(props: GenerationProps): string[] {
     }
   }
 
-  // Kink accessories (tastefully described)
-  if (props.kink_accessories) {
-    const kinkParts: string[] = []
+  // Character accessories (fashion and design focused)
+  const accessories = props.character_accessories || props.kink_accessories
+  if (accessories) {
+    const accessoryParts: string[] = []
     
-    if (props.kink_accessories.collars) {
-      kinkParts.push("wearing a tasteful leather collar")
+    if (accessories.decorative_collar || accessories.collars) {
+      accessoryParts.push("wearing a decorative neck accessory")
     }
-    if (props.kink_accessories.pup_mask) {
-      kinkParts.push("sporting a stylish pup mask")
+    if (accessories.character_mask || accessories.pup_mask) {
+      accessoryParts.push("wearing a character mask")
     }
-    if (props.kink_accessories.locks) {
-      kinkParts.push("adorned with decorative locks")
+    if (accessories.ornamental_chains || accessories.locks) {
+      accessoryParts.push("adorned with ornamental chains")
     }
-    if (props.kink_accessories.long_socks) {
-      kinkParts.push("wearing long socks")
+    if (accessories.long_socks) {
+      accessoryParts.push("wearing long socks")
     }
-    if (props.kink_accessories.harness) {
-      kinkParts.push("wearing a leather harness")
+    if (accessories.fashion_straps || accessories.harness) {
+      accessoryParts.push("wearing decorative fashion straps")
     }
-    if (props.kink_accessories.leather && props.kink_accessories.leather.length > 0) {
-      kinkParts.push(`featuring ${props.kink_accessories.leather.join(" and ")} in leather`)
-    }
-    if (props.kink_accessories.other && props.kink_accessories.other.length > 0) {
-      kinkParts.push(`with ${props.kink_accessories.other.join(", ")}`)
+    if (accessories.leather && accessories.leather.length > 0) {
+      // Map harness to straps for leather items
+      const leatherItems = accessories.leather.map(item => 
+        item === "harness" ? "straps" : item
+      )
+      accessoryParts.push(`featuring ${leatherItems.join(" and ")} in leather`)
     }
     
-    if (kinkParts.length > 0) {
-      parts.push(kinkParts.join(", "))
+    if (accessoryParts.length > 0) {
+      parts.push(accessoryParts.join(", "))
     }
   }
 

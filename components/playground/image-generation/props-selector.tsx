@@ -11,6 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { X, User, Shirt, Sparkles, Image as ImageIcon, RotateCcw } from "lucide-react"
 import type { GenerationProps } from "@/lib/image/props"
 import { KINKY_DEFAULT_PROPS } from "@/lib/image/props"
+import { ColorSwatch } from "@/components/ui/color-swatch"
+import { SKIN_TONE_COLORS, HAIR_COLOR_COLORS, BACKGROUND_COLOR_SWATCHES, EYE_COLOR_COLORS } from "@/lib/image/color-swatches"
 import {
   getPhysicalHeightOptions,
   getPhysicalWeightOptions,
@@ -56,10 +58,18 @@ export function PropsSelector({
     })
   }
 
-  const updateKinkAccessories = (updates: Partial<GenerationProps["kink_accessories"]>) => {
+  const updateCharacterAccessories = (updates: Partial<GenerationProps["character_accessories"]>) => {
+    const currentAccessories = props.character_accessories || props.kink_accessories || {}
     updateProps({
-      kink_accessories: { ...props.kink_accessories, ...updates },
+      character_accessories: { ...currentAccessories, ...updates },
+      // Clear legacy kink_accessories if it exists
+      kink_accessories: undefined,
     })
+  }
+
+  // Legacy support
+  const updateKinkAccessories = (updates: any) => {
+    updateCharacterAccessories(updates)
   }
 
   const updateBackground = (updates: Partial<GenerationProps["background"]>) => {
@@ -81,16 +91,49 @@ export function PropsSelector({
   }
 
   const toggleLeatherItem = (item: string) => {
-    const current = props.kink_accessories?.leather || []
+    const accessories = props.character_accessories || props.kink_accessories || {}
+    const current = accessories.leather || []
     if (current.includes(item)) {
-      updateKinkAccessories({ leather: current.filter((i) => i !== item) })
+      updateCharacterAccessories({ leather: current.filter((i) => i !== item) })
     } else {
-      updateKinkAccessories({ leather: [...current, item] })
+      updateCharacterAccessories({ leather: [...current, item] })
     }
   }
 
   const resetToKinky = () => {
     onPropsChange(KINKY_DEFAULT_PROPS)
+  }
+
+  const clearAllProps = () => {
+    onPropsChange({
+      physical: {},
+      clothing: {},
+      character_accessories: {},
+      background: {},
+    })
+  }
+
+  // Helper function to extract hair color from option name
+  const getHairColorFromName = (name: string): string => {
+    if (name.includes("black")) return "#000000"
+    if (name.includes("brown")) return "#8B4513"
+    if (name.includes("blonde")) return "#F5DEB3"
+    if (name.includes("red")) return "#A52A2A"
+    if (name.includes("auburn")) return "#922724"
+    if (name.includes("gray") || name.includes("grey")) return "#808080"
+    if (name.includes("white")) return "#FFFFFF"
+    if (name.includes("blue")) return "#0000FF"
+    if (name.includes("green")) return "#00FF00"
+    if (name.includes("purple")) return "#800080"
+    if (name.includes("pink")) return "#FFC0CB"
+    if (name.includes("silver")) return "#C0C0C0"
+    if (name.includes("platinum")) return "#E5E4E2"
+    if (name.includes("copper")) return "#B87333"
+    if (name.includes("burgundy")) return "#800020"
+    if (name.includes("orange")) return "#FF8C00"
+    if (name.includes("multicolored")) return "#FF00FF"
+    if (name.includes("bald") || name.includes("shaved") || name.includes("buzz")) return "#2F2F2F"
+    return "#8B4513" // Default brown
   }
 
   return (
@@ -103,12 +146,18 @@ export function PropsSelector({
               Select from predefined options for consistency
             </CardDescription>
           </div>
-          {defaultToKinky && (
-            <Button variant="outline" size="sm" onClick={resetToKinky} className="h-8">
-              <RotateCcw className="h-3 w-3 mr-1" />
-              Reset
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={clearAllProps} className="h-8">
+              <X className="h-3 w-3 mr-1" />
+              Clear All
             </Button>
-          )}
+            {defaultToKinky && (
+              <Button variant="outline" size="sm" onClick={resetToKinky} className="h-8">
+                <RotateCcw className="h-3 w-3 mr-1" />
+                Reset to KINKY
+              </Button>
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="pt-0">
@@ -191,21 +240,33 @@ export function PropsSelector({
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Hair</Label>
-                <Select
-                  value={props.physical?.hair || ""}
-                  onValueChange={(value) => updatePhysical({ hair: value as any })}
-                >
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {getPhysicalHairOptions().map((option) => (
-                      <SelectItem key={option} value={option} className="text-xs">
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="space-y-2">
+                  <Select
+                    value={props.physical?.hair || ""}
+                    onValueChange={(value) => updatePhysical({ hair: value as any })}
+                  >
+                    <SelectTrigger className="h-8 text-xs">
+                      <SelectValue placeholder="Select style" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[300px]">
+                      {getPhysicalHairOptions().map((option) => (
+                        <SelectItem key={option} value={option} className="text-xs">
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <ColorSwatch
+                    colors={getPhysicalHairOptions()
+                      .map((name) => ({
+                        name,
+                        hex: HAIR_COLOR_COLORS[name] || getHairColorFromName(name),
+                      }))}
+                    value={props.physical?.hair}
+                    onValueChange={(value) => updatePhysical({ hair: value as any })}
+                    allowCustom={false}
+                  />
+                </div>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Beard</Label>
@@ -227,39 +288,44 @@ export function PropsSelector({
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Eyes</Label>
-                <Select
-                  value={props.physical?.eyes || ""}
-                  onValueChange={(value) => updatePhysical({ eyes: value as any })}
-                >
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {getPhysicalEyesOptions().map((option) => (
-                      <SelectItem key={option} value={option} className="text-xs">
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="space-y-2">
+                  <Select
+                    value={props.physical?.eyes || ""}
+                    onValueChange={(value) => updatePhysical({ eyes: value as any })}
+                  >
+                    <SelectTrigger className="h-8 text-xs">
+                      <SelectValue placeholder="Select color" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[300px]">
+                      {getPhysicalEyesOptions().map((option) => (
+                        <SelectItem key={option} value={option} className="text-xs">
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <ColorSwatch
+                    colors={getPhysicalEyesOptions().map((name) => ({
+                      name,
+                      hex: EYE_COLOR_COLORS[name] || "#654321",
+                    }))}
+                    value={props.physical?.eyes}
+                    onValueChange={(value) => updatePhysical({ eyes: value as any })}
+                    allowCustom={false}
+                  />
+                </div>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Skin Tone</Label>
-                <Select
-                  value={props.physical?.skin_tone || ""}
+                <ColorSwatch
+                  colors={getPhysicalSkinToneOptions().map((name) => ({
+                    name,
+                    hex: SKIN_TONE_COLORS[name] || "#F4E4BC",
+                  }))}
+                  value={props.physical?.skin_tone}
                   onValueChange={(value) => updatePhysical({ skin_tone: value as any })}
-                >
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {getPhysicalSkinToneOptions().map((option) => (
-                      <SelectItem key={option} value={option} className="text-xs">
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  allowCustom={false}
+                />
               </div>
             </div>
           </TabsContent>
@@ -292,51 +358,51 @@ export function PropsSelector({
             />
           </TabsContent>
 
-          {/* Kink Accessories Tab */}
+          {/* Character Accessories Tab */}
           <TabsContent value="accessories" className="mt-4 space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  id="collars"
-                  checked={props.kink_accessories?.collars || false}
+                  id="decorative_collar"
+                  checked={(props.character_accessories || props.kink_accessories)?.decorative_collar || (props.kink_accessories as any)?.collars || false}
                   onCheckedChange={(checked) =>
-                    updateKinkAccessories({ collars: checked === true })
+                    updateCharacterAccessories({ decorative_collar: checked === true })
                   }
                 />
-                <Label htmlFor="collars" className="cursor-pointer text-xs">
-                  Collar
+                <Label htmlFor="decorative_collar" className="cursor-pointer text-xs">
+                  Decorative Collar
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  id="pup_mask"
-                  checked={props.kink_accessories?.pup_mask || false}
+                  id="character_mask"
+                  checked={(props.character_accessories || props.kink_accessories)?.character_mask || (props.kink_accessories as any)?.pup_mask || false}
                   onCheckedChange={(checked) =>
-                    updateKinkAccessories({ pup_mask: checked === true })
+                    updateCharacterAccessories({ character_mask: checked === true })
                   }
                 />
-                <Label htmlFor="pup_mask" className="cursor-pointer text-xs">
-                  Pup Mask
+                <Label htmlFor="character_mask" className="cursor-pointer text-xs">
+                  Character Mask
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  id="locks"
-                  checked={props.kink_accessories?.locks || false}
+                  id="ornamental_chains"
+                  checked={(props.character_accessories || props.kink_accessories)?.ornamental_chains || (props.kink_accessories as any)?.locks || false}
                   onCheckedChange={(checked) =>
-                    updateKinkAccessories({ locks: checked === true })
+                    updateCharacterAccessories({ ornamental_chains: checked === true })
                   }
                 />
-                <Label htmlFor="locks" className="cursor-pointer text-xs">
-                  Decorative Locks
+                <Label htmlFor="ornamental_chains" className="cursor-pointer text-xs">
+                  Ornamental Chains
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="long_socks"
-                  checked={props.kink_accessories?.long_socks || false}
+                  checked={(props.character_accessories || props.kink_accessories)?.long_socks || false}
                   onCheckedChange={(checked) =>
-                    updateKinkAccessories({ long_socks: checked === true })
+                    updateCharacterAccessories({ long_socks: checked === true })
                   }
                 />
                 <Label htmlFor="long_socks" className="cursor-pointer text-xs">
@@ -345,14 +411,14 @@ export function PropsSelector({
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  id="harness"
-                  checked={props.kink_accessories?.harness || false}
+                  id="fashion_straps"
+                  checked={(props.character_accessories || props.kink_accessories)?.fashion_straps || (props.kink_accessories as any)?.harness || false}
                   onCheckedChange={(checked) =>
-                    updateKinkAccessories({ harness: checked === true })
+                    updateCharacterAccessories({ fashion_straps: checked === true })
                   }
                 />
-                <Label htmlFor="harness" className="cursor-pointer text-xs">
-                  Harness
+                <Label htmlFor="fashion_straps" className="cursor-pointer text-xs">
+                  Fashion Straps
                 </Label>
               </div>
             </div>
@@ -361,9 +427,9 @@ export function PropsSelector({
             <div className="space-y-2">
               <Label className="text-xs">Leather Items</Label>
               <div className="flex flex-wrap gap-1.5">
-                {props.kink_accessories?.leather?.map((item) => (
+                {((props.character_accessories || props.kink_accessories)?.leather || []).map((item) => (
                   <Badge key={item} variant="secondary" className="gap-1 text-xs py-0.5">
-                    {item}
+                    {item === "harness" ? "straps" : item}
                     <button
                       onClick={() => toggleLeatherItem(item)}
                       className="ml-1 rounded-full hover:bg-destructive/20"
@@ -374,17 +440,22 @@ export function PropsSelector({
                 ))}
               </div>
               <div className="flex flex-wrap gap-1.5">
-                {["jacket", "pants", "harness", "gloves", "boots"].map((item) => (
-                  <Button
-                    key={item}
-                    variant={props.kink_accessories?.leather?.includes(item) ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => toggleLeatherItem(item)}
-                    className="h-7 text-xs"
-                  >
-                    {item}
-                  </Button>
-                ))}
+                {["jacket", "pants", "straps", "gloves", "boots"].map((item) => {
+                  const accessories = props.character_accessories || props.kink_accessories || {}
+                  const leatherItems = accessories.leather || []
+                  const itemKey = item === "straps" ? "harness" : item
+                  return (
+                    <Button
+                      key={item}
+                      variant={leatherItems.includes(itemKey) ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => toggleLeatherItem(itemKey)}
+                      className="h-7 text-xs"
+                    >
+                      {item}
+                    </Button>
+                  )
+                })}
               </div>
             </div>
           </TabsContent>
@@ -415,23 +486,15 @@ export function PropsSelector({
               props.background?.type === "gradient") && (
               <div className="space-y-1.5">
                 <Label className="text-xs">Color</Label>
-                <Select
-                  value={props.background?.color || ""}
-                  onValueChange={(value) =>
-                    updateBackground({ color: value as any })
-                  }
-                >
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue placeholder="Select color" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {getBackgroundColorOptions().map((option) => (
-                      <SelectItem key={option} value={option} className="text-xs">
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <ColorSwatch
+                  colors={getBackgroundColorOptions().map((name) => ({
+                    name,
+                    hex: BACKGROUND_COLOR_SWATCHES[name] || "#000000",
+                  }))}
+                  value={props.background?.color}
+                  onValueChange={(value) => updateBackground({ color: value as any })}
+                  allowCustom={false}
+                />
               </div>
             )}
 

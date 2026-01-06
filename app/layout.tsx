@@ -7,7 +7,7 @@ import localFont from "next/font/local"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { MobileHeader } from "@/components/dashboard/mobile-header"
 import { DashboardSidebar } from "@/components/dashboard/sidebar"
-import TerminalWidget from "@/components/dashboard/widget/terminal-widget"
+import KinkyTerminal from "@/components/kinky/kinky-terminal"
 import Notifications from "@/components/dashboard/notifications"
 // Mobile Chat disabled until Module 7 (Communication Hub) is built
 // import { MobileChat } from "@/components/chat/mobile-chat"
@@ -162,7 +162,8 @@ export default async function RootLayout({
                     <div className="space-y-gap py-sides min-h-screen max-h-screen sticky top-0 overflow-clip">
                       {profile && (
                         <>
-                          <TerminalWidget
+                          <KinkyTerminal
+                            userId={profile.id}
                             userName={
                               profile.display_name ||
                               profile.full_name ||

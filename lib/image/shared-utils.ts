@@ -147,11 +147,12 @@ export function buildAvatarPrompt(characterData: CharacterData): string {
     propsDescriptions.push("wearing stylish, tasteful clothing")
   }
 
-  // Kink accessories from props
-  if (props?.kink_accessories) {
-    const kinkParts = propsToPrompt({ kink_accessories: props.kink_accessories })
-    if (kinkParts.length > 0) {
-      propsDescriptions.push(kinkParts[0])
+  // Character accessories from props (with legacy support)
+  const accessories = props?.character_accessories || props?.kink_accessories
+  if (accessories) {
+    const accessoryParts = propsToPrompt({ character_accessories: accessories })
+    if (accessoryParts.length > 0) {
+      propsDescriptions.push(accessoryParts[0])
     }
   }
 

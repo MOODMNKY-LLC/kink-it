@@ -5,8 +5,10 @@
 
 "use client"
 
+import Image from "next/image"
 import { AddToNotionButton } from "@/components/playground/shared/add-to-notion-button"
 import type { Generation } from "./types"
+import supabaseImageLoader from "@/lib/supabase-image-loader"
 
 interface FullscreenViewerProps {
   imageUrl: string
@@ -90,12 +92,24 @@ export function FullscreenViewer({ imageUrl, generations, onClose, onNavigate }:
             </button>
           </>
         )}
-        <img
-          src={imageUrl || "/placeholder.svg"}
-          alt="Fullscreen"
-          className="max-w-full max-h-[90vh] object-contain mx-auto shadow-2xl"
-          onClick={(e) => e.stopPropagation()}
-        />
+        {imageUrl && (
+          <Image
+            loader={supabaseImageLoader}
+            src={imageUrl}
+            alt="Fullscreen"
+            width={1920}
+            height={1080}
+            className="max-w-full max-h-[90vh] object-contain mx-auto shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+            quality={95}
+            unoptimized={
+              imageUrl.includes("blob:") ||
+              imageUrl.includes("127.0.0.1") ||
+              imageUrl.includes("localhost") ||
+              false
+            }
+          />
+        )}
       </div>
     </div>
   )

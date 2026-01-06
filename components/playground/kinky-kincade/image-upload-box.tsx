@@ -20,7 +20,7 @@ export function ImageUploadBox({ imageNumber, preview, onDrop, onClear, onSelect
   return (
     <div
       className={cn(
-        "w-full h-20 border border-gray-700 flex items-center justify-center cursor-pointer hover:border-gray-500 transition-all bg-black/30 relative group rounded",
+        "w-full h-40 border border-gray-700 flex items-center justify-center cursor-pointer hover:border-gray-500 transition-all bg-black/30 relative group rounded",
         preview && "border-gray-500"
       )}
       onDrop={onDrop}

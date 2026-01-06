@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import supabaseImageLoader from "@/lib/supabase-image-loader"
 
 interface CharacterBackgroundProps {
   variant?: "hero" | "subtle" | "pattern" | "corner" | "parallax"
@@ -26,6 +27,7 @@ export function CharacterBackground({
         <div className={cn("absolute inset-0 overflow-hidden", className)}>
           <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background" />
           <Image
+            loader={supabaseImageLoader}
             src="/images/kinky/kinky-avatar.svg"
             alt="KINK IT Character"
             fill
@@ -42,6 +44,7 @@ export function CharacterBackground({
       return (
         <div className={cn("absolute inset-0 overflow-hidden", className)}>
           <Image
+            loader={supabaseImageLoader}
             src="/images/kinky/kinky-avatar.svg"
             alt=""
             fill
@@ -73,6 +76,7 @@ export function CharacterBackground({
         <div className={cn("absolute inset-0 overflow-hidden", className)}>
           <div className="absolute bottom-0 right-0 w-[400px] h-[600px] opacity-[var(--opacity,0.12)]">
             <Image
+              loader={supabaseImageLoader}
               src="/images/kinky/kinky-avatar.svg"
               alt=""
               fill
@@ -91,6 +95,7 @@ export function CharacterBackground({
           <div className="absolute inset-0 bg-gradient-to-br from-background via-background/98 to-background" />
           <div className="absolute bottom-0 right-0 w-full h-full opacity-[var(--opacity,0.1)]">
             <Image
+              loader={supabaseImageLoader}
               src="/images/kinky/kinky-avatar.svg"
               alt=""
               fill

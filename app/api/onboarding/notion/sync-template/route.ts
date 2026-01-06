@@ -13,46 +13,53 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    // Get user's Notion API key from database
-    const encryptionKey = process.env.NOTION_API_KEY_ENCRYPTION_KEY || process.env.SUPABASE_ENCRYPTION_KEY
-    if (!encryptionKey) {
+    // Get session to retrieve OAuth access token
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+
+    if (!session) {
       return NextResponse.json(
-        { error: "Server configuration error: Encryption key not configured" },
-        { status: 500 }
+        { error: "No active session found" },
+        { status: 401 }
       )
     }
 
-    // Get active API key for user
-    const { data: apiKeys, error: keysError } = await supabase
-      .from("user_notion_api_keys")
-      .select("id, key_name")
-      .eq("user_id", user.id)
-      .eq("is_active", true)
-      .order("last_validated_at", { ascending: false, nullsFirst: false })
-      .limit(1)
-      .single()
+    // Use OAuth provider token (from Notion OAuth authentication)
+    let notionApiKey = session.provider_token
 
-    if (keysError || !apiKeys) {
+    // Fallback: If no OAuth token, check for user's API key (backward compatibility)
+    if (!notionApiKey) {
+      const encryptionKey = process.env.NOTION_API_KEY_ENCRYPTION_KEY || process.env.SUPABASE_ENCRYPTION_KEY
+      if (encryptionKey) {
+        const { data: apiKeys } = await supabase
+          .from("user_notion_api_keys")
+          .select("id, key_name")
+          .eq("user_id", user.id)
+          .eq("is_active", true)
+          .order("last_validated_at", { ascending: false, nullsFirst: false })
+          .limit(1)
+          .single()
+
+        if (apiKeys) {
+          const { data: decryptedKey } = await supabase.rpc("get_user_notion_api_key", {
+            p_user_id: user.id,
+            p_key_id: apiKeys.id,
+            p_encryption_key: encryptionKey,
+          })
+          notionApiKey = decryptedKey
+        }
+      }
+    }
+
+    // If still no token, user needs to authenticate with Notion OAuth
+    if (!notionApiKey) {
       return NextResponse.json(
         { 
-          error: "No active Notion API key found",
-          suggestion: "Please add your Notion API key in Settings > Notion API Keys"
+          error: "Notion authentication required",
+          suggestion: "Please authenticate with Notion OAuth to access your workspace. If you've already authenticated, try refreshing the page."
         },
-        { status: 400 }
-      )
-    }
-
-    // Decrypt API key
-    const { data: notionApiKey, error: decryptError } = await supabase.rpc("get_user_notion_api_key", {
-      p_user_id: user.id,
-      p_key_id: apiKeys.id,
-      p_encryption_key: encryptionKey,
-    })
-
-    if (decryptError || !notionApiKey) {
-      return NextResponse.json(
-        { error: "Failed to retrieve API key" },
-        { status: 500 }
+        { status: 401 }
       )
     }
 

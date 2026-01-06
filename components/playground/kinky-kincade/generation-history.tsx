@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils"
 import { Loader2 } from "lucide-react"
 import { AddToNotionButton } from "@/components/playground/shared/add-to-notion-button"
 import type { Generation } from "./types"
+import supabaseImageLoader from "@/lib/supabase-image-loader"
 
 interface GenerationHistoryProps {
   generations: Generation[]
@@ -177,6 +178,7 @@ export function GenerationHistory({
                     </div>
                     {gen.imageUrl && (
                       <Image
+                        loader={supabaseImageLoader}
                         src={gen.imageUrl}
                         alt={gen.prompt || "Generated image"}
                         fill

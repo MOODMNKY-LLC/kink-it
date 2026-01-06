@@ -1,8 +1,120 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getUserProfile } from "@/lib/auth/get-user"
 import { createClient } from "@/lib/supabase/server"
+import type { GenerationProps } from "@/lib/image/props"
 
 export const dynamic = "force-dynamic"
+
+/**
+ * Ensure Props property exists as multiselect in Notion database
+ */
+async function ensurePropsPropertyExists(apiKey: string, databaseId: string): Promise<void> {
+  try {
+    // Fetch database to check properties
+    const dbResponse = await fetch(`https://api.notion.com/v1/databases/${databaseId}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Notion-Version": "2022-06-28",
+      },
+    })
+
+    if (!dbResponse.ok) {
+      throw new Error(`Failed to fetch database: ${dbResponse.statusText}`)
+    }
+
+    const db = await dbResponse.json()
+    const properties = db.properties || {}
+
+    // Check if Props property exists and is multiselect
+    if (properties.Props && properties.Props.type === "multi_select") {
+      return // Property already exists and is correct type
+    }
+
+    // Update database to add/update Props property
+    const updateResponse = await fetch(`https://api.notion.com/v1/databases/${databaseId}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Notion-Version": "2022-06-28",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        properties: {
+          Props: {
+            type: "multi_select",
+            multi_select: {},
+          },
+        },
+      }),
+    })
+
+    if (!updateResponse.ok) {
+      const error = await updateResponse.json().catch(() => ({}))
+      throw new Error(`Failed to update database: ${error.message || updateResponse.statusText}`)
+    }
+
+    console.log("[Notion] Props property created/updated as multiselect")
+  } catch (error) {
+    console.error("[Notion] Error ensuring Props property:", error)
+    throw error
+  }
+}
+
+/**
+ * Flatten props object into array of strings for Notion multiselect
+ */
+function flattenPropsToMultiSelect(props: GenerationProps): Array<{ name: string }> {
+  const items: string[] = []
+
+  if (props.physical) {
+    if (props.physical.height) items.push(`Height: ${props.physical.height}`)
+    if (props.physical.weight) items.push(`Weight: ${props.physical.weight}`)
+    if (props.physical.build) items.push(`Build: ${props.physical.build.split(",")[0]}`)
+    if (props.physical.hair) items.push(`Hair: ${props.physical.hair.split(" ")[0]}`)
+    if (props.physical.beard && props.physical.beard !== "none") items.push(`Beard: ${props.physical.beard}`)
+    if (props.physical.eyes) items.push(`Eyes: ${props.physical.eyes.split(",")[0]}`)
+    if (props.physical.skin_tone) items.push(`Skin: ${props.physical.skin_tone}`)
+  }
+
+  if (props.clothing) {
+    if (props.clothing.top && props.clothing.top.length > 0) {
+      props.clothing.top.forEach((item) => items.push(`Top: ${item}`))
+    }
+    if (props.clothing.bottom && props.clothing.bottom.length > 0) {
+      props.clothing.bottom.forEach((item) => items.push(`Bottom: ${item}`))
+    }
+    if (props.clothing.footwear && props.clothing.footwear.length > 0) {
+      props.clothing.footwear.forEach((item) => items.push(`Footwear: ${item}`))
+    }
+    if (props.clothing.accessories && props.clothing.accessories.length > 0) {
+      props.clothing.accessories.forEach((item) => items.push(`Accessory: ${item}`))
+    }
+  }
+
+  const accessories = props.character_accessories || props.kink_accessories
+  if (accessories) {
+    if (accessories.decorative_collar || (props.kink_accessories as any)?.collars) items.push("Accessory: Decorative Collar")
+    if (accessories.character_mask || (props.kink_accessories as any)?.pup_mask) items.push("Accessory: Character Mask")
+    if (accessories.ornamental_chains || (props.kink_accessories as any)?.locks) items.push("Accessory: Ornamental Chains")
+    if (accessories.long_socks) items.push("Accessory: Long Socks")
+    if (accessories.fashion_straps || (props.kink_accessories as any)?.harness) items.push("Accessory: Fashion Straps")
+    if (accessories.leather && accessories.leather.length > 0) {
+      accessories.leather.forEach((item) => {
+        const displayItem = item === "harness" ? "straps" : item
+        items.push(`Leather: ${displayItem}`)
+      })
+    }
+  }
+
+  if (props.background) {
+    if (props.background.type) items.push(`BG Type: ${props.background.type}`)
+    if (props.background.color) items.push(`BG Color: ${props.background.color}`)
+    if (props.background.environment) items.push(`BG Env: ${props.background.environment}`)
+  }
+
+  return items.map((item) => ({ name: item }))
+}
 
 interface SyncGenerationRequest {
   generationId?: string
@@ -140,6 +252,14 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("[Notion] Syncing generation to Notion:", generationData.generation_prompt?.substring(0, 50))
+
+    // Ensure Props property exists as multiselect in Notion database
+    try {
+      await ensurePropsPropertyExists(notionApiKey, databaseId)
+    } catch (error) {
+      console.warn("[Notion] Failed to ensure Props property exists:", error)
+      // Continue anyway - property might already exist or will be created on first sync
+    }
 
     // Upload file to Notion if provided
     let fileId: string | null = null
@@ -279,17 +399,13 @@ export async function POST(request: NextRequest) {
               start: generationData.created_at || new Date().toISOString(),
             },
           },
-          Props: {
-            rich_text: [
-              {
-                text: {
-                  content: generationData.generation_config?.props
-                    ? JSON.stringify(generationData.generation_config.props, null, 2)
-                    : "None",
-                },
+          Props: generationData.generation_config?.props
+            ? {
+                multi_select: flattenPropsToMultiSelect(generationData.generation_config.props),
+              }
+            : {
+                multi_select: [],
               },
-            ],
-          },
           "Storage Path": {
             rich_text: [
               {

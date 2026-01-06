@@ -23,12 +23,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get Notion API key from environment
-    const notionApiKey = process.env.NOTION_API_KEY
+    // Get session to retrieve OAuth access token
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+
+    // Use OAuth provider token (from Notion OAuth authentication) if available
+    let notionApiKey = session?.provider_token
+
+    // Fallback: Use server-side API key for backward compatibility
+    if (!notionApiKey) {
+      notionApiKey = process.env.NOTION_API_KEY
+    }
+
     if (!notionApiKey) {
       return NextResponse.json(
-        { error: "Notion API key not configured" },
-        { status: 500 }
+        { 
+          error: "Notion authentication required",
+          suggestion: "Please authenticate with Notion OAuth to verify your template. If you've already authenticated, try refreshing the page."
+        },
+        { status: 401 }
       )
     }
 

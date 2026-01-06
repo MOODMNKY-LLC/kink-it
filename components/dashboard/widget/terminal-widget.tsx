@@ -7,6 +7,7 @@ import { AvatarRing } from "@/components/ui/avatar-ring"
 import { Badge } from "@/components/ui/badge"
 import { Marquee } from "@/components/ui/marquee"
 import Image from "next/image"
+import supabaseImageLoader from "@/lib/supabase-image-loader"
 import { useOnlineStatus } from "@/hooks/use-online-status"
 import { getAppContext, getRoleAwareGreeting, getRoleAwareTerminology } from "@/lib/chat/context-aware-helpers"
 import type { Profile } from "@/types/profile"
@@ -113,6 +114,7 @@ export default function TerminalWidget({
           <AvatarRing isOnline={isOnline && !isLoadingStatus} size={48}>
             <div className="relative w-12 h-12 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center">
               <Image
+                loader={supabaseImageLoader}
                 src="/images/kinky/kinky-avatar.svg"
                 alt="Kinky Kincade - AI Assistant"
                 width={48}

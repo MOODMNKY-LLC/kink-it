@@ -419,9 +419,37 @@ export async function POST(request: NextRequest) {
           },
         })
 
-        // Get image as buffer
-        imageBuffer = Buffer.from(await image.asBuffer())
-        contentType = image.mediaType || "image/png"
+        // Get image as buffer - handle different image types
+        try {
+          // Try asBuffer() method first (Vercel AI SDK standard)
+          if (typeof image.asBuffer === "function") {
+            imageBuffer = Buffer.from(await image.asBuffer())
+          } else if (typeof image.toDataURL === "function") {
+            // Fallback: convert data URL to buffer
+            const dataUrl = await image.toDataURL()
+            const base64Data = dataUrl.split(",")[1]
+            imageBuffer = Buffer.from(base64Data, "base64")
+          } else if (image instanceof Blob || image instanceof File) {
+            // Fallback: convert Blob/File to buffer
+            const arrayBuffer = await image.arrayBuffer()
+            imageBuffer = Buffer.from(arrayBuffer)
+          } else {
+            // Last resort: try to get base64 or arrayBuffer from image
+            const arrayBuffer = await (image as any).arrayBuffer?.() || await (image as any).buffer
+            imageBuffer = arrayBuffer ? Buffer.from(arrayBuffer) : Buffer.from([])
+          }
+        } catch (bufferError) {
+          console.error("Error converting image to buffer:", bufferError)
+          // Try alternative conversion
+          try {
+            const arrayBuffer = await (image as any).arrayBuffer()
+            imageBuffer = Buffer.from(arrayBuffer)
+          } catch (fallbackError) {
+            console.error("Fallback buffer conversion failed:", fallbackError)
+            throw new Error("Failed to convert image to buffer")
+          }
+        }
+        contentType = image.mediaType || (image as any).type || "image/png"
 
         // Log revised prompt if available
         const revisedPrompt = providerMetadata?.openai?.images?.[0]?.revisedPrompt

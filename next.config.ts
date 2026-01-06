@@ -1,4 +1,5 @@
 import type { NextConfig } from "next"
+import path from "path"
 
 // Bundle analyzer (optional - only when ANALYZE=true)
 const withBundleAnalyzer = process.env.ANALYZE === 'true'
@@ -8,13 +9,23 @@ const withBundleAnalyzer = process.env.ANALYZE === 'true'
   : (config: NextConfig) => config
 
 const nextConfig: NextConfig = {
+  // Set output file tracing root to prevent Next.js from detecting nested lockfiles
+  outputFileTracingRoot: path.join(__dirname),
   eslint: {
     ignoreDuringBuilds: true,
   },
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Externalize packages with native dependencies for server components and API routes
+  serverExternalPackages: [
+    '@imgly/background-removal-node',
+    '@imgly/vectorizer',
+  ],
   images: {
+    // Use custom Supabase loader for image transformations
+    loader: 'custom',
+    loaderFile: './lib/supabase-image-loader.ts',
     // Enable Next.js image optimization for better performance
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -76,7 +87,13 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, webpack }) => {
+    // Only apply webpack config when not using Turbopack
+    // Turbopack has its own bundling system and doesn't use webpack
+    if (process.env.TURBOPACK === '1' || process.env.TURBOPACK === 'true') {
+      return config
+    }
+
     // Optimize webpack cache strategy to reduce serialization warnings
     // Note: Next.js already handles filesystem caching, we just optimize settings
     if (config.cache && typeof config.cache === 'object') {
@@ -95,6 +112,22 @@ const nextConfig: NextConfig = {
       ...config.optimization,
       moduleIds: 'deterministic',
       runtimeChunk: 'single',
+    }
+
+    // Externalize image processing libraries for Node.js API routes
+    // These packages have native dependencies and should not be bundled
+    // Note: serverExternalPackages handles this for Turbopack
+    if (isServer) {
+      config.externals = config.externals || []
+      if (Array.isArray(config.externals)) {
+        config.externals.push({
+          '@imgly/background-removal-node': 'commonjs @imgly/background-removal-node',
+          '@imgly/vectorizer': 'commonjs @imgly/vectorizer',
+        })
+      } else if (typeof config.externals === 'object') {
+        config.externals['@imgly/background-removal-node'] = 'commonjs @imgly/background-removal-node'
+        config.externals['@imgly/vectorizer'] = 'commonjs @imgly/vectorizer'
+      }
     }
 
     return config

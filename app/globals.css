@@ -285,6 +285,20 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera */
   }
+
+  /* Animated gradient text */
+  @keyframes gradient {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  .animate-gradient {
+    animation: gradient var(--bg-size, 300%) 3s ease infinite;
+  }
 }
 
 .recharts-cartesian-grid-vertical :first-child,
@@ -393,6 +407,20 @@
   100% {
     transform: translateX(100%);
   }
+}
+
+@keyframes gradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient {
+  animation: gradient 3s ease infinite;
+  background-size: var(--bg-size, 300%) 100%;
 }
 
 .animate-shimmer {

@@ -11,11 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { Trash2, Sparkles } from "lucide-react"
+import { Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ImageUploadBox } from "./image-upload-box"
 import { MobilePropsSelector } from "./mobile-props-selector"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import type { GenerationProps } from "@/lib/image/props"
 import { ASPECT_RATIO_OPTIONS } from "./constants"
 
@@ -83,15 +84,15 @@ export function InputSection({
   return (
     <div className="flex flex-col h-full min-h-0">
       <div className="space-y-4 min-h-0 flex flex-col">
-        {/* Top Controls Bar - Compact */}
-        <div className="flex items-center justify-between gap-3 flex-shrink-0">
+        {/* Top Controls Bar - Improved Layout */}
+        <div className="flex items-center justify-between gap-3 flex-shrink-0 flex-wrap">
           {/* Mode Toggle - Compact */}
-          <div className="inline-flex bg-black/30 backdrop-blur-md border border-gray-700/50 rounded-md p-0.5">
+          <div className="inline-flex bg-white/10 dark:bg-black/30 backdrop-blur-md border border-white/20 rounded-md p-0.5">
             <button
               onClick={() => setMode("props")}
               className={cn(
                 "px-2.5 py-1 text-xs font-medium transition-all rounded",
-                mode === "props" ? "bg-white text-black" : "text-gray-400 hover:text-white"
+                mode === "props" ? "bg-white text-black shadow-md" : "text-white/70 hover:text-white"
               )}
             >
               Props
@@ -107,34 +108,39 @@ export function InputSection({
             </button>
           </div>
           
-          {/* KINK IT Toggle */}
-          <div className="flex items-center gap-2 px-2 py-1 bg-black/30 backdrop-blur-md border border-gray-700/50 rounded-md">
-            <Sparkles className="h-3.5 w-3.5 text-gray-400" />
-            <div className="flex flex-col">
-              <Label htmlFor="kink-it-mode" className="text-xs font-medium cursor-pointer">
-                KINK IT
-              </Label>
-              <span className="text-[10px] text-gray-500 leading-tight">Apply our unique style</span>
-            </div>
-            <Switch
-              id="kink-it-mode"
-              checked={kinkItMode}
-              onCheckedChange={onKinkItModeChange}
-              className="ml-1"
-            />
-          </div>
+          {/* KINK IT Toggle - Simplified */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-white/10 dark:bg-black/30 backdrop-blur-md border border-white/20 rounded-md hover:bg-white/15 transition-colors">
+                  <Label htmlFor="kink-it-mode" className="text-xs font-semibold cursor-pointer text-white">
+                    KINK IT!
+                  </Label>
+                  <Switch
+                    id="kink-it-mode"
+                    checked={kinkItMode}
+                    onCheckedChange={onKinkItModeChange}
+                    className="ml-1"
+                  />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent className="font-mono text-xs max-w-xs">
+                <p>Apply our unique KINK IT style normalization to transform prompts into our universe</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
-          {/* Aspect Ratio and Clear - Compact */}
+          {/* Aspect Ratio and Clear - Improved Layout */}
           <div className="flex items-center gap-2">
             <Select value={aspectRatio} onValueChange={setAspectRatio}>
-              <SelectTrigger className="w-20 h-8 px-2 bg-black/30 backdrop-blur-md border-gray-700/50 text-xs">
+              <SelectTrigger className="w-32 h-9 px-3 bg-white/10 dark:bg-black/30 backdrop-blur-md border-white/20 text-xs text-white hover:bg-white/15 transition-colors">
                 <SelectValue placeholder="1:1" />
               </SelectTrigger>
-              <SelectContent className="bg-black/80 backdrop-blur-xl border-gray-700/50">
+              <SelectContent className="bg-white/15 dark:bg-black/40 backdrop-blur-xl border-white/20">
                 {ASPECT_RATIO_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={option.value} className="text-xs">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10px]">{option.icon}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">{option.icon}</span>
                       <span>{option.label}</span>
                     </div>
                   </SelectItem>
@@ -146,7 +152,7 @@ export function InputSection({
               disabled={!prompt.trim() && !hasImages}
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 text-gray-400 hover:text-white disabled:opacity-30"
+              className="h-9 w-9 p-0 text-gray-400 hover:text-white disabled:opacity-30"
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -170,7 +176,7 @@ export function InputSection({
             onKeyDown={onKeyDown}
             onPaste={onPromptPaste}
             placeholder="Describe your image concept... KINK IT will transform it into our universe."
-            className="w-full flex-1 min-h-[120px] p-3 bg-black/30 backdrop-blur-md border border-gray-700/50 resize-none focus:outline-none focus:ring-1 focus:ring-white text-white text-sm rounded"
+            className="w-full flex-1 min-h-[120px] p-3 bg-white/10 dark:bg-black/30 backdrop-blur-md border border-white/20 resize-none focus:outline-none focus:ring-2 focus:ring-white/50 text-white text-sm rounded placeholder:text-white/50"
             style={{
               fontSize: "14px",
               WebkitUserSelect: "text",
@@ -184,7 +190,7 @@ export function InputSection({
           <div>
             <div className="flex items-center justify-between mb-2 select-none">
               <Label className="text-xs font-medium text-gray-400">Images (optional)</Label>
-              <div className="inline-flex bg-black/30 backdrop-blur-md border border-gray-700/50 rounded-md p-0.5">
+              <div className="inline-flex bg-white/10 dark:bg-black/30 backdrop-blur-md border border-white/20 rounded-md p-0.5">
                 <button
                   onClick={() => setUseUrls(false)}
                   className={cn(
@@ -214,7 +220,7 @@ export function InputSection({
                     value={image1Url}
                     onChange={(e) => onUrlChange(e.target.value, 1)}
                     placeholder="Image URL 1"
-                    className="w-full h-8 px-2 pr-7 bg-black/30 backdrop-blur-md border border-gray-700/50 text-white text-xs focus:outline-none focus:ring-1 focus:ring-white rounded"
+                    className="w-full h-8 px-2 pr-7 bg-white/10 dark:bg-black/30 backdrop-blur-md border border-white/20 text-white text-xs focus:outline-none focus:ring-2 focus:ring-white/50 rounded placeholder:text-white/50"
                   />
                   {image1Url && (
                     <button
@@ -234,7 +240,7 @@ export function InputSection({
                     value={image2Url}
                     onChange={(e) => onUrlChange(e.target.value, 2)}
                     placeholder="Image URL 2"
-                    className="w-full h-8 px-2 pr-7 bg-black/30 backdrop-blur-md border border-gray-700/50 text-white text-xs focus:outline-none focus:ring-1 focus:ring-white rounded"
+                    className="w-full h-8 px-2 pr-7 bg-white/10 dark:bg-black/30 backdrop-blur-md border border-white/20 text-white text-xs focus:outline-none focus:ring-2 focus:ring-white/50 rounded placeholder:text-white/50"
                   />
                   {image2Url && (
                     <button

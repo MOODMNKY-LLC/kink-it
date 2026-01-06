@@ -32,5 +32,6 @@ export interface Profile {
   kink_identity_public?: boolean
   // Widget customization fields
   banner_text?: string | null
+  tagline?: string | null
   widget_image_url?: string | null
 }
