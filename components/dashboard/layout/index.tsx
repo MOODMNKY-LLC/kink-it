@@ -20,11 +20,11 @@ export default function DashboardPageLayout({
         <div className="max-lg:contents rounded bg-primary size-7 md:size-9 flex items-center justify-center my-auto">
           <header.icon className="ml-1 lg:ml-0 opacity-50 md:opacity-100 size-5" />
         </div>
-        <h1 className="text-xl lg:text-4xl font-display leading-[1] mb-1">
+        <h1 className="text-xl lg:text-4xl font-display leading-[1] mb-1 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
           {header.title}
         </h1>
         {header.description && (
-          <span className="ml-auto text-xs md:text-sm text-muted-foreground block">
+          <span className="ml-auto text-xs md:text-sm text-foreground/70 block">
             {header.description}
           </span>
         )}

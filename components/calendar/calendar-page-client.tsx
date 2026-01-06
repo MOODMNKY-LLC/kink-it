@@ -449,8 +449,8 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
       {events.length === 0 ? (
         <Card className="border-primary/20 bg-card/90 backdrop-blur-xl">
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <CalendarIcon className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground text-center">
+            <CalendarIcon className="h-12 w-12 text-foreground/60 mb-4" />
+            <p className="text-foreground/70 text-center">
               No events scheduled. Create your first event to get started.
             </p>
           </CardContent>
@@ -464,14 +464,14 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
             >
               <CardHeader>
                 <div className="flex items-start justify-between">
-                  <div className="flex-1">
+                    <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <CardTitle className="text-lg">{event.title}</CardTitle>
+                      <CardTitle className="text-lg text-foreground">{event.title}</CardTitle>
                       <Badge className={getTypeColor(event.event_type)}>
                         {event.event_type}
                       </Badge>
                     </div>
-                    <CardDescription>
+                    <CardDescription className="text-foreground/70">
                       {formatEventDate(event.start_date)}
                       {event.end_date && ` - ${formatEventDate(event.end_date)}`}
                     </CardDescription>
@@ -480,7 +480,7 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
               </CardHeader>
               {event.description && (
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">{event.description}</p>
+                  <p className="text-sm text-foreground/80">{event.description}</p>
                 </CardContent>
               )}
               <CardContent>
@@ -543,7 +543,7 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
                 onChange={(e) => setGoogleEmail(e.target.value)}
                 className="bg-muted/50 border-border backdrop-blur-sm"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-foreground/70">
                 This email is used to generate calendar links for Notion Calendar.
               </p>
             </div>
