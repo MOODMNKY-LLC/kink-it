@@ -16,7 +16,8 @@ import {
   TrendingUp,
   Award,
   FileText,
-  Settings
+  Settings,
+  BarChart3
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
