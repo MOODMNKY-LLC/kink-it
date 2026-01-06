@@ -170,14 +170,8 @@ export async function POST(request: NextRequest) {
           end: endDate ? endDate.toISOString() : undefined,
         },
       },
-      "Created By": {
-        people: [
-          {
-            object: "user",
-            id: profile.id,
-          },
-        ],
-      },
+      // Note: "Created By" property removed - Notion automatically tracks page creator
+      // based on the API key used. We cannot use KINK IT user IDs as Notion user IDs.
     }
 
     // Add description if available
