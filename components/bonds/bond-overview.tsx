@@ -15,7 +15,8 @@ import {
   Check,
   TrendingUp,
   Award,
-  FileText
+  FileText,
+  Settings
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
