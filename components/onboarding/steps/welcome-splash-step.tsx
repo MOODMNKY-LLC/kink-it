@@ -14,7 +14,7 @@ interface WelcomeSplashStepProps {
 export default function WelcomeSplashStep({ onComplete, initialData }: WelcomeSplashStepProps) {
   const dynamicRole = initialData?.dynamic_role || "user"
   const notionVerified = initialData?.notion_verified || false
-  const discordInstalled = initialData?.discord_installed || false
+  const notionApiKeyAdded = initialData?.notion_api_key_added || false
 
   const getRoleMessage = () => {
     switch (dynamicRole) {
@@ -85,13 +85,13 @@ export default function WelcomeSplashStep({ onComplete, initialData }: WelcomeSp
               </div>
             )}
 
-            {discordInstalled && (
+            {initialData?.notion_api_key_added && (
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
                 <div>
-                  <p className="font-medium">Discord Bot</p>
+                  <p className="font-medium">Notion API Key</p>
                   <p className="text-sm text-muted-foreground">
-                    Notifications enabled
+                    Enhanced integration enabled
                   </p>
                 </div>
               </div>

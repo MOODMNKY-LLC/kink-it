@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { getUserProfile } from "@/lib/auth/get-user"
 import { createClient } from "@/lib/supabase/server"
 import type { GenerationProps } from "@/lib/image/props"
+import { setSyncPending, setSyncSynced, setSyncFailed } from "@/lib/notion/sync-status"
 
 export const dynamic = "force-dynamic"
 
@@ -448,6 +449,13 @@ export async function POST(request: NextRequest) {
 
     const notionPage = await response.json()
 
+    // Update sync status to synced
+    try {
+      await setSyncSynced("image_generations", generationData.id, notionPage.id)
+    } catch (error) {
+      console.warn("[Sync Generation] Could not update sync status:", error)
+    }
+
     return NextResponse.json({
       success: true,
       pageId: notionPage.id,
@@ -456,6 +464,20 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error("[Notion] Error syncing generation:", error)
+    
+    // Update sync status to failed
+    if (generationData?.id) {
+      try {
+        await setSyncFailed(
+          "image_generations",
+          generationData.id,
+          error instanceof Error ? error.message : "Unknown error"
+        )
+      } catch (statusError) {
+        console.warn("[Sync Generation] Could not update failed status:", statusError)
+      }
+    }
+
     return NextResponse.json(
       {
         success: false,

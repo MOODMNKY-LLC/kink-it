@@ -4,10 +4,11 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Edit, Trash2, FileText } from "lucide-react"
+import { Plus, Edit, Trash2, FileText, Loader2, ExternalLink } from "lucide-react"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 import type { DynamicRole } from "@/types/profile"
+import { AddToNotionButtonGeneric } from "@/components/playground/shared/add-to-notion-button-generic"
 import {
   Dialog,
   DialogContent,
@@ -129,6 +130,7 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
       console.error(error)
     }
   }
+
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -273,6 +275,13 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
                   </div>
                   {userRole === "dominant" && (
                     <div className="flex gap-2">
+                      <AddToNotionButtonGeneric
+                        tableName="rules"
+                        itemId={rule.id}
+                        syncEndpoint="/api/notion/sync-rule"
+                        variant="ghost"
+                        size="sm"
+                      />
                       <Button
                         variant="ghost"
                         size="sm"

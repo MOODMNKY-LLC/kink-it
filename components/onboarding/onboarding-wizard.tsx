@@ -8,7 +8,7 @@ import WelcomeStep from "./steps/welcome-step"
 import BondSetupStep from "./steps/bond-setup-step"
 import NotionSetupStep from "./steps/notion-setup-step"
 import NotionVerificationStep from "./steps/notion-verification-step"
-import DiscordStep from "./steps/discord-step"
+import NotionApiKeyStep from "./steps/notion-api-key-step"
 import WelcomeSplashStep from "./steps/welcome-splash-step"
 import OnboardingProgress from "./onboarding-progress"
 
@@ -82,7 +82,8 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
           setCompletedSteps(inferredCompleted)
         }
         
-        // If Discord was installed via URL param, update wizard data
+        // Legacy: Handle Discord installation URL param (for backward compatibility)
+        // Note: Discord step has been replaced with Notion API key step
         if (urlParams?.discord_installed === "true" && !parsed.discord_installed) {
           const updatedData = { ...parsed, discord_installed: true }
           setWizardData(updatedData)
@@ -95,7 +96,7 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
         console.error("Failed to parse saved onboarding data", e)
       }
     } else if (urlParams?.discord_installed === "true") {
-      // If no saved data but Discord installed, create it
+      // Legacy: Handle Discord installation URL param (for backward compatibility)
       const discordData = { discord_installed: true }
       setWizardData(discordData)
       localStorage.setItem("onboarding_data", JSON.stringify(discordData))
@@ -204,7 +205,7 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
         )
       case 5:
         return (
-          <DiscordStep
+          <NotionApiKeyStep
             onNext={handleNext}
             onBack={handleBack}
             initialData={wizardData}

@@ -1,13 +1,17 @@
 "use client"
 
 import { format, isToday, isTomorrow, parseISO } from "date-fns"
-import { CheckCircle2, Clock, AlertCircle, Camera, Video, FileText, Play, X } from "lucide-react"
+import { CheckCircle2, Clock, AlertCircle, Camera, Video, FileText, Play, X, Loader2, ExternalLink } from "lucide-react"
 import { MagicCard } from "@/components/ui/magic-card"
 import { BorderBeam } from "@/components/ui/border-beam"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { Task, TaskStatus, TaskPriority } from "@/types/task"
 import type { DynamicRole } from "@/types/profile"
+import { useNotionSyncStatus } from "@/components/playground/shared/use-notion-sync-status"
+import { AddToNotionButtonGeneric } from "@/components/playground/shared/add-to-notion-button-generic"
+import { toast } from "sonner"
+import { useState } from "react"
 
 interface TaskCardProps {
   task: Task
@@ -16,6 +20,7 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task, userRole, onAction }: TaskCardProps) {
+
   const formatDueDate = (dateString: string | null) => {
     if (!dateString) return null
     try {
@@ -137,6 +142,14 @@ export function TaskCard({ task, userRole, onAction }: TaskCardProps) {
 
         {/* Actions */}
         <div className="flex items-center gap-2 pt-2 border-t border-border">
+          <AddToNotionButtonGeneric
+            tableName="tasks"
+            itemId={task.id}
+            syncEndpoint="/api/notion/sync-task"
+            variant="ghost"
+            size="sm"
+            className="ml-auto"
+          />
           {userRole === "submissive" && (
             <>
               {task.status === "pending" && (

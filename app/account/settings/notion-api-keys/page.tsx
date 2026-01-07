@@ -23,10 +23,22 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
-import { Plus, Trash2, TestTube, Key, Shield, AlertCircle, BarChart3 } from "lucide-react"
+import { Plus, Trash2, TestTube, Key, Shield, AlertCircle, BarChart3, Unlink, CheckCircle2, Loader2 } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Link from "next/link"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 interface ApiKey {
   id: string
@@ -48,10 +60,52 @@ export default function NotionApiKeysPage() {
   const [keyName, setKeyName] = useState("")
   const [apiKey, setApiKey] = useState("")
   const [submitting, setSubmitting] = useState(false)
+  const [hasOAuthConnection, setHasOAuthConnection] = useState(false)
+  const [isDisconnecting, setIsDisconnecting] = useState(false)
+  const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false)
 
   useEffect(() => {
     fetchApiKeys()
+    checkOAuthConnection()
   }, [])
+
+  const checkOAuthConnection = async () => {
+    try {
+      // Check if user has OAuth tokens by trying to get access token
+      const response = await fetch("/api/notion/check-oauth")
+      if (response.ok) {
+        const data = await response.json()
+        setHasOAuthConnection(data.hasOAuth || false)
+      }
+    } catch (error) {
+      console.error("Error checking OAuth connection:", error)
+      setHasOAuthConnection(false)
+    }
+  }
+
+  const handleDisconnect = async () => {
+    setIsDisconnecting(true)
+    try {
+      const response = await fetch("/api/notion/disconnect", {
+        method: "DELETE",
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to disconnect Notion")
+      }
+
+      toast.success("Notion OAuth integration disconnected successfully")
+      setHasOAuthConnection(false)
+      setDisconnectDialogOpen(false)
+    } catch (error: any) {
+      console.error("Error disconnecting Notion:", error)
+      toast.error(error.message || "Failed to disconnect Notion")
+    } finally {
+      setIsDisconnecting(false)
+    }
+  }
 
   const fetchApiKeys = async () => {
     try {
@@ -181,6 +235,67 @@ export default function NotionApiKeysPage() {
           only decrypted when needed for API calls. Never share your API keys with anyone.
         </AlertDescription>
       </Alert>
+
+      {/* OAuth Connection Status */}
+      {hasOAuthConnection && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-green-500" />
+              Notion OAuth Connected
+            </CardTitle>
+            <CardDescription>
+              You're connected to Notion via OAuth. This provides seamless integration with your Notion workspace.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium">OAuth Integration Active</p>
+                <p className="text-xs text-muted-foreground">
+                  Your Notion OAuth tokens are stored securely and automatically refreshed when needed.
+                </p>
+              </div>
+              <AlertDialog open={disconnectDialogOpen} onOpenChange={setDisconnectDialogOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm">
+                    <Unlink className="h-4 w-4 mr-2" />
+                    Disconnect
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Disconnect Notion OAuth?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will remove your Notion OAuth connection. You'll need to sign in with Notion again to reconnect.
+                      <br />
+                      <br />
+                      <strong>Note:</strong> Your manual API keys will remain active and unaffected.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={isDisconnecting}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDisconnect}
+                      disabled={isDisconnecting}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      {isDisconnecting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Disconnecting...
+                        </>
+                      ) : (
+                        "Disconnect"
+                      )}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="flex justify-between items-center">
         <div>

@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Plus, Calendar as CalendarIcon, ExternalLink, RefreshCw, Loader2, Clock } from "lucide-react"
 import { generateNotionCalendarUrl, openInNotionCalendar, isValidGoogleEmail } from "@/lib/notion-calendar"
-import { useNotionSyncStatus } from "@/components/playground/shared/use-notion-sync-status"
+import { AddToNotionButtonGeneric } from "@/components/playground/shared/add-to-notion-button-generic"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import {
@@ -64,11 +64,9 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
   const [showGoogleEmailDialog, setShowGoogleEmailDialog] = useState(false)
   const [googleEmail, setGoogleEmail] = useState<string>("")
   const [userGoogleEmail, setUserGoogleEmail] = useState<string | null>(null)
-  const [syncingEventId, setSyncingEventId] = useState<string | null>(null)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
   const [selectedEvents, setSelectedEvents] = useState<CalendarEvent[]>([])
   const supabase = createClient()
-  const { status: notionSyncStatus, isSynced: isNotionSynced } = useNotionSyncStatus()
 
   useEffect(() => {
     loadEvents()
@@ -168,48 +166,6 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
     }
   }
 
-  const handleSyncToNotion = async (event: CalendarEvent) => {
-    if (!isNotionSynced) {
-      toast.error("Notion database not synced", {
-        description: "Please sync your Notion template in Account Settings to enable calendar syncing.",
-        duration: 5000,
-      })
-      return
-    }
-
-    setSyncingEventId(event.id)
-    try {
-      const response = await fetch("/api/notion/sync-calendar-event", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          eventId: event.id,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to sync to Notion")
-      }
-
-      toast.success("Event synced to Notion successfully!", {
-        description: "The event is now available in your Notion Calendar Events database.",
-        duration: 5000,
-      })
-    } catch (error) {
-      console.error("Failed to sync event to Notion:", error)
-      toast.error(
-        error instanceof Error ? error.message : "Failed to sync to Notion",
-        {
-          description: "Make sure your Notion template is synced and you have a Calendar Events database.",
-          duration: 5000,
-        }
-      )
-    } finally {
-      setSyncingEventId(null)
-    }
-  }
 
   const loadEvents = async () => {
     try {
@@ -279,14 +235,6 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
       if (response.ok) {
         toast.success("Event created successfully")
         setShowCreateDialog(false)
-        const newEvent = data.event as CalendarEvent
-        
-        if (isNotionSynced && newEvent) {
-          setTimeout(() => {
-            handleSyncToNotion(newEvent)
-          }, 1000)
-        }
-        
         loadEvents()
       } else {
         toast.error(data.error || "Failed to create event")

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { storeNotionOAuthTokens } from "@/lib/notion-auth"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
@@ -53,11 +54,153 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(errorUrl)
     }
     
-    // Check if user has completed onboarding
+    // Get user and session after exchange
     const {
       data: { user },
     } = await supabase.auth.getUser()
 
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+
+    // Check if we have token data passed from custom callback
+    const notionTokensParam = requestUrl.searchParams.get("notion_tokens")
+    
+    // Store Notion OAuth tokens if available
+    if (user && session?.provider_token) {
+      try {
+        let tokenData: {
+          access_token: string
+          refresh_token: string
+          bot_id: string
+          workspace_id: string
+          workspace_name?: string
+          workspace_icon?: string
+          owner_type?: string
+          duplicated_template_id?: string
+        } | null = null
+
+        // If we have token data from custom callback, use it
+        if (notionTokensParam) {
+          try {
+            tokenData = JSON.parse(Buffer.from(notionTokensParam, "base64").toString())
+          } catch (e) {
+            console.error("Error parsing notion_tokens param:", e)
+          }
+        }
+
+        // If no token data from param, try to extract from session
+        if (!tokenData) {
+          const accessToken = session.provider_token
+          // Try to get refresh token from session (may not be available)
+          const refreshToken = (session as any).provider_refresh_token || null
+
+          if (accessToken) {
+            // Fetch user info from Notion to get workspace details
+            try {
+              const notionUserResponse = await fetch("https://api.notion.com/v1/users/me", {
+                headers: {
+                  Authorization: `Bearer ${accessToken}`,
+                  "Notion-Version": "2022-06-28",
+                },
+              })
+
+              if (notionUserResponse.ok) {
+                const notionUser = await notionUserResponse.json()
+                
+                // Extract workspace_id from bot owner or use bot ID as fallback
+                // Notion API returns workspace_id in bot.owner.workspace_id
+                const workspaceId = notionUser.bot?.owner?.workspace_id || 
+                                  notionUser.bot?.workspace?.id ||
+                                  notionUser.workspace?.id ||
+                                  ""
+                
+                // Extract bot_id
+                const botId = notionUser.bot?.id || notionUser.id || ""
+                
+                // Extract workspace name and icon from bot owner
+                const workspaceName = notionUser.bot?.owner?.workspace_name || 
+                                     notionUser.workspace?.name ||
+                                     null
+                const workspaceIcon = notionUser.bot?.owner?.workspace_icon ||
+                                     notionUser.workspace?.icon ||
+                                     null
+                const ownerType = notionUser.bot?.owner?.type || "user"
+                
+                // Get duplicated_template_id from session metadata if available
+                const duplicatedTemplateId = session.user?.app_metadata?.provider_metadata?.duplicated_template_id || null
+                
+                if (!workspaceId || !botId) {
+                  console.warn("Could not extract workspace_id or bot_id from Notion user response:", {
+                    notionUser,
+                    workspaceId,
+                    botId,
+                  })
+                }
+                
+                tokenData = {
+                  access_token: accessToken,
+                  refresh_token: refreshToken || "",
+                  bot_id: botId,
+                  workspace_id: workspaceId,
+                  workspace_name: workspaceName,
+                  workspace_icon: workspaceIcon,
+                  owner_type: ownerType,
+                  duplicated_template_id: duplicatedTemplateId,
+                }
+              } else {
+                const errorText = await notionUserResponse.text()
+                console.error("Failed to fetch Notion user info:", {
+                  status: notionUserResponse.status,
+                  statusText: notionUserResponse.statusText,
+                  body: errorText,
+                })
+              }
+            } catch (apiError) {
+              console.error("Error fetching Notion user info:", apiError)
+            }
+          }
+        }
+
+        // Store tokens if we have them
+        if (tokenData && tokenData.access_token) {
+          // Validate required fields before storing
+          if (!tokenData.workspace_id || !tokenData.bot_id) {
+            console.error("Cannot store Notion OAuth tokens: missing required fields", {
+              hasAccessToken: !!tokenData.access_token,
+              hasWorkspaceId: !!tokenData.workspace_id,
+              hasBotId: !!tokenData.bot_id,
+              tokenData,
+            })
+          } else {
+            try {
+              await storeNotionOAuthTokens(user.id, {
+                access_token: tokenData.access_token,
+                refresh_token: tokenData.refresh_token,
+                bot_id: tokenData.bot_id,
+                workspace_id: tokenData.workspace_id,
+                workspace_name: tokenData.workspace_name,
+                workspace_icon: tokenData.workspace_icon,
+                owner_type: tokenData.owner_type,
+                duplicated_template_id: tokenData.duplicated_template_id,
+                expires_in: 3600, // Default to 1 hour
+              })
+              console.log("Successfully stored Notion OAuth tokens for user:", user.id)
+            } catch (storeError) {
+              console.error("Failed to store Notion OAuth tokens:", storeError)
+              // Don't fail auth flow if token storage fails - user can still use session token
+            }
+          }
+        } else {
+          console.warn("No token data available to store for user:", user.id)
+        }
+      } catch (error) {
+        console.error("Error processing Notion OAuth tokens:", error)
+        // Don't fail the auth flow if token storage fails
+      }
+    }
+    
+    // Check if user has completed onboarding
     if (user) {
       const { data: profile } = await supabase
         .from("profiles")

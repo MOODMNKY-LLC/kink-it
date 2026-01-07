@@ -4,8 +4,9 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Plus, BookOpen, Tag } from "lucide-react"
+import { Plus, BookOpen, Tag, Loader2, ExternalLink } from "lucide-react"
 import { toast } from "sonner"
+import { AddToNotionButtonGeneric } from "@/components/playground/shared/add-to-notion-button-generic"
 import {
   Dialog,
   DialogContent,
@@ -117,6 +118,7 @@ export function JournalPageClient({ userId, bondId }: JournalPageClientProps) {
     const typeInfo = ENTRY_TYPES.find((t) => t.value === type)
     return typeInfo?.color || "bg-muted text-muted-foreground"
   }
+
 
   if (isLoading) {
     return (
@@ -253,6 +255,13 @@ export function JournalPageClient({ userId, bondId }: JournalPageClientProps) {
                       })}
                     </CardDescription>
                   </div>
+                  <AddToNotionButtonGeneric
+                    tableName="journal_entries"
+                    itemId={entry.id}
+                    syncEndpoint="/api/notion/sync-journal"
+                    variant="ghost"
+                    size="sm"
+                  />
                 </div>
               </CardHeader>
               <CardContent>

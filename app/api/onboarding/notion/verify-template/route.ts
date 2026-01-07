@@ -23,13 +23,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get session to retrieve OAuth access token
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-
-    // Use OAuth provider token (from Notion OAuth authentication) if available
-    let notionApiKey = session?.provider_token
+    // Get Notion access token using utility (handles refresh automatically)
+    const { getNotionAccessToken } = await import("@/lib/notion-auth")
+    let notionApiKey = await getNotionAccessToken(user.id)
 
     // Fallback: Use server-side API key for backward compatibility
     if (!notionApiKey) {
@@ -81,38 +77,77 @@ export async function POST(request: NextRequest) {
     const childrenData = await childrenResponse.json()
     const databases: Array<{ id: string; name: string; type: string }> = []
 
-    // Discover databases from page children
-    if (childrenData.results) {
-      for (const block of childrenData.results) {
+    // Helper function to determine database type from name
+    const determineDatabaseType = (dbName: string): string => {
+      const nameWithoutEmoji = dbName.replace(/[\u{1F300}-\u{1F9FF}]/gu, "").trim()
+      const nameLower = nameWithoutEmoji.toLowerCase()
+      
+      if (nameLower.includes("image") && nameLower.includes("generation")) return "image_generations"
+      if (nameLower.includes("kinkster") || (nameLower.includes("profile") && nameLower.includes("kink"))) return "kinkster_profiles"
+      if (nameLower.includes("task")) return "tasks"
+      if (nameLower.includes("idea") || nameLower.includes("app idea")) return "ideas"
+      if (nameLower.includes("rule")) return "rules"
+      if (nameLower.includes("reward")) return "rewards"
+      if (nameLower.includes("point")) return "points"
+      if (nameLower.includes("boundary") || nameLower.includes("kink")) return "boundaries"
+      if (nameLower.includes("journal")) return "journal"
+      if (nameLower.includes("scene")) return "scenes"
+      if (nameLower.includes("calendar") || nameLower.includes("event")) return "calendar"
+      if (nameLower.includes("contract")) return "contracts"
+      if (nameLower.includes("resource")) return "resources"
+      if (nameLower.includes("communication") || nameLower.includes("check")) return "communication"
+      if (nameLower.includes("analytics") || nameLower.includes("report")) return "analytics"
+      return "unknown"
+    }
+
+    // Helper function to discover databases from blocks (handles nested structure)
+    // Recursively searches child pages for databases
+    const discoverDatabasesFromBlocks = async (blocks: any[]): Promise<void> => {
+      for (const block of blocks) {
         if (block.type === "child_database" || block.type === "database") {
           const dbId = block.id || block.database?.id
           const dbName = block.child_database?.title || block.database?.title?.[0]?.plain_text || "Untitled Database"
-          
-          // Try to determine database type from name
-          const nameLower = dbName.toLowerCase()
-          let dbType = "unknown"
-          if (nameLower.includes("task")) dbType = "tasks"
-          else if (nameLower.includes("rule")) dbType = "rules"
-          else if (nameLower.includes("reward")) dbType = "rewards"
-          else if (nameLower.includes("point")) dbType = "points"
-          else if (nameLower.includes("boundary") || nameLower.includes("kink")) dbType = "boundaries"
-          else if (nameLower.includes("journal")) dbType = "journal"
-          else if (nameLower.includes("scene")) dbType = "scenes"
-          else if (nameLower.includes("calendar") || nameLower.includes("event")) dbType = "calendar"
-          else if (nameLower.includes("contract")) dbType = "contracts"
-          else if (nameLower.includes("resource")) dbType = "resources"
-          else if (nameLower.includes("communication") || nameLower.includes("check")) dbType = "communication"
-          else if (nameLower.includes("analytics") || nameLower.includes("report")) dbType = "analytics"
-          else if (nameLower.includes("image") && nameLower.includes("generation")) dbType = "image_generations"
-          else if (nameLower.includes("image generation")) dbType = "image_generations"
+          const dbType = determineDatabaseType(dbName)
 
           databases.push({
             id: dbId,
             name: dbName,
             type: dbType,
           })
+        } else if (block.type === "child_page" || block.type === "page") {
+          // Databases might be nested in a child page (e.g., "Database" or "Backend" page)
+          const childPageId = block.id || block.page?.id
+          if (childPageId) {
+            const childPageTitle = block.child_page?.title || block.page?.title?.[0]?.plain_text || "Untitled"
+            console.log(`[Verify] Found child page "${childPageTitle}", checking for nested databases...`)
+            try {
+              const nestedChildrenResponse = await fetch(
+                `https://api.notion.com/v1/blocks/${childPageId}/children`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${notionApiKey}`,
+                    "Notion-Version": "2022-06-28",
+                  },
+                }
+              )
+              if (nestedChildrenResponse.ok) {
+                const nestedChildrenData = await nestedChildrenResponse.json()
+                await discoverDatabasesFromBlocks(nestedChildrenData.results || [])
+              } else {
+                console.warn(`[Verify] Failed to fetch nested children for page "${childPageTitle}":`, nestedChildrenResponse.status)
+              }
+            } catch (nestedError) {
+              console.warn(`[Verify] Error fetching nested children for page ${childPageId}:`, nestedError)
+            }
+          }
         }
       }
+    }
+
+    // Discover databases from page children (handles nested structure)
+    if (childrenData.results) {
+      await discoverDatabasesFromBlocks(childrenData.results)
+      console.log(`[Verify] Discovered ${databases.length} databases (including nested)`)
     }
 
     // Store parent page ID and databases in user profile
@@ -135,15 +170,49 @@ export async function POST(request: NextRequest) {
       }))
 
       // Delete existing databases for this user and insert new ones
-      await supabase.from("notion_databases").delete().eq("user_id", user.id)
-      await supabase.from("notion_databases").insert(dbRecords)
+      const { error: deleteError } = await supabase
+        .from("notion_databases")
+        .delete()
+        .eq("user_id", user.id)
+
+      if (deleteError) {
+        console.error("[Verify] Error deleting existing databases:", deleteError)
+        return NextResponse.json(
+          { error: "Failed to clear existing databases", details: deleteError.message },
+          { status: 500 }
+        )
+      }
+
+      const { error: insertError } = await supabase
+        .from("notion_databases")
+        .insert(dbRecords)
+
+      if (insertError) {
+        console.error("[Verify] Error inserting databases:", insertError)
+        return NextResponse.json(
+          { error: "Failed to store databases", details: insertError.message },
+          { status: 500 }
+        )
+      }
+
+      console.log(`[Verify] Successfully stored ${databases.length} databases`)
+    } else {
+      console.warn(`[Verify] No databases found in template page ${parentPageId}. This might indicate databases are nested in a child page that wasn't accessible.`)
     }
+
+    const pageTitle = page.properties?.title?.title?.[0]?.plain_text || 
+                     page.properties?.Name?.title?.[0]?.plain_text ||
+                     "Untitled Page"
 
     return NextResponse.json({
       success: true,
       parentPageId,
       databases,
-      pageTitle: page.properties?.title?.title?.[0]?.plain_text || "Untitled Page",
+      databases_count: databases.length,
+      pageTitle,
+      message: databases.length > 0 
+        ? `Found ${databases.length} database(s) in template "${pageTitle}"`
+        : "Template verified but no databases found. Make sure databases are accessible and not nested too deeply.",
     })
   } catch (error) {
     console.error("Error verifying Notion template:", error)

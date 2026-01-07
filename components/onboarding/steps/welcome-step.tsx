@@ -30,7 +30,7 @@ export default function WelcomeStep({ onNext, onBack, initialData }: WelcomeStep
       <div>
         <h2 className="text-2xl font-bold mb-2">Welcome to KINK IT</h2>
         <p className="text-muted-foreground">
-          Let's set up your account to get started with managing your D/s dynamic.
+          Your comprehensive platform for managing D/s relationships. Track tasks, set rules, manage rewards, and keep your dynamic organized—all in one place.
         </p>
       </div>
 

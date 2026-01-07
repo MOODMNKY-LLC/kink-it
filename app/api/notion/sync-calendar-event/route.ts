@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextRequest, NextResponse } from "next/server"
 import { getUserProfile } from "@/lib/auth/get-user"
+import { setSyncPending, setSyncSynced, setSyncFailed } from "@/lib/notion/sync-status"
 
 /**
  * Sync Calendar Event to Notion Calendar Events Database
@@ -130,6 +131,13 @@ export async function POST(request: NextRequest) {
         { success: false, error: "Event data is required" },
         { status: 400 }
       )
+    }
+
+    // Set sync status to pending
+    try {
+      await setSyncPending("calendar_events", eventData.id)
+    } catch (error) {
+      console.warn("[Sync Calendar Event] Could not set pending status:", error)
     }
 
     // Map event type to Notion select option
@@ -264,6 +272,13 @@ export async function POST(request: NextRequest) {
 
     const notionPage = await response.json()
 
+    // Update sync status to synced
+    try {
+      await setSyncSynced("calendar_events", eventData.id, notionPage.id)
+    } catch (error) {
+      console.warn("[Sync Calendar Event] Could not update sync status:", error)
+    }
+
     return NextResponse.json({
       success: true,
       pageId: notionPage.id,
@@ -274,6 +289,20 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error("[Notion] Error syncing calendar event:", error)
+    
+    // Update sync status to failed
+    if (eventData?.id) {
+      try {
+        await setSyncFailed(
+          "calendar_events",
+          eventData.id,
+          error instanceof Error ? error.message : "Unknown error"
+        )
+      } catch (statusError) {
+        console.warn("[Sync Calendar Event] Could not update failed status:", statusError)
+      }
+    }
+
     return NextResponse.json(
       {
         success: false,

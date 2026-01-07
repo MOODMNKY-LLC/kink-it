@@ -84,9 +84,9 @@ export default function NotionVerificationStep({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold mb-2">Verify Notion Template</h2>
+        <h2 className="text-2xl font-bold mb-2">Verifying Your Template</h2>
         <p className="text-muted-foreground">
-          We're checking that your Notion template is set up correctly and discovering your databases.
+          We're checking that your Notion template is set up correctly and finding all the databases (Tasks, Rules, Calendar, etc.) that KINK IT will sync with.
         </p>
       </div>
 

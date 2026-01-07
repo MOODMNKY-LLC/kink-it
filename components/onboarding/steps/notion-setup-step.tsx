@@ -32,10 +32,61 @@ export default function NotionSetupStep({ onNext, onBack, initialData }: NotionS
         headers: { "Content-Type": "application/json" },
       })
 
-      const data = await response.json()
+      // Try to parse JSON, but handle non-JSON responses
+      // Clone response first so we can read it multiple times if needed
+      const responseClone = response.clone()
+      let data: any = {}
+      const contentType = response.headers.get("content-type")
+      
+      try {
+        // Try to parse as JSON first
+        data = await response.json()
+      } catch (parseError) {
+        // If JSON parsing fails, try to get text
+        console.error("Failed to parse JSON response:", parseError)
+        try {
+          const text = await responseClone.text()
+          console.error("Response text:", text)
+          throw new Error(`Server error: ${response.status} ${response.statusText}. Response: ${text.substring(0, 200)}`)
+        } catch (textError) {
+          console.error("Failed to read response text:", textError)
+          throw new Error(`Server error: ${response.status} ${response.statusText}`)
+        }
+      }
+      
+      // If data is empty object and status is not ok, log warning
+      if (!response.ok && Object.keys(data).length === 0) {
+        console.warn("Empty error response received:", {
+          status: response.status,
+          statusText: response.statusText,
+          contentType,
+        })
+      }
 
       if (!response.ok) {
-        throw new Error(data.error || "Sync failed")
+        // Log detailed error for debugging
+        console.error("Template sync error:", {
+          status: response.status,
+          statusText: response.statusText,
+          error: data.error,
+          details: data.details,
+          suggestion: data.suggestion,
+          debug: data.debug,
+          fullData: data,
+        })
+        
+        // Create error message with suggestion
+        const errorMessage = data.error || `Sync failed (${response.status})`
+        const errorWithSuggestion = data.suggestion 
+          ? `${errorMessage}\n\n${data.suggestion}`
+          : errorMessage
+        
+        const error = new Error(errorWithSuggestion)
+        // Attach debug info for UI to use
+        ;(error as any).debug = data.debug
+        ;(error as any).suggestion = data.suggestion
+        ;(error as any).status = response.status
+        throw error
       }
 
       // Auto-populate parent page ID
@@ -102,9 +153,9 @@ export default function NotionSetupStep({ onNext, onBack, initialData }: NotionS
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold mb-2">Set Up Notion Integration</h2>
+        <h2 className="text-2xl font-bold mb-2">Connect Your Notion Workspace</h2>
         <p className="text-muted-foreground">
-          KINK IT integrates with Notion to help you manage your dynamic. We'll use your Notion OAuth connection to automatically find and connect your duplicated template.
+          KINK IT syncs with Notion to keep your tasks, rules, and relationship data organized. We'll automatically find your template page, even if you've renamed it or nested databases in a child page.
         </p>
       </div>
 
@@ -115,7 +166,7 @@ export default function NotionSetupStep({ onNext, onBack, initialData }: NotionS
             Step 1: Sync with Notion
           </CardTitle>
           <CardDescription>
-            Search your Notion workspace for the duplicated template and automatically connect it using your Notion OAuth connection.
+            We'll search your Notion workspace for your template page. If you renamed it to your bond name, we'll find it automatically. This works even if your databases are nested in a child page.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -159,7 +210,7 @@ export default function NotionSetupStep({ onNext, onBack, initialData }: NotionS
           )}
 
           <p className="text-sm text-muted-foreground">
-            This will search your Notion workspace for the KINK IT template you duplicated. We'll use your Notion OAuth connection to access your workspace.
+            <strong>Tip:</strong> If you renamed your template to your bond name, we'll find it automatically. The search also works with nested database structures (databases inside child pages).
           </p>
         </CardContent>
       </Card>

@@ -21,7 +21,7 @@ export default function OnboardingProgress({
     "Bond Setup",
     "Notion Setup",
     "Verification",
-    "Discord",
+    "Enhancement",
     "Complete",
   ]
 

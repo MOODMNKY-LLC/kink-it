@@ -1,15 +1,17 @@
 "use client"
 
-import React from "react"
+import React, { useState } from "react"
 import Image from "next/image"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
-import { Edit, Star, StarOff } from "lucide-react"
+import { Edit, Star, StarOff, Loader2, ExternalLink } from "lucide-react"
 import { Kinkster, STAT_DEFINITIONS } from "@/types/kinkster"
 import Link from "next/link"
 import supabaseImageLoader from "@/lib/supabase-image-loader"
+import { AddToNotionButtonGeneric } from "@/components/playground/shared/add-to-notion-button-generic"
+import { toast } from "sonner"
 
 interface KinksterSheetProps {
   kinkster: Kinkster
@@ -69,6 +71,13 @@ export default function KinksterSheet({
               )}
               {showActions && (
                 <div className="flex gap-2 mt-4">
+                  <AddToNotionButtonGeneric
+                    tableName="kinksters"
+                    itemId={kinkster.id}
+                    syncEndpoint="/api/notion/sync-kinkster"
+                    variant="outline"
+                    size="sm"
+                  />
                   {onEdit && (
                     <Button variant="outline" size="sm" onClick={onEdit}>
                       <Edit className="mr-2 h-4 w-4" />

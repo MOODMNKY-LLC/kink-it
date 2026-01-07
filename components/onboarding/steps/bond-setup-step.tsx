@@ -142,7 +142,7 @@ export default function BondSetupStep({ onNext, onBack, initialData }: BondSetup
       <div>
         <h2 className="text-2xl font-bold mb-2">Connect Your Dynamic</h2>
         <p className="text-muted-foreground">
-          Create a new bond or join an existing one. Bonds connect members of your D/s relationship or dynamic.
+          Bonds connect you with your partner(s) in KINK IT. Create a new bond to start managing your dynamic together, or join an existing one using an invite code from your partner.
         </p>
       </div>
 
@@ -154,7 +154,7 @@ export default function BondSetupStep({ onNext, onBack, initialData }: BondSetup
             Bond Setup
           </CardTitle>
           <CardDescription>
-            Choose to create a new bond or join an existing one using an invite code.
+            Bonds enable shared tasks, rules, rewards, and communication between partners. Create one to invite your partner, or join theirs if they've already set it up.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

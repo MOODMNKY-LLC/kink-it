@@ -4,9 +4,10 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Plus, FileText, CheckCircle2 } from "lucide-react"
+import { Plus, FileText, CheckCircle2, Loader2, ExternalLink } from "lucide-react"
 import { toast } from "sonner"
 import type { DynamicRole } from "@/types/profile"
+import { AddToNotionButtonGeneric } from "@/components/playground/shared/add-to-notion-button-generic"
 import {
   Dialog,
   DialogContent,
@@ -165,6 +166,7 @@ export function ContractPageClient({ userId, userRole, bondId }: ContractPageCli
     )
   }
 
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -265,6 +267,15 @@ export function ContractPageClient({ userId, userRole, bondId }: ContractPageCli
                       Created {new Date(contract.created_at).toLocaleDateString()}
                     </CardDescription>
                   </div>
+                  {userRole === "dominant" && (
+                    <AddToNotionButtonGeneric
+                      tableName="contracts"
+                      itemId={contract.id}
+                      syncEndpoint="/api/notion/sync-contract"
+                      variant="ghost"
+                      size="sm"
+                    />
+                  )}
                 </div>
               </CardHeader>
               <CardContent>
