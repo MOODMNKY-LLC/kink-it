@@ -6,7 +6,13 @@
 -- SYNC STATUS ENUM
 -- ============================================================================
 
-CREATE TYPE notion_sync_status AS ENUM ('synced', 'pending', 'failed', 'error');
+-- Create enum type if it doesn't exist
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'notion_sync_status') THEN
+    CREATE TYPE notion_sync_status AS ENUM ('synced', 'pending', 'failed', 'error');
+  END IF;
+END $$;
 
 -- ============================================================================
 -- TASKS TABLE
