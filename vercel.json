@@ -1,0 +1,5 @@
+{
+  "buildCommand": "node scripts/build-with-error-handling.js",
+  "installCommand": "pnpm install",
+  "framework": "nextjs"
+}
