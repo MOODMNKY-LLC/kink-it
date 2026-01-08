@@ -5,6 +5,9 @@
  * This bug causes build failures but production works fine (Vercel uses runtime rendering)
  * 
  * For Vercel: This script completely filters error output so Vercel doesn't detect it
+ * 
+ * Note: NODE_TLS_REJECT_UNAUTHORIZED must be removed from Vercel environment variables
+ * as it's not allowed in Vercel's serverless environment
  */
 
 const { spawn } = require('child_process')
