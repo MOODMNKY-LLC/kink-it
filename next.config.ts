@@ -9,6 +9,9 @@ const withBundleAnalyzer = process.env.ANALYZE === 'true'
   : (config: NextConfig) => config
 
 const nextConfig: NextConfig = {
+  // Use standalone output to prevent Vercel from attempting static export
+  // This avoids the Next.js 15.5.9 error page static generation bug
+  output: 'standalone',
   // Set output file tracing root to prevent Next.js from detecting nested lockfiles
   outputFileTracingRoot: path.join(__dirname),
   eslint: {
@@ -17,16 +20,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Skip static generation for error pages (Next.js 15.5.9 bug with Html import)
-  // Vercel uses standalone output by default, but we configure it explicitly
-  // Note: This doesn't prevent static generation, but Vercel uses runtime rendering
-  output: 'standalone',
-  generateBuildId: async () => {
-    return 'build-' + Date.now()
-  },
-  // Skip static generation - Vercel uses runtime rendering
-  // This prevents Next.js from trying to statically generate error pages
-  trailingSlash: false,
   // Externalize packages with native dependencies for server components and API routes
   serverExternalPackages: [
     '@imgly/background-removal-node',
