@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Skip static generation for 404 page (Next.js 15.5.9 bug with Html import)
+  // Skip static generation for error pages (Next.js 15.5.9 bug with Html import)
   // Production works fine with runtime rendering
   generateBuildId: async () => {
     return 'build-' + Date.now()

@@ -5,6 +5,9 @@ import DashboardPageLayout from "@/components/dashboard/layout";
 import { KinkyIcon } from "@/components/kinky/kinky-avatar";
 import { KinkyErrorState } from "@/components/kinky/kinky-error-state";
 
+// Force dynamic rendering to avoid Next.js 15.5.9 static generation bug
+export const dynamic = 'force-dynamic'
+
 // Note: Made fully client-side to avoid Next.js 15.5.9 static generation bug
 // This is a known Next.js issue with Html import during static generation
 // Production works fine as it uses runtime rendering
