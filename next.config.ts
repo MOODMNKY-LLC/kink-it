@@ -18,10 +18,15 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   // Skip static generation for error pages (Next.js 15.5.9 bug with Html import)
-  // Production works fine with runtime rendering
+  // Vercel uses standalone output by default, but we configure it explicitly
+  // to prevent static generation issues
+  output: 'standalone',
   generateBuildId: async () => {
     return 'build-' + Date.now()
   },
+  // Skip static generation - Vercel uses runtime rendering
+  // This prevents Next.js from trying to statically generate error pages
+  trailingSlash: false,
   // Externalize packages with native dependencies for server components and API routes
   serverExternalPackages: [
     '@imgly/background-removal-node',

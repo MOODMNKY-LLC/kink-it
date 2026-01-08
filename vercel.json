@@ -1,0 +1,9 @@
+{
+  "buildCommand": "next build",
+  "framework": "nextjs",
+  "outputDirectory": ".next",
+  "installCommand": "bun install",
+  "devCommand": "next dev",
+  "regions": ["iad1"],
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- app/not-found.tsx app/error.tsx || echo 'Error pages changed, but build will succeed'"
+}
