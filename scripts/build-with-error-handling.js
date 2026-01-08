@@ -132,7 +132,7 @@ function processBuildResult(code, stderrContent) {
       
       // Output filtered clean logs (remove any error references)
       const cleanOutput = filterOutput(buildOutput)
-      const cleanError = filterOutput(buildError)
+      const cleanError = filterOutput(stderrContent)
       
       // Output clean logs
       if (cleanOutput) process.stdout.write(cleanOutput)
@@ -159,7 +159,7 @@ function processBuildResult(code, stderrContent) {
     // This is a different error - fail the build
     console.log('\n✗ Build failed')
     // Only output error if it's not a known error pattern
-    const cleanError = filterOutput(buildError)
+    const cleanError = filterOutput(stderrContent)
     const cleanOutput = filterOutput(buildOutput)
     if (cleanError) {
       console.error(cleanError)
