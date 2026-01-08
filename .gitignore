@@ -67,6 +67,7 @@ Desktop.ini
 *.tmp
 *.temp
 .cache/
+.next-build-stderr.log
 
 
 .vercel
