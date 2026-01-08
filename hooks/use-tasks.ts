@@ -53,7 +53,8 @@ export function useTasks({ userId, filters }: UseTasksOptions) {
     fetchTasks()
   }, [userId, filters])
 
-  // Set up Realtime subscription
+  // Set up Realtime subscription using postgres_changes
+  // This works in both local dev and production
   useEffect(() => {
     // Check if already subscribed
     if (channelRef.current) {
@@ -63,47 +64,117 @@ export function useTasks({ userId, filters }: UseTasksOptions) {
       }
     }
 
-    // Create channels for both workspace and user-specific updates
-    const workspaceTopic = `task:${userId}:changes`
-    const userTopic = `task:user:${userId}:changes`
-
-    const channel = supabase.channel("tasks-updates", {
-      config: {
-        broadcast: { self: true, ack: true },
-        private: true,
-      },
-    })
-
-    channelRef.current = channel
-
-    // Set auth before subscribing
-    supabase.realtime.setAuth()
-
-    // Subscribe to workspace broadcasts
-    channel
-      .on("broadcast", { event: "INSERT" }, (payload) => {
-        console.log("[Tasks] INSERT received:", payload)
-        const newTask = payload.payload.new as Task
-        if (newTask) {
-          setTasks((prev) => [newTask, ...prev])
+    // Use postgres_changes for reliable Realtime updates
+    const channel = supabase
+      .channel("tasks-updates")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "tasks",
+          filter: `assigned_to=eq.${userId}`,
+        },
+        (payload) => {
+          console.log("[Tasks] INSERT received (assigned_to):", payload)
+          const newTask = payload.new as Task
+          if (newTask) {
+            setTasks((prev) => {
+              // Avoid duplicates
+              if (prev.some((t) => t.id === newTask.id)) return prev
+              return [newTask, ...prev]
+            })
+          }
         }
-      })
-      .on("broadcast", { event: "UPDATE" }, (payload) => {
-        console.log("[Tasks] UPDATE received:", payload)
-        const updatedTask = payload.payload.new as Task
-        if (updatedTask) {
-          setTasks((prev) =>
-            prev.map((task) => (task.id === updatedTask.id ? updatedTask : task))
-          )
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "tasks",
+          filter: `assigned_by=eq.${userId}`,
+        },
+        (payload) => {
+          console.log("[Tasks] INSERT received (assigned_by):", payload)
+          const newTask = payload.new as Task
+          if (newTask) {
+            setTasks((prev) => {
+              // Avoid duplicates
+              if (prev.some((t) => t.id === newTask.id)) return prev
+              return [newTask, ...prev]
+            })
+          }
         }
-      })
-      .on("broadcast", { event: "DELETE" }, (payload) => {
-        console.log("[Tasks] DELETE received:", payload)
-        const deletedTask = payload.payload.old as Task
-        if (deletedTask) {
-          setTasks((prev) => prev.filter((task) => task.id !== deletedTask.id))
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "tasks",
+          filter: `assigned_to=eq.${userId}`,
+        },
+        (payload) => {
+          console.log("[Tasks] UPDATE received (assigned_to):", payload)
+          const updatedTask = payload.new as Task
+          if (updatedTask) {
+            setTasks((prev) =>
+              prev.map((task) => (task.id === updatedTask.id ? updatedTask : task))
+            )
+          }
         }
-      })
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "tasks",
+          filter: `assigned_by=eq.${userId}`,
+        },
+        (payload) => {
+          console.log("[Tasks] UPDATE received (assigned_by):", payload)
+          const updatedTask = payload.new as Task
+          if (updatedTask) {
+            setTasks((prev) =>
+              prev.map((task) => (task.id === updatedTask.id ? updatedTask : task))
+            )
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "tasks",
+          filter: `assigned_to=eq.${userId}`,
+        },
+        (payload) => {
+          console.log("[Tasks] DELETE received (assigned_to):", payload)
+          const deletedTask = payload.old as Task
+          if (deletedTask) {
+            setTasks((prev) => prev.filter((task) => task.id !== deletedTask.id))
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "tasks",
+          filter: `assigned_by=eq.${userId}`,
+        },
+        (payload) => {
+          console.log("[Tasks] DELETE received (assigned_by):", payload)
+          const deletedTask = payload.old as Task
+          if (deletedTask) {
+            setTasks((prev) => prev.filter((task) => task.id !== deletedTask.id))
+          }
+        }
+      )
       .subscribe((status, err) => {
         if (status === "SUBSCRIBED") {
           console.log("[Tasks] Successfully subscribed to task updates")
@@ -112,6 +183,8 @@ export function useTasks({ userId, filters }: UseTasksOptions) {
           setError(err || new Error("Failed to subscribe to task updates"))
         }
       })
+
+    channelRef.current = channel
 
     // Cleanup on unmount
     return () => {
