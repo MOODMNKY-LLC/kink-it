@@ -149,16 +149,16 @@
   --secondary: oklch(0.25 0.06 240);
   --secondary-foreground: oklch(0.98 0 0);
 
-  --muted: oklch(0.20 0.03 240);
-  --muted-foreground: oklch(0.70 0.05 220);
+  --muted: oklch(0.25 0.04 240);
+  --muted-foreground: oklch(0.85 0.02 220);
 
   /* Vibrant orange-red accent from hair - glowing effect */
   --accent: oklch(0.70 0.20 30);
   --accent-foreground: oklch(0.12 0.02 240);
 
-  --border: oklch(0.25 0.04 240);
-  --pop: oklch(0.22 0.04 240);
-  --input: oklch(0.22 0.04 240);
+  --border: oklch(0.30 0.05 240);
+  --pop: oklch(0.25 0.04 240);
+  --input: oklch(0.25 0.04 240);
   --ring: oklch(0.70 0.20 220);
 
   /* Vibrant orange-red warning from hair */
