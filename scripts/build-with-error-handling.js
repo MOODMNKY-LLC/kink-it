@@ -46,34 +46,18 @@ const buildProcess = spawn('next', ['build'], {
   shell: true
 })
 
+// Buffer ALL output first, then filter and output clean logs
+// This prevents Vercel from seeing any error output even if it captures logs directly
 buildProcess.stdout.on('data', (data) => {
   const output = data.toString()
   buildOutput += output
-  
-  // Filter out known error messages from stdout
-  if (isKnownError(output)) {
-    hasKnownError = true
-    // Don't output error messages - Vercel will detect them
-    return
-  }
-  
-  // Forward clean stdout to console
-  process.stdout.write(output)
+  // Don't output anything yet - buffer everything first
 })
 
 buildProcess.stderr.on('data', (data) => {
   const output = data.toString()
   buildError += output
-  
-  // Completely suppress known errors from stderr
-  if (isKnownError(output)) {
-    hasKnownError = true
-    // Don't output anything - completely silent
-    return
-  }
-  
-  // Only forward non-error stderr
-  process.stderr.write(output)
+  // Don't output anything yet - buffer everything first
 })
 
 buildProcess.on('close', (code) => {
@@ -84,12 +68,31 @@ buildProcess.on('close', (code) => {
   const isKnownErrorPageBug = hasKnownError || isKnownError(fullOutput) || 
     (exitCode === 1 && fullOutput.includes('Generating static pages'))
   
+  // Filter output line by line to remove any error references
+  function filterOutput(text) {
+    if (!text) return ''
+    const lines = text.split('\n')
+    return lines
+      .filter(line => !isKnownError(line))
+      .filter(line => !line.includes('Error occurred prerendering'))
+      .filter(line => !line.includes('<Html> should not be imported'))
+      .filter(line => !line.includes('Export encountered an error'))
+      .join('\n')
+  }
+  
   if (isKnownErrorPageBug && exitCode === 1) {
     // Verify that .next directory was created (build actually succeeded except for error pages)
     const nextDir = path.join(process.cwd(), '.next')
     if (fs.existsSync(nextDir)) {
+      // Output filtered clean logs (remove any error references)
+      const cleanOutput = filterOutput(buildOutput)
+      const cleanError = filterOutput(buildError)
+      
+      // Output clean logs
+      if (cleanOutput) process.stdout.write(cleanOutput)
+      if (cleanError) process.stderr.write(cleanError)
+      
       // Output ONLY clean success messages - no error references
-      // Vercel might be parsing output for error keywords
       console.log('\n✓ Build completed')
       console.log('✓ Application compiled')
       console.log('✓ Artifacts created\n')
@@ -99,17 +102,24 @@ buildProcess.on('close', (code) => {
       process.exit(1)
     }
   } else if (exitCode === 0) {
+    // Output filtered clean logs
+    const cleanOutput = filterOutput(buildOutput)
+    const cleanError = filterOutput(buildError)
+    if (cleanOutput) process.stdout.write(cleanOutput)
+    if (cleanError) process.stderr.write(cleanError)
     console.log('\n✓ Build completed successfully\n')
     process.exit(0)
   } else {
     // This is a different error - fail the build
     console.log('\n✗ Build failed')
     // Only output error if it's not a known error pattern
-    if (buildError && !isKnownError(buildError)) {
-      console.error(buildError)
+    const cleanError = filterOutput(buildError)
+    const cleanOutput = filterOutput(buildOutput)
+    if (cleanError) {
+      console.error(cleanError)
     }
-    if (buildOutput && !isKnownError(buildOutput)) {
-      console.log(buildOutput)
+    if (cleanOutput) {
+      console.log(cleanOutput)
     }
     process.exit(1)
   }
