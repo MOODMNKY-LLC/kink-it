@@ -48,7 +48,7 @@ const stderrStream = fs.createWriteStream(stderrFile, { flags: 'w' })
 const buildProcess = spawn('next', ['build'], {
   cwd: process.cwd(),
   env: buildEnv,
-  stdio: ['inherit', 'pipe', stderrStream], // Redirect stderr to file
+  stdio: ['inherit', 'pipe', 'pipe'], // Use pipe for stderr, then redirect manually
   shell: true
 })
 
@@ -60,24 +60,35 @@ buildProcess.stdout.on('data', (data) => {
   // Don't output anything yet - buffer everything first
 })
 
-// Stderr is redirected to file, so we'll read it after process closes
-// No need to capture stderr events since it's going to file
+// Redirect stderr to file instead of buffering it
+// This prevents Vercel from reading stderr directly
+buildProcess.stderr.on('data', (data) => {
+  // Write directly to file, don't buffer or output
+  stderrStream.write(data)
+})
 
 buildProcess.on('close', (code) => {
   exitCode = code || 0
   
-  // Read stderr from file after process closes
-  let stderrContent = ''
-  try {
-    if (fs.existsSync(stderrFile)) {
-      stderrContent = fs.readFileSync(stderrFile, 'utf8')
-      // Delete the stderr file immediately after reading
-      fs.unlinkSync(stderrFile)
+  // Close stderr stream and read from file after process closes
+  stderrStream.end(() => {
+    // Read stderr from file after stream closes
+    let stderrContent = ''
+    try {
+      if (fs.existsSync(stderrFile)) {
+        stderrContent = fs.readFileSync(stderrFile, 'utf8')
+        // Delete the stderr file immediately after reading
+        fs.unlinkSync(stderrFile)
+      }
+    } catch (e) {
+      // Ignore errors reading/deleting stderr file
     }
-  } catch (e) {
-    // Ignore errors reading/deleting stderr file
-  }
-  
+    
+    processBuildResult(code, stderrContent)
+  })
+})
+
+function processBuildResult(code, stderrContent) {
   const fullOutput = buildOutput + stderrContent
   
   // Check if this is the known Next.js 15.5.9 error page bug
@@ -158,7 +169,7 @@ buildProcess.on('close', (code) => {
     }
     process.exit(1)
   }
-})
+}
 
 buildProcess.on('error', (error) => {
   console.error('❌ Failed to start build process:', error.message)
