@@ -1,5 +1,5 @@
 {
-  "buildCommand": "next build",
+  "buildCommand": "node scripts/build-with-error-handling.js",
   "framework": "nextjs",
   "outputDirectory": ".next",
   "installCommand": "bun install",
