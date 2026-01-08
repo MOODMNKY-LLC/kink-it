@@ -6,10 +6,10 @@
 - Value: `https://rbloeqwxivfzxmfropek.supabase.co`
 - Environments: Production, Preview, Development
 
-⏳ **NEXT_PUBLIC_SUPABASE_ANON_KEY** - Needs verification/update:
-- Currently exists in Vercel
-- May need to be updated with production anon key
-- Get from: https://supabase.com/dashboard/project/rbloeqwxivfzxmfropek/settings/api
+✅ **NEXT_PUBLIC_SUPABASE_ANON_KEY** - Updated with production key:
+- Value: Production anon key set
+- Environments: Production, Preview, Development
+- Updated: 2026-01-08
 
 ## What Was Done
 
