@@ -67,6 +67,13 @@ export function useSSEStream() {
 
         const functionUrl = `${supabaseUrl}/functions/v1/chat-stream`
         console.log("🔗 Connecting to Edge Function:", functionUrl)
+        console.log("📋 Connection details:", {
+          supabaseUrl,
+          functionUrl,
+          hasAccessToken: !!accessToken,
+          hasAnonKey: !!anonKey,
+          isProduction: !supabaseUrl.includes("127.0.0.1") && !supabaseUrl.includes("localhost"),
+        })
 
         // Create SSE connection
         const eventSource = new SSE(functionUrl, {
