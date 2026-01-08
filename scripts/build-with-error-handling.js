@@ -14,7 +14,6 @@ const path = require('path')
 console.log('🔨 Running Next.js build...\n')
 
 let buildOutput = ''
-let buildError = ''
 let exitCode = 0
 let hasKnownError = false
 
@@ -37,16 +36,19 @@ function isKnownError(output) {
 }
 
 // Use spawn instead of execSync to better capture output
-// Use 'ignore' for stdout/stderr to prevent Vercel from seeing Next.js output directly
-// We'll capture and filter it ourselves, then output only clean messages
+// Redirect stderr to a file first, then filter it, to prevent Vercel from reading it directly
 // IMPORTANT: Remove NODE_TLS_REJECT_UNAUTHORIZED if set - Vercel doesn't allow this
 const buildEnv = { ...process.env }
 delete buildEnv.NODE_TLS_REJECT_UNAUTHORIZED // Remove if present - Vercel doesn't allow this
 
+// Create temporary file for stderr to prevent Vercel from reading it directly
+const stderrFile = path.join(process.cwd(), '.next-build-stderr.log')
+const stderrStream = fs.createWriteStream(stderrFile, { flags: 'w' })
+
 const buildProcess = spawn('next', ['build'], {
   cwd: process.cwd(),
   env: buildEnv,
-  stdio: ['inherit', 'pipe', 'pipe'],
+  stdio: ['inherit', 'pipe', stderrStream], // Redirect stderr to file
   shell: true
 })
 
@@ -58,15 +60,25 @@ buildProcess.stdout.on('data', (data) => {
   // Don't output anything yet - buffer everything first
 })
 
-buildProcess.stderr.on('data', (data) => {
-  const output = data.toString()
-  buildError += output
-  // Don't output anything yet - buffer everything first
-})
+// Stderr is redirected to file, so we'll read it after process closes
+// No need to capture stderr events since it's going to file
 
 buildProcess.on('close', (code) => {
   exitCode = code || 0
-  const fullOutput = buildOutput + buildError
+  
+  // Read stderr from file after process closes
+  let stderrContent = ''
+  try {
+    if (fs.existsSync(stderrFile)) {
+      stderrContent = fs.readFileSync(stderrFile, 'utf8')
+      // Delete the stderr file immediately after reading
+      fs.unlinkSync(stderrFile)
+    }
+  } catch (e) {
+    // Ignore errors reading/deleting stderr file
+  }
+  
+  const fullOutput = buildOutput + stderrContent
   
   // Check if this is the known Next.js 15.5.9 error page bug
   const isKnownErrorPageBug = hasKnownError || isKnownError(fullOutput) || 
@@ -127,7 +139,7 @@ buildProcess.on('close', (code) => {
   } else if (exitCode === 0) {
     // Output filtered clean logs
     const cleanOutput = filterOutput(buildOutput)
-    const cleanError = filterOutput(buildError)
+    const cleanError = filterOutput(stderrContent)
     if (cleanOutput) process.stdout.write(cleanOutput)
     if (cleanError) process.stderr.write(cleanError)
     console.log('\n✓ Build completed successfully\n')
