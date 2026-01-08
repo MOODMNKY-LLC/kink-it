@@ -1,9 +1,8 @@
 {
-  "buildCommand": "node scripts/build-with-error-handling.js",
+  "buildCommand": "next build",
   "framework": "nextjs",
   "outputDirectory": ".next",
   "installCommand": "bun install",
   "devCommand": "next dev",
-  "regions": ["iad1"],
-  "ignoreCommand": "exit 0"
+  "regions": ["iad1"]
 }
