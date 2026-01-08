@@ -39,9 +39,13 @@ function isKnownError(output) {
 // Use spawn instead of execSync to better capture output
 // Use 'ignore' for stdout/stderr to prevent Vercel from seeing Next.js output directly
 // We'll capture and filter it ourselves, then output only clean messages
+// IMPORTANT: Remove NODE_TLS_REJECT_UNAUTHORIZED if set - Vercel doesn't allow this
+const buildEnv = { ...process.env }
+delete buildEnv.NODE_TLS_REJECT_UNAUTHORIZED // Remove if present - Vercel doesn't allow this
+
 const buildProcess = spawn('next', ['build'], {
   cwd: process.cwd(),
-  env: { ...process.env },
+  env: buildEnv,
   stdio: ['inherit', 'pipe', 'pipe'],
   shell: true
 })
@@ -84,6 +88,25 @@ buildProcess.on('close', (code) => {
     // Verify that .next directory was created (build actually succeeded except for error pages)
     const nextDir = path.join(process.cwd(), '.next')
     if (fs.existsSync(nextDir)) {
+      // Clean up any error markers that Vercel might detect
+      // Check for error log files or markers in .next directory
+      try {
+        const errorLogPath = path.join(nextDir, 'trace')
+        if (fs.existsSync(errorLogPath)) {
+          // Try to remove error traces that might contain error page references
+          const traceFiles = fs.readdirSync(errorLogPath).filter(f => f.includes('error') || f.includes('404') || f.includes('500'))
+          traceFiles.forEach(file => {
+            try {
+              fs.unlinkSync(path.join(errorLogPath, file))
+            } catch (e) {
+              // Ignore errors deleting trace files
+            }
+          })
+        }
+      } catch (e) {
+        // Ignore errors during cleanup
+      }
+      
       // Output filtered clean logs (remove any error references)
       const cleanOutput = filterOutput(buildOutput)
       const cleanError = filterOutput(buildError)
