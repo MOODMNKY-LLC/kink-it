@@ -4,5 +4,6 @@
   "outputDirectory": ".next",
   "installCommand": "bun install",
   "devCommand": "next dev",
-  "regions": ["iad1"]
+  "regions": ["iad1"],
+  "ignoreCommand": "exit 0"
 }
