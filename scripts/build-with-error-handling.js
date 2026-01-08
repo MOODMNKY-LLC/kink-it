@@ -43,8 +43,11 @@ function isKnownError(output) {
 // Use spawn instead of execSync to better capture output
 // Redirect stderr to a file first, then filter it, to prevent Vercel from reading it directly
 // IMPORTANT: Remove NODE_TLS_REJECT_UNAUTHORIZED if set - Vercel doesn't allow this
+// CRITICAL: Disable Turbopack - the error page static generation bug is Turbopack-specific!
+// The successful deployment (dpl_Fbrr75u9DJ4rVg7o1nzB1D4H1ZiG) disabled Turbopack and succeeded
 const buildEnv = { ...process.env }
 delete buildEnv.NODE_TLS_REJECT_UNAUTHORIZED // Remove if present - Vercel doesn't allow this
+buildEnv.TURBOPACK = '' // Disable Turbopack to avoid error page static generation bug
 
 // Create temporary file for stderr to prevent Vercel from reading it directly
 const stderrFile = path.join(process.cwd(), '.next-build-stderr.log')
