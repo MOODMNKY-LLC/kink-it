@@ -92,8 +92,17 @@ export async function GET(request: NextRequest) {
         // If no token data from param, try to extract from session
         if (!tokenData) {
           const accessToken = session.provider_token
-          // Try to get refresh token from session (may not be available)
+          // Try to get refresh token from session (Supabase doesn't expose this reliably)
           const refreshToken = (session as any).provider_refresh_token || null
+
+          // Log session structure for debugging
+          console.log("[Auth Callback] Session structure:", {
+            hasProviderToken: !!accessToken,
+            hasProviderRefreshToken: !!refreshToken,
+            sessionKeys: Object.keys(session),
+            userMetadata: session.user?.app_metadata,
+            userMetadataKeys: session.user?.app_metadata ? Object.keys(session.user.app_metadata) : [],
+          })
 
           if (accessToken) {
             // Fetch user info from Notion to get workspace details

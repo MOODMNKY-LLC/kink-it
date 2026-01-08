@@ -31,10 +31,17 @@ export default function LoginPage() {
     setError(null)
 
     try {
+      // Use Supabase OAuth handler - it handles user creation and sessions properly
+      // We'll capture refresh tokens in the callback handler
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "notion",
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
+          // Try to request offline access (if Supabase supports it)
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent", // Force consent to get refresh token
+          },
         },
       })
       if (error) throw error

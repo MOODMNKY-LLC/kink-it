@@ -7,6 +7,7 @@
  */
 
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { storeNotionOAuthTokens } from "@/lib/notion-auth"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
@@ -108,51 +109,96 @@ export async function GET(request: NextRequest) {
 
       const notionUser = await userResponse.json()
 
-      // Create or get Supabase user
-      const supabase = await createClient()
+      // Get user email from Notion (bot owner email or user email)
+      const userEmail = notionUser.bot?.owner?.user?.person?.email || 
+                       notionUser.bot?.owner?.workspace?.name ||
+                       `notion-${bot_id}@notion.local`
 
-      // Sign in with OAuth provider token
-      // We'll use Supabase's signInWithOAuth but with the token we already have
-      // Actually, we need to create a session manually or use Supabase's token exchange
+      // Create or get Supabase user using Admin API
+      const adminClient = createAdminClient()
       
-      // For now, let's use Supabase's OAuth flow but store our tokens
-      // We'll redirect to Supabase's callback with a special parameter
-      // Or better: create a session using Supabase Admin API
-      
-      // Actually, the simplest approach: use Supabase Auth's exchangeCodeForSession
-      // but first store our tokens, then let Supabase handle the session
-      
-      // Store tokens in database (we'll need user ID first)
-      // We can get user ID after Supabase creates the session
-      // So let's do: exchange code with Supabase first, then store tokens
+      // Check if user exists by email
+      let supabaseUser
+      const { data: existingUsers } = await adminClient.auth.admin.listUsers()
+      const existingUser = existingUsers?.users?.find(
+        (u: any) => u.email === userEmail || 
+        (u.app_metadata?.provider === "notion" && u.app_metadata?.providers?.some((p: any) => p.id === bot_id))
+      )
 
-      // Alternative: Create Supabase user session using Admin API with the access_token
-      // But that's complex. Let's use a simpler approach:
-      
-      // 1. Store tokens temporarily (in a way we can retrieve them)
-      // 2. Redirect to Supabase OAuth callback
-      // 3. In Supabase callback, retrieve and store tokens properly
+      if (existingUser) {
+        supabaseUser = existingUser
+      } else {
+        // Create new user
+        const { data: newUser, error: createError } = await adminClient.auth.admin.createUser({
+          email: userEmail,
+          email_confirm: true,
+          app_metadata: {
+            provider: "notion",
+            providers: [{
+              provider: "notion",
+              id: bot_id,
+              workspace_id: workspace_id,
+            }],
+          },
+          user_metadata: {
+            full_name: workspace_name || userEmail,
+            avatar_url: workspace_icon,
+          },
+        })
 
-      // Actually, the best approach: Use Supabase's OAuth but intercept tokens
-      // Since Supabase already handles OAuth, let's work with what we have:
-      // Store tokens after Supabase creates session
+        if (createError) {
+          throw new Error(`Failed to create user: ${createError.message}`)
+        }
 
-      // For now, let's redirect to the main callback which will handle session creation
-      // and we'll store tokens there
-      const callbackUrl = new URL("/auth/callback", requestUrl.origin)
-      callbackUrl.searchParams.set("code", code)
-      callbackUrl.searchParams.set("notion_tokens", Buffer.from(JSON.stringify({
+        supabaseUser = newUser.user
+      }
+
+      // Store OAuth tokens BEFORE creating session
+      await storeNotionOAuthTokens(supabaseUser.id, {
         access_token,
         refresh_token,
         bot_id,
         workspace_id,
-        workspace_name,
-        workspace_icon,
+        workspace_name: workspace_name || null,
+        workspace_icon: workspace_icon || null,
         owner_type: owner?.type || (owner?.workspace ? "workspace" : "user"),
-        duplicated_template_id,
-      })).toString("base64"))
+        duplicated_template_id: duplicated_template_id || null,
+        expires_in: 3600, // Notion tokens expire in 1 hour
+      })
 
-      return NextResponse.redirect(callbackUrl)
+      // Generate a session token for the user
+      const { data: sessionData, error: sessionError } = await adminClient.auth.admin.generateLink({
+        type: "magiclink",
+        email: supabaseUser.email!,
+      })
+
+      if (sessionError) {
+        throw new Error(`Failed to generate session: ${sessionError.message}`)
+      }
+
+      // Create a session using the regular client
+      const supabase = await createClient()
+      
+      // Set the session using the properties token
+      const propertiesToken = sessionData.properties?.token
+      if (propertiesToken) {
+        // Exchange the properties token for a session
+        const { data: session, error: exchangeError } = await supabase.auth.setSession({
+          access_token: propertiesToken,
+          refresh_token: propertiesToken, // Use same token for both (Supabase will handle refresh)
+        })
+
+        if (exchangeError) {
+          console.error("Error setting session:", exchangeError)
+          // Fallback: redirect to login with success message
+          const successUrl = new URL("/auth/login", requestUrl.origin)
+          successUrl.searchParams.set("success", "Authentication successful. Please sign in.")
+          return NextResponse.redirect(successUrl)
+        }
+      }
+
+      // Success - redirect to home
+      return NextResponse.redirect(new URL("/", requestUrl.origin))
     } catch (error) {
       console.error("Error in Notion OAuth callback:", error)
       const errorUrl = new URL("/auth/login", requestUrl.origin)

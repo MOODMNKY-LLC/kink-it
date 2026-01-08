@@ -11,7 +11,7 @@
 
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import {
   PromptInput,
   PromptInputTextarea,
@@ -24,7 +24,7 @@ import {
   PromptInputActionAddAttachments,
 } from "@/components/ai-elements/prompt-input"
 import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
+import { ControlledSwitch } from "@/components/ui/controlled-switch"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -105,6 +105,7 @@ export function EnhancedChatInput({
     setMounted(true)
   }, [])
 
+  // Sync listening state - only update if changed to prevent loops
   useEffect(() => {
     setIsListening(speechIsListening)
   }, [speechIsListening])
@@ -126,11 +127,18 @@ export function EnhancedChatInput({
     }
   }
 
-  const availableTools = getAvailableTools(profile, hasNotionKey)
-  const enabledToolsCount = selectedTools.filter((id) => {
-    const tool = availableTools.find((t) => t.id === id)
-    return tool && (tool.requiresNotionKey ? hasNotionKey : true)
-  }).length
+  // Memoize availableTools to prevent recreation on every render
+  const availableTools = useMemo(
+    () => getAvailableTools(profile, hasNotionKey),
+    [profile, hasNotionKey]
+  )
+
+  const enabledToolsCount = useMemo(() => {
+    return selectedTools.filter((id) => {
+      const tool = availableTools.find((t) => t.id === id)
+      return tool && (tool.requiresNotionKey ? hasNotionKey : true)
+    }).length
+  }, [selectedTools, availableTools, hasNotionKey])
 
   return (
     <div className="space-y-2">
@@ -139,7 +147,7 @@ export function EnhancedChatInput({
         {/* Left: Agent Mode & Tool Selector */}
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
-            <Switch
+            <ControlledSwitch
               id="agent-mode"
               checked={agentMode}
               onCheckedChange={onAgentModeChange}
@@ -172,7 +180,7 @@ export function EnhancedChatInput({
 
         {/* Right: Realtime Mode Toggle */}
         <div className="flex items-center gap-2">
-          <Switch
+          <ControlledSwitch
             id="realtime-mode"
             checked={realtimeMode}
             onCheckedChange={onRealtimeModeChange}

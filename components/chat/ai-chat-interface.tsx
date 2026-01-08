@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from "react"
+import React, { useState, useEffect, useMemo, useRef } from "react"
 import {
   Conversation,
   ConversationContent,
@@ -49,17 +49,57 @@ export function AIChatInterface({
   className,
 }: AIChatInterfaceProps) {
   const [userId, setUserId] = useState<string>("")
-  const supabase = createClient()
+  // Use ref for Supabase client to ensure stability
+  const supabaseRef = React.useRef(createClient())
 
   useEffect(() => {
     const fetchUserId = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
+      try {
+        const { data: { user }, error } = await supabaseRef.current.auth.getUser()
+        
+        if (error) {
+          console.error("[AIChatInterface] Auth error:", error)
+          return
+        }
+
+        if (!user) {
+          console.warn("[AIChatInterface] No authenticated user")
+          return
+        }
+
+        // Verify profile exists, create if needed
+        const { data: profile, error: profileError } = await supabaseRef.current
+          .from("profiles")
+          .select("id")
+          .eq("id", user.id)
+          .single()
+
+        if (profileError && profileError.code === "PGRST116") {
+          const { error: createError } = await supabaseRef.current
+            .from("profiles")
+            .insert({
+              id: user.id,
+              email: user.email,
+              system_role: "user",
+              dynamic_role: "switch",
+            })
+
+          if (createError) {
+            console.error("[AIChatInterface] Error creating profile:", createError)
+            return
+          }
+        } else if (profileError) {
+          console.error("[AIChatInterface] Error checking profile:", profileError)
+          return
+        }
+
         setUserId(user.id)
+      } catch (error) {
+        console.error("[AIChatInterface] Unexpected error:", error)
       }
     }
     fetchUserId()
-  }, [supabase])
+  }, [])
 
   const {
     messages,

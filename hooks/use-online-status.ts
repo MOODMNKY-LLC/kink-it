@@ -15,7 +15,8 @@ interface UseOnlineStatusOptions {
 export function useOnlineStatus({ userId, enabled = true }: UseOnlineStatusOptions) {
   const [isOnline, setIsOnline] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const supabase = createClient()
+  // Use ref for Supabase client to ensure stability
+  const supabaseRef = useRef(createClient())
   const channelRef = useRef<any>(null)
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export function useOnlineStatus({ userId, enabled = true }: UseOnlineStatusOptio
 
     // Create presence channel for user status
     const topic = `user:${userId}:presence`
-    const channel = supabase.channel(topic, {
+    const channel = supabaseRef.current.channel(topic, {
       config: {
         presence: {
           key: userId,
@@ -45,19 +46,19 @@ export function useOnlineStatus({ userId, enabled = true }: UseOnlineStatusOptio
     // Set auth before subscribing - get access token from session
     const setAuthAndSubscribe = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        const { data: { session } } = await supabaseRef.current.auth.getSession()
         if (session?.access_token) {
-          supabase.realtime.setAuth(session.access_token)
+          supabaseRef.current.realtime.setAuth(session.access_token)
         } else {
           // If no session, try setting auth without token (uses current client auth)
           // This works for browser clients that auto-handle auth
-          supabase.realtime.setAuth()
+          supabaseRef.current.realtime.setAuth()
         }
       } catch (error) {
         console.warn("[OnlineStatus] Could not get session for Realtime auth:", error)
         // Fallback: try setting auth without token
         try {
-          supabase.realtime.setAuth()
+          supabaseRef.current.realtime.setAuth()
         } catch (fallbackError) {
           console.warn("[OnlineStatus] Fallback auth also failed:", fallbackError)
         }
@@ -88,14 +89,34 @@ export function useOnlineStatus({ userId, enabled = true }: UseOnlineStatusOptio
               })
 
             // Set initial presence AFTER subscription
-            try {
-              await channel.track({
-                online: true,
-                last_seen: new Date().toISOString(),
-              })
-              setIsOnline(true)
-            } catch (trackError) {
-              console.warn("[OnlineStatus] Error tracking presence:", trackError)
+            // Double-check channel is actually subscribed before tracking
+            if (channel.state === "SUBSCRIBED") {
+              try {
+                await channel.track({
+                  online: true,
+                  last_seen: new Date().toISOString(),
+                })
+                setIsOnline(true)
+              } catch (trackError) {
+                console.warn("[OnlineStatus] Error tracking presence:", trackError)
+                // If tracking fails, it might be because channel isn't ready
+                // Try again after a short delay
+                setTimeout(async () => {
+                  if (channel.state === "SUBSCRIBED") {
+                    try {
+                      await channel.track({
+                        online: true,
+                        last_seen: new Date().toISOString(),
+                      })
+                      setIsOnline(true)
+                    } catch (retryError) {
+                      console.warn("[OnlineStatus] Retry tracking also failed:", retryError)
+                    }
+                  }
+                }, 500)
+              }
+            } else {
+              console.warn("[OnlineStatus] Channel not subscribed, cannot track presence. State:", channel.state)
             }
             setIsLoading(false)
           } else if (status === "CHANNEL_ERROR") {
@@ -122,11 +143,11 @@ export function useOnlineStatus({ userId, enabled = true }: UseOnlineStatusOptio
     return () => {
       if (channelRef.current) {
         channelRef.current.untrack()
-        supabase.removeChannel(channelRef.current)
+        supabaseRef.current.removeChannel(channelRef.current)
         channelRef.current = null
       }
     }
-  }, [userId, enabled, supabase])
+  }, [userId, enabled])
 
   return { isOnline, isLoading }
 }

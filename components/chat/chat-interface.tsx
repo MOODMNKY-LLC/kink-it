@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -30,22 +30,78 @@ export function ChatInterface({
 }: ChatInterfaceProps) {
   const [input, setInput] = useState("")
   const [userId, setUserId] = useState<string>("")
-  const supabase = createClient()
+  const [isAuthLoading, setIsAuthLoading] = useState(true)
+  const [authError, setAuthError] = useState<string | null>(null)
+  // Use ref for Supabase client to ensure stability
+  const supabaseRef = React.useRef(createClient())
 
   useEffect(() => {
     const fetchUserId = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
+      try {
+        setIsAuthLoading(true)
+        const { data: { user }, error } = await supabaseRef.current.auth.getUser()
+        
+        if (error) {
+          console.error("Auth error:", error)
+          setAuthError("Failed to authenticate. Please log in.")
+          setIsAuthLoading(false)
+          return
+        }
+
+        if (!user) {
+          setAuthError("You must be logged in to use chat.")
+          setIsAuthLoading(false)
+          return
+        }
+
+        // Verify profile exists, create if needed
+        const { data: profile, error: profileError } = await supabaseRef.current
+          .from("profiles")
+          .select("id")
+          .eq("id", user.id)
+          .single()
+
+        if (profileError && profileError.code === "PGRST116") {
+          // Profile doesn't exist, create it
+          const { error: createError } = await supabaseRef.current
+            .from("profiles")
+            .insert({
+              id: user.id,
+              email: user.email,
+              system_role: "user",
+              dynamic_role: "switch",
+            })
+
+          if (createError) {
+            console.error("Error creating profile:", createError)
+            setAuthError("Failed to create profile. Please try again.")
+            setIsAuthLoading(false)
+            return
+          }
+        } else if (profileError) {
+          console.error("Error checking profile:", profileError)
+          setAuthError("Failed to verify profile.")
+          setIsAuthLoading(false)
+          return
+        }
+
         setUserId(user.id)
+        setAuthError(null)
+      } catch (error: any) {
+        console.error("Unexpected error:", error)
+        setAuthError(error.message || "An unexpected error occurred")
+      } finally {
+        setIsAuthLoading(false)
       }
     }
     fetchUserId()
-  }, [supabase])
+  }, [])
 
   const {
     messages,
     sendMessage,
     isStreaming,
+    isLoadingHistory,
     currentStreamingMessage,
     stopStreaming,
     clearMessages,
@@ -57,11 +113,12 @@ export function ChatInterface({
     },
     onError: (error) => {
       console.error("Chat error:", error)
+      setAuthError(error)
     },
   })
 
   const handleSend = async () => {
-    if (!input.trim() || isStreaming) return
+    if (!input.trim() || isStreaming || !userId || isAuthLoading) return
 
     const messageContent = input.trim()
     setInput("")
@@ -93,15 +150,36 @@ export function ChatInterface({
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col flex-1 gap-4 p-0">
-        {/* Messages Area */}
-        <ScrollArea className="flex-1 px-4">
-          <div className="space-y-4 py-4">
-            <MessageList messages={messages} />
-            {isStreaming && currentStreamingMessage && (
-              <StreamingMessage content={currentStreamingMessage} />
-            )}
+        {/* Auth Error */}
+        {authError && (
+          <div className="px-4 pt-4">
+            <div className="bg-destructive/10 text-destructive px-4 py-2 rounded-md text-sm">
+              {authError}
+            </div>
           </div>
-        </ScrollArea>
+        )}
+
+        {/* Loading State */}
+        {isAuthLoading || isLoadingHistory ? (
+          <div className="flex-1 flex items-center justify-center">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <span className="ml-2 text-sm text-muted-foreground">
+              {isAuthLoading ? "Authenticating..." : "Loading chat history..."}
+            </span>
+          </div>
+        ) : (
+          <>
+            {/* Messages Area */}
+            <ScrollArea className="flex-1 px-4">
+              <div className="space-y-4 py-4">
+                <MessageList messages={messages} />
+                {isStreaming && currentStreamingMessage && (
+                  <StreamingMessage content={currentStreamingMessage} />
+                )}
+              </div>
+            </ScrollArea>
+          </>
+        )}
 
         {/* Input Area */}
         <div className="border-t p-4 space-y-2">
@@ -110,9 +188,9 @@ export function ChatInterface({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Type your message..."
+              placeholder={!userId ? "Authenticating..." : "Type your message..."}
               className="min-h-[60px] resize-none"
-              disabled={isStreaming}
+              disabled={isStreaming || !userId || isAuthLoading}
             />
             {isStreaming ? (
               <Button

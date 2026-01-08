@@ -512,6 +512,44 @@ Deno.serve(async (req: Request) => {
 
             // Update message in database
             if (messageId) {
+              // Generate embedding for semantic search (async, don't wait)
+              const generateEmbedding = async () => {
+                try {
+                  const openaiEmbeddingResponse = await fetch("https://api.openai.com/v1/embeddings", {
+                    method: "POST",
+                    headers: {
+                      "Authorization": `Bearer ${openaiApiKey}`,
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      model: "text-embedding-3-small",
+                      input: fullContent,
+                    }),
+                  })
+
+                  if (openaiEmbeddingResponse.ok) {
+                    const embeddingData = await openaiEmbeddingResponse.json()
+                    const embedding = embeddingData.data?.[0]?.embedding
+
+                    if (embedding && Array.isArray(embedding)) {
+                      // Update message with embedding
+                      await supabase
+                        .from("messages")
+                        .update({
+                          embedding: `[${embedding.join(",")}]`, // Convert array to PostgreSQL vector format
+                        })
+                        .eq("id", messageId)
+                      
+                      console.log("✅ Generated embedding for message:", messageId)
+                    }
+                  }
+                } catch (embeddingError) {
+                  // Don't fail the message update if embedding fails
+                  console.error("Failed to generate embedding:", embeddingError)
+                }
+              }
+
+              // Update message content first
               await supabase
                 .from("messages")
                 .update({
@@ -520,6 +558,9 @@ Deno.serve(async (req: Request) => {
                   token_count: Math.ceil(fullContent.length / 4), // Rough estimate
                 })
                 .eq("id", messageId)
+
+              // Generate embedding asynchronously (don't block response)
+              generateEmbedding().catch((err) => console.error("Embedding generation error:", err))
             }
 
             // Send completion event

@@ -62,7 +62,15 @@ export function ContextSwitcher({ profile }: ContextSwitcherProps) {
           .eq("is_active", true)
 
         if (membershipsError) {
-          console.error("Error fetching bond memberships:", membershipsError)
+          console.error("Error fetching bond memberships:", {
+            error: membershipsError,
+            message: membershipsError.message,
+            code: membershipsError.code,
+            details: membershipsError.details,
+            hint: membershipsError.hint,
+            status: (membershipsError as any).status,
+            supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+          })
           setLoading(false)
           return
         }

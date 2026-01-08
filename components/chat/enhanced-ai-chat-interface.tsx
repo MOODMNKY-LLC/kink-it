@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from "react"
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import {
   Conversation,
   ConversationContent,
@@ -76,15 +76,47 @@ export function EnhancedAIChatInterface({
   const [kinksterData, setKinksterData] = useState<Kinkster | null>(null)
   const [hasNotionKey, setHasNotionKey] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [config, setConfig] = useState({
+  // Memoize initial config to prevent recreation on every render
+  // Only compute once on mount to avoid infinite loops
+  const [config, setConfig] = useState(() => ({
     model: initialModel,
     temperature: initialTemperature,
     agentInstructions: agentInstructions || getDefaultInstructions(profile, kinksterId),
     agentMode: false, // Agent mode enables tool calling (Notion MCP, etc.)
-  })
+  }))
   const [selectedTools, setSelectedTools] = useState<string[]>([])
   const [realtimeMode, setRealtimeMode] = useState(false)
-  const supabase = createClient()
+  // Use ref for Supabase client to ensure stability
+  const supabaseRef = useRef(createClient())
+
+  // Memoize callbacks to prevent infinite loops
+  const handleAgentModeChange = useCallback((enabled: boolean) => {
+    // Guard: Only update if value actually changed
+    setConfig((prev) => {
+      if (prev.agentMode === enabled) {
+        return prev // No change, return same object to prevent re-render
+      }
+      return { ...prev, agentMode: enabled }
+    })
+  }, [])
+
+  const handleRealtimeModeChange = useCallback((enabled: boolean) => {
+    // Guard: Only update if value actually changed
+    setRealtimeMode((prev) => {
+      if (prev === enabled) {
+        return prev // No change
+      }
+      return enabled
+    })
+  }, [])
+
+  const handleConfigChange = useCallback((newConfig: typeof config) => {
+    setConfig(newConfig)
+  }, [])
+
+  const handleToolsChange = useCallback((tools: string[]) => {
+    setSelectedTools(tools)
+  }, [])
 
   // Load KINKSTER data if kinksterId is provided
   useEffect(() => {
@@ -112,9 +144,48 @@ export function EnhancedAIChatInterface({
 
   useEffect(() => {
     const fetchUserId = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
+      try {
+        const { data: { user }, error } = await supabaseRef.current.auth.getUser()
+        
+        if (error) {
+          console.error("[EnhancedAIChatInterface] Auth error:", error)
+          return
+        }
+
+        if (!user) {
+          console.warn("[EnhancedAIChatInterface] No authenticated user")
+          return
+        }
+
+        // Verify profile exists
+        const { data: profile, error: profileError } = await supabaseRef.current
+          .from("profiles")
+          .select("id")
+          .eq("id", user.id)
+          .single()
+
+        if (profileError && profileError.code === "PGRST116") {
+          // Profile doesn't exist, create it
+          const { error: createError } = await supabaseRef.current
+            .from("profiles")
+            .insert({
+              id: user.id,
+              email: user.email,
+              system_role: "user",
+              dynamic_role: "switch",
+            })
+
+          if (createError) {
+            console.error("[EnhancedAIChatInterface] Error creating profile:", createError)
+            return
+          }
+        } else if (profileError) {
+          console.error("[EnhancedAIChatInterface] Error checking profile:", profileError)
+          return
+        }
+
         setUserId(user.id)
+
         // Check if user has Notion API key
         try {
           const response = await fetch("/api/notion/api-keys")
@@ -125,27 +196,33 @@ export function EnhancedAIChatInterface({
         } catch (error) {
           console.error("[EnhancedAIChatInterface] Error checking Notion API key:", error)
         }
+      } catch (error) {
+        console.error("[EnhancedAIChatInterface] Unexpected error:", error)
       }
     }
     fetchUserId()
-  }, [supabase])
+  }, [])
+
+  // Stable callbacks for useChatStream
+  const handleMessageComplete = useCallback((message: any) => {
+    console.log("Message completed:", message)
+  }, [])
+
+  const handleChatError = useCallback((error: string) => {
+    console.error("Chat error:", error)
+  }, [])
 
   const {
     messages,
     sendMessage,
     isStreaming,
     currentStreamingMessage,
-    stopStreaming,
-    clearMessages,
+    cancelStream,
   } = useChatStream({
     conversationId,
     userId,
-    onMessageComplete: (message) => {
-      console.log("Message completed:", message)
-    },
-    onError: (error) => {
-      console.error("Chat error:", error)
-    },
+    onMessageComplete: handleMessageComplete,
+    onError: handleChatError,
   })
 
   // Convert ChatMessage to UIMessage format for AI Elements
@@ -319,7 +396,7 @@ export function EnhancedAIChatInterface({
                 </SheetDescription>
               </SheetHeader>
               <div className="mt-6">
-                <ChatConfigPanel config={config} onConfigChange={setConfig} />
+                <ChatConfigPanel config={config} onConfigChange={handleConfigChange} />
               </div>
             </SheetContent>
           </Sheet>
@@ -423,13 +500,11 @@ export function EnhancedAIChatInterface({
               profile={profile}
               hasNotionKey={hasNotionKey}
               agentMode={config.agentMode}
-              onAgentModeChange={(enabled) =>
-                setConfig((prev) => ({ ...prev, agentMode: enabled }))
-              }
+              onAgentModeChange={handleAgentModeChange}
               selectedTools={selectedTools}
-              onToolsChange={setSelectedTools}
+              onToolsChange={handleToolsChange}
               realtimeMode={realtimeMode}
-              onRealtimeModeChange={setRealtimeMode}
+              onRealtimeModeChange={handleRealtimeModeChange}
             />
           </div>
         </div>
