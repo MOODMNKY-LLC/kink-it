@@ -617,6 +617,231 @@ export function AdminBondManagement() {
               </Table>
             </div>
           )}
+            </TabsContent>
+            <TabsContent value="requests" className="space-y-4 mt-4">
+              {/* Request Filters */}
+              <div className="flex gap-4">
+                <Select value={requestStatusFilter} onValueChange={setRequestStatusFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Requests</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Join Requests Table */}
+              {requestsLoading ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
+                  Loading join requests...
+                </div>
+              ) : joinRequests.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No join requests found
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Requester</TableHead>
+                        <TableHead>Bond</TableHead>
+                        <TableHead>Message</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Requested</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {joinRequests.map((request) => (
+                        <TableRow key={request.id}>
+                          <TableCell className="font-medium">
+                            <div>
+                              <div>
+                                {request.requester.display_name ||
+                                  request.requester.full_name ||
+                                  request.requester.email}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {request.requester.dynamic_role}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">{request.bond.name}</div>
+                              <Badge className={getTypeColor(request.bond.bond_type)}>
+                                {request.bond.bond_type}
+                              </Badge>
+                            </div>
+                          </TableCell>
+                          <TableCell className="max-w-xs">
+                            <div className="text-sm text-muted-foreground truncate">
+                              {request.message || "No message"}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {request.status === "pending" ? (
+                              <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                                <Clock className="h-3 w-3 mr-1" />
+                                Pending
+                              </Badge>
+                            ) : request.status === "approved" ? (
+                              <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                                Approved
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                <XCircle className="h-3 w-3 mr-1" />
+                                Rejected
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {formatDistanceToNow(new Date(request.created_at), {
+                              addSuffix: true,
+                            })}
+                          </TableCell>
+                          <TableCell>
+                            {request.status === "pending" ? (
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setSelectedRequest(request)}
+                                  >
+                                    <Eye className="h-4 w-4 mr-1" />
+                                    Review
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-2xl">
+                                  <DialogHeader>
+                                    <DialogTitle>Review Join Request</DialogTitle>
+                                    <DialogDescription>
+                                      Review the request and approve or reject it
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  {selectedRequest && (
+                                    <div className="space-y-4">
+                                      <div>
+                                        <Label>Requester</Label>
+                                        <div className="mt-1">
+                                          <div className="font-medium">
+                                            {selectedRequest.requester.display_name ||
+                                              selectedRequest.requester.full_name ||
+                                              selectedRequest.requester.email}
+                                          </div>
+                                          <div className="text-sm text-muted-foreground">
+                                            Role: {selectedRequest.requester.dynamic_role}
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <Label>Bond</Label>
+                                        <div className="mt-1">
+                                          <div className="font-medium">
+                                            {selectedRequest.bond.name}
+                                          </div>
+                                          <Badge className={getTypeColor(selectedRequest.bond.bond_type)}>
+                                            {selectedRequest.bond.bond_type}
+                                          </Badge>
+                                        </div>
+                                      </div>
+                                      {selectedRequest.message && (
+                                        <div>
+                                          <Label>Message</Label>
+                                          <div className="mt-1 p-3 bg-muted rounded-md text-sm">
+                                            {selectedRequest.message}
+                                          </div>
+                                        </div>
+                                      )}
+                                      <div>
+                                        <Label htmlFor="review-notes">
+                                          Review Notes (Optional)
+                                        </Label>
+                                        <Textarea
+                                          id="review-notes"
+                                          placeholder="Add notes about your decision..."
+                                          value={reviewNotes}
+                                          onChange={(e) => setReviewNotes(e.target.value)}
+                                          rows={3}
+                                          className="mt-1"
+                                        />
+                                      </div>
+                                      <div className="flex justify-end gap-2">
+                                        <Button
+                                          variant="outline"
+                                          onClick={() => {
+                                            setSelectedRequest(null)
+                                            setReviewNotes("")
+                                          }}
+                                          disabled={processingRequest}
+                                        >
+                                          Cancel
+                                        </Button>
+                                        <Button
+                                          variant="destructive"
+                                          onClick={() => handleRejectRequest(selectedRequest.id)}
+                                          disabled={processingRequest}
+                                        >
+                                          {processingRequest ? (
+                                            <>
+                                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                              Processing...
+                                            </>
+                                          ) : (
+                                            <>
+                                              <XCircle className="h-4 w-4 mr-2" />
+                                              Reject
+                                            </>
+                                          )}
+                                        </Button>
+                                        <Button
+                                          onClick={() => handleApproveRequest(selectedRequest.id)}
+                                          disabled={processingRequest}
+                                        >
+                                          {processingRequest ? (
+                                            <>
+                                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                              Processing...
+                                            </>
+                                          ) : (
+                                            <>
+                                              <CheckCircle2 className="h-4 w-4 mr-2" />
+                                              Approve
+                                            </>
+                                          )}
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  )}
+                                </DialogContent>
+                              </Dialog>
+                            ) : (
+                              <div className="text-xs text-muted-foreground">
+                                {request.reviewed_at &&
+                                  `Reviewed ${formatDistanceToNow(new Date(request.reviewed_at), { addSuffix: true })}`}
+                                {request.reviewer && (
+                                  <div>by {request.reviewer.display_name || request.reviewer.full_name || request.reviewer.email}</div>
+                                )}
+                              </div>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>
