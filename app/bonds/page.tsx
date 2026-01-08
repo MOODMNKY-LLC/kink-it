@@ -2,8 +2,10 @@ import { requireAuth, getUserProfile } from "@/lib/auth/get-user"
 import { redirect } from "next/navigation"
 import DashboardPageLayout from "@/components/dashboard/layout"
 import { BondsList } from "@/components/bonds/bonds-list"
+import { BondDiscovery } from "@/components/bonds/bond-discovery"
 import BracketsIcon from "@/components/icons/brackets"
 import { createClient } from "@/lib/supabase/server"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default async function BondsPage() {
   await requireAuth()
@@ -29,15 +31,27 @@ export default async function BondsPage() {
     redirect(`/bonds/${bondIds[0]}`)
   }
 
+  // User has no bonds - show discovery page
   return (
     <DashboardPageLayout
       header={{
         title: "Bonds",
-        description: "Manage your relationship bonds",
+        description: "Discover and join bonds, or create your own",
         icon: BracketsIcon,
       }}
     >
-      <BondsList profile={profile} />
+      <Tabs defaultValue="discover" className="w-full">
+        <TabsList>
+          <TabsTrigger value="discover">Discover Bonds</TabsTrigger>
+          <TabsTrigger value="my-bonds">My Bonds</TabsTrigger>
+        </TabsList>
+        <TabsContent value="discover">
+          <BondDiscovery profile={profile} />
+        </TabsContent>
+        <TabsContent value="my-bonds">
+          <BondsList profile={profile} />
+        </TabsContent>
+      </Tabs>
     </DashboardPageLayout>
   )
 }

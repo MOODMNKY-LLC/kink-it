@@ -4,6 +4,8 @@
 
 -- Add policy to allow authenticated users to search bonds by invite_code
 -- For bonds with status 'forming' or 'active' (accepting new members)
+-- Drop policy if it exists to avoid conflicts
+DROP POLICY IF EXISTS "Users can search bonds by invite code" ON public.bonds;
 CREATE POLICY "Users can search bonds by invite code"
 ON public.bonds FOR SELECT
 TO authenticated

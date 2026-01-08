@@ -9,6 +9,8 @@
 -- 2. Bond status is 'forming' or 'active' (accepting members)
 -- 3. User is authenticated
 -- Note: The API route validates the invite_code before calling this, so this is safe
+-- Drop policy if it exists to avoid conflicts
+DROP POLICY IF EXISTS "Users can join bonds via invite code" ON public.bond_members;
 CREATE POLICY "Users can join bonds via invite code"
 ON public.bond_members FOR INSERT
 TO authenticated

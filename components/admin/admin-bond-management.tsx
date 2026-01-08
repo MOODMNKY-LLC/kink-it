@@ -4,6 +4,8 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -41,7 +43,12 @@ import {
   Edit,
   Trash2,
   Eye,
-  MoreVertical
+  MoreVertical,
+  UserPlus,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Loader2
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
@@ -72,19 +79,57 @@ interface BondStats {
   avg_members_per_bond: number
 }
 
+interface JoinRequest {
+  id: string
+  bond_id: string
+  user_id: string
+  status: "pending" | "approved" | "rejected"
+  message: string | null
+  review_notes: string | null
+  created_at: string
+  reviewed_at: string | null
+  reviewed_by: string | null
+  bond: {
+    id: string
+    name: string
+    bond_type: string
+    bond_status: string
+  }
+  requester: {
+    id: string
+    display_name: string | null
+    full_name: string | null
+    email: string
+    dynamic_role: string
+  }
+  reviewer: {
+    id: string
+    display_name: string | null
+    full_name: string | null
+    email: string
+  } | null
+}
+
 export function AdminBondManagement() {
   const [bonds, setBonds] = useState<Bond[]>([])
+  const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([])
   const [stats, setStats] = useState<BondStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [requestsLoading, setRequestsLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [typeFilter, setTypeFilter] = useState<string>("all")
+  const [requestStatusFilter, setRequestStatusFilter] = useState<string>("pending")
   const [selectedBond, setSelectedBond] = useState<Bond | null>(null)
+  const [selectedRequest, setSelectedRequest] = useState<JoinRequest | null>(null)
+  const [reviewNotes, setReviewNotes] = useState("")
+  const [processingRequest, setProcessingRequest] = useState(false)
 
   useEffect(() => {
     fetchBonds()
     fetchStats()
-  }, [])
+    fetchJoinRequests()
+  }, [requestStatusFilter])
 
   const fetchBonds = async () => {
     const supabase = createClient()
@@ -166,6 +211,90 @@ export function AdminBondManagement() {
       total_members: totalMembers || 0,
       avg_members_per_bond: total && total > 0 ? Math.round((totalMembers || 0) / total) : 0,
     })
+  }
+
+  const fetchJoinRequests = async () => {
+    setRequestsLoading(true)
+    try {
+      const params = new URLSearchParams()
+      if (requestStatusFilter !== "all") {
+        params.set("status", requestStatusFilter)
+      }
+
+      const response = await fetch(`/api/bonds/requests?${params.toString()}`)
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch join requests")
+      }
+
+      setJoinRequests(data.requests || [])
+    } catch (error) {
+      console.error("Error fetching join requests:", error)
+      toast.error("Failed to load join requests")
+    } finally {
+      setRequestsLoading(false)
+    }
+  }
+
+  const handleApproveRequest = async (requestId: string) => {
+    setProcessingRequest(true)
+    try {
+      const response = await fetch(`/api/bonds/requests/${requestId}/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          review_notes: reviewNotes.trim() || undefined,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to approve request")
+      }
+
+      toast.success("Join request approved successfully")
+      setSelectedRequest(null)
+      setReviewNotes("")
+      fetchJoinRequests()
+      fetchBonds()
+      fetchStats()
+    } catch (error) {
+      console.error("Error approving request:", error)
+      toast.error(error instanceof Error ? error.message : "Failed to approve request")
+    } finally {
+      setProcessingRequest(false)
+    }
+  }
+
+  const handleRejectRequest = async (requestId: string) => {
+    setProcessingRequest(true)
+    try {
+      const response = await fetch(`/api/bonds/requests/${requestId}/reject`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          review_notes: reviewNotes.trim() || undefined,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to reject request")
+      }
+
+      toast.success("Join request rejected")
+      setSelectedRequest(null)
+      setReviewNotes("")
+      fetchJoinRequests()
+    } catch (error) {
+      console.error("Error rejecting request:", error)
+      toast.error(error instanceof Error ? error.message : "Failed to reject request")
+    } finally {
+      setProcessingRequest(false)
+    }
   }
 
   const filteredBonds = bonds.filter((bond) => {
@@ -332,6 +461,19 @@ export function AdminBondManagement() {
           <CardDescription>View and manage all bonds in the system</CardDescription>
         </CardHeader>
         <CardContent>
+          <Tabs defaultValue="bonds" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="bonds">Bonds</TabsTrigger>
+              <TabsTrigger value="requests">
+                Join Requests
+                {joinRequests.filter((r) => r.status === "pending").length > 0 && (
+                  <Badge className="ml-2" variant="destructive">
+                    {joinRequests.filter((r) => r.status === "pending").length}
+                  </Badge>
+                )}
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="bonds" className="space-y-4">
           <div className="flex flex-col md:flex-row gap-4 mb-4">
             <div className="relative flex-1">
               <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
