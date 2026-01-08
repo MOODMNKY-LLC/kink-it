@@ -267,7 +267,7 @@ export function BondManagement({ profile }: BondManagementProps) {
                   <Input
                     value={currentBond.invite_code}
                     readOnly
-                    className="bg-muted/50 font-mono"
+                    className="bg-muted/50 font-mono text-foreground"
                   />
                   <Button
                     type="button"

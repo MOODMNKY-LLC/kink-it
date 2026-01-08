@@ -27,11 +27,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Find bond by invite code
+    // Allow searching for both 'forming' and 'active' bonds (matching join route behavior)
     const { data: bond, error: bondError } = await supabase
       .from("bonds")
       .select("id, name, description, bond_type, bond_status, invite_code")
       .eq("invite_code", code.toUpperCase().trim())
-      .eq("bond_status", "forming")
+      .in("bond_status", ["forming", "active"])
       .single()
 
     if (bondError || !bond) {

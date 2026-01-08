@@ -172,9 +172,9 @@ export function BondOverview({ bondId, profile }: BondOverviewProps) {
           </div>
           {bond.invite_code && (
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 px-3 py-2 bg-background rounded-md border">
+              <div className="flex items-center gap-2 px-3 py-2 bg-background rounded-md border text-foreground">
                 <LinkIcon className="h-4 w-4 text-muted-foreground" />
-                <code className="text-sm font-mono">{bond.invite_code}</code>
+                <code className="text-sm font-mono text-foreground">{bond.invite_code}</code>
               </div>
               <Button
                 variant="outline"
