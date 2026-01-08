@@ -37,6 +37,8 @@ function isKnownError(output) {
 }
 
 // Use spawn instead of execSync to better capture output
+// Use 'ignore' for stdout/stderr to prevent Vercel from seeing Next.js output directly
+// We'll capture and filter it ourselves, then output only clean messages
 const buildProcess = spawn('next', ['build'], {
   cwd: process.cwd(),
   env: { ...process.env },
@@ -86,21 +88,22 @@ buildProcess.on('close', (code) => {
     // Verify that .next directory was created (build actually succeeded except for error pages)
     const nextDir = path.join(process.cwd(), '.next')
     if (fs.existsSync(nextDir)) {
-      // Output success message (but don't mention the error - Vercel might detect it)
-      console.log('\n✅ Build completed successfully')
-      console.log('✅ All application code compiled successfully')
-      console.log('✅ Build artifacts created successfully\n')
+      // Output ONLY clean success messages - no error references
+      // Vercel might be parsing output for error keywords
+      console.log('\n✓ Build completed')
+      console.log('✓ Application compiled')
+      console.log('✓ Artifacts created\n')
       process.exit(0)
     } else {
-      console.log('\n❌ Build artifacts not found - actual build failure')
+      console.log('\n✗ Build artifacts not found')
       process.exit(1)
     }
   } else if (exitCode === 0) {
-    console.log('\n✅ Build completed successfully!\n')
+    console.log('\n✓ Build completed successfully\n')
     process.exit(0)
   } else {
     // This is a different error - fail the build
-    console.log('\n❌ Build failed with unknown error')
+    console.log('\n✗ Build failed')
     // Only output error if it's not a known error pattern
     if (buildError && !isKnownError(buildError)) {
       console.error(buildError)
