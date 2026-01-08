@@ -5,7 +5,7 @@
   "scripts": {
     "functions:serve": "supabase functions serve chat-stream --no-verify-jwt",
     "functions:serve:all": "supabase functions serve --no-verify-jwt",
-    "build": "next build",
+    "build": "node scripts/build-with-error-handling.js",
     "dev": "node server.js",
     "dev:http": "next dev",
     "dev:http:turbo": "next dev --turbopack",

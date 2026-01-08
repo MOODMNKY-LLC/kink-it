@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
   },
   // Skip static generation for error pages (Next.js 15.5.9 bug with Html import)
   // Vercel uses standalone output by default, but we configure it explicitly
-  // to prevent static generation issues
+  // Note: This doesn't prevent static generation, but our build script handles the error
   output: 'standalone',
   generateBuildId: async () => {
     return 'build-' + Date.now()
