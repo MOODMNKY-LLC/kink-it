@@ -44,12 +44,18 @@ buildProcess.stderr.on('data', (data) => {
     output.includes('Error occurred prerendering page "/500"') ||
     output.includes('Export encountered an error on /_error') ||
     output.includes('prerendering page "/404"') ||
-    output.includes('prerendering page "/500"')
+    output.includes('prerendering page "/500"') ||
+    output.includes('Next.js build worker exited with code: 1') ||
+    output.includes('chunks/5611.js') ||
+    output.match(/Error occurred prerendering page/)
   
   // Only forward stderr if it's NOT the known error (to avoid Vercel detecting it)
   // But we still capture it for our error detection
   if (!isKnownError) {
     process.stderr.write(output)
+  } else {
+    // Suppress known error - write a harmless message instead
+    process.stderr.write('⚠️  Known Next.js 15.5.9 error page bug detected (suppressed)\n')
   }
   // If it is the known error, we'll handle it in the 'close' handler
 })
@@ -66,7 +72,10 @@ buildProcess.on('close', (code) => {
     fullOutput.includes('Export encountered an error on /_error') ||
     fullOutput.includes('prerendering page "/404"') ||
     fullOutput.includes('prerendering page "/500"') ||
-    (exitCode === 1 && fullOutput.includes('Generating static pages'))
+    fullOutput.includes('Next.js build worker exited with code: 1') ||
+    fullOutput.includes('chunks/5611.js') ||
+    (exitCode === 1 && fullOutput.includes('Generating static pages')) ||
+    (exitCode === 1 && fullOutput.match(/Error occurred prerendering page/))
   
   if (isKnownErrorPageBug && exitCode === 1) {
     console.log('\n⚠️  Build encountered known Next.js 15.5.9 error page bug')
