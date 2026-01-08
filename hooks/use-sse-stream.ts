@@ -167,7 +167,8 @@ export function useSSEStream() {
               if (isLocalDev) {
                 errorMsg = `Cannot connect to Edge Function at ${functionUrl}.\n\n⚠️ The function is not running locally.\n\nStart it with:\n  pnpm functions:serve\n\nOr:\n  supabase functions serve chat-stream --no-verify-jwt\n\nThen refresh this page.`
               } else {
-                errorMsg = `Cannot connect to Edge Function at ${functionUrl}. Check network connection and function deployment status.`
+                // Production connection issue
+                errorMsg = `Cannot connect to Edge Function at ${functionUrl}.\n\n🔍 Troubleshooting:\n1. Verify NEXT_PUBLIC_SUPABASE_URL is set to: https://rbloeqwxivfzxmfropek.supabase.co\n2. Check browser console for CORS errors\n3. Verify function is deployed: supabase functions list --project-ref rbloeqwxivfzxmfropek\n4. Check function logs in Supabase Dashboard\n\nCurrent URL: ${supabaseUrl}`
               }
             } else if (eventSource.readyState === SSE.CLOSED || eventSource.readyState === 2) {
               errorMsg = "Connection closed. Check if the Edge Function is running."
