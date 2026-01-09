@@ -16,6 +16,11 @@ export async function getCurrentUser() {
   return user
 }
 
+/**
+ * Require authentication - redirects to login if not authenticated.
+ * Use this in Server Components and Server Actions.
+ * DO NOT use in API Route Handlers (use getCurrentUser instead and return 401).
+ */
 export async function requireAuth() {
   const user = await getCurrentUser()
 
@@ -26,8 +31,18 @@ export async function requireAuth() {
   return user
 }
 
+/**
+ * Get the user's profile.
+ * For API routes, returns null if not authenticated (caller should return 401).
+ * For Server Components, this is fine as the page will handle auth separately.
+ */
 export async function getUserProfile(): Promise<Profile | null> {
-  const user = await requireAuth()
+  const user = await getCurrentUser() // Don't use requireAuth - it redirects which breaks API routes
+  
+  if (!user) {
+    return null // Let the caller handle the null case (API routes should return 401)
+  }
+  
   const supabase = await createClient()
 
   const { data: profile, error } = await supabase.from("profiles").select("*").eq("id", user.id).single()

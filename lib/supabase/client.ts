@@ -4,6 +4,9 @@ import { createBrowserClient } from "@supabase/ssr"
 let originalFetch: typeof window.fetch | null = null
 let fetchInterceptorInstalled = false
 
+// Track if we've already shown certificate instructions (avoid spam)
+let certificateWarningShown = false
+
 export function createClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -12,34 +15,26 @@ export function createClient() {
     console.error("[Supabase Client] Missing environment variables:", {
       hasUrl: !!supabaseUrl,
       hasKey: !!supabaseKey,
-      url: supabaseUrl?.substring(0, 30) + "...",
     })
     throw new Error("Supabase environment variables not configured")
   }
 
-  // Warn if using localhost instead of 127.0.0.1 (certificate mismatch)
-  if (process.env.NODE_ENV === "development" && supabaseUrl.includes("localhost")) {
-    console.warn(
-      "⚠️ [Supabase Client] Using 'localhost' in Supabase URL. This may cause certificate issues.",
-      "\n   Recommended: Use '127.0.0.1' instead.",
-      "\n   Current URL:",
-      supabaseUrl
-    )
-  }
-
-  // Log URL in development to help debug certificate issues
-  if (process.env.NODE_ENV === "development") {
-    console.log("[Supabase Client] Initializing with URL:", supabaseUrl)
+  // Show certificate instructions only once per session
+  if (process.env.NODE_ENV === "development" && !certificateWarningShown) {
+    certificateWarningShown = true
     
-    // Show certificate acceptance instructions
+    // Warn if using localhost instead of 127.0.0.1 (certificate mismatch)
+    if (supabaseUrl.includes("localhost")) {
+      console.warn(
+        "⚠️ [Supabase] Using 'localhost' in URL may cause certificate issues. Use '127.0.0.1' instead."
+      )
+    }
+    
+    // Show certificate acceptance instructions for local dev
     if (supabaseUrl.includes("127.0.0.1") || supabaseUrl.includes("localhost")) {
-      console.log(
-        "🔒 [Supabase Client] Certificate Acceptance Required:",
-        "\n   1. Open this URL in a new tab:",
-        supabaseUrl,
-        "\n   2. Click 'Advanced' → 'Proceed to 127.0.0.1 (unsafe)'",
-        "\n   3. Accept the certificate",
-        "\n   4. Refresh this page"
+      console.info(
+        "🔒 [Supabase] If you see connection errors, accept the certificate at:",
+        supabaseUrl
       )
     }
   }

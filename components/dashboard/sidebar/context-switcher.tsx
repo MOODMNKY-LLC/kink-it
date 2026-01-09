@@ -62,37 +62,45 @@ export function ContextSwitcher({ profile }: ContextSwitcherProps) {
           .eq("is_active", true)
 
         if (membershipsError) {
+          // Get error message - handle various error formats
+          const errorMessage = 
+            membershipsError.message || 
+            (membershipsError as any)?.error_description ||
+            (membershipsError as any)?.msg ||
+            String(membershipsError) ||
+            "Unknown error"
+          
           // Check if this is a network/certificate error
-          const errorMessage = membershipsError.message || String(membershipsError)
           const isNetworkError = 
             errorMessage.includes("Failed to fetch") ||
             errorMessage.includes("NetworkError") ||
             errorMessage.includes("Network request failed") ||
-            (membershipsError as any).status === 0
+            errorMessage.includes("TypeError") ||
+            (membershipsError as any).status === 0 ||
+            errorMessage === "Unknown error" // Empty error often means network issue
 
           if (isNetworkError) {
             const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://127.0.0.1:55321"
-            console.error("🔒 Certificate/Network Error Detected!")
-            console.error("Error fetching bond memberships:", {
-              error: membershipsError,
-              message: errorMessage,
-              type: "Network/Certificate Error",
-            })
-            console.error("\n📋 To fix this:")
-            console.error("1. Navigate to:", supabaseUrl)
-            console.error("2. Click 'Advanced' → 'Proceed to 127.0.0.1 (unsafe)'")
-            console.error("3. Accept the certificate")
-            console.error("4. Refresh this page")
-            console.error("\n💡 Or run in console: testSupabaseConnection()")
+            console.warn("🔒 Possible Certificate/Network Error")
+            console.warn("Error fetching bond memberships - this may be a certificate issue")
+            console.warn("\n📋 To fix this:")
+            console.warn("1. Navigate to:", supabaseUrl)
+            console.warn("2. Click 'Advanced' → 'Proceed to 127.0.0.1 (unsafe)'")
+            console.warn("3. Accept the certificate")
+            console.warn("4. Refresh this page")
           } else {
+            // Log more details for debugging
             console.error("Error fetching bond memberships:", {
-              error: membershipsError,
               message: errorMessage,
-              code: membershipsError.code,
-              details: membershipsError.details,
-              hint: membershipsError.hint,
+              code: (membershipsError as any)?.code,
+              details: (membershipsError as any)?.details,
+              hint: (membershipsError as any)?.hint,
+              status: (membershipsError as any)?.status,
             })
           }
+          
+          // Don't block the UI - just show empty bonds
+          setBonds([])
           setLoading(false)
           return
         }

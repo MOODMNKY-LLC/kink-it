@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server"
-import { requireAuth, getUserProfile } from "@/lib/auth/get-user"
+import { getUserProfile } from "@/lib/auth/get-user"
 import { getNotifications } from "@/lib/notifications/get-notifications"
 
 export async function GET() {
   try {
-    await requireAuth()
+    // getUserProfile returns null if not authenticated (doesn't redirect)
     const profile = await getUserProfile()
 
     if (!profile) {

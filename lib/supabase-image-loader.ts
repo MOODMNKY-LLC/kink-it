@@ -53,15 +53,32 @@ export default function supabaseImageLoader({ src, width, quality = 75 }: Loader
 
   // If src is already a full URL, extract the storage path
   if (src.startsWith("http://") || src.startsWith("https://")) {
-    // Check if it's a Supabase Storage URL
-    if (src.includes("supabase.co/storage/v1/object/public")) {
+    // Check if it's a Supabase Storage URL (including localhost)
+    const isSupabaseStorage = 
+      src.includes("/storage/v1/object/public") ||
+      (src.includes("supabase.co/storage") || 
+       (src.includes("127.0.0.1") && src.includes("/storage/")))
+    
+    if (isSupabaseStorage) {
       // Extract bucket and path from URL
       // Format: /storage/v1/object/public/{bucket}/{path}
       const pathMatch = src.match(/\/storage\/v1\/object\/public\/(.+)$/)
       if (pathMatch) {
         const storagePath = pathMatch[1]
-        // Use the render/image endpoint for transformations
-        return `https://${projectId}.supabase.co/storage/v1/render/image/public/${storagePath}?width=${width}&quality=${quality}`
+        
+        // For localhost URLs, return as-is (render endpoint may not be available)
+        // The browser will handle CORS if configured properly
+        if (src.includes("127.0.0.1") || src.includes("localhost")) {
+          return src
+        }
+        
+        // For cloud Supabase, use the render/image endpoint for optimization
+        if (projectId) {
+          return `https://${projectId}.supabase.co/storage/v1/render/image/public/${storagePath}?width=${width}&quality=${quality}`
+        }
+        
+        // Fallback: return original URL
+        return src
       }
     }
     // For non-Supabase URLs, return as-is (e.g., OpenAI temporary URLs, blob URLs)

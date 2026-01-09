@@ -7,7 +7,8 @@ import localFont from "next/font/local"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { MobileHeader } from "@/components/dashboard/mobile-header"
 import { DashboardSidebar } from "@/components/dashboard/sidebar"
-import KinkyTerminal from "@/components/kinky/kinky-terminal"
+import { TerminalProvider } from "@/components/kinky/terminal-context"
+import KinkyTerminalPopup from "@/components/kinky/kinky-terminal-popup"
 import Notifications from "@/components/dashboard/notifications"
 // Mobile Chat disabled until Module 7 (Communication Hub) is built
 // import { MobileChat } from "@/components/chat/mobile-chat"
@@ -50,7 +51,7 @@ export const metadata: Metadata = {
   },
   description: "D/s relationship management application for Dominants and submissives.",
   generator: 'v0.app',
-  manifest: "/manifest.json",
+  manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -137,7 +138,7 @@ export default async function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
         <meta name="theme-color" content="#0ea5e9" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-        <link rel="manifest" href="/manifest.json" />
+        <link rel="manifest" href="/manifest.webmanifest" />
       </head>
       <body className={`${rebelGrotesk.variable} ${robotoMono.variable} antialiased`} suppressHydrationWarning>
         <V0Provider isV0={isV0}>
@@ -148,41 +149,40 @@ export default async function RootLayout({
               <GradientMesh intensity="subtle" />
               <BokehEffect count={15} />
               
-              <SidebarProvider>
-                {/* Mobile Header - only visible on mobile */}
-                {profile && <MobileHeader />}
+              <TerminalProvider>
+                <SidebarProvider>
+                  {/* Mobile Header - only visible on mobile */}
+                  {profile && <MobileHeader />}
 
-                {/* Desktop Layout */}
-                <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-gap lg:px-sides relative z-10">
-                  <div className="hidden lg:block col-span-2 top-0 relative">
-                    <DashboardSidebar profile={profile} />
-                  </div>
-                  <div className="col-span-1 lg:col-span-7">{children}</div>
-                  <div className="col-span-3 hidden lg:block">
-                    <div className="space-y-gap py-sides min-h-screen max-h-screen sticky top-0 overflow-clip">
-                      {profile && (
-                        <>
-                          <KinkyTerminal
-                            userId={profile.id}
-                            userName={
-                              profile.display_name ||
-                              profile.full_name ||
-                              profile.email.split("@")[0]
-                            }
-                            timezone={Intl.DateTimeFormat().resolvedOptions().timeZone}
-                            profile={profile}
-                          />
-                        </>
-                      )}
-                      {/* Chat disabled until Module 7 (Communication Hub) is built */}
-                      {/* <Chat /> */}
+                  {/* Desktop Layout - Expanded content area */}
+                  <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-gap lg:px-sides relative z-10">
+                    <div className="hidden lg:block col-span-2 top-0 relative">
+                      <DashboardSidebar profile={profile} />
                     </div>
+                    <div className="col-span-1 lg:col-span-10">{children}</div>
                   </div>
-                </div>
 
-                {/* Mobile Chat - disabled until Module 7 (Communication Hub) is built */}
-                {/* <MobileChat /> */}
-              </SidebarProvider>
+                  {/* Kinky Terminal Popup - Floating, toggleable */}
+                  {profile && (
+                    <KinkyTerminalPopup
+                      userId={profile.id}
+                      userName={
+                        profile.display_name ||
+                        profile.full_name ||
+                        profile.email.split("@")[0]
+                      }
+                      profile={profile}
+                      position="bottom-right"
+                      triggerVariant="avatar"
+                      width={420}
+                      height={640}
+                    />
+                  )}
+
+                  {/* Mobile Chat - disabled until Module 7 (Communication Hub) is built */}
+                  {/* <MobileChat /> */}
+                </SidebarProvider>
+              </TerminalProvider>
             </div>
           ) : (
             <>{children}</>

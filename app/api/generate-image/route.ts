@@ -50,6 +50,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Create Supabase client early (needed for image downloads)
+    const supabase = await createClient()
+
     const formData = await request.formData()
     const mode = formData.get("mode") as string
     const prompt = formData.get("prompt") as string
@@ -57,8 +60,8 @@ export async function POST(request: NextRequest) {
     const modelParam = formData.get("model") as string | null // "dalle-3" or "gemini-3-pro"
     const characterIdsParam = formData.get("characterIds") as string | null // Comma-separated character IDs
 
-    // Default to DALL-E 3 if no model specified
-    const model = modelParam === "gemini-3-pro" ? "gemini-3-pro" : "dalle-3"
+    // Default to Gemini 3 Pro if no model specified (matches nano banana workflow)
+    const model = modelParam === "dalle-3" ? "dalle-3" : "gemini-3-pro"
     
     // Parse character IDs if provided
     const characterIds = characterIdsParam
@@ -111,13 +114,74 @@ export async function POST(request: NextRequest) {
       const geminiModel = "google/gemini-3-pro-image-preview"
 
       // Convert URLs to data URLs for Gemini
+      // Handles localhost/127.0.0.1 routing issues and certificate problems
       const convertToDataUrl = async (url: string): Promise<string> => {
-        const response = await fetch(url)
-        const arrayBuffer = await response.arrayBuffer()
-        const buffer = Buffer.from(arrayBuffer)
-        const base64 = buffer.toString("base64")
-        const contentType = response.headers.get("content-type") || "image/jpeg"
-        return `data:${contentType};base64,${base64}`
+        try {
+          // Normalize URL: replace localhost with 127.0.0.1 for consistency
+          let normalizedUrl = url.replace(/localhost/g, "127.0.0.1")
+          
+          // Check if this is a Supabase Storage URL
+          const isSupabaseStorage = normalizedUrl.includes("/storage/v1/object/public") || 
+                                    normalizedUrl.includes("supabase.co/storage") ||
+                                    (normalizedUrl.includes("127.0.0.1") && normalizedUrl.includes("/storage/"))
+          
+          let arrayBuffer: ArrayBuffer
+          let contentType: string = "image/jpeg"
+          
+          if (isSupabaseStorage) {
+            // Use Supabase client to download (handles auth/certificates better)
+            try {
+              // Extract storage path from URL
+              // Format: https://127.0.0.1:55321/storage/v1/object/public/kinkster-avatars/path/to/file
+              const storageMatch = normalizedUrl.match(/\/storage\/v1\/object\/public\/([^?]+)/)
+              if (storageMatch) {
+                const storagePath = storageMatch[1]
+                const bucketMatch = storagePath.match(/^([^/]+)\/(.+)$/)
+                if (bucketMatch) {
+                  const [, bucket, path] = bucketMatch
+                  const { data, error } = await supabase.storage
+                    .from(bucket)
+                    .download(path)
+                  
+                  if (error) throw error
+                  if (!data) throw new Error("No data returned from storage")
+                  
+                  arrayBuffer = await data.arrayBuffer()
+                  contentType = data.type || "image/jpeg"
+                } else {
+                  throw new Error("Invalid storage path format")
+                }
+              } else {
+                // Fallback to fetch if we can't parse the path
+                throw new Error("Could not parse Supabase Storage URL")
+              }
+            } catch (supabaseError) {
+              console.warn("Supabase client download failed, falling back to fetch:", supabaseError)
+              // Fallback to regular fetch with better error handling
+              const response = await fetch(normalizedUrl)
+              if (!response.ok) {
+                throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`)
+              }
+              arrayBuffer = await response.arrayBuffer()
+              contentType = response.headers.get("content-type") || "image/jpeg"
+            }
+          } else {
+            // Regular URL - use fetch
+            const response = await fetch(normalizedUrl)
+            if (!response.ok) {
+              throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`)
+            }
+            arrayBuffer = await response.arrayBuffer()
+            contentType = response.headers.get("content-type") || "image/jpeg"
+          }
+          
+          const buffer = Buffer.from(arrayBuffer)
+          const base64 = buffer.toString("base64")
+          return `data:${contentType};base64,${base64}`
+        } catch (error) {
+          console.error("Error converting URL to data URL:", url, error)
+          throw new Error(`Failed to convert image URL to data URL: ${error instanceof Error ? error.message : String(error)}`)
+        }
       }
 
       const characterDataUrl = await convertToDataUrl(characterUrl)
@@ -165,44 +229,46 @@ export async function POST(request: NextRequest) {
       const base64Data = firstImage.base64
       const mediaType = firstImage.mediaType || "image/png"
 
-      // Convert base64 to buffer and store in Supabase Storage
-      const buffer = Buffer.from(base64Data, "base64")
-      const extension = mediaType.includes("jpeg") || mediaType.includes("jpg")
-        ? "jpg"
-        : mediaType.includes("webp")
-        ? "webp"
-        : "png"
+      // Return data URL directly (like nano banana) for immediate display
+      const dataUrl = `data:${mediaType};base64,${base64Data}`
 
-      const timestamp = Date.now()
-      const filename = `pose_variation_${timestamp}.${extension}`
-      const filePath = `${profile.id}/pose-variations/${filename}`
+      // Optionally upload to storage in background (non-blocking)
+      const uploadToStorage = async () => {
+        try {
+          const buffer = Buffer.from(base64Data, "base64")
+          const extension = mediaType.includes("jpeg") || mediaType.includes("jpg")
+            ? "jpg"
+            : mediaType.includes("webp")
+            ? "webp"
+            : "png"
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("kinkster-avatars")
-        .upload(filePath, buffer, {
-          contentType: mediaType,
-          cacheControl: "3600",
-          upsert: false,
-        })
+          const timestamp = Date.now()
+          const filename = `pose_variation_${timestamp}.${extension}`
+          const filePath = `${profile.id}/pose-variations/${filename}`
 
-      if (uploadError) {
-        console.error("Error uploading to Supabase Storage:", uploadError)
-        // Fallback: return data URL
-        const dataUrl = `data:${mediaType};base64,${base64Data}`
-        return NextResponse.json<GenerateImageResponse>({
-          url: dataUrl,
-          prompt: poseTransferPrompt,
-          model: "gemini-3-pro",
-        })
+          const { error: uploadError } = await supabase.storage
+            .from("kinkster-avatars")
+            .upload(filePath, buffer, {
+              contentType: mediaType,
+              cacheControl: "3600",
+              upsert: false,
+            })
+
+          if (!uploadError) {
+            const {
+              data: { publicUrl },
+            } = supabase.storage.from("kinkster-avatars").getPublicUrl(filePath)
+            // Could save to database here if needed
+          }
+        } catch (error) {
+          console.error("Background storage upload failed:", error)
+        }
       }
 
-      // Get public URL
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("kinkster-avatars").getPublicUrl(filePath)
+      uploadToStorage().catch(() => {})
 
       return NextResponse.json<GenerateImageResponse>({
-        url: publicUrl,
+        url: dataUrl,
         prompt: poseTransferPrompt,
         description: result.text || "",
         model: "gemini-3-pro",
@@ -258,13 +324,74 @@ export async function POST(request: NextRequest) {
       const geminiModel = "google/gemini-3-pro-image-preview"
 
       // Convert URLs to data URLs for Gemini
+      // Handles localhost/127.0.0.1 routing issues and certificate problems
       const convertToDataUrl = async (url: string): Promise<string> => {
-        const response = await fetch(url)
-        const arrayBuffer = await response.arrayBuffer()
-        const buffer = Buffer.from(arrayBuffer)
-        const base64 = buffer.toString("base64")
-        const contentType = response.headers.get("content-type") || "image/jpeg"
-        return `data:${contentType};base64,${base64}`
+        try {
+          // Normalize URL: replace localhost with 127.0.0.1 for consistency
+          let normalizedUrl = url.replace(/localhost/g, "127.0.0.1")
+          
+          // Check if this is a Supabase Storage URL
+          const isSupabaseStorage = normalizedUrl.includes("/storage/v1/object/public") || 
+                                    normalizedUrl.includes("supabase.co/storage") ||
+                                    (normalizedUrl.includes("127.0.0.1") && normalizedUrl.includes("/storage/"))
+          
+          let arrayBuffer: ArrayBuffer
+          let contentType: string = "image/jpeg"
+          
+          if (isSupabaseStorage) {
+            // Use Supabase client to download (handles auth/certificates better)
+            try {
+              // Extract storage path from URL
+              // Format: https://127.0.0.1:55321/storage/v1/object/public/kinkster-avatars/path/to/file
+              const storageMatch = normalizedUrl.match(/\/storage\/v1\/object\/public\/([^?]+)/)
+              if (storageMatch) {
+                const storagePath = storageMatch[1]
+                const bucketMatch = storagePath.match(/^([^/]+)\/(.+)$/)
+                if (bucketMatch) {
+                  const [, bucket, path] = bucketMatch
+                  const { data, error } = await supabase.storage
+                    .from(bucket)
+                    .download(path)
+                  
+                  if (error) throw error
+                  if (!data) throw new Error("No data returned from storage")
+                  
+                  arrayBuffer = await data.arrayBuffer()
+                  contentType = data.type || "image/jpeg"
+                } else {
+                  throw new Error("Invalid storage path format")
+                }
+              } else {
+                // Fallback to fetch if we can't parse the path
+                throw new Error("Could not parse Supabase Storage URL")
+              }
+            } catch (supabaseError) {
+              console.warn("Supabase client download failed, falling back to fetch:", supabaseError)
+              // Fallback to regular fetch with better error handling
+              const response = await fetch(normalizedUrl)
+              if (!response.ok) {
+                throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`)
+              }
+              arrayBuffer = await response.arrayBuffer()
+              contentType = response.headers.get("content-type") || "image/jpeg"
+            }
+          } else {
+            // Regular URL - use fetch
+            const response = await fetch(normalizedUrl)
+            if (!response.ok) {
+              throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`)
+            }
+            arrayBuffer = await response.arrayBuffer()
+            contentType = response.headers.get("content-type") || "image/jpeg"
+          }
+          
+          const buffer = Buffer.from(arrayBuffer)
+          const base64 = buffer.toString("base64")
+          return `data:${contentType};base64,${base64}`
+        } catch (error) {
+          console.error("Error converting URL to data URL:", url, error)
+          throw new Error(`Failed to convert image URL to data URL: ${error instanceof Error ? error.message : String(error)}`)
+        }
       }
 
       const character1DataUrl = await convertToDataUrl(character1Url)
@@ -317,44 +444,46 @@ export async function POST(request: NextRequest) {
       const base64Data = firstImage.base64
       const mediaType = firstImage.mediaType || "image/png"
 
-      // Convert base64 to buffer and store in Supabase Storage
-      const buffer = Buffer.from(base64Data, "base64")
-      const extension = mediaType.includes("jpeg") || mediaType.includes("jpg")
-        ? "jpg"
-        : mediaType.includes("webp")
-        ? "webp"
-        : "png"
+      // Return data URL directly (like nano banana) for immediate display
+      const dataUrl = `data:${mediaType};base64,${base64Data}`
 
-      const timestamp = Date.now()
-      const filename = `composition_${timestamp}.${extension}`
-      const filePath = `${profile.id}/compositions/${filename}`
+      // Optionally upload to storage in background (non-blocking)
+      const uploadToStorage = async () => {
+        try {
+          const buffer = Buffer.from(base64Data, "base64")
+          const extension = mediaType.includes("jpeg") || mediaType.includes("jpg")
+            ? "jpg"
+            : mediaType.includes("webp")
+            ? "webp"
+            : "png"
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("kinkster-avatars")
-        .upload(filePath, buffer, {
-          contentType: mediaType,
-          cacheControl: "3600",
-          upsert: false,
-        })
+          const timestamp = Date.now()
+          const filename = `composition_${timestamp}.${extension}`
+          const filePath = `${profile.id}/compositions/${filename}`
 
-      if (uploadError) {
-        console.error("Error uploading to Supabase Storage:", uploadError)
-        // Fallback: return data URL
-        const dataUrl = `data:${mediaType};base64,${base64Data}`
-        return NextResponse.json<GenerateImageResponse>({
-          url: dataUrl,
-          prompt: compositionPrompt,
-          model: "gemini-3-pro",
-        })
+          const { error: uploadError } = await supabase.storage
+            .from("kinkster-avatars")
+            .upload(filePath, buffer, {
+              contentType: mediaType,
+              cacheControl: "3600",
+              upsert: false,
+            })
+
+          if (!uploadError) {
+            const {
+              data: { publicUrl },
+            } = supabase.storage.from("kinkster-avatars").getPublicUrl(filePath)
+            // Could save to database here if needed
+          }
+        } catch (error) {
+          console.error("Background storage upload failed:", error)
+        }
       }
 
-      // Get public URL
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("kinkster-avatars").getPublicUrl(filePath)
+      uploadToStorage().catch(() => {})
 
       return NextResponse.json<GenerateImageResponse>({
-        url: publicUrl,
+        url: dataUrl,
         prompt: compositionPrompt,
         description: result.text || "",
         model: "gemini-3-pro",
@@ -371,8 +500,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-
-    const supabase = await createClient()
 
     if (model === "dalle-3") {
       // DALL-E 3 path - Use Vercel AI SDK as primary, OpenAI SDK as fallback
@@ -556,46 +683,31 @@ export async function POST(request: NextRequest) {
       const geminiAspectRatio = geminiAspectRatioMap[aspectRatio] || "1:1"
       const geminiModel = "google/gemini-3-pro-image-preview"
 
-            if (mode === "text-to-image") {
-              // Fetch character reference images if character IDs provided
-              let characterReferenceDataUrls: string[] = []
-              if (characterIds.length > 0 && model === "gemini-3-pro") {
-                try {
-                  characterReferenceDataUrls = await getCharacterReferenceDataUrls(characterIds)
-                } catch (error) {
-                  console.error("Failed to fetch character references:", error)
-                  // Continue without references
-                }
-              }
+      if (mode === "text-to-image") {
+        // Fetch character reference images if character IDs provided
+        let characterReferenceDataUrls: string[] = []
+        if (characterIds.length > 0) {
+          try {
+            characterReferenceDataUrls = await getCharacterReferenceDataUrls(characterIds)
+          } catch (error) {
+            console.error("Failed to fetch character references:", error)
+            // Continue without references
+          }
+        }
 
-              // If props are provided, use them to build a structured prompt
-              // Otherwise, use the raw prompt
-              let imageGenerationPrompt = prompt
-              
-              if (props && modelProvider === "openai") {
-                // For DALL-E 3, use our prompt builder with props
-                const { buildAvatarPrompt } = await import("@/lib/image/shared-utils")
-                const characterData = {
-                  name: "Generated Character",
-                  appearance_description: prompt,
-                  props,
-                }
-                imageGenerationPrompt = buildAvatarPrompt(characterData)
-              } else {
-                // For Gemini or free-form prompts, use as-is
-                imageGenerationPrompt = `Generate a high-quality image based on this description: ${prompt}. The image should be visually appealing and match the description as closely as possible.`
-              }
+        // Build prompt like nano-banana - simple and clean
+        const imageGenerationPrompt = `Generate a high-quality image based on this description: ${prompt}. The image should be visually appealing and match the description as closely as possible.`
 
-              // Build message parts with character references if available
-              const messageParts: Array<{ type: "text" | "image"; text?: string; image?: string }> = []
-              
-              // Add character reference images first (up to 5 for Gemini)
-              for (const refDataUrl of characterReferenceDataUrls.slice(0, 5)) {
-                messageParts.push({ type: "image", image: refDataUrl })
-              }
-              
-              // Add prompt
-              messageParts.push({ type: "text", text: imageGenerationPrompt })
+        // Build message parts with character references if available
+        const messageParts: Array<{ type: "text" | "image"; text?: string; image?: string }> = []
+        
+        // Add character reference images first (up to 5 for Gemini)
+        for (const refDataUrl of characterReferenceDataUrls.slice(0, 5)) {
+          messageParts.push({ type: "image", image: refDataUrl })
+        }
+        
+        // Add prompt
+        messageParts.push({ type: "text", text: imageGenerationPrompt })
 
         const result = await generateText({
           model: geminiModel,
@@ -636,68 +748,75 @@ export async function POST(request: NextRequest) {
         const base64Data = firstImage.base64
         const mediaType = firstImage.mediaType || "image/png"
 
-        // Convert base64 to buffer and store in Supabase Storage
-        const buffer = Buffer.from(base64Data, "base64")
-        const extension = mediaType.includes("jpeg") || mediaType.includes("jpg")
-          ? "jpg"
-          : mediaType.includes("webp")
-          ? "webp"
-          : "png"
+        // Return data URL directly (like nano banana) for immediate display
+        // This avoids CORS issues and storage upload delays
+        const dataUrl = `data:${mediaType};base64,${base64Data}`
 
-        const timestamp = Date.now()
-        const filename = `generated_${timestamp}.${extension}`
-        const filePath = `${profile.id}/playground/${filename}`
+        // Optionally upload to storage in background (non-blocking)
+        // This allows persistence without blocking the response
+        const uploadToStorage = async () => {
+          try {
+            const buffer = Buffer.from(base64Data, "base64")
+            const extension = mediaType.includes("jpeg") || mediaType.includes("jpg")
+              ? "jpg"
+              : mediaType.includes("webp")
+              ? "webp"
+              : "png"
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from("kinkster-avatars")
-          .upload(filePath, buffer, {
-            contentType: mediaType,
-            cacheControl: "3600",
-            upsert: false,
-          })
+            const timestamp = Date.now()
+            const filename = `generated_${timestamp}.${extension}`
+            const filePath = `${profile.id}/playground/${filename}`
 
-        if (uploadError) {
-          console.error("Error uploading to Supabase Storage:", uploadError)
-          // Fallback: return data URL
-          const dataUrl = `data:${mediaType};base64,${base64Data}`
-          return NextResponse.json<GenerateImageResponse>({
-            url: dataUrl,
-            prompt: prompt,
-            model: "gemini-3-pro",
-          })
+            const { error: uploadError } = await supabase.storage
+              .from("kinkster-avatars")
+              .upload(filePath, buffer, {
+                contentType: mediaType,
+                cacheControl: "3600",
+                upsert: false,
+              })
+
+            if (!uploadError) {
+              const {
+                data: { publicUrl },
+              } = supabase.storage.from("kinkster-avatars").getPublicUrl(filePath)
+
+              // Save to image_generations table
+              try {
+                await saveImageGeneration({
+                  userId: profile.id,
+                  generationType: "other",
+                  prompt: imageGenerationPrompt,
+                  storagePath: filePath,
+                  imageUrl: publicUrl,
+                  model: "gemini-3-pro",
+                  aspectRatio: geminiAspectRatio,
+                  config: {
+                    mode: "text-to-image",
+                    aspectRatio: geminiAspectRatio,
+                  },
+                  entityLinks: characterIds.map((id) => ({
+                    entityType: "kinkster",
+                    entityId: id,
+                  })),
+                })
+              } catch (error) {
+                console.error("Failed to save generation to database:", error)
+              }
+            }
+          } catch (error) {
+            console.error("Background storage upload failed:", error)
+            // Don't throw - this is background operation
+          }
         }
 
-        // Get public URL
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from("kinkster-avatars").getPublicUrl(filePath)
+        // Start background upload (don't await)
+        uploadToStorage().catch(() => {
+          // Silently fail - data URL is already returned
+        })
 
-        // Save to image_generations table
-        try {
-          await saveImageGeneration({
-            userId: profile.id,
-            generationType: "other", // Can be enhanced to detect type from context
-            prompt: imageGenerationPrompt,
-            storagePath: filePath,
-            imageUrl: publicUrl,
-            model: "gemini-3-pro",
-            aspectRatio: geminiAspectRatio,
-            config: {
-              mode: "text-to-image",
-              aspectRatio: geminiAspectRatio,
-            },
-            entityLinks: characterIds.map((id) => ({
-              entityType: "kinkster",
-              entityId: id,
-            })),
-          })
-        } catch (error) {
-          console.error("Failed to save generation to database:", error)
-          // Don't fail the request - generation succeeded
-        }
-
+        // Return data URL immediately (like nano banana)
         return NextResponse.json<GenerateImageResponse>({
-          url: publicUrl,
+          url: dataUrl,
           prompt: prompt,
           description: result.text || "",
           model: "gemini-3-pro",
@@ -750,13 +869,73 @@ export async function POST(request: NextRequest) {
 
         const convertToDataUrl = async (source: File | string): Promise<string> => {
           if (typeof source === "string") {
-            const response = await fetch(source)
-            const arrayBuffer = await response.arrayBuffer()
-            const buffer = Buffer.from(arrayBuffer)
-            const base64 = buffer.toString("base64")
-            const contentType = response.headers.get("content-type") || "image/jpeg"
-            return `data:${contentType};base64,${base64}`
+            // Handle URL strings - normalize localhost and use Supabase client for storage URLs
+            try {
+              // Normalize URL: replace localhost with 127.0.0.1 for consistency
+              let normalizedUrl = source.replace(/localhost/g, "127.0.0.1")
+              
+              // Check if this is a Supabase Storage URL
+              const isSupabaseStorage = normalizedUrl.includes("/storage/v1/object/public") || 
+                                        normalizedUrl.includes("supabase.co/storage") ||
+                                        (normalizedUrl.includes("127.0.0.1") && normalizedUrl.includes("/storage/"))
+              
+              let arrayBuffer: ArrayBuffer
+              let contentType: string = "image/jpeg"
+              
+              if (isSupabaseStorage) {
+                // Use Supabase client to download (handles auth/certificates better)
+                try {
+                  // Extract storage path from URL
+                  const storageMatch = normalizedUrl.match(/\/storage\/v1\/object\/public\/([^?]+)/)
+                  if (storageMatch) {
+                    const storagePath = storageMatch[1]
+                    const bucketMatch = storagePath.match(/^([^/]+)\/(.+)$/)
+                    if (bucketMatch) {
+                      const [, bucket, path] = bucketMatch
+                      const { data, error } = await supabase.storage
+                        .from(bucket)
+                        .download(path)
+                      
+                      if (error) throw error
+                      if (!data) throw new Error("No data returned from storage")
+                      
+                      arrayBuffer = await data.arrayBuffer()
+                      contentType = data.type || "image/jpeg"
+                    } else {
+                      throw new Error("Invalid storage path format")
+                    }
+                  } else {
+                    throw new Error("Could not parse Supabase Storage URL")
+                  }
+                } catch (supabaseError) {
+                  console.warn("Supabase client download failed, falling back to fetch:", supabaseError)
+                  // Fallback to regular fetch
+                  const response = await fetch(normalizedUrl)
+                  if (!response.ok) {
+                    throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`)
+                  }
+                  arrayBuffer = await response.arrayBuffer()
+                  contentType = response.headers.get("content-type") || "image/jpeg"
+                }
+              } else {
+                // Regular URL - use fetch
+                const response = await fetch(normalizedUrl)
+                if (!response.ok) {
+                  throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`)
+                }
+                arrayBuffer = await response.arrayBuffer()
+                contentType = response.headers.get("content-type") || "image/jpeg"
+              }
+              
+              const buffer = Buffer.from(arrayBuffer)
+              const base64 = buffer.toString("base64")
+              return `data:${contentType};base64,${base64}`
+            } catch (error) {
+              console.error("Error converting URL to data URL:", source, error)
+              throw new Error(`Failed to convert image URL to data URL: ${error instanceof Error ? error.message : String(error)}`)
+            }
           } else {
+            // Handle File objects
             const arrayBuffer = await source.arrayBuffer()
             const buffer = Buffer.from(arrayBuffer)
             const base64 = buffer.toString("base64")
@@ -831,70 +1010,76 @@ export async function POST(request: NextRequest) {
         const base64Data = firstImage.base64
         const mediaType = firstImage.mediaType || "image/png"
 
-        // Convert base64 to buffer and store in Supabase Storage
-        const buffer = Buffer.from(base64Data, "base64")
-        const extension = mediaType.includes("jpeg") || mediaType.includes("jpg")
-          ? "jpg"
-          : mediaType.includes("webp")
-          ? "webp"
-          : "png"
+        // Return data URL directly (like nano banana) for immediate display
+        // This avoids CORS issues and storage upload delays
+        const dataUrl = `data:${mediaType};base64,${base64Data}`
 
-        const timestamp = Date.now()
-        const filename = `generated_${timestamp}.${extension}`
-        const filePath = `${profile.id}/playground/${filename}`
+        // Optionally upload to storage in background (non-blocking)
+        const uploadToStorage = async () => {
+          try {
+            const buffer = Buffer.from(base64Data, "base64")
+            const extension = mediaType.includes("jpeg") || mediaType.includes("jpg")
+              ? "jpg"
+              : mediaType.includes("webp")
+              ? "webp"
+              : "png"
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from("kinkster-avatars")
-          .upload(filePath, buffer, {
-            contentType: mediaType,
-            cacheControl: "3600",
-            upsert: false,
-          })
+            const timestamp = Date.now()
+            const filename = `generated_${timestamp}.${extension}`
+            const filePath = `${profile.id}/playground/${filename}`
 
-        if (uploadError) {
-          console.error("Error uploading to Supabase Storage:", uploadError)
-          // Fallback: return data URL
-          const dataUrl = `data:${mediaType};base64,${base64Data}`
-          return NextResponse.json<GenerateImageResponse>({
-            url: dataUrl,
-            prompt: editingPrompt,
-            model: "gemini-3-pro",
-          })
+            const { error: uploadError } = await supabase.storage
+              .from("kinkster-avatars")
+              .upload(filePath, buffer, {
+                contentType: mediaType,
+                cacheControl: "3600",
+                upsert: false,
+              })
+
+            if (!uploadError) {
+              const {
+                data: { publicUrl },
+              } = supabase.storage.from("kinkster-avatars").getPublicUrl(filePath)
+
+              // Save to image_generations table
+              try {
+                await saveImageGeneration({
+                  userId: profile.id,
+                  generationType: "other",
+                  prompt: editingPrompt,
+                  storagePath: filePath,
+                  imageUrl: publicUrl,
+                  model: "gemini-3-pro",
+                  aspectRatio: geminiAspectRatio,
+                  config: {
+                    mode: "image-editing",
+                    aspectRatio: geminiAspectRatio,
+                    hasImage1: !!hasImage1,
+                    hasImage2: !!hasImage2,
+                  },
+                  entityLinks: characterIds.map((id) => ({
+                    entityType: "kinkster",
+                    entityId: id,
+                  })),
+                })
+              } catch (error) {
+                console.error("Failed to save generation to database:", error)
+              }
+            }
+          } catch (error) {
+            console.error("Background storage upload failed:", error)
+            // Don't throw - this is background operation
+          }
         }
 
-        // Get public URL
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from("kinkster-avatars").getPublicUrl(filePath)
+        // Start background upload (don't await)
+        uploadToStorage().catch(() => {
+          // Silently fail - data URL is already returned
+        })
 
-        // Save to image_generations table
-        try {
-          await saveImageGeneration({
-            userId: profile.id,
-            generationType: "other",
-            prompt: editingPrompt,
-            storagePath: filePath,
-            imageUrl: publicUrl,
-            model: "gemini-3-pro",
-            aspectRatio: geminiAspectRatio,
-            config: {
-              mode: "image-editing",
-              aspectRatio: geminiAspectRatio,
-              hasImage1: !!hasImage1,
-              hasImage2: !!hasImage2,
-            },
-            entityLinks: characterIds.map((id) => ({
-              entityType: "kinkster",
-              entityId: id,
-            })),
-          })
-        } catch (error) {
-          console.error("Failed to save generation to database:", error)
-          // Don't fail the request - generation succeeded
-        }
-
+        // Return data URL immediately (like nano banana)
         return NextResponse.json<GenerateImageResponse>({
-          url: publicUrl,
+          url: dataUrl,
           prompt: editingPrompt,
           description: result.text || "",
           model: "gemini-3-pro",

@@ -12,7 +12,7 @@ import { Marquee } from "@/components/ui/marquee"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
-import { Calendar as CalendarIcon, Bell, Inbox } from "lucide-react"
+import { Calendar as CalendarIcon, Bell, Inbox, MessageSquare } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip"
 import type { Notification } from "@/types/dashboard"
@@ -20,6 +20,8 @@ import type { Profile } from "@/types/profile"
 import { AnimatePresence } from "framer-motion"
 import { useOnlineStatus } from "@/hooks/use-online-status"
 import { getAppContext, getRoleAwareGreeting } from "@/lib/chat/context-aware-helpers"
+import { useTerminalOptional } from "./terminal-context"
+import { TerminalChatView } from "./terminal-chat-view"
 
 interface KinkyTerminalProps {
   userId?: string
@@ -30,7 +32,7 @@ interface KinkyTerminalProps {
   className?: string
 }
 
-type TerminalView = "notifications" | "calendar" | "inbox"
+type TerminalView = "notifications" | "calendar" | "inbox" | "chat"
 
 interface CalendarEvent {
   id: string
@@ -79,6 +81,14 @@ export default function KinkyTerminal({
   const displayedNotifications = showAllNotifications
     ? notifications
     : notifications.slice(0, 3)
+
+  // Sync notification count with terminal context (if available)
+  const terminalContext = useTerminalOptional()
+  useEffect(() => {
+    if (terminalContext) {
+      terminalContext.setUnreadCount(unreadCount)
+    }
+  }, [unreadCount, terminalContext])
 
   // Load calendar events when calendar view is active
   useEffect(() => {
@@ -321,6 +331,10 @@ export default function KinkyTerminal({
           const newNotification = payload.payload.new as Notification
           if (newNotification) {
             setNotifications((prev) => [newNotification, ...prev])
+            // Signal new notification for trigger animation
+            if (terminalContext) {
+              terminalContext.setHasNewNotification(true)
+            }
             toast.info(newNotification.title, {
               description: newNotification.message,
             })
@@ -361,7 +375,7 @@ export default function KinkyTerminal({
         channelRef.current = null
       }
     }
-  }, [effectiveUserId, supabase, isLoading])
+  }, [effectiveUserId, supabase, isLoading, terminalContext])
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString("en-US", {
@@ -476,17 +490,23 @@ export default function KinkyTerminal({
     <div className={cn("flex flex-col h-full", className)}>
       {/* Custom Terminal Structure - macOS Screen Style */}
       <div className={cn(
-        "border-border bg-background z-0 h-[600px] w-full rounded-xl border flex flex-col overflow-hidden",
+        "relative z-0 h-[600px] w-full rounded-xl border border-border/60 bg-background/95 backdrop-blur-md flex flex-col overflow-hidden shadow-xl shadow-black/10",
         className
       )}>
+        {/* Subtle gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none rounded-xl" />
+        
         {/* Custom Header with Scrolling Banner */}
-        <div className="border-border flex flex-col gap-y-1 border-b p-3 bg-background/50 backdrop-blur-sm flex-shrink-0">
-          <div className="flex items-center gap-2">
-            <div className="flex gap-1.5 shrink-0">
-              <div className="h-2.5 w-2.5 rounded-full bg-red-500"></div>
-              <div className="h-2.5 w-2.5 rounded-full bg-yellow-500"></div>
-              <div className="h-2.5 w-2.5 rounded-full bg-green-500"></div>
+        <div className="relative border-border/50 flex flex-col gap-y-1 border-b px-3 py-2.5 bg-gradient-to-b from-muted/30 to-background/50 backdrop-blur-sm flex-shrink-0">
+          <div className="flex items-center gap-3">
+            {/* Traffic Light Buttons */}
+            <div className="flex gap-2 shrink-0">
+              <div className="h-3 w-3 rounded-full bg-red-500/90 shadow-sm shadow-red-500/30 ring-1 ring-red-600/20" />
+              <div className="h-3 w-3 rounded-full bg-yellow-500/90 shadow-sm shadow-yellow-500/30 ring-1 ring-yellow-600/20" />
+              <div className="h-3 w-3 rounded-full bg-green-500/90 shadow-sm shadow-green-500/30 ring-1 ring-green-600/20" />
             </div>
+            
+            {/* Terminal Prompt & Banner */}
             <div className="flex-1 min-w-0 flex items-center gap-2">
               <AnimatedGradientText
                 className="text-xs font-mono font-semibold whitespace-nowrap shrink-0"
@@ -497,26 +517,29 @@ export default function KinkyTerminal({
                 kinky@kink-it:~$
               </AnimatedGradientText>
               {bannerText && (
-                <div className="flex-1 min-w-0 overflow-hidden">
+                <div className="flex-1 min-w-0 overflow-hidden opacity-70">
                   <Marquee pauseOnHover className="text-[10px] text-muted-foreground font-mono" repeat={3}>
                     <span className="mx-4">{bannerText}</span>
                   </Marquee>
                 </div>
               )}
             </div>
+            
+            {/* Status Indicator */}
             {isOnline && !isLoadingStatus && (
               <Badge
                 variant="outline"
-                className="text-[10px] font-mono bg-green-500/10 border-green-500/50 text-green-500 px-1.5 py-0 shrink-0"
+                className="text-[9px] font-mono font-medium bg-green-500/10 border-green-500/40 text-green-400 px-2 py-0.5 shrink-0 uppercase tracking-wider"
               >
-                ONLINE
+                <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-green-500 inline-block animate-pulse" />
+                Online
               </Badge>
             )}
           </div>
         </div>
 
         {/* Terminal Content Area - Hidden Scrollbar */}
-        <div className="flex-1 min-h-0 overflow-auto scrollbar-hide p-4 font-mono text-xs bg-background/30 backdrop-blur-sm">
+        <div className="relative flex-1 min-h-0 overflow-auto scrollbar-hide p-4 font-mono text-xs bg-gradient-to-b from-background/20 to-background/40">
           <div className="space-y-1">
             {/* Notifications View (with merged Status content) */}
             {activeView === "notifications" && (
@@ -990,18 +1013,28 @@ export default function KinkyTerminal({
                 </AnimatedSpan>
               </>
             )}
+
+            {/* Chat View */}
+            {activeView === "chat" && (
+              <div className="h-full -m-4">
+                <TerminalChatView 
+                  userId={effectiveUserId}
+                  className="h-full"
+                />
+              </div>
+            )}
           </div>
         </div>
 
         {/* macOS-style Dock Inside Terminal */}
-        <div className="border-t border-border bg-background/50 backdrop-blur-sm p-2 flex-shrink-0">
+        <div className="border-t border-border/40 bg-gradient-to-t from-muted/20 to-transparent backdrop-blur-sm p-2.5 flex-shrink-0">
           <TooltipProvider>
             <Dock
               iconSize={36}
-              iconMagnification={48}
-              iconDistance={120}
+              iconMagnification={52}
+              iconDistance={100}
               direction="bottom"
-              className="bg-background/20 dark:bg-background/20 backdrop-blur-md border-border/50"
+              className="bg-background/40 dark:bg-background/30 backdrop-blur-xl border border-border/30 shadow-lg shadow-black/5 rounded-xl"
             >
               {/* Notifications - First */}
               <DockIcon onClick={() => setActiveView("notifications")}>
@@ -1067,6 +1100,26 @@ export default function KinkyTerminal({
                   </TooltipTrigger>
                   <TooltipContent className="font-mono text-xs">
                     <div>Inbox</div>
+                  </TooltipContent>
+                </Tooltip>
+              </DockIcon>
+
+              {/* Chat - Fourth */}
+              <DockIcon onClick={() => setActiveView("chat")}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className={cn(
+                      "flex items-center justify-center rounded-lg p-1.5 transition-colors",
+                      activeView === "chat" ? "bg-primary/20" : "hover:bg-muted/50"
+                    )}>
+                      <MessageSquare className={cn(
+                        "h-5 w-5",
+                        activeView === "chat" ? "text-primary" : "text-muted-foreground"
+                      )} />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="font-mono text-xs">
+                    <div>Chat with Kinky</div>
                   </TooltipContent>
                 </Tooltip>
               </DockIcon>

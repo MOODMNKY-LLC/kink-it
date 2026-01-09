@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { requireAuth, getUserProfile } from "@/lib/auth/get-user"
+import { getUserProfile } from "@/lib/auth/get-user"
 import { createClient } from "@/lib/supabase/server"
 
 export async function POST(
@@ -7,7 +7,6 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    await requireAuth()
     const profile = await getUserProfile()
 
     if (!profile) {
