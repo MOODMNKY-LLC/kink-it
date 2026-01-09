@@ -62,15 +62,37 @@ export function ContextSwitcher({ profile }: ContextSwitcherProps) {
           .eq("is_active", true)
 
         if (membershipsError) {
-          console.error("Error fetching bond memberships:", {
-            error: membershipsError,
-            message: membershipsError.message,
-            code: membershipsError.code,
-            details: membershipsError.details,
-            hint: membershipsError.hint,
-            status: (membershipsError as any).status,
-            supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-          })
+          // Check if this is a network/certificate error
+          const errorMessage = membershipsError.message || String(membershipsError)
+          const isNetworkError = 
+            errorMessage.includes("Failed to fetch") ||
+            errorMessage.includes("NetworkError") ||
+            errorMessage.includes("Network request failed") ||
+            (membershipsError as any).status === 0
+
+          if (isNetworkError) {
+            const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://127.0.0.1:55321"
+            console.error("🔒 Certificate/Network Error Detected!")
+            console.error("Error fetching bond memberships:", {
+              error: membershipsError,
+              message: errorMessage,
+              type: "Network/Certificate Error",
+            })
+            console.error("\n📋 To fix this:")
+            console.error("1. Navigate to:", supabaseUrl)
+            console.error("2. Click 'Advanced' → 'Proceed to 127.0.0.1 (unsafe)'")
+            console.error("3. Accept the certificate")
+            console.error("4. Refresh this page")
+            console.error("\n💡 Or run in console: testSupabaseConnection()")
+          } else {
+            console.error("Error fetching bond memberships:", {
+              error: membershipsError,
+              message: errorMessage,
+              code: membershipsError.code,
+              details: membershipsError.details,
+              hint: membershipsError.hint,
+            })
+          }
           setLoading(false)
           return
         }
@@ -113,7 +135,11 @@ export function ContextSwitcher({ profile }: ContextSwitcherProps) {
               .eq("is_active", true)
 
             if (countError) {
-              console.error(`Error getting count for bond ${bond.id}:`, countError)
+              // Only log non-network errors to avoid spam
+              const errorMessage = countError.message || String(countError)
+              if (!errorMessage.includes("Failed to fetch")) {
+                console.error(`Error getting count for bond ${bond.id}:`, countError)
+              }
             }
 
             // Find the user's role in this bond
@@ -131,8 +157,20 @@ export function ContextSwitcher({ profile }: ContextSwitcherProps) {
         )
 
         setBonds(bondsWithCounts)
-      } catch (error) {
-        console.error("Error in fetchBonds:", error)
+      } catch (error: any) {
+        const errorMessage = error?.message || String(error)
+        const isNetworkError = 
+          errorMessage.includes("Failed to fetch") ||
+          errorMessage.includes("NetworkError") ||
+          errorMessage.includes("Network request failed")
+
+        if (isNetworkError) {
+          const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://127.0.0.1:55321"
+          console.error("🔒 Network error in fetchBonds. Certificate may not be accepted.")
+          console.error("Fix: Navigate to", supabaseUrl, "and accept the certificate")
+        } else {
+          console.error("Error in fetchBonds:", error)
+        }
       } finally {
         setLoading(false)
       }

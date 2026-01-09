@@ -74,6 +74,15 @@
         "mcp/memory"
       ]
     },
+    "@magicuidesign/mcp": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@magicuidesign/mcp@latest"
+      ]
+    },
     "shadcn": {
       "command": "npx",
       "args": [
@@ -106,12 +115,6 @@
       "env": {
         "DISCORD_TOKEN": "YOUR_DISCORD_BOT_TOKEN_HERE"
       }
-    },
-    "chrome-devtools": {
-      "command": "npx",
-      "args": [
-        "chrome-devtools-mcp@latest"
-      ]
     }
   },
   "registries": {

@@ -136,9 +136,41 @@ export function useAvatarGeneration({
 
         if (error) {
           console.error("Edge Function error details:", error)
-          // Check if error has a message or context
-          const errorMessage = error.message || error.context?.message || "Failed to invoke avatar generation"
+          console.error("Error object:", JSON.stringify(error, null, 2))
+          
+          // Extract error message from various possible structures
+          let errorMessage = "Failed to invoke avatar generation"
+          
+          if (error.message) {
+            errorMessage = error.message
+          } else if (error.context?.message) {
+            errorMessage = error.context.message
+          } else if (error.context?.error) {
+            errorMessage = error.context.error
+          } else if (typeof error === "string") {
+            errorMessage = error
+          } else if (error.error) {
+            // Edge function might return { error: "message" } in data
+            errorMessage = error.error
+          }
+          
+          // Check if it's a non-2xx status code error
+          if (errorMessage.includes("non-2xx") || errorMessage.includes("status code")) {
+            // Try to get more details from data if available
+            if (data?.error) {
+              errorMessage = `Edge Function Error: ${data.error}${data.details ? ` - ${data.details}` : ""}`
+            } else {
+              errorMessage = "Edge Function returned an error. Check console for details."
+            }
+          }
+          
           throw new Error(errorMessage)
+        }
+
+        // Check if data contains an error field (edge function might return 200 with error in body)
+        if (data?.error) {
+          console.error("Edge Function returned error in data:", data)
+          throw new Error(`Edge Function Error: ${data.error}${data.details ? ` - ${data.details}` : ""}`)
         }
 
         // Ensure data exists

@@ -5,20 +5,23 @@
 
 "use client"
 
-import React, { useRef } from "react"
+import React, { useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { Trash2 } from "lucide-react"
+import { Trash2, Image as ImageIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ImageUploadBox } from "./image-upload-box"
 import { MobilePropsSelector } from "./mobile-props-selector"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import type { GenerationProps } from "@/lib/image/props"
 import { ASPECT_RATIO_OPTIONS } from "./constants"
+import { CHARACTER_PRESETS, SCENE_PRESETS, type CharacterPreset, type ScenePreset } from "@/lib/playground/preset-config"
+import Image from "next/image"
 
 interface InputSectionProps {
   prompt: string
@@ -256,73 +259,111 @@ export function InputSection({
                 </div>
               </div>
             ) : (
-              <div className="select-none">
+              <div className="select-none space-y-2">
                 <div className="grid grid-cols-2 gap-2 w-full">
-                  <ImageUploadBox
-                    imageNumber={1}
-                    preview={image1Preview || ""}
-                    onDrop={(e) => {
-                      e.preventDefault()
-                      const file = e.dataTransfer.files[0]
-                      if (file && file.type.startsWith("image/")) {
-                        onImageUpload(file, 1)
-                      }
-                    }}
-                    onClear={() => onClearImage(1)}
-                    onSelect={() => {
-                      if (image1Preview) {
-                        onImageFullscreen(image1Preview)
-                      } else {
-                        document.getElementById("file1")?.click()
-                      }
-                    }}
-                  />
-                  <input
-                    id="file1"
-                    type="file"
-                    accept="image/*,.heic,.heif"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (file) {
-                        onImageUpload(file, 1)
-                        e.target.value = ""
-                      }
-                    }}
-                  />
+                  {/* Image 1 - Character/Reference */}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-gray-400">Character</span>
+                      <PresetPopover
+                        presets={CHARACTER_PRESETS}
+                        onSelect={(preset) => {
+                          // Load character preset image
+                          fetch(preset.imageUrl)
+                            .then(res => res.blob())
+                            .then(blob => {
+                              const file = new File([blob], `${preset.id}.png`, { type: 'image/png' })
+                              onImageUpload(file, 1)
+                            })
+                        }}
+                        label="Presets"
+                      />
+                    </div>
+                    <ImageUploadBox
+                      imageNumber={1}
+                      preview={image1Preview || ""}
+                      onDrop={(e) => {
+                        e.preventDefault()
+                        const file = e.dataTransfer.files[0]
+                        if (file && file.type.startsWith("image/")) {
+                          onImageUpload(file, 1)
+                        }
+                      }}
+                      onClear={() => onClearImage(1)}
+                      onSelect={() => {
+                        if (image1Preview) {
+                          onImageFullscreen(image1Preview)
+                        } else {
+                          document.getElementById("file1")?.click()
+                        }
+                      }}
+                    />
+                    <input
+                      id="file1"
+                      type="file"
+                      accept="image/*,.heic,.heif"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          onImageUpload(file, 1)
+                          e.target.value = ""
+                        }
+                      }}
+                    />
+                  </div>
 
-                  <ImageUploadBox
-                    imageNumber={2}
-                    preview={image2Preview || ""}
-                    onDrop={(e) => {
-                      e.preventDefault()
-                      const file = e.dataTransfer.files[0]
-                      if (file && file.type.startsWith("image/")) {
-                        onImageUpload(file, 2)
-                      }
-                    }}
-                    onClear={() => onClearImage(2)}
-                    onSelect={() => {
-                      if (image2Preview) {
-                        onImageFullscreen(image2Preview)
-                      } else {
-                        document.getElementById("file2")?.click()
-                      }
-                    }}
-                  />
-                  <input
-                    id="file2"
-                    type="file"
-                    accept="image/*,.heic,.heif"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (file) {
-                        onImageUpload(file, 2)
-                        e.target.value = ""
-                      }
-                    }}
-                  />
+                  {/* Image 2 - Scene/Environment */}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-gray-400">Scene/BG</span>
+                      <PresetPopover
+                        presets={SCENE_PRESETS}
+                        onSelect={(preset) => {
+                          // Load scene preset image
+                          fetch(preset.imageUrl)
+                            .then(res => res.blob())
+                            .then(blob => {
+                              const file = new File([blob], `${preset.id}.png`, { type: 'image/png' })
+                              onImageUpload(file, 2)
+                            })
+                        }}
+                        label="Scenes"
+                      />
+                    </div>
+                    <ImageUploadBox
+                      imageNumber={2}
+                      preview={image2Preview || ""}
+                      onDrop={(e) => {
+                        e.preventDefault()
+                        const file = e.dataTransfer.files[0]
+                        if (file && file.type.startsWith("image/")) {
+                          onImageUpload(file, 2)
+                        }
+                      }}
+                      onClear={() => onClearImage(2)}
+                      onSelect={() => {
+                        if (image2Preview) {
+                          onImageFullscreen(image2Preview)
+                        } else {
+                          document.getElementById("file2")?.click()
+                        }
+                      }}
+                    />
+                    <input
+                      id="file2"
+                      type="file"
+                      accept="image/*,.heic,.heif"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          onImageUpload(file, 2)
+                          e.target.value = ""
+                        }
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             )}
@@ -341,6 +382,57 @@ export function InputSection({
         </div>
       </div>
     </div>
+  )
+}
+
+// Preset Popover Component
+interface PresetPopoverProps {
+  presets: (CharacterPreset | ScenePreset)[]
+  onSelect: (preset: any) => void
+  label: string
+}
+
+function PresetPopover({ presets, onSelect, label }: PresetPopoverProps) {
+  const [open, setOpen] = useState(false)
+
+  if (presets.length === 0) return null
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button className="text-[10px] text-primary hover:underline flex items-center gap-1">
+          <ImageIcon className="h-2.5 w-2.5" />
+          {label}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-64 p-2" align="end">
+        <div className="grid grid-cols-2 gap-2">
+          {presets.map((preset) => (
+            <button
+              key={preset.id}
+              onClick={() => {
+                onSelect(preset)
+                setOpen(false)
+              }}
+              className="relative group rounded-md overflow-hidden border hover:border-primary transition-all"
+            >
+              <div className="aspect-video relative bg-muted">
+                <Image
+                  src={preset.imageUrl}
+                  alt={preset.name}
+                  fill
+                  className="object-cover"
+                  sizes="120px"
+                />
+              </div>
+              <div className="p-1.5 bg-background">
+                <span className="text-[10px] font-medium truncate block">{preset.name}</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
   )
 }
 

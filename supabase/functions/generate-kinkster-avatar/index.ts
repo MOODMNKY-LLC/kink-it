@@ -34,6 +34,15 @@ interface GenerationProps {
     footwear?: string[]
     accessories?: string[]
   }
+  character_accessories?: {
+    decorative_collar?: boolean
+    character_mask?: boolean
+    ornamental_chains?: boolean
+    long_socks?: boolean
+    leather?: string[]
+    fashion_straps?: boolean
+  }
+  // Legacy support - map old kink_accessories to new character_accessories
   kink_accessories?: {
     collars?: boolean
     pup_mask?: boolean
@@ -101,19 +110,38 @@ function propsToPrompt(props: GenerationProps): string[] {
     if (clothingParts.length > 0) parts.push(clothingParts.join(", "))
   }
 
-  // Kink accessories (tastefully described)
-  if (props.kink_accessories) {
-    const kinkParts: string[] = []
-    if (props.kink_accessories.collars) kinkParts.push("wearing a tasteful leather collar")
-    if (props.kink_accessories.pup_mask) kinkParts.push("sporting a stylish pup mask")
-    if (props.kink_accessories.locks) kinkParts.push("adorned with decorative locks")
-    if (props.kink_accessories.long_socks) kinkParts.push("wearing long socks")
-    if (props.kink_accessories.harness) kinkParts.push("wearing a leather harness")
-    if (props.kink_accessories.leather && props.kink_accessories.leather.length > 0) {
-      kinkParts.push(`featuring ${props.kink_accessories.leather.join(" and ")} in leather`)
+  // Character accessories (with legacy kink_accessories support)
+  const accessories = props.character_accessories || props.kink_accessories
+  if (accessories) {
+    const accessoryParts: string[] = []
+    
+    // Support both new (character_accessories) and legacy (kink_accessories) property names
+    if (accessories.decorative_collar || (accessories as any).collars) {
+      accessoryParts.push("wearing a tasteful leather collar")
     }
-    // Removed 'other' - no custom kink accessories allowed
-    if (kinkParts.length > 0) parts.push(kinkParts.join(", "))
+    if (accessories.character_mask || (accessories as any).pup_mask) {
+      accessoryParts.push("sporting a stylish pup mask")
+    }
+    if (accessories.ornamental_chains || (accessories as any).locks) {
+      accessoryParts.push("adorned with decorative locks")
+    }
+    if (accessories.long_socks) {
+      accessoryParts.push("wearing long socks")
+    }
+    if (accessories.fashion_straps || (accessories as any).harness) {
+      accessoryParts.push("wearing a leather harness")
+    }
+    if (accessories.leather && accessories.leather.length > 0) {
+      // Map harness to straps for leather items
+      const leatherItems = accessories.leather.map(item => 
+        item === "harness" ? "straps" : item
+      )
+      accessoryParts.push(`featuring ${leatherItems.join(" and ")} in leather`)
+    }
+    
+    if (accessoryParts.length > 0) {
+      parts.push(accessoryParts.join(", "))
+    }
   }
 
   // Background
@@ -192,11 +220,12 @@ function buildAvatarPrompt(characterData: CharacterData): string {
     propsDescriptions.push("wearing stylish, tasteful clothing")
   }
 
-  // Kink accessories from props
-  if (props?.kink_accessories) {
-    const kinkParts = propsToPrompt({ kink_accessories: props.kink_accessories })
-    if (kinkParts.length > 0) {
-      propsDescriptions.push(kinkParts[0])
+  // Character accessories from props (with legacy kink_accessories support)
+  const accessories = props?.character_accessories || props?.kink_accessories
+  if (accessories) {
+    const accessoryParts = propsToPrompt({ character_accessories: accessories, kink_accessories: accessories })
+    if (accessoryParts.length > 0) {
+      propsDescriptions.push(accessoryParts[0])
     }
   }
 

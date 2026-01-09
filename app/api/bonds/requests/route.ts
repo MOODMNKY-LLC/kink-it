@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { NextRequest, NextResponse } from "next/server"
 
 /**
@@ -29,9 +30,11 @@ export async function GET(request: NextRequest) {
 
     const isAdmin = profile?.system_role === "admin"
 
-    // If admin, get all requests
+    // If admin, use admin client to bypass RLS and get all requests
     if (isAdmin) {
-      let adminQuery = supabase
+      const adminClient = createAdminClient()
+      
+      let adminQuery = adminClient
         .from("bond_join_requests")
         .select(`
           *,
@@ -54,7 +57,12 @@ export async function GET(request: NextRequest) {
       if (adminError) {
         console.error("Error fetching all requests:", adminError)
         return NextResponse.json(
-          { error: "Failed to fetch join requests" },
+          { 
+            error: "Failed to fetch join requests",
+            details: adminError.message,
+            code: adminError.code,
+            hint: adminError.hint
+          },
           { status: 500 }
         )
       }
@@ -120,7 +128,12 @@ export async function GET(request: NextRequest) {
     if (requestsError) {
       console.error("Error fetching join requests:", requestsError)
       return NextResponse.json(
-        { error: "Failed to fetch join requests" },
+        { 
+          error: "Failed to fetch join requests",
+          details: requestsError.message,
+          code: requestsError.code,
+          hint: requestsError.hint
+        },
         { status: 500 }
       )
     }
@@ -132,8 +145,12 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error("Error in get join requests:", error)
+    const errorMessage = error instanceof Error ? error.message : "Unknown error"
     return NextResponse.json(
-      { error: "Internal server error" },
+      { 
+        error: "Internal server error",
+        details: errorMessage
+      },
       { status: 500 }
     )
   }

@@ -148,6 +148,11 @@ export const userNavigation: NavigationGroup[] = [
     title: "Kinky's Playground",
     items: [
       {
+        title: "Image Studio",
+        url: "/playground/image-studio",
+        icon: ImageIcon,
+      },
+      {
         title: "KINKSTER Creator",
         url: "/playground/kinkster-creator",
         icon: Users,

@@ -31,14 +31,57 @@ interface RequestPayload {
 console.info("Chat Stream Edge Function started")
 
 Deno.serve(async (req: Request) => {
-  // Handle CORS
+  // Helper function to get CORS headers
+  // Uses specific origin instead of wildcard to support credentials
+  const getCorsHeaders = (): HeadersInit => {
+    // Get origin from request headers
+    const originHeader = req.headers.get("origin")
+    const refererHeader = req.headers.get("referer")
+    
+    // Extract origin from referer if origin header is missing
+    let origin = originHeader
+    if (!origin && refererHeader) {
+      try {
+        const refererUrl = new URL(refererHeader)
+        origin = `${refererUrl.protocol}//${refererUrl.host}`
+      } catch (e) {
+        // If URL parsing fails, try simple string split
+        origin = refererHeader.split("/").slice(0, 3).join("/")
+      }
+    }
+    
+    // Normalize localhost origins to 127.0.0.1 for consistency
+    let allowedOrigin = origin || "*"
+    if (allowedOrigin.includes("localhost:3000")) {
+      allowedOrigin = allowedOrigin.replace("localhost", "127.0.0.1")
+    } else if (allowedOrigin.includes("127.0.0.1:3000")) {
+      // Keep as is
+      allowedOrigin = allowedOrigin
+    } else if (!allowedOrigin || allowedOrigin === "*") {
+      // Only use wildcard if truly no origin provided (shouldn't happen in browser)
+      allowedOrigin = "*"
+    }
+    
+    // Log for debugging (remove in production)
+    if (process.env.NODE_ENV === "development" || Deno.env.get("SUPABASE_URL")?.includes("127.0.0.1")) {
+      console.log("[CORS] Origin header:", originHeader)
+      console.log("[CORS] Referer header:", refererHeader)
+      console.log("[CORS] Extracted origin:", origin)
+      console.log("[CORS] Allowed origin:", allowedOrigin)
+    }
+    
+    return {
+      "Access-Control-Allow-Origin": allowedOrigin,
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+      "Access-Control-Allow-Credentials": "true",
+    }
+  }
+
+  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-      },
+      headers: getCorsHeaders(),
     })
   }
 
@@ -49,7 +92,10 @@ Deno.serve(async (req: Request) => {
         JSON.stringify({ error: "Method not allowed. Use POST." }),
         {
           status: 405,
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            ...getCorsHeaders(),
+          },
         }
       )
     }
@@ -62,7 +108,10 @@ Deno.serve(async (req: Request) => {
         JSON.stringify({ error: "Request body is empty. Expected JSON payload." }),
         {
           status: 400,
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            ...getCorsHeaders(),
+          },
         }
       )
     }
@@ -103,7 +152,10 @@ Deno.serve(async (req: Request) => {
         JSON.stringify({ error: "user_id and messages are required" }),
         {
           status: 400,
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            ...getCorsHeaders(),
+          },
         }
       )
     }
@@ -133,7 +185,10 @@ Deno.serve(async (req: Request) => {
         JSON.stringify({ error: "No user message found" }),
         {
           status: 400,
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            ...getCorsHeaders(),
+          },
         }
       )
     }
@@ -223,7 +278,7 @@ Deno.serve(async (req: Request) => {
           status: 500,
           headers: { 
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
+            ...getCorsHeaders(),
           },
         }
       )
@@ -637,7 +692,7 @@ Deno.serve(async (req: Request) => {
           "Content-Type": "text/event-stream",
           "Cache-Control": "no-cache",
           "Connection": "keep-alive",
-          "Access-Control-Allow-Origin": "*",
+          ...getCorsHeaders(),
         },
       })
     } else {
@@ -694,7 +749,7 @@ Deno.serve(async (req: Request) => {
         status: 500,
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
+          ...getCorsHeaders(),
         },
       }
     )

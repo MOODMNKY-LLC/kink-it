@@ -14,15 +14,9 @@ CREATE TABLE IF NOT EXISTS public.partner_messages (
   content text NOT NULL,
   read_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  -- Ensure partners can only message each other
-  CONSTRAINT partner_messages_partner_check CHECK (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE (id = from_user_id AND partner_id = to_user_id)
-         OR (id = to_user_id AND partner_id = from_user_id)
-    )
-  )
+  updated_at timestamptz NOT NULL DEFAULT now()
+  -- Note: Partner validation is handled by RLS policies, not CHECK constraints
+  -- (PostgreSQL doesn't support subqueries in CHECK constraints)
 );
 
 -- Create indexes for performance
@@ -53,9 +47,10 @@ CREATE TABLE IF NOT EXISTS public.check_ins (
   user_id uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   status check_in_status NOT NULL,
   notes text,
+  check_in_date date NOT NULL DEFAULT CURRENT_DATE,
   created_at timestamptz NOT NULL DEFAULT now(),
   -- One check-in per user per day
-  CONSTRAINT check_ins_one_per_day UNIQUE (user_id, DATE(created_at))
+  CONSTRAINT check_ins_one_per_day UNIQUE (user_id, check_in_date)
 );
 
 CREATE INDEX IF NOT EXISTS idx_check_ins_user_id ON public.check_ins(user_id);

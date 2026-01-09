@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { X, User, Shirt, Sparkles, Image as ImageIcon, RotateCcw } from "lucide-react"
 import type { GenerationProps } from "@/lib/image/props"
 import { KINKY_DEFAULT_PROPS } from "@/lib/image/props"
@@ -40,7 +40,6 @@ export function PropsSelector({
   onPropsChange,
   defaultToKinky = false,
 }: PropsSelectorProps) {
-  const [activeTab, setActiveTab] = useState("physical")
 
   const updateProps = (updates: Partial<GenerationProps>) => {
     onPropsChange({ ...props, ...updates })
@@ -161,28 +160,18 @@ export function PropsSelector({
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 h-9">
-            <TabsTrigger value="physical" className="text-xs">
-              <User className="h-3 w-3 mr-1" />
-              Physical
-            </TabsTrigger>
-            <TabsTrigger value="clothing" className="text-xs">
-              <Shirt className="h-3 w-3 mr-1" />
-              Clothing
-            </TabsTrigger>
-            <TabsTrigger value="accessories" className="text-xs">
-              <Sparkles className="h-3 w-3 mr-1" />
-              Accessories
-            </TabsTrigger>
-            <TabsTrigger value="background" className="text-xs">
-              <ImageIcon className="h-3 w-3 mr-1" />
-              Background
-            </TabsTrigger>
-          </TabsList>
+        <Accordion type="multiple" defaultValue={["physical"]} className="w-full">
 
-          {/* Physical Attributes Tab */}
-          <TabsContent value="physical" className="mt-4 space-y-3">
+          {/* Physical Attributes */}
+          <AccordionItem value="physical">
+            <AccordionTrigger className="text-sm font-medium py-3">
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                Physical Attributes
+              </div>
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="pt-2 space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-xs">Height</Label>
@@ -328,10 +317,20 @@ export function PropsSelector({
                 />
               </div>
             </div>
-          </TabsContent>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
 
-          {/* Clothing Tab */}
-          <TabsContent value="clothing" className="mt-4 space-y-3">
+          {/* Clothing */}
+          <AccordionItem value="clothing">
+            <AccordionTrigger className="text-sm font-medium py-3">
+              <div className="flex items-center gap-2">
+                <Shirt className="h-4 w-4" />
+                Clothing
+              </div>
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="pt-2 space-y-3">
             <ClothingMultiSelect
               label="Top"
               items={props.clothing?.top || []}
@@ -356,10 +355,20 @@ export function PropsSelector({
               options={getClothingAccessoriesOptions()}
               onToggle={(item) => toggleClothingItem("accessories", item)}
             />
-          </TabsContent>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
 
-          {/* Character Accessories Tab */}
-          <TabsContent value="accessories" className="mt-4 space-y-3">
+          {/* Character Accessories */}
+          <AccordionItem value="accessories">
+            <AccordionTrigger className="text-sm font-medium py-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4" />
+                Character Accessories
+              </div>
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="pt-2 space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -458,10 +467,20 @@ export function PropsSelector({
                 })}
               </div>
             </div>
-          </TabsContent>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
 
-          {/* Background Tab */}
-          <TabsContent value="background" className="mt-4 space-y-3">
+          {/* Background */}
+          <AccordionItem value="background">
+            <AccordionTrigger className="text-sm font-medium py-3">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="h-4 w-4" />
+                Background
+              </div>
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="pt-2 space-y-3">
             <div className="space-y-1.5">
               <Label className="text-xs">Background Type</Label>
               <Select
@@ -518,10 +537,13 @@ export function PropsSelector({
                     ))}
                   </SelectContent>
                 </Select>
+                {/* TODO: Add BackgroundPresetSelector component here for preset images */}
               </div>
             )}
-          </TabsContent>
-        </Tabs>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </CardContent>
     </Card>
   )

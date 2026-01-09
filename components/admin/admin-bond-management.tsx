@@ -222,16 +222,46 @@ export function AdminBondManagement() {
       }
 
       const response = await fetch(`/api/bonds/requests?${params.toString()}`)
-      const data = await response.json()
+      
+      // Check for network errors (certificate issues, etc.)
+      if (!response.ok && response.status === 0) {
+        throw new Error("Network error: Unable to connect to server. Please check your connection and certificate settings.")
+      }
+
+      // Parse JSON only if response is ok or has error message
+      let data
+      try {
+        data = await response.json()
+      } catch (parseError) {
+        // If JSON parsing fails, response might be HTML error page or empty
+        throw new Error(`Failed to parse response: ${response.status} ${response.statusText}`)
+      }
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch join requests")
+        throw new Error(data.error || `Failed to fetch join requests: ${response.status} ${response.statusText}`)
       }
 
       setJoinRequests(data.requests || [])
     } catch (error) {
       console.error("Error fetching join requests:", error)
-      toast.error("Failed to load join requests")
+      
+      // Provide more specific error messages
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : "Failed to load join requests"
+      
+      // Check if it's a network/certificate error
+      const isNetworkError = errorMessage.includes("Failed to fetch") || 
+                            errorMessage.includes("Network error") ||
+                            errorMessage.includes("ERR_CERT")
+      
+      if (isNetworkError) {
+        console.error("🔒 Network/Certificate Error Detected!")
+        console.error("This might be due to certificate issues with Supabase.")
+        console.error("Try navigating to https://127.0.0.1:55321 and accepting the certificate.")
+      }
+      
+      toast.error(errorMessage)
     } finally {
       setRequestsLoading(false)
     }
