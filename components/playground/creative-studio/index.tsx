@@ -122,6 +122,11 @@ function StudioLayout() {
     }
   }
 
+  // Handle adding generation (for processed images from fullscreen viewer)
+  const handleAddGeneration = (generation: any) => {
+    dispatch({ type: "ADD_GENERATION", payload: generation })
+  }
+
   return (
     <div className="relative flex h-screen w-full overflow-hidden">
       {/* Gradient Background */}
@@ -207,6 +212,7 @@ function StudioLayout() {
           generations={generations}
           onClose={handleFullscreenClose}
           onNavigate={handleFullscreenNavigate}
+          onAddGeneration={handleAddGeneration}
         />
       )}
     </div>

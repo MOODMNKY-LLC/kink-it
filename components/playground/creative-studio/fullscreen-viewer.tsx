@@ -8,11 +8,12 @@
 
 import React, { useEffect, useCallback } from "react"
 import Image from "next/image"
-import { X, ChevronLeft, ChevronRight, Download, Copy, ExternalLink } from "lucide-react"
+import { X, ChevronLeft, ChevronRight, Download, Copy, ExternalLink, Eraser, FileCode2 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import supabaseImageLoader from "@/lib/supabase-image-loader"
+import { AddToNotionButton } from "@/components/playground/shared/add-to-notion-button"
 import type { StudioGeneration } from "@/types/creative-studio"
 
 interface FullscreenViewerProps {
@@ -20,6 +21,7 @@ interface FullscreenViewerProps {
   generations: StudioGeneration[]
   onClose: () => void
   onNavigate: (direction: "prev" | "next") => void
+  onAddGeneration?: (generation: StudioGeneration) => void
 }
 
 export function FullscreenViewer({
@@ -27,6 +29,7 @@ export function FullscreenViewer({
   generations,
   onClose,
   onNavigate,
+  onAddGeneration,
 }: FullscreenViewerProps) {
   const completedGenerations = generations.filter(
     (g) => g.status === "complete" && g.imageUrl
@@ -90,6 +93,90 @@ export function FullscreenViewer({
     window.open(imageUrl, "_blank")
   }, [imageUrl])
 
+  const handleRemoveBackground = useCallback(async () => {
+    if (!imageUrl) return
+    try {
+      const toastId = toast.loading("Removing background...")
+      const formData = new FormData()
+      formData.append("imageUrl", imageUrl)
+
+      const response = await fetch("/api/image/remove-background", {
+        method: "POST",
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to remove background")
+      }
+
+      // Add processed image to generations if callback provided
+      if (onAddGeneration && currentGeneration) {
+        onAddGeneration({
+          id: `bg-removed-${Date.now()}`,
+          prompt: `${currentGeneration.prompt} (BG Removed)`,
+          imageUrl: data.imageUrl,
+          status: "complete",
+          progress: 100,
+          timestamp: Date.now(),
+          mode: currentGeneration.mode,
+          generationType: currentGeneration.generationType,
+          model: currentGeneration.model,
+          aspectRatio: currentGeneration.aspectRatio,
+          createdAt: new Date().toISOString(),
+        })
+      }
+
+      toast.success("Background removed successfully", { id: toastId })
+    } catch (error) {
+      console.error("Error removing background:", error)
+      toast.error(error instanceof Error ? error.message : "Failed to remove background")
+    }
+  }, [imageUrl, currentGeneration, onAddGeneration])
+
+  const handleVectorize = useCallback(async () => {
+    if (!imageUrl) return
+    try {
+      const toastId = toast.loading("Vectorizing image...")
+      const formData = new FormData()
+      formData.append("imageUrl", imageUrl)
+
+      const response = await fetch("/api/image/vectorize", {
+        method: "POST",
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to vectorize image")
+      }
+
+      // Add vectorized image to generations if callback provided
+      if (onAddGeneration && currentGeneration) {
+        onAddGeneration({
+          id: `vectorized-${Date.now()}`,
+          prompt: `${currentGeneration.prompt} (Vectorized SVG)`,
+          imageUrl: data.imageUrl,
+          status: "complete",
+          progress: 100,
+          timestamp: Date.now(),
+          mode: currentGeneration.mode,
+          generationType: currentGeneration.generationType,
+          model: currentGeneration.model,
+          aspectRatio: currentGeneration.aspectRatio,
+          createdAt: new Date().toISOString(),
+        })
+      }
+
+      toast.success("Image vectorized successfully", { id: toastId })
+    } catch (error) {
+      console.error("Error vectorizing image:", error)
+      toast.error(error instanceof Error ? error.message : "Failed to vectorize image")
+    }
+  }, [imageUrl, currentGeneration, onAddGeneration])
+
   // Determine if we should use unoptimized
   const shouldUseUnoptimized =
     imageUrl.includes("blob:") ||
@@ -145,6 +232,46 @@ export function FullscreenViewer({
         <Button
           variant="ghost"
           size="icon"
+          onClick={(e) => {
+            e.stopPropagation()
+            handleRemoveBackground()
+          }}
+          className="bg-black/50 hover:bg-black/70 text-white"
+          title="Remove Background"
+        >
+          <Eraser className="h-5 w-5" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={(e) => {
+            e.stopPropagation()
+            handleVectorize()
+          }}
+          className="bg-black/50 hover:bg-black/70 text-white"
+          title="Convert to SVG"
+        >
+          <FileCode2 className="h-5 w-5" />
+        </Button>
+        {currentGeneration && (
+          <div onClick={(e) => e.stopPropagation()}>
+            <AddToNotionButton
+              imageUrl={currentGeneration.imageUrl || ""}
+              prompt={currentGeneration.prompt}
+              model={currentGeneration.model}
+              generationType={currentGeneration.generationType}
+              aspectRatio={currentGeneration.aspectRatio}
+              props={currentGeneration.props}
+              createdAt={currentGeneration.createdAt}
+              variant="ghost"
+              size="icon"
+              className="bg-black/50 hover:bg-black/70 text-white"
+            />
+          </div>
+        )}
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={onClose}
           className="bg-black/50 hover:bg-black/70 text-white"
           title="Close (ESC)"
@@ -166,7 +293,7 @@ export function FullscreenViewer({
               "absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/50 p-3 text-white transition-all hover:bg-black/70",
               currentIndex === 0 && "opacity-30 cursor-not-allowed"
             )}
-            title="Previous (←)"
+            title="Previous (Left Arrow)"
             aria-label="Previous image"
           >
             <ChevronLeft className="h-6 w-6" />
@@ -182,7 +309,7 @@ export function FullscreenViewer({
               currentIndex === completedGenerations.length - 1 &&
                 "opacity-30 cursor-not-allowed"
             )}
-            title="Next (→)"
+            title="Next (Right Arrow)"
             aria-label="Next image"
           >
             <ChevronRight className="h-6 w-6" />
@@ -225,10 +352,10 @@ export function FullscreenViewer({
           <div className="mt-2 flex items-center gap-2 text-white/60">
             <span>
               {currentGeneration.model === "dalle-3"
-                ? "DALL·E 3"
+                ? "DALL-E 3"
                 : "Gemini 3 Pro"}
             </span>
-            <span>•</span>
+            <span>|</span>
             <span>{currentGeneration.aspectRatio}</span>
           </div>
         </div>

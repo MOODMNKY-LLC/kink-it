@@ -19,6 +19,8 @@ import {
   X,
   Maximize2,
   ImageIcon,
+  Eraser,
+  FileCode2,
 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -35,6 +37,7 @@ import { useStudioHistory } from "../hooks/use-studio-history"
 import { StreamlinedPropsSelector } from "@/components/playground/kinky-kincade/streamlined-props-selector"
 import { ImageUploadBox } from "@/components/playground/kinky-kincade/image-upload-box"
 import { SafeImage } from "../safe-image"
+import { AddToNotionButton } from "@/components/playground/shared/add-to-notion-button"
 import type { GenerationProps } from "@/lib/image/props"
 
 // ============================================================================
@@ -209,6 +212,92 @@ export function GenerateMode() {
     }
   }, [currentGeneration, dispatch])
 
+  const handleRemoveBackground = useCallback(async () => {
+    if (!currentGeneration?.imageUrl) return
+    try {
+      const toastId = toast.loading("Removing background...")
+      const formData = new FormData()
+      formData.append("imageUrl", currentGeneration.imageUrl)
+
+      const response = await fetch("/api/image/remove-background", {
+        method: "POST",
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to remove background")
+      }
+
+      // Add processed image to generations
+      dispatch({
+        type: "ADD_GENERATION",
+        payload: {
+          id: `bg-removed-${Date.now()}`,
+          prompt: `${currentGeneration.prompt} (BG Removed)`,
+          imageUrl: data.imageUrl,
+          status: "complete",
+          progress: 100,
+          timestamp: Date.now(),
+          mode: currentGeneration.mode,
+          generationType: currentGeneration.generationType,
+          model: currentGeneration.model,
+          aspectRatio: currentGeneration.aspectRatio,
+          createdAt: new Date().toISOString(),
+        },
+      })
+
+      toast.success("Background removed successfully", { id: toastId })
+    } catch (error) {
+      console.error("Error removing background:", error)
+      toast.error(error instanceof Error ? error.message : "Failed to remove background")
+    }
+  }, [currentGeneration, dispatch])
+
+  const handleVectorize = useCallback(async () => {
+    if (!currentGeneration?.imageUrl) return
+    try {
+      const toastId = toast.loading("Vectorizing image...")
+      const formData = new FormData()
+      formData.append("imageUrl", currentGeneration.imageUrl)
+
+      const response = await fetch("/api/image/vectorize", {
+        method: "POST",
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to vectorize image")
+      }
+
+      // Add vectorized image to generations
+      dispatch({
+        type: "ADD_GENERATION",
+        payload: {
+          id: `vectorized-${Date.now()}`,
+          prompt: `${currentGeneration.prompt} (Vectorized SVG)`,
+          imageUrl: data.imageUrl,
+          status: "complete",
+          progress: 100,
+          timestamp: Date.now(),
+          mode: currentGeneration.mode,
+          generationType: currentGeneration.generationType,
+          model: currentGeneration.model,
+          aspectRatio: currentGeneration.aspectRatio,
+          createdAt: new Date().toISOString(),
+        },
+      })
+
+      toast.success("Image vectorized successfully", { id: toastId })
+    } catch (error) {
+      console.error("Error vectorizing image:", error)
+      toast.error(error instanceof Error ? error.message : "Failed to vectorize image")
+    }
+  }, [currentGeneration, dispatch])
+
   const hasImages = imageUpload.image1 || imageUpload.image2
 
   return (
@@ -356,7 +445,7 @@ export function GenerateMode() {
                 {/* Actions */}
                 {currentGeneration.imageUrl &&
                   currentGeneration.status === "complete" && (
-                    <div className="flex items-center justify-center gap-2">
+                    <div className="flex flex-wrap items-center justify-center gap-2">
                       <Button
                         variant="ghost"
                         size="sm"
@@ -395,6 +484,38 @@ export function GenerateMode() {
                         <ExternalLink className="h-4 w-4 mr-1" />
                         Open
                       </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleRemoveBackground}
+                        className="text-white/70 hover:text-white"
+                        title="Remove background from image"
+                      >
+                        <Eraser className="h-4 w-4 mr-1" />
+                        Remove BG
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleVectorize}
+                        className="text-white/70 hover:text-white"
+                        title="Convert to SVG vector"
+                      >
+                        <FileCode2 className="h-4 w-4 mr-1" />
+                        To SVG
+                      </Button>
+                      <AddToNotionButton
+                        imageUrl={currentGeneration.imageUrl}
+                        prompt={currentGeneration.prompt}
+                        model={currentGeneration.model}
+                        generationType={currentGeneration.generationType}
+                        aspectRatio={currentGeneration.aspectRatio}
+                        props={currentGeneration.props}
+                        createdAt={currentGeneration.createdAt}
+                        variant="ghost"
+                        size="sm"
+                        className="text-white/70 hover:text-white"
+                      />
                       <Button
                         variant="ghost"
                         size="sm"
