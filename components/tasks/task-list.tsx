@@ -10,9 +10,12 @@ interface TaskListProps {
   userRole: DynamicRole
   onTaskAction: (action: string, taskId: string) => void
   isLoading?: boolean
+  onCreateTask?: () => void
+  bondId?: string | null
+  onReassign?: () => void
 }
 
-export function TaskList({ tasks, userRole, onTaskAction, isLoading }: TaskListProps) {
+export function TaskList({ tasks, userRole, onTaskAction, isLoading, onCreateTask, bondId, onReassign }: TaskListProps) {
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -33,7 +36,7 @@ export function TaskList({ tasks, userRole, onTaskAction, isLoading }: TaskListP
             : "Your Dominant will assign tasks when ready."
         }
         actionLabel={userRole === "dominant" ? "Create Task" : undefined}
-        onAction={userRole === "dominant" ? () => window.location.href = "/tasks/create" : undefined}
+        onAction={userRole === "dominant" && onCreateTask ? onCreateTask : undefined}
         size="md"
       />
     )
@@ -42,7 +45,14 @@ export function TaskList({ tasks, userRole, onTaskAction, isLoading }: TaskListP
   return (
     <div className="space-y-4">
       {tasks.map((task) => (
-        <TaskCard key={task.id} task={task} userRole={userRole} onAction={onTaskAction} />
+        <TaskCard 
+          key={task.id} 
+          task={task} 
+          userRole={userRole} 
+          onAction={onTaskAction} 
+          bondId={bondId}
+          onReassign={onReassign}
+        />
       ))}
     </div>
   )

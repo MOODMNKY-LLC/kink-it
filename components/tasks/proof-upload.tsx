@@ -55,11 +55,13 @@ export function ProofUpload({ onUploadComplete, existingProof, taskId }: ProofUp
       })
 
       if (!response.ok) {
-        const error = await response.json()
+        const errorText = await response.text()
+        const error = errorText ? JSON.parse(errorText) : { error: "Upload failed" }
         throw new Error(error.error || 'Failed to upload proof')
       }
 
-      const data = await response.json()
+      const responseText = await response.text()
+      const data = responseText ? JSON.parse(responseText) : {}
       setPreview(data.proof_url)
       toast.success('Proof uploaded successfully')
       

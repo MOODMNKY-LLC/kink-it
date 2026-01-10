@@ -41,7 +41,8 @@ export function useTasks({ userId, filters }: UseTasksOptions) {
         const response = await fetch(`/api/tasks?${params.toString()}`)
         if (!response.ok) throw new Error("Failed to fetch tasks")
 
-        const data = await response.json()
+        const responseText = await response.text()
+        const data = responseText ? JSON.parse(responseText) : { tasks: [] }
         setTasks(data.tasks || [])
         setIsLoading(false)
       } catch (err) {
@@ -205,11 +206,19 @@ export function useTasks({ userId, filters }: UseTasksOptions) {
       })
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || "Failed to update task")
+        const errorText = await response.text()
+        let errorMessage = "Failed to update task"
+        try {
+          const error = errorText ? JSON.parse(errorText) : {}
+          errorMessage = error.error || errorMessage
+        } catch {
+          errorMessage = response.statusText || errorMessage
+        }
+        throw new Error(errorMessage)
       }
 
-      const data = await response.json()
+      const responseText = await response.text()
+      const data = responseText ? JSON.parse(responseText) : {}
       // Update will come via Realtime, but update optimistically
       setTasks((prev) =>
         prev.map((task) => (task.id === taskId ? { ...task, ...data.task } : task))
@@ -229,11 +238,19 @@ export function useTasks({ userId, filters }: UseTasksOptions) {
       })
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || "Failed to create task")
+        const errorText = await response.text()
+        let errorMessage = "Failed to create task"
+        try {
+          const error = errorText ? JSON.parse(errorText) : {}
+          errorMessage = error.error || errorMessage
+        } catch {
+          errorMessage = response.statusText || errorMessage
+        }
+        throw new Error(errorMessage)
       }
 
-      const data = await response.json()
+      const responseText = await response.text()
+      const data = responseText ? JSON.parse(responseText) : {}
       // Task will come via Realtime, but add optimistically
       setTasks((prev) => [data.task, ...prev])
       return data.task

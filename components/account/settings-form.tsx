@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import * as React from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -9,6 +10,8 @@ import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
 import type { Profile } from "@/types/profile"
 import { Loader2, Save, Bell, Moon } from "lucide-react"
+import { ThemeSwitcher } from "@/components/theme/theme-switcher"
+import { useTheme } from "next-themes"
 
 interface SettingsFormProps {
   profile: Profile
@@ -17,11 +20,32 @@ interface SettingsFormProps {
 export function SettingsForm({ profile }: SettingsFormProps) {
   const router = useRouter()
   const supabase = createClient()
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [settings, setSettings] = useState({
     notifications_enabled: profile.notifications_enabled,
-    theme_preference: profile.theme_preference,
+    theme_preference: profile.theme_preference || "system",
   })
+
+  // Sync theme with profile preference on mount
+  React.useEffect(() => {
+    setMounted(true)
+    // Initialize theme from profile if available
+    if (profile.theme_preference) {
+      setTheme(profile.theme_preference)
+    }
+  }, [profile.theme_preference, setTheme])
+
+  // Update settings when theme changes (for display purposes)
+  React.useEffect(() => {
+    if (mounted && theme) {
+      setSettings((prev) => ({
+        ...prev,
+        theme_preference: theme as "light" | "dark" | "system",
+      }))
+    }
+  }, [theme, mounted])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -101,13 +125,20 @@ export function SettingsForm({ profile }: SettingsFormProps) {
         </div>
 
         <div className="p-4 rounded-lg bg-muted/50 border border-border">
-          <Label className="text-base">Theme Preference</Label>
-          <p className="text-sm text-muted-foreground mt-1 mb-3">
-            Currently set to: <span className="font-medium capitalize">{settings.theme_preference}</span>
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Theme customization coming soon. The app currently uses dark mode by default.
-          </p>
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <Label className="text-base">Theme Preference</Label>
+              <p className="text-sm text-muted-foreground mt-1">
+                Choose your preferred theme
+              </p>
+            </div>
+            <ThemeSwitcher />
+          </div>
+          {mounted && (
+            <p className="text-xs text-muted-foreground">
+              Current theme: <span className="font-medium capitalize">{theme || "system"}</span>
+            </p>
+          )}
         </div>
       </div>
 

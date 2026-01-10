@@ -27,10 +27,13 @@ const createTaskSchema = z.object({
   description: z.string().optional(),
   priority: z.enum(["low", "medium", "high", "urgent"]),
   due_date: z.string().optional(),
+  all_day: z.boolean().default(false),
+  reminder_minutes: z.number().optional(),
+  recurring: z.enum(["none", "daily", "weekly", "monthly"]).default("none"),
   point_value: z.number().min(0).default(0),
   proof_required: z.boolean().default(false),
   proof_type: z.enum(["photo", "video", "text"]).optional(),
-  assigned_to: z.string().uuid("Invalid user ID"),
+  assigned_to: z.string().uuid("Invalid user ID").optional(),
 })
 
 type CreateTaskFormData = z.infer<typeof createTaskSchema>
@@ -62,43 +65,44 @@ export function CreateTaskForm({
       priority: "medium",
       point_value: 0,
       proof_required: false,
-      assigned_to: partnerId || "",
+      all_day: false,
+      recurring: "none",
+      assigned_to: partnerId || undefined,
     },
   })
 
   const proofRequired = watch("proof_required")
 
   const onFormSubmit = async (data: CreateTaskFormData) => {
-    if (!partnerId) {
-      toast.error("No partner assigned")
-      return
-    }
-
     setIsSubmitting(true)
     try {
-      await onSubmit(data)
+      // Convert empty strings to null for optional fields
+      // For recurring tasks, handle time-only input
+      let processedDueDate = data.due_date && data.due_date.trim() !== "" ? data.due_date : undefined
+      
+      // If recurring and due_date is time-only, keep it as-is (API will handle combining with date)
+      if (data.recurring !== "none" && processedDueDate && processedDueDate.match(/^\d{2}:\d{2}$/)) {
+        // Time format is fine for recurring tasks
+      } else if (data.recurring === "none" && !processedDueDate) {
+        // One-time tasks can have no due date
+        processedDueDate = undefined
+      }
+      
+      const cleanedData = {
+        ...data,
+        due_date: processedDueDate,
+        description: data.description && data.description.trim() !== "" ? data.description : undefined,
+        proof_type: data.proof_type || undefined,
+        assigned_to: data.assigned_to || undefined,
+        recurring: data.recurring || "none",
+      }
+      await onSubmit(cleanedData)
       toast.success("Task created successfully")
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to create task")
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  if (!partnerId) {
-    return (
-      <div className="p-6 bg-sidebar border border-border rounded-lg space-y-3">
-        <p className="text-muted-foreground">
-          No partner assigned. Please link your partner to create tasks.
-        </p>
-        <a
-          href="/account/profile"
-          className="inline-flex items-center text-primary hover:underline text-sm font-medium"
-        >
-          Go to Profile Settings →
-        </a>
-      </div>
-    )
   }
 
   return (
@@ -167,14 +171,111 @@ export function CreateTaskForm({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="due_date">Due Date</Label>
-            <Input
-              id="due_date"
-              type="datetime-local"
-              {...register("due_date")}
-              className="bg-background"
-            />
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="recurring">Recurrence</Label>
+              <Select
+                defaultValue="none"
+                onValueChange={(value) => setValue("recurring", value as "none" | "daily" | "weekly" | "monthly")}
+              >
+                <SelectTrigger className="bg-background">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">One-time task</SelectItem>
+                  <SelectItem value="daily">Everyday (Daily)</SelectItem>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                </SelectContent>
+              </Select>
+              {watch("recurring") !== "none" && (
+                <p className="text-xs text-muted-foreground">
+                  Task will automatically regenerate based on the selected frequency
+                </p>
+              )}
+            </div>
+
+            {watch("recurring") === "none" && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="due_date">Due Date</Label>
+                  <Input
+                    id="due_date"
+                    type={watch("all_day") ? "date" : "datetime-local"}
+                    {...register("due_date")}
+                    className="bg-background"
+                  />
+                </div>
+                
+                {watch("due_date") && (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label htmlFor="all_day">All Day Event</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Task due date without specific time
+                        </p>
+                      </div>
+                      <Switch
+                        id="all_day"
+                        checked={watch("all_day")}
+                        onCheckedChange={(checked) => {
+                          setValue("all_day", checked)
+                          // Clear due_date when switching to allow re-entry
+                          if (checked) {
+                            const currentDate = watch("due_date")
+                            if (currentDate) {
+                              // Extract date part only
+                              const dateOnly = currentDate.split("T")[0]
+                              setValue("due_date", dateOnly)
+                            }
+                          }
+                        }}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="reminder_minutes">Reminder</Label>
+                      <Select
+                        onValueChange={(value) => 
+                          setValue("reminder_minutes", value === "none" ? undefined : parseInt(value))
+                        }
+                        defaultValue="none"
+                      >
+                        <SelectTrigger className="bg-background">
+                          <SelectValue placeholder="No reminder" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">No reminder</SelectItem>
+                          <SelectItem value="5">5 minutes before</SelectItem>
+                          <SelectItem value="15">15 minutes before</SelectItem>
+                          <SelectItem value="30">30 minutes before</SelectItem>
+                          <SelectItem value="60">1 hour before</SelectItem>
+                          <SelectItem value="120">2 hours before</SelectItem>
+                          <SelectItem value="1440">1 day before</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+
+            {watch("recurring") !== "none" && (
+              <div className="space-y-2">
+                <Label htmlFor="recurring_time">Time (for recurring tasks)</Label>
+                <Input
+                  id="recurring_time"
+                  type="time"
+                  {...register("due_date")}
+                  className="bg-background"
+                  placeholder="HH:MM"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Time when this task should be due each day/week/month
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="space-y-4">
@@ -213,10 +314,23 @@ export function CreateTaskForm({
 
           <div className="space-y-2">
             <Label>Assign To</Label>
-            <div className="p-3 bg-sidebar border border-border rounded-md">
-              <p className="text-sm font-medium">{partnerName || "Partner"}</p>
-              <p className="text-xs text-muted-foreground">Task will be assigned to your partner</p>
-            </div>
+            {partnerId ? (
+              <div className="p-3 bg-sidebar border border-border rounded-md">
+                <p className="text-sm font-medium">{partnerName || "Partner"}</p>
+                <p className="text-xs text-muted-foreground">Task will be assigned to your partner</p>
+              </div>
+            ) : (
+              <div className="p-3 bg-sidebar border border-border rounded-md">
+                <p className="text-sm font-medium">Unassigned</p>
+                <p className="text-xs text-muted-foreground">
+                  Task will be assigned to yourself. Link a partner in{" "}
+                  <a href="/account/profile" className="text-primary hover:underline">
+                    Profile Settings
+                  </a>{" "}
+                  to assign tasks to them.
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-2 pt-4 border-t border-border">

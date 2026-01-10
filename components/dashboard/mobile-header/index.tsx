@@ -9,6 +9,7 @@ import { KinkyIcon } from "@/components/kinky/kinky-avatar";
 import MobileNotifications from "@/components/dashboard/notifications/mobile-notifications";
 import BellIcon from "@/components/icons/bell";
 import { useNotifications } from "@/hooks/use-notifications";
+import { ThemeSwitcher } from "@/components/theme/theme-switcher";
 
 export function MobileHeader() {
   const { notifications } = useNotifications();
@@ -29,30 +30,34 @@ export function MobileHeader() {
           </div>
         </div>
 
-        <Sheet>
-          {/* Right: Notifications Menu */}
-          <SheetTrigger asChild>
-            <Button variant="secondary" size="icon" className="relative touch-target">
-              {unreadCount > 0 && (
-                <Badge className="absolute border-2 border-background -top-1 -left-2 h-5 w-5 text-xs p-0 flex items-center justify-center">
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </Badge>
-              )}
-              <BellIcon className="size-4" />
-            </Button>
-          </SheetTrigger>
+        {/* Right: Theme Switcher and Notifications */}
+        <div className="flex items-center gap-2">
+          <ThemeSwitcher />
+          <Sheet>
+            {/* Right: Notifications Menu */}
+            <SheetTrigger asChild>
+              <Button variant="secondary" size="icon" className="relative touch-target">
+                {unreadCount > 0 && (
+                  <Badge className="absolute border-2 border-background -top-1 -left-2 h-5 w-5 text-xs p-0 flex items-center justify-center">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </Badge>
+                )}
+                <BellIcon className="size-4" />
+              </Button>
+            </SheetTrigger>
 
-          {/* Notifications Sheet */}
-          <SheetContent
-            closeButton={false}
-            side="right"
-            className="w-[80%] max-w-md p-0"
-          >
-            <MobileNotifications
-              initialNotifications={notifications}
-            />
-          </SheetContent>
-        </Sheet>
+            {/* Notifications Sheet */}
+            <SheetContent
+              closeButton={false}
+              side="right"
+              className="w-[80%] max-w-md p-0"
+            >
+              <MobileNotifications
+                initialNotifications={notifications}
+              />
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </div>
   );

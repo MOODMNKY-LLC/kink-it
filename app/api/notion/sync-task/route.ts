@@ -33,6 +33,9 @@ interface SyncTaskRequest {
 }
 
 export async function POST(request: NextRequest) {
+  // Declare taskData outside try block so it's accessible in catch
+  let taskData: any = null
+  
   try {
     const profile = await getUserProfile()
     if (!profile) {
@@ -79,7 +82,7 @@ export async function POST(request: NextRequest) {
     const databaseId = tasksDb.database_id
 
     // Fetch task data if taskId provided
-    let taskData = body.task
+    taskData = body.task
     if (body.taskId && !taskData) {
       const { data: task, error: taskError } = await supabase
         .from("tasks")
@@ -177,9 +180,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Add point value if available
+    // Add point value if available (use "Point Value" to match Notion template)
     if (taskData.point_value !== null && taskData.point_value !== undefined) {
-      properties["Points"] = {
+      properties["Point Value"] = {
         number: taskData.point_value,
       }
     }
@@ -297,9 +300,18 @@ export async function POST(request: NextRequest) {
     })
 
     if (!response.ok) {
-      const errorData = await response.json()
-      console.error("[Notion] API error:", errorData)
-      throw new Error(`Notion API error: ${errorData.message || response.statusText}`)
+      let errorMessage = response.statusText || "Notion API error"
+      try {
+        const errorText = await response.text()
+        if (errorText) {
+          const errorData = JSON.parse(errorText)
+          errorMessage = errorData.message || errorData.error || errorMessage
+          console.error("[Notion] API error:", errorData)
+        }
+      } catch (parseError) {
+        console.error("[Notion] Failed to parse error response:", parseError)
+      }
+      throw new Error(`Notion API error: ${errorMessage}`)
     }
 
     const notionPage = await response.json()

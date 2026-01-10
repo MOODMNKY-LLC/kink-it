@@ -41,6 +41,7 @@ interface CalendarEvent {
   all_day: boolean
   reminder_minutes: number | null
   ical_uid: string | null
+  metadata?: { task_id?: string; [key: string]: any }
 }
 
 interface CalendarPageClientProps {
@@ -179,13 +180,46 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
       params.append("start_date", startOfMonthDate.toISOString())
       params.append("end_date", endOfMonthDate.toISOString())
 
-      const response = await fetch(`/api/calendar?${params.toString()}`)
-      const data = await response.json()
+      // Load calendar events
+      const calendarResponse = await fetch(`/api/calendar?${params.toString()}`)
+      const calendarData = await calendarResponse.json()
+      const calendarEvents = calendarResponse.ok ? (calendarData.events || []) : []
 
-      if (response.ok) {
-        setEvents(data.events || [])
+      // Load tasks with due dates and convert to calendar events
+      let taskEvents: CalendarEvent[] = []
+      try {
+        const tasksResponse = await fetch(`/api/tasks?${params.toString()}`)
+        if (tasksResponse.ok) {
+          const tasksData = await tasksResponse.json()
+          const tasks = tasksData.tasks || []
+          taskEvents = tasks
+            .filter((task: any) => task.due_date && task.status !== "completed" && task.status !== "cancelled")
+            .map((task: any) => ({
+              id: `task-${task.id}`,
+              title: `Task: ${task.title}`,
+              description: task.description || `Task deadline${task.priority ? ` (${task.priority} priority)` : ""}`,
+              event_type: "task_deadline" as const,
+              start_date: task.due_date,
+              end_date: task.all_day 
+                ? new Date(new Date(task.due_date).setUTCHours(23, 59, 59, 999)).toISOString()
+                : new Date(new Date(task.due_date).getTime() + 60 * 60 * 1000).toISOString(),
+              all_day: task.all_day || false,
+              reminder_minutes: task.reminder_minutes || null,
+              ical_uid: null,
+              metadata: { task_id: task.id },
+            }))
+        }
+      } catch (taskError) {
+        console.warn("Failed to load tasks for calendar:", taskError)
+        // Don't fail calendar load if tasks fail
+      }
+
+      // Combine calendar events and task events
+      if (calendarResponse.ok) {
+        setEvents([...calendarEvents, ...taskEvents])
       } else {
-        toast.error(data.error || "Failed to load events")
+        toast.error(calendarData.error || "Failed to load events")
+        setEvents(taskEvents) // Still show tasks even if calendar events fail
       }
     } catch (error) {
       toast.error("Failed to load events")

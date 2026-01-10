@@ -86,11 +86,21 @@ export function AddToNotionButtonGeneric({
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Failed to sync to Notion")
+        let errorMessage = "Failed to sync to Notion"
+        try {
+          const errorText = await response.text()
+          if (errorText) {
+            const errorData = JSON.parse(errorText)
+            errorMessage = errorData.error || errorMessage
+          }
+        } catch (parseError) {
+          errorMessage = response.statusText || errorMessage
+        }
+        throw new Error(errorMessage)
       }
 
-      const result = await response.json()
+      const responseText = await response.text()
+      const result = responseText ? JSON.parse(responseText) : { success: false }
 
       if (result.success) {
         toast.success(result.message || "Synced to Notion successfully!", {

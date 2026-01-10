@@ -25,6 +25,8 @@ import { getNotifications } from "@/lib/notifications/get-notifications"
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register"
 import { InstallPrompt } from "@/components/pwa/install-prompt"
 import { CertificateCheck } from "@/components/supabase/certificate-check"
+import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeSyncProvider } from "@/components/theme/theme-sync-provider"
 
 const robotoMono = Roboto_Mono({
   variable: "--font-roboto-mono",
@@ -142,57 +144,61 @@ export default async function RootLayout({
         <link rel="manifest" href="/manifest.webmanifest" />
       </head>
       <body className={`${rebelGrotesk.variable} ${robotoMono.variable} antialiased`} suppressHydrationWarning>
-        <V0Provider isV0={isV0}>
-          <CertificateCheck />
-          {profile ? (
-            <div className="dark min-h-screen bg-background relative overflow-hidden">
-              {/* Character-based backgrounds - dark mode first */}
-              <CharacterBackground variant="corner" opacity={0.08} />
-              <GradientMesh intensity="subtle" />
-              <BokehEffect count={15} />
-              
-              <TerminalProvider>
-                <SidebarProvider>
-                  {/* Mobile Header - only visible on mobile */}
-                  {profile && <MobileHeader />}
+        <ThemeProvider>
+          <ThemeSyncProvider userId={profile?.id}>
+            <V0Provider isV0={isV0}>
+              <CertificateCheck />
+              {profile ? (
+                <div className="min-h-screen bg-background relative overflow-hidden">
+                  {/* Character-based backgrounds */}
+                  <CharacterBackground variant="corner" opacity={0.08} />
+                  <GradientMesh intensity="subtle" />
+                  <BokehEffect count={15} />
+                  
+                  <TerminalProvider>
+                    <SidebarProvider>
+                      {/* Mobile Header - only visible on mobile */}
+                      {profile && <MobileHeader />}
 
-                  {/* Desktop Layout - Expanded content area */}
-                  <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-gap lg:px-sides relative z-10">
-                    <div className="hidden lg:block col-span-2 top-0 relative">
-                      <DashboardSidebar profile={profile} />
-                    </div>
-                    <div className="col-span-1 lg:col-span-10">{children}</div>
-                  </div>
+                      {/* Desktop Layout - Expanded content area */}
+                      <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-gap lg:px-sides relative z-10">
+                        <div className="hidden lg:block col-span-2 top-0 relative">
+                          <DashboardSidebar profile={profile} />
+                        </div>
+                        <div className="col-span-1 lg:col-span-10">{children}</div>
+                      </div>
 
-                  {/* Kinky Terminal Popup - Floating, toggleable */}
-                  {profile && (
-                    <KinkyTerminalPopup
-                      userId={profile.id}
-                      userName={
-                        profile.display_name ||
-                        profile.full_name ||
-                        profile.email.split("@")[0]
-                      }
-                      profile={profile}
-                      position="bottom-right"
-                      triggerVariant="avatar"
-                      width={420}
-                      height={640}
-                    />
-                  )}
+                      {/* Kinky Terminal Popup - Floating, toggleable */}
+                      {profile && (
+                        <KinkyTerminalPopup
+                          userId={profile.id}
+                          userName={
+                            profile.display_name ||
+                            profile.full_name ||
+                            profile.email.split("@")[0]
+                          }
+                          profile={profile}
+                          position="bottom-right"
+                          triggerVariant="avatar"
+                          width={420}
+                          height={640}
+                        />
+                      )}
 
-                  {/* Mobile Chat - disabled until Module 7 (Communication Hub) is built */}
-                  {/* <MobileChat /> */}
-                </SidebarProvider>
-              </TerminalProvider>
-            </div>
-          ) : (
-            <>{children}</>
-          )}
-        </V0Provider>
-        <ServiceWorkerRegister />
-        <InstallPrompt />
-        <Toaster position="top-right" richColors />
+                      {/* Mobile Chat - disabled until Module 7 (Communication Hub) is built */}
+                      {/* <MobileChat /> */}
+                    </SidebarProvider>
+                  </TerminalProvider>
+                </div>
+              ) : (
+                <>{children}</>
+              )}
+            </V0Provider>
+            <ServiceWorkerRegister />
+            <InstallPrompt />
+            <Toaster position="top-right" richColors />
+          </ThemeSyncProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

@@ -2,6 +2,8 @@ export type TaskStatus = "pending" | "in_progress" | "completed" | "approved" | 
 export type TaskPriority = "low" | "medium" | "high" | "urgent"
 export type ProofType = "photo" | "video" | "text"
 
+export type TaskRecurrence = "none" | "daily" | "weekly" | "monthly"
+
 export interface Task {
   id: string
   workspace_id: string
@@ -10,6 +12,9 @@ export interface Task {
   priority: TaskPriority
   status: TaskStatus
   due_date: string | null
+  all_day: boolean
+  reminder_minutes: number | null
+  recurring: TaskRecurrence
   point_value: number
   proof_required: boolean
   proof_type: ProofType | null

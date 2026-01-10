@@ -1,25 +1,151 @@
 "use client"
 
 import { format, isToday, isTomorrow, parseISO } from "date-fns"
-import { CheckCircle2, Clock, AlertCircle, Camera, Video, FileText, Play, X, Loader2, ExternalLink } from "lucide-react"
+import { CheckCircle2, Clock, AlertCircle, Camera, Video, FileText, Play, X, Loader2, ExternalLink, User } from "lucide-react"
 import { MagicCard } from "@/components/ui/magic-card"
 import { BorderBeam } from "@/components/ui/border-beam"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import type { Task, TaskStatus, TaskPriority } from "@/types/task"
 import type { DynamicRole } from "@/types/profile"
 import { useNotionSyncStatus } from "@/components/playground/shared/use-notion-sync-status"
 import { AddToNotionButtonGeneric } from "@/components/playground/shared/add-to-notion-button-generic"
 import { toast } from "sonner"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { createClient } from "@/lib/supabase/client"
 
 interface TaskCardProps {
   task: Task
   userRole: DynamicRole
   onAction: (action: string, taskId: string) => void
+  bondId?: string | null
+  onReassign?: () => void
 }
 
-export function TaskCard({ task, userRole, onAction }: TaskCardProps) {
+interface BondMember {
+  user_id: string
+  user: {
+    id: string
+    display_name: string | null
+    full_name: string | null
+    email: string
+    avatar_url: string | null
+    dynamic_role: string
+  }
+}
+
+export function TaskCard({ task, userRole, onAction, bondId, onReassign }: TaskCardProps) {
+  const [bondMembers, setBondMembers] = useState<BondMember[]>([])
+  const [loadingMembers, setLoadingMembers] = useState(false)
+  const [reassigning, setReassigning] = useState(false)
+  const supabase = createClient()
+
+  useEffect(() => {
+    if (userRole === "dominant") {
+      if (bondId) {
+        loadBondMembers()
+      } else {
+        // No bond - load current user as the only option
+        loadCurrentUser()
+      }
+    }
+  }, [bondId, userRole])
+
+  const loadCurrentUser = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id, display_name, full_name, email, avatar_url, dynamic_role")
+          .eq("id", user.id)
+          .single()
+        
+        if (profile) {
+          setBondMembers([{
+            user_id: profile.id,
+            user: {
+              id: profile.id,
+              display_name: profile.display_name,
+              full_name: profile.full_name,
+              email: profile.email || "",
+              avatar_url: profile.avatar_url,
+              dynamic_role: profile.dynamic_role || "",
+            }
+          }])
+        }
+      }
+    } catch (error) {
+      console.error("Error loading current user:", error)
+    }
+  }
+
+  const loadBondMembers = async () => {
+    if (!bondId) return
+    
+    setLoadingMembers(true)
+    try {
+      const response = await fetch(`/api/bonds/${bondId}/members`)
+      if (response.ok) {
+        const responseText = await response.text()
+        const data = responseText ? JSON.parse(responseText) : { members: [] }
+        setBondMembers(data.members || [])
+      }
+    } catch (error) {
+      console.error("Error loading bond members:", error)
+    } finally {
+      setLoadingMembers(false)
+    }
+  }
+
+  const handleReassign = async (newUserId: string) => {
+    if (newUserId === task.assigned_to) return
+
+    setReassigning(true)
+    try {
+      const response = await fetch(`/api/tasks/${task.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assigned_to: newUserId }),
+      })
+
+      if (!response.ok) {
+        let errorMessage = "Failed to reassign task"
+        try {
+          const errorText = await response.text()
+          if (errorText) {
+            const error = JSON.parse(errorText)
+            errorMessage = error.error || errorMessage
+          }
+        } catch (parseError) {
+          // If JSON parsing fails, use status text
+          errorMessage = response.statusText || errorMessage
+        }
+        throw new Error(errorMessage)
+      }
+
+      toast.success("Task reassigned successfully")
+      // Trigger refresh if callback provided
+      if (onReassign) {
+        onReassign()
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to reassign task")
+    } finally {
+      setReassigning(false)
+    }
+  }
+
+  const getMemberDisplayName = (member: BondMember) => {
+    return member.user.display_name || member.user.full_name || member.user.email || "Unknown"
+  }
 
   const formatDueDate = (dateString: string | null) => {
     if (!dateString) return null
@@ -139,6 +265,54 @@ export function TaskCard({ task, userRole, onAction }: TaskCardProps) {
             </div>
           )}
         </div>
+
+        {/* Assign To Dropdown - Only for Dominants */}
+        {userRole === "dominant" && (
+          <div className="flex items-center gap-2 pt-2 border-t border-border">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <User className="h-4 w-4 text-muted-foreground shrink-0" />
+              <span className="text-sm text-muted-foreground shrink-0">Assign to:</span>
+              {loadingMembers ? (
+                <span className="text-sm text-muted-foreground">Loading members...</span>
+              ) : bondMembers.length > 0 ? (
+                <>
+                  <Select
+                    value={task.assigned_to}
+                    onValueChange={handleReassign}
+                    disabled={reassigning}
+                  >
+                    <SelectTrigger className="flex-1 min-w-0 bg-background">
+                      <SelectValue>
+                        {bondMembers.find(m => m.user_id === task.assigned_to) 
+                          ? getMemberDisplayName(bondMembers.find(m => m.user_id === task.assigned_to)!)
+                          : "Select member"}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {bondMembers.map((member) => (
+                        <SelectItem key={member.user_id} value={member.user_id}>
+                          <div className="flex items-center gap-2">
+                            <span>{getMemberDisplayName(member)}</span>
+                            {member.user.dynamic_role && (
+                              <Badge variant="outline" className="text-xs">
+                                {member.user.dynamic_role}
+                              </Badge>
+                            )}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {reassigning && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                </>
+              ) : (
+                <span className="text-sm text-muted-foreground">
+                  No members available
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="flex items-center gap-2 pt-2 border-t border-border">

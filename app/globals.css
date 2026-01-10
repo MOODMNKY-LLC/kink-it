@@ -143,7 +143,7 @@
 
   /* Vibrant cyan-blue primary - sparkling bokeh effect */
   --primary: oklch(0.70 0.20 220);
-  --primary-foreground: oklch(0.12 0.02 240);
+  --primary-foreground: oklch(0.98 0.01 220);
 
   /* Deep navy for secondary elements */
   --secondary: oklch(0.25 0.06 240);
@@ -154,7 +154,7 @@
 
   /* Vibrant orange-red accent from hair - glowing effect */
   --accent: oklch(0.70 0.20 30);
-  --accent-foreground: oklch(0.12 0.02 240);
+  --accent-foreground: oklch(0.98 0.01 220);
 
   --border: oklch(0.30 0.05 240);
   --pop: oklch(0.25 0.04 240);
@@ -177,7 +177,7 @@
   --sidebar: oklch(0.10 0.02 240);
   --sidebar-foreground: oklch(0.98 0.01 220);
   --sidebar-primary: oklch(0.70 0.20 220);
-  --sidebar-primary-foreground: oklch(0.12 0.02 240);
+  --sidebar-primary-foreground: oklch(0.98 0.01 220);
   --sidebar-accent: oklch(0.18 0.03 240);
   --sidebar-accent-hover: oklch(0.25 0.05 240);
   --sidebar-accent-foreground: oklch(0.98 0.01 220);
@@ -197,8 +197,16 @@
     line-height: 1.5; /* 1.5x for readability */
   }
   html {
-    /* Force dark mode as default */
+    /* Dynamic color scheme based on theme */
+    color-scheme: light dark;
+  }
+  
+  html.dark {
     color-scheme: dark;
+  }
+  
+  html:not(.dark) {
+    color-scheme: light;
   }
 
   /* Responsive typography scaling */
@@ -206,6 +214,17 @@
     body {
       font-size: 18px;
     }
+  }
+
+  /* Ensure button text is always readable */
+  button[data-variant="outline"],
+  button[data-variant="ghost"] {
+    color: var(--foreground);
+  }
+  
+  .dark button[data-variant="outline"],
+  .dark button[data-variant="ghost"] {
+    color: var(--foreground);
   }
 }
 

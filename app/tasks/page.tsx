@@ -1,4 +1,5 @@
 import { requireAuth, getUserProfile } from "@/lib/auth/get-user"
+import { createClient } from "@/lib/supabase/server"
 import DashboardPageLayout from "@/components/dashboard/layout"
 import ProcessorIcon from "@/components/icons/proccesor"
 import { TasksPageClient } from "@/components/tasks/tasks-page-client"
@@ -23,6 +24,14 @@ export default async function TasksPage() {
     )
   }
 
+  // Get current bond_id from profile
+  const supabase = await createClient()
+  const { data: profileWithBond } = await supabase
+    .from("profiles")
+    .select("bond_id")
+    .eq("id", profile.id)
+    .single()
+
   return (
     <DashboardPageLayout
       header={{
@@ -35,6 +44,7 @@ export default async function TasksPage() {
         userId={profile.id}
         userRole={profile.dynamic_role}
         partnerId={profile.partner_id}
+        bondId={profileWithBond?.bond_id || null}
       />
     </DashboardPageLayout>
   )

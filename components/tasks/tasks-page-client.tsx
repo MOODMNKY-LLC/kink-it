@@ -14,12 +14,13 @@ interface TasksPageClientProps {
   userId: string
   userRole: DynamicRole
   partnerId: string | null
+  bondId?: string | null
 }
 
-export function TasksPageClient({ userId, userRole, partnerId }: TasksPageClientProps) {
+export function TasksPageClient({ userId, userRole, partnerId, bondId }: TasksPageClientProps) {
   const [showCreateForm, setShowCreateForm] = useState(false)
 
-  const { tasks, isLoading, updateTask, createTask } = useTasks({
+  const { tasks, isLoading, updateTask, createTask, refetch } = useTasks({
     userId,
   })
 
@@ -50,6 +51,9 @@ export function TasksPageClient({ userId, userRole, partnerId }: TasksPageClient
           await updateTask(taskId, { status: "cancelled" })
           toast.success("Task cancelled")
           break
+        case "refresh":
+          // Refresh task list - handled by useTasks hook automatically
+          break
         default:
           console.warn("Unknown action:", action)
       }
@@ -62,7 +66,8 @@ export function TasksPageClient({ userId, userRole, partnerId }: TasksPageClient
     try {
       await createTask({
         ...taskData,
-        assigned_to: partnerId || "",
+        // assigned_to is optional - if not provided, API will default to self-assignment
+        assigned_to: taskData.assigned_to || partnerId || undefined,
       })
       setShowCreateForm(false)
       toast.success("Task created successfully")
@@ -98,6 +103,9 @@ export function TasksPageClient({ userId, userRole, partnerId }: TasksPageClient
         userRole={userRole}
         onTaskAction={handleTaskAction}
         isLoading={isLoading}
+        onCreateTask={() => setShowCreateForm(true)}
+        bondId={bondId}
+        onReassign={refetch}
       />
     </>
   )

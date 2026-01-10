@@ -126,7 +126,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="dark flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-background relative overflow-hidden">
+    <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-background relative overflow-hidden">
       {/* Character-based backgrounds - dark mode first */}
       <CharacterBackground variant="hero" opacity={0.12} />
       <GradientMesh intensity="medium" />
