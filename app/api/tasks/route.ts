@@ -91,7 +91,7 @@ export async function POST(req: Request) {
   // Verify user is dominant
   const { data: profile } = await supabase
     .from("profiles")
-    .select("dynamic_role, partner_id, bond_id")
+    .select("dynamic_role, partner_id")
     .eq("id", user.id)
     .single()
 
@@ -138,41 +138,12 @@ export async function POST(req: Request) {
   // Default to self-assignment if no assigned_to provided
   const finalAssignedTo = assigned_to || user.id
 
-  // Validate assigned_to against bond membership (if bond exists) or partner_id
-  if (assigned_to && assigned_to !== user.id) {
-    if (profile?.bond_id) {
-      // User is in a bond - verify assignee is a bond member
-      const { data: bondMember } = await supabase
-        .from("bond_members")
-        .select("id")
-        .eq("bond_id", profile.bond_id)
-        .eq("user_id", assigned_to)
-        .eq("is_active", true)
-        .single()
-
-      if (!bondMember) {
-        return NextResponse.json(
-          { error: "Can only assign tasks to bond members" },
-          { status: 403 }
-        )
-      }
-    } else if (profile?.partner_id) {
-      // No bond but has partner_id - verify it's the partner
-      if (assigned_to !== profile.partner_id) {
-        return NextResponse.json(
-          { error: "Can only assign tasks to your partner" },
-          { status: 403 }
-        )
-      }
-    } else {
-      // No bond and no partner - can only assign to self
-      if (assigned_to !== user.id) {
-        return NextResponse.json(
-          { error: "Can only assign tasks to yourself when not in a bond" },
-          { status: 403 }
-        )
-      }
-    }
+  // If assigned_to is provided and partner_id exists, verify it's the partner
+  if (assigned_to && profile.partner_id && assigned_to !== profile.partner_id) {
+    return NextResponse.json(
+      { error: "Can only assign tasks to your partner" },
+      { status: 403 }
+    )
   }
 
   // Check if submissive is paused (enforcement) - only if assigning to someone else
