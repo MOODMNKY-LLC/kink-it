@@ -13,11 +13,12 @@ export async function POST() {
     }
 
     // Mark onboarding as complete
+    // Step 7 is the final step (Welcome Splash), step 6 is recovery (optional)
     const { error } = await supabase
       .from("profiles")
       .update({
         onboarding_completed: true,
-        onboarding_step: 5,
+        onboarding_step: 7, // Updated to reflect new step count
         updated_at: new Date().toISOString(),
       })
       .eq("id", user.id)

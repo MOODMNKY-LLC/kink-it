@@ -68,7 +68,8 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
   const [editingRule, setEditingRule] = useState<Rule | null>(null)
   const [bondMembers, setBondMembers] = useState<BondMember[]>([])
   const [loadingMembers, setLoadingMembers] = useState(false)
-  const [selectedMemberId, setSelectedMemberId] = useState<string>("")
+  const [selectedMemberId, setSelectedMemberId] = useState<string>("all")
+  const [selectedCategory, setSelectedCategory] = useState<string>("standing")
   const [activeTab, setActiveTab] = useState<"rules" | "protocols" | "expectations">("rules")
   const supabase = createClient()
 
@@ -161,7 +162,13 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
 
   const handleCreateRule = async (formData: FormData) => {
     try {
-      const assignedTo = selectedMemberId && selectedMemberId.trim() !== "" ? selectedMemberId : null
+      // Handle "all" value - convert to null for database
+      const assignedTo = selectedMemberId && selectedMemberId !== "all" && selectedMemberId.trim() !== "" 
+        ? selectedMemberId 
+        : null
+      
+      // Use selectedCategory state instead of formData to ensure we have the controlled value
+      const category = selectedCategory || (formData.get("category") as string) || "standing"
       
       const response = await fetch("/api/rules", {
         method: "POST",
@@ -169,7 +176,7 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
         body: JSON.stringify({
           title: formData.get("title"),
           description: formData.get("description"),
-          category: formData.get("category"),
+          category: category,
           status: formData.get("status"),
           priority: parseInt(formData.get("priority") as string) || 0,
           bond_id: bondId,
@@ -180,11 +187,10 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
       const data = await response.json()
 
       if (response.ok) {
-        const category = formData.get("category") as string
         const itemType = category === "standing" ? "Rule" : category === "situational" || category === "protocol" ? "Protocol" : "Expectation"
         toast.success(`${itemType} created successfully`)
         setShowCreateDialog(false)
-        setSelectedMemberId("") // Reset selection
+        setSelectedMemberId("all") // Reset selection
         loadRules()
       } else {
         toast.error(data.error || "Failed to create item")
@@ -286,11 +292,24 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
             <div className="flex justify-end">
           <Dialog 
             open={showCreateDialog} 
-            onOpenChange={(open) => {
+              onOpenChange={(open) => {
               setShowCreateDialog(open)
               if (!open) {
                 // Reset form state when dialog closes
-                setSelectedMemberId("")
+                setSelectedMemberId("all")
+                // Set default category based on active tab
+                setSelectedCategory(
+                  activeTab === "rules" ? "standing" : 
+                  activeTab === "protocols" ? "situational" : 
+                  "temporary"
+                )
+              } else {
+                // Set default category based on active tab when opening
+                setSelectedCategory(
+                  activeTab === "rules" ? "standing" : 
+                  activeTab === "protocols" ? "situational" : 
+                  "temporary"
+                )
               }
             }}
           >
@@ -326,49 +345,70 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
                     className="bg-muted/50 border-border backdrop-blur-sm"
                   />
                 </div>
+                {/* Type Selection - Prominent */}
+                <div className="space-y-2">
+                  <Label htmlFor="category" className="text-base font-semibold">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      <span>Type</span>
+                    </div>
+                  </Label>
+                  <Select 
+                    name="category"
+                    value={selectedCategory}
+                    onValueChange={setSelectedCategory}
+                  >
+                    <SelectTrigger className="bg-muted/50 border-border backdrop-blur-sm h-12">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="standing">
+                        <div className="flex items-center gap-2 py-1">
+                          <FileText className="h-4 w-4" />
+                          <div className="flex flex-col">
+                            <span className="font-medium">Rule</span>
+                            <span className="text-xs text-muted-foreground">Always-applicable behavioral requirement</span>
+                          </div>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="situational">
+                        <div className="flex items-center gap-2 py-1">
+                          <Settings className="h-4 w-4" />
+                          <div className="flex flex-col">
+                            <span className="font-medium">Protocol (Situational)</span>
+                            <span className="text-xs text-muted-foreground">Context-specific procedure</span>
+                          </div>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="protocol">
+                        <div className="flex items-center gap-2 py-1">
+                          <Settings className="h-4 w-4" />
+                          <div className="flex flex-col">
+                            <span className="font-medium">Protocol (Formal)</span>
+                            <span className="text-xs text-muted-foreground">Structured formal procedure</span>
+                          </div>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="temporary">
+                        <div className="flex items-center gap-2 py-1">
+                          <Heart className="h-4 w-4" />
+                          <div className="flex flex-col">
+                            <span className="font-medium">Expectation</span>
+                            <span className="text-xs text-muted-foreground">Preference or temporary expectation</span>
+                          </div>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedCategory === "standing" && "Rules are always-applicable behavioral requirements that apply at all times."}
+                    {selectedCategory === "situational" && "Protocols are situational procedures that apply in specific contexts or scenarios."}
+                    {selectedCategory === "protocol" && "Formal protocols are structured procedures with defined steps and expectations."}
+                    {selectedCategory === "temporary" && "Expectations are preferences or temporary requirements that may change over time."}
+                  </p>
+                </div>
+                
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Type</Label>
-                    <Select 
-                      name="category" 
-                      defaultValue={activeTab === "rules" ? "standing" : activeTab === "protocols" ? "situational" : "temporary"}
-                    >
-                      <SelectTrigger className="bg-muted/50 border-border backdrop-blur-sm">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="standing">
-                          <div className="flex items-center gap-2">
-                            <FileText className="h-3 w-3" />
-                            <span>Rule (Always-applicable)</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="situational">
-                          <div className="flex items-center gap-2">
-                            <Settings className="h-3 w-3" />
-                            <span>Protocol (Situational)</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="protocol">
-                          <div className="flex items-center gap-2">
-                            <Settings className="h-3 w-3" />
-                            <span>Protocol (Formal)</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="temporary">
-                          <div className="flex items-center gap-2">
-                            <Heart className="h-3 w-3" />
-                            <span>Expectation (Preference)</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <p className="text-xs text-muted-foreground">
-                      {activeTab === "rules" && "Rules are always-applicable behavioral requirements"}
-                      {activeTab === "protocols" && "Protocols are situational procedures"}
-                      {activeTab === "expectations" && "Expectations are preferences within conditions"}
-                    </p>
-                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="priority">Priority</Label>
                     <Input
@@ -403,7 +443,7 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
                           <SelectValue placeholder="All bond members (default)" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All bond members</SelectItem>
+                          <SelectItem value="all">All bond members</SelectItem>
                           {bondMembers.map((member) => (
                             <SelectItem key={member.user_id} value={member.user_id}>
                               <div className="flex items-center gap-2">
@@ -429,6 +469,8 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
                   </div>
                 )}
                 
+                {/* Hidden input to ensure category is submitted with form */}
+                <input type="hidden" name="category" value={selectedCategory} />
                 <input type="hidden" name="status" value="active" />
                 <div className="flex justify-end gap-2">
                   <Button

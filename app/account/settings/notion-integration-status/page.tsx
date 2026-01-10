@@ -56,6 +56,8 @@ import {
 import { cn } from "@/lib/utils"
 import { useNotionSyncStatus } from "@/components/playground/shared/use-notion-sync-status"
 import { NotionSyncStatusBadge } from "@/components/playground/shared/notion-sync-status-badge"
+import { DataRecoveryFlow } from "@/components/notion/data-recovery-flow"
+import { useNotionRecoveryDetection } from "@/hooks/use-notion-recovery-detection"
 
 // Auto-scroll component that pauses on hover
 function AutoScrollTable({
@@ -221,6 +223,8 @@ export default function NotionIntegrationStatusPage() {
   const [submitting, setSubmitting] = useState(false)
 
   const { status: syncStatus, syncNow, refresh: refreshSyncStatus } = useNotionSyncStatus()
+  const { scenario: recoveryScenario, isLoading: checkingRecovery } = useNotionRecoveryDetection()
+  const [showRecoveryFlow, setShowRecoveryFlow] = useState(false)
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -606,6 +610,40 @@ export default function NotionIntegrationStatusPage() {
                 </Card>
               </BlurFade>
 
+              {/* Data Recovery Section */}
+              {recoveryScenario?.needsRecovery && (
+                <BlurFade delay={0.25}>
+                  <Card className="backdrop-blur-sm bg-background/80 border-border/50 border-orange-500/50">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <AlertCircle className="h-5 w-5 text-orange-500" />
+                        Data Recovery Available
+                      </CardTitle>
+                      <CardDescription>
+                        {recoveryScenario.reason}. You can recover your data from Notion.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <Alert>
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertDescription>
+                            Lost your data? No worries! We can recover it from your Notion workspace.
+                            Your data in Notion is safe and can be restored to Supabase.
+                          </AlertDescription>
+                        </Alert>
+                        <Button
+                          onClick={() => setShowRecoveryFlow(true)}
+                          className="w-full sm:w-auto"
+                        >
+                          Recover Data from Notion
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </BlurFade>
+              )}
+
               {/* Summary Stats */}
               <BlurFade delay={0.3}>
                 <div className="grid gap-4 md:grid-cols-3">
@@ -970,6 +1008,12 @@ export default function NotionIntegrationStatusPage() {
           </BlurFade>
         </TabsContent>
       </Tabs>
+
+      {/* Data Recovery Flow Dialog */}
+      <DataRecoveryFlow
+        open={showRecoveryFlow}
+        onOpenChange={setShowRecoveryFlow}
+      />
     </div>
   )
 }

@@ -54,20 +54,33 @@ export function CertificateCheck() {
     const originalError = console.error
     console.error = (...args: any[]) => {
       try {
-        const message = args.map(arg => 
-          typeof arg === 'string' ? arg : 
-          typeof arg === 'object' && arg !== null ? (arg.message || JSON.stringify(arg)) : 
-          String(arg)
-        ).join(" ")
-        const stack = args.find(arg => typeof arg === 'object' && arg?.stack)?.stack || ""
-        
-        // Check if error object is empty (common with network/certificate issues)
+        // Check if error object is empty first - skip processing entirely if so
         const hasEmptyErrorObject = args.some(arg => 
           typeof arg === 'object' && 
           arg !== null && 
+          !(arg instanceof Error) &&
           Object.keys(arg).length === 0 &&
           JSON.stringify(arg) === '{}'
         )
+        
+        // If all args are empty objects or null/undefined, just pass through without processing
+        if (hasEmptyErrorObject && args.every(arg => 
+          (typeof arg === 'object' && arg !== null && Object.keys(arg).length === 0) ||
+          arg === null ||
+          arg === undefined
+        )) {
+          // Skip certificate check for empty objects - just log normally
+          originalError.apply(console, args)
+          return
+        }
+        
+        const message = args.map(arg => 
+          typeof arg === 'string' ? arg : 
+          arg instanceof Error ? arg.message :
+          typeof arg === 'object' && arg !== null ? (arg.message || (Object.keys(arg).length > 0 ? JSON.stringify(arg) : "")) : 
+          String(arg)
+        ).filter(msg => msg.trim() !== "").join(" ")
+        const stack = args.find(arg => typeof arg === 'object' && arg?.stack)?.stack || ""
         
         // Only show certificate warning for actual certificate/network errors, not all Supabase errors
         // CRITICAL: Skip empty error objects completely - they're handled by components using console.warn
@@ -75,10 +88,13 @@ export function CertificateCheck() {
         // Skip generic backend save errors - these are not certificate issues
         // Only trigger on explicit certificate/network error messages
         const isDatabaseSchemaError = (
+          message.includes("PGRST204") ||
           message.includes("PGRST205") ||
           message.includes("Could not find the table") ||
+          message.includes("Could not find the") && message.includes("column") ||
           message.includes("table") && message.includes("schema cache") ||
-          message.includes("relation") && message.includes("does not exist")
+          message.includes("relation") && message.includes("does not exist") ||
+          message.includes("column") && message.includes("schema cache")
         )
         
         const isGenericBackendError = (

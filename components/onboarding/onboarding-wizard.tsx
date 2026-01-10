@@ -9,10 +9,11 @@ import BondSetupStep from "./steps/bond-setup-step"
 import NotionSetupStep from "./steps/notion-setup-step"
 import NotionVerificationStep from "./steps/notion-verification-step"
 import NotionApiKeyStep from "./steps/notion-api-key-step"
+import NotionRecoveryStep from "./steps/notion-recovery-step"
 import WelcomeSplashStep from "./steps/welcome-splash-step"
 import OnboardingProgress from "./onboarding-progress"
 
-const TOTAL_STEPS = 6
+const TOTAL_STEPS = 7 // Added recovery step
 
 interface OnboardingWizardProps {
   initialStep?: number
@@ -218,6 +219,14 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
           />
         )
       case 6:
+        return (
+          <NotionRecoveryStep
+            onNext={handleNext}
+            onBack={handleBack}
+            initialData={wizardData}
+          />
+        )
+      case 7:
         return (
           <WelcomeSplashStep
             onComplete={handleComplete}

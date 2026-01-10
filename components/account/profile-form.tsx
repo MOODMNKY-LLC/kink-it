@@ -129,7 +129,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     setIsLoading(true)
 
     try {
-      const { error } = await supabase
+      const { error, data } = await supabase
         .from("profiles")
         .update({
           full_name: formData.full_name || null,
@@ -139,16 +139,31 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           updated_at: new Date().toISOString(),
         })
         .eq("id", profile.id)
+        .select()
+        .single()
 
-      if (error) throw error
+      if (error) {
+        // Properly format Supabase error
+        const errorMessage = error.message || error.details || error.hint || "Failed to update profile"
+        const errorCode = error.code ? ` (${error.code})` : ""
+        throw new Error(`${errorMessage}${errorCode}`)
+      }
 
       toast.success("Profile updated successfully")
       router.refresh()
     } catch (error) {
-      console.error("Error updating profile:", error)
-      toast.error(
-        error instanceof Error ? error.message : "Failed to update profile"
-      )
+      // Improved error logging - avoid logging empty objects
+      if (error instanceof Error) {
+        console.error("Error updating profile:", error.message)
+        toast.error(error.message)
+      } else if (error && typeof error === "object" && "message" in error) {
+        const errorMessage = (error as { message?: string }).message || "Failed to update profile"
+        console.error("Error updating profile:", errorMessage)
+        toast.error(errorMessage)
+      } else {
+        console.error("Error updating profile: Unknown error")
+        toast.error("Failed to update profile")
+      }
     } finally {
       setIsLoading(false)
     }

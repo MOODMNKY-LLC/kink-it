@@ -23,10 +23,12 @@ export function SettingsForm({ profile }: SettingsFormProps) {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isSavingTheme, setIsSavingTheme] = useState(false)
   const [settings, setSettings] = useState({
     notifications_enabled: profile.notifications_enabled,
     theme_preference: profile.theme_preference || "system",
   })
+  const prevThemeRef = React.useRef<string | undefined>(profile.theme_preference || "system")
 
   // Sync theme with profile preference on mount
   React.useEffect(() => {
@@ -34,34 +36,83 @@ export function SettingsForm({ profile }: SettingsFormProps) {
     // Initialize theme from profile if available
     if (profile.theme_preference) {
       setTheme(profile.theme_preference)
+      prevThemeRef.current = profile.theme_preference
     }
   }, [profile.theme_preference, setTheme])
 
-  // Update settings when theme changes (for display purposes)
+  // Update settings when theme changes and auto-save to database
   React.useEffect(() => {
-    if (mounted && theme) {
+    if (mounted && theme && theme !== prevThemeRef.current && !isSavingTheme) {
+      const newThemePreference = theme as "light" | "dark" | "system"
+      
+      // Update previous theme ref to prevent re-triggering
+      prevThemeRef.current = newThemePreference
+      
+      // Update local state
       setSettings((prev) => ({
         ...prev,
-        theme_preference: theme as "light" | "dark" | "system",
+        theme_preference: newThemePreference,
       }))
+
+      // Auto-save theme preference to database
+      setIsSavingTheme(true)
+      const saveThemePreference = async () => {
+        try {
+          const { error } = await supabase
+            .from("profiles")
+            .update({
+              theme_preference: newThemePreference,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", profile.id)
+
+          if (error) {
+            console.error("Error auto-saving theme preference:", error)
+            toast.error("Failed to save theme preference")
+            // Revert previous theme ref on error
+            prevThemeRef.current = settings.theme_preference
+          } else {
+            toast.success("Theme preference saved", { duration: 2000 })
+            router.refresh()
+          }
+        } catch (error) {
+          console.error("Error auto-saving theme preference:", error)
+          toast.error("Failed to save theme preference")
+          // Revert previous theme ref on error
+          prevThemeRef.current = settings.theme_preference
+        } finally {
+          setIsSavingTheme(false)
+        }
+      }
+
+      saveThemePreference()
     }
-  }, [theme, mounted])
+  }, [theme, mounted, isSavingTheme, profile.id, supabase, router, settings.theme_preference])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
     try {
+      // Ensure we have the latest theme value
+      const currentThemePreference = (theme || settings.theme_preference) as "light" | "dark" | "system"
+      
       const { error } = await supabase
         .from("profiles")
         .update({
           notifications_enabled: settings.notifications_enabled,
-          theme_preference: settings.theme_preference,
+          theme_preference: currentThemePreference,
           updated_at: new Date().toISOString(),
         })
         .eq("id", profile.id)
 
       if (error) throw error
+
+      // Update local state to match
+      setSettings((prev) => ({
+        ...prev,
+        theme_preference: currentThemePreference,
+      }))
 
       toast.success("Settings updated successfully")
       router.refresh()
