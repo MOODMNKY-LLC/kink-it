@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Edit, Trash2, FileText, Loader2, ExternalLink } from "lucide-react"
+import { Plus, Edit, Trash2, FileText, Loader2, ExternalLink, User } from "lucide-react"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 import type { DynamicRole } from "@/types/profile"
@@ -35,9 +35,22 @@ interface Rule {
   category: "standing" | "situational" | "temporary" | "protocol"
   status: "active" | "inactive" | "archived"
   priority: number
+  assigned_to: string | null
   created_at: string
   effective_from: string | null
   effective_until: string | null
+}
+
+interface BondMember {
+  user_id: string
+  user: {
+    id: string
+    display_name: string | null
+    full_name: string | null
+    email: string
+    avatar_url: string | null
+    dynamic_role: string
+  }
 }
 
 interface RulesPageClientProps {
@@ -51,11 +64,74 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
   const [isLoading, setIsLoading] = useState(true)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [editingRule, setEditingRule] = useState<Rule | null>(null)
+  const [bondMembers, setBondMembers] = useState<BondMember[]>([])
+  const [loadingMembers, setLoadingMembers] = useState(false)
+  const [selectedMemberId, setSelectedMemberId] = useState<string>("")
   const supabase = createClient()
 
   useEffect(() => {
     loadRules()
   }, [bondId])
+
+  useEffect(() => {
+    if (userRole === "dominant" && bondId) {
+      loadBondMembers()
+    } else if (userRole === "dominant" && !bondId) {
+      // No bond - load current user as the only option
+      loadCurrentUser()
+    }
+  }, [bondId, userRole])
+
+  const loadCurrentUser = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id, display_name, full_name, email, avatar_url, dynamic_role")
+          .eq("id", user.id)
+          .single()
+        
+        if (profile) {
+          setBondMembers([{
+            user_id: profile.id,
+            user: {
+              id: profile.id,
+              display_name: profile.display_name,
+              full_name: profile.full_name,
+              email: profile.email || "",
+              avatar_url: profile.avatar_url,
+              dynamic_role: profile.dynamic_role || "",
+            }
+          }])
+        }
+      }
+    } catch (error) {
+      console.error("Error loading current user:", error)
+    }
+  }
+
+  const loadBondMembers = async () => {
+    if (!bondId) return
+    
+    setLoadingMembers(true)
+    try {
+      const response = await fetch(`/api/bonds/${bondId}/members`)
+      if (response.ok) {
+        const responseText = await response.text()
+        const data = responseText ? JSON.parse(responseText) : { members: [] }
+        setBondMembers(data.members || [])
+      }
+    } catch (error) {
+      console.error("Error loading bond members:", error)
+    } finally {
+      setLoadingMembers(false)
+    }
+  }
+
+  const getMemberDisplayName = (member: BondMember) => {
+    return member.user.display_name || member.user.full_name || member.user.email.split("@")[0] || "Unknown"
+  }
 
   const loadRules = async () => {
     try {
@@ -82,6 +158,8 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
 
   const handleCreateRule = async (formData: FormData) => {
     try {
+      const assignedTo = selectedMemberId && selectedMemberId.trim() !== "" ? selectedMemberId : null
+      
       const response = await fetch("/api/rules", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -92,6 +170,7 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
           status: formData.get("status"),
           priority: parseInt(formData.get("priority") as string) || 0,
           bond_id: bondId,
+          assigned_to: assignedTo,
         }),
       })
 
@@ -100,6 +179,7 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
       if (response.ok) {
         toast.success("Rule created successfully")
         setShowCreateDialog(false)
+        setSelectedMemberId("") // Reset selection
         loadRules()
       } else {
         toast.error(data.error || "Failed to create rule")
@@ -159,7 +239,16 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
     <div className="space-y-6">
       {userRole === "dominant" && (
         <div className="flex justify-end">
-          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+          <Dialog 
+            open={showCreateDialog} 
+            onOpenChange={(open) => {
+              setShowCreateDialog(open)
+              if (!open) {
+                // Reset form state when dialog closes
+                setSelectedMemberId("")
+              }
+            }}
+          >
             <DialogTrigger asChild>
               <Button className="bg-primary/10 hover:bg-primary/20 border-2 border-primary/40 backdrop-blur-sm text-foreground font-semibold shadow-lg shadow-primary/20 transition-all duration-300 hover:shadow-primary/30 hover:scale-[1.02]">
                 <Plus className="h-4 w-4 mr-2" />
@@ -218,6 +307,55 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
                     />
                   </div>
                 </div>
+                
+                {/* Bond Member Assignment */}
+                {bondId && (
+                  <div className="space-y-2">
+                    <Label htmlFor="assigned_to">
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4" />
+                        <span>Assign To (Optional)</span>
+                      </div>
+                    </Label>
+                    {loadingMembers ? (
+                      <div className="p-3 bg-muted/50 border border-border rounded-md text-sm text-muted-foreground">
+                        Loading members...
+                      </div>
+                    ) : bondMembers.length > 0 ? (
+                      <Select
+                        value={selectedMemberId}
+                        onValueChange={setSelectedMemberId}
+                      >
+                        <SelectTrigger className="bg-muted/50 border-border backdrop-blur-sm">
+                          <SelectValue placeholder="All bond members (default)" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">All bond members</SelectItem>
+                          {bondMembers.map((member) => (
+                            <SelectItem key={member.user_id} value={member.user_id}>
+                              <div className="flex items-center gap-2">
+                                <span>{getMemberDisplayName(member)}</span>
+                                {member.user.dynamic_role && (
+                                  <Badge variant="outline" className="text-xs">
+                                    {member.user.dynamic_role}
+                                  </Badge>
+                                )}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <div className="p-3 bg-muted/50 border border-border rounded-md text-sm text-muted-foreground">
+                        No bond members found. Rule will apply to all members.
+                      </div>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      Leave unselected to apply this rule to all bond members, or select a specific member.
+                    </p>
+                  </div>
+                )}
+                
                 <input type="hidden" name="status" value="active" />
                 <div className="flex justify-end gap-2">
                   <Button

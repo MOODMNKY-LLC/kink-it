@@ -68,7 +68,7 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json()
-  const { title, description, category, status, priority, bond_id, effective_from, effective_until } = body
+  const { title, description, category, status, priority, bond_id, assigned_to, effective_from, effective_until } = body
 
   if (!title) {
     return NextResponse.json({ error: "Title is required" }, { status: 400 })
@@ -83,6 +83,32 @@ export async function POST(req: Request) {
     )
   }
 
+  // Validate assigned_to against bond membership (if provided)
+  let finalAssignedTo: string | null = assigned_to || null
+  if (assigned_to && assigned_to !== user.id) {
+    // Verify the assignee is a bond member
+    const { data: bondMember } = await supabase
+      .from("bond_members")
+      .select("id")
+      .eq("bond_id", ruleBondId)
+      .eq("user_id", assigned_to)
+      .eq("is_active", true)
+      .single()
+
+    if (!bondMember) {
+      return NextResponse.json(
+        { error: "Can only assign rules to bond members" },
+        { status: 403 }
+      )
+    }
+  } else if (assigned_to === user.id) {
+    // Self-assignment is always allowed
+    finalAssignedTo = user.id
+  } else {
+    // No assignment specified - rule applies to all bond members
+    finalAssignedTo = null
+  }
+
   const { data: rule, error } = await supabase
     .from("rules")
     .insert({
@@ -93,6 +119,7 @@ export async function POST(req: Request) {
       status: status || "active",
       priority: priority || 0,
       created_by: user.id,
+      assigned_to: finalAssignedTo,
       effective_from,
       effective_until,
     })
