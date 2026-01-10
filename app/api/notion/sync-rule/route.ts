@@ -27,6 +27,9 @@ interface SyncRuleRequest {
 }
 
 export async function POST(request: NextRequest) {
+  // Declare ruleData outside try block so it's accessible in catch block
+  let ruleData: any = null
+  
   try {
     const profile = await getUserProfile()
     if (!profile) {
@@ -73,7 +76,7 @@ export async function POST(request: NextRequest) {
     const databaseId = rulesDb.database_id
 
     // Fetch rule data if ruleId provided
-    let ruleData = body.rule
+    ruleData = body.rule
     if (body.ruleId && !ruleData) {
       const { data: rule, error: ruleError } = await supabase
         .from("rules")
@@ -98,25 +101,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Map category to Notion select option
+    // Map category to Notion "Rule Type" select option
+    // According to Notion template: Rule Type options are Standing, Situational, Temporary, Optional
     const categoryMap: Record<string, string> = {
       standing: "Standing",
       situational: "Situational",
       temporary: "Temporary",
-      protocol: "Protocol",
+      protocol: "Optional", // Map protocol to Optional in Notion
     }
 
-    // Map status to Notion select option
-    const statusMap: Record<string, string> = {
-      active: "Active",
-      inactive: "Inactive",
-      archived: "Archived",
-    }
+    // Map status to Notion "Active" checkbox
+    // According to Notion template: Active is a checkbox, not a select
+    const isActive = ruleData.status === "active"
 
-    const notionCategory = categoryMap[ruleData.category] || "Standing"
-    const notionStatus = statusMap[ruleData.status] || "Active"
+    const notionRuleType = categoryMap[ruleData.category] || "Standing"
 
-    // Build Notion page properties
+    // Build Notion page properties matching the template structure
     const properties: any = {
       Title: {
         title: [
@@ -127,15 +127,13 @@ export async function POST(request: NextRequest) {
           },
         ],
       },
-      Category: {
+      "Rule Type": {
         select: {
-          name: notionCategory,
+          name: notionRuleType,
         },
       },
-      Status: {
-        select: {
-          name: notionStatus,
-        },
+      Active: {
+        checkbox: isActive,
       },
     }
 
@@ -149,13 +147,6 @@ export async function POST(request: NextRequest) {
             },
           },
         ],
-      }
-    }
-
-    // Add priority if available
-    if (ruleData.priority !== null && ruleData.priority !== undefined) {
-      properties.Priority = {
-        number: ruleData.priority,
       }
     }
 
