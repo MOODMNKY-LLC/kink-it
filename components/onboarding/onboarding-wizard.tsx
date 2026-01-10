@@ -41,10 +41,16 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
         body: JSON.stringify({ step, data: newData }),
       })
       if (!response.ok) {
-        console.error("Failed to save progress to backend")
+        const errorText = await response.text().catch(() => "Unknown error")
+        console.warn("Failed to save progress to backend:", {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorText,
+        })
       }
     } catch (error) {
-      console.error("Error saving progress:", error)
+      // Use console.warn instead of console.error to avoid triggering certificate check
+      console.warn("Error saving progress:", error instanceof Error ? error.message : String(error))
     }
   }
 

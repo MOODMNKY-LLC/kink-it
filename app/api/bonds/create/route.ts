@@ -50,10 +50,12 @@ export async function POST(request: NextRequest) {
     if (inviteError || !inviteCodeData) {
       console.warn("RPC function failed, using fallback:", inviteError?.message || inviteError)
       // Fallback: Generate code client-side
-      // Check for uniqueness in a loop
+      // Note: This fallback may fail due to RLS if user can't SELECT from bonds
+      // The RPC function should work with SECURITY DEFINER, but this is a safety net
       let attempts = 0
-      const maxAttempts = 10
+      const maxAttempts = 20  // Increased attempts
       let isUnique = false
+      let lastError: any = null
       
       while (!isUnique && attempts < maxAttempts) {
         // Generate 8-character alphanumeric code
@@ -63,6 +65,7 @@ export async function POST(request: NextRequest) {
         ).join("")
         
         // Check if code exists
+        // This may fail due to RLS - that's why we prefer the RPC function
         const { data: existing, error: checkError } = await supabase
           .from("bonds")
           .select("id")
@@ -70,7 +73,12 @@ export async function POST(request: NextRequest) {
           .maybeSingle()
         
         if (checkError) {
-          console.error("Error checking invite code uniqueness:", checkError)
+          // RLS error - can't check uniqueness, but we can still try to use the code
+          // The database UNIQUE constraint will catch duplicates
+          lastError = checkError
+          console.warn("RLS blocking uniqueness check, using generated code:", generatedCode)
+          inviteCode = generatedCode
+          isUnique = true  // Assume unique and let DB constraint handle it
           break
         }
         
@@ -82,9 +90,12 @@ export async function POST(request: NextRequest) {
       }
       
       if (!isUnique || !inviteCode) {
-        console.error("Failed to generate unique invite code after", maxAttempts, "attempts")
+        console.error("Failed to generate unique invite code after", maxAttempts, "attempts", lastError)
         return NextResponse.json(
-          { error: "Failed to generate unique invite code. Please try again." },
+          { 
+            error: "Failed to generate unique invite code. Please try again.",
+            details: lastError?.message || "RPC function unavailable and fallback failed"
+          },
           { status: 500 }
         )
       }

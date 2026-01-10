@@ -53,52 +53,76 @@ export function CertificateCheck() {
     // Listen for console errors
     const originalError = console.error
     console.error = (...args: any[]) => {
-      const message = args.join(" ")
-      const stack = args.find(arg => typeof arg === 'object' && arg?.stack)?.stack || ""
-      
-      // Check if error object is empty (common with network/certificate issues)
-      const hasEmptyErrorObject = args.some(arg => 
-        typeof arg === 'object' && 
-        arg !== null && 
-        Object.keys(arg).length === 0 &&
-        JSON.stringify(arg) === '{}'
-      )
-      
-      // Only show certificate warning for actual certificate/network errors, not all Supabase errors
-      // CRITICAL: Skip empty error objects completely - they're handled by components using console.warn
-      // Skip database schema errors (PGRST205, table not found, etc.) - these are not certificate issues
-      // Only trigger on explicit certificate/network error messages
-      const isDatabaseSchemaError = (
-        message.includes("PGRST205") ||
-        message.includes("Could not find the table") ||
-        message.includes("table") && message.includes("schema cache") ||
-        message.includes("relation") && message.includes("does not exist")
-      )
-      
-      const isCertificateError = (
-        // Must have explicit certificate/network error message
-        (message.includes("Failed to fetch") || 
-         message.includes("NetworkError") ||
-         message.includes("ERR_CERT_AUTHORITY_INVALID") ||
-         message.includes("certificate") ||
-         message.includes("Network request failed") ||
-         message.includes("ERR_CERT") ||
-         message.includes("CERT_AUTHORITY")) &&
-        // Must be related to Supabase/auth
-        (message.includes("supabase") || 
-         message.includes("auth") || 
-         message.includes("@supabase") ||
-         stack.includes("supabase") ||
-         stack.includes("auth")) &&
-        // CRITICAL: Never trigger on empty error objects or database schema errors
-        !hasEmptyErrorObject &&
-        !isDatabaseSchemaError
-      )
-      
-      if (isCertificateError) {
-        setShowWarning(true)
+      try {
+        const message = args.map(arg => 
+          typeof arg === 'string' ? arg : 
+          typeof arg === 'object' && arg !== null ? (arg.message || JSON.stringify(arg)) : 
+          String(arg)
+        ).join(" ")
+        const stack = args.find(arg => typeof arg === 'object' && arg?.stack)?.stack || ""
+        
+        // Check if error object is empty (common with network/certificate issues)
+        const hasEmptyErrorObject = args.some(arg => 
+          typeof arg === 'object' && 
+          arg !== null && 
+          Object.keys(arg).length === 0 &&
+          JSON.stringify(arg) === '{}'
+        )
+        
+        // Only show certificate warning for actual certificate/network errors, not all Supabase errors
+        // CRITICAL: Skip empty error objects completely - they're handled by components using console.warn
+        // Skip database schema errors (PGRST205, table not found, etc.) - these are not certificate issues
+        // Skip generic backend save errors - these are not certificate issues
+        // Only trigger on explicit certificate/network error messages
+        const isDatabaseSchemaError = (
+          message.includes("PGRST205") ||
+          message.includes("Could not find the table") ||
+          message.includes("table") && message.includes("schema cache") ||
+          message.includes("relation") && message.includes("does not exist")
+        )
+        
+        const isGenericBackendError = (
+          message.includes("Failed to save progress to backend") ||
+          message.includes("Failed to save") ||
+          message.includes("Error saving progress")
+        )
+        
+        const isCertificateError = (
+          // Must have explicit certificate/network error message
+          (message.includes("Failed to fetch") || 
+           message.includes("NetworkError") ||
+           message.includes("ERR_CERT_AUTHORITY_INVALID") ||
+           message.includes("certificate") ||
+           message.includes("Network request failed") ||
+           message.includes("ERR_CERT") ||
+           message.includes("CERT_AUTHORITY")) &&
+          // Must be related to Supabase/auth
+          (message.includes("supabase") || 
+           message.includes("auth") || 
+           message.includes("@supabase") ||
+           stack.includes("supabase") ||
+           stack.includes("auth")) &&
+          // CRITICAL: Never trigger on empty error objects, database schema errors, or generic backend errors
+          !hasEmptyErrorObject &&
+          !isDatabaseSchemaError &&
+          !isGenericBackendError
+        )
+        
+        if (isCertificateError) {
+          setShowWarning(true)
+        }
+        
+        // Always call original console.error, but wrap in try-catch to prevent errors in the override itself
+        originalError.apply(console, args)
+      } catch (error) {
+        // If our override fails, at least try to log the original error
+        try {
+          originalError.apply(console, args)
+        } catch {
+          // If even that fails, use a fallback
+          console.log("Error in console.error override:", error)
+        }
       }
-      originalError.apply(console, args)
     }
     
     // Also listen for unhandled promise rejections (common for fetch errors)

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Edit, Trash2, FileText, Loader2, ExternalLink, User } from "lucide-react"
+import { Plus, Edit, Trash2, FileText, Loader2, ExternalLink, User, Settings, Heart } from "lucide-react"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 import type { DynamicRole } from "@/types/profile"
@@ -27,6 +27,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { RulesHeroSection } from "./rules-hero-section"
 
 interface Rule {
   id: string
@@ -67,6 +69,7 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
   const [bondMembers, setBondMembers] = useState<BondMember[]>([])
   const [loadingMembers, setLoadingMembers] = useState(false)
   const [selectedMemberId, setSelectedMemberId] = useState<string>("")
+  const [activeTab, setActiveTab] = useState<"rules" | "protocols" | "expectations">("rules")
   const supabase = createClient()
 
   useEffect(() => {
@@ -177,15 +180,17 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
       const data = await response.json()
 
       if (response.ok) {
-        toast.success("Rule created successfully")
+        const category = formData.get("category") as string
+        const itemType = category === "standing" ? "Rule" : category === "situational" || category === "protocol" ? "Protocol" : "Expectation"
+        toast.success(`${itemType} created successfully`)
         setShowCreateDialog(false)
         setSelectedMemberId("") // Reset selection
         loadRules()
       } else {
-        toast.error(data.error || "Failed to create rule")
+        toast.error(data.error || "Failed to create item")
       }
     } catch (error) {
-      toast.error("Failed to create rule")
+      toast.error("Failed to create item")
       console.error(error)
     }
   }
@@ -227,6 +232,25 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
     }
   }
 
+  // Filter rules by type based on active tab
+  const getFilteredRules = () => {
+    switch (activeTab) {
+      case "rules":
+        // Rules = standing category (always-applicable)
+        return rules.filter((rule) => rule.category === "standing")
+      case "protocols":
+        // Protocols = situational or protocol categories
+        return rules.filter((rule) => rule.category === "situational" || rule.category === "protocol")
+      case "expectations":
+        // Expectations = temporary category (preferences/choices)
+        return rules.filter((rule) => rule.category === "temporary")
+      default:
+        return rules
+    }
+  }
+
+  const filteredRules = getFilteredRules()
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -237,8 +261,29 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
 
   return (
     <div className="space-y-6">
-      {userRole === "dominant" && (
-        <div className="flex justify-end">
+      {/* Hero Section */}
+      <RulesHeroSection />
+
+      {/* Tabs Interface */}
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="w-full">
+        <div className="flex items-center justify-between mb-4">
+          <TabsList className="grid w-full max-w-md grid-cols-3">
+            <TabsTrigger value="rules" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Rules
+            </TabsTrigger>
+            <TabsTrigger value="protocols" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Protocols
+            </TabsTrigger>
+            <TabsTrigger value="expectations" className="flex items-center gap-2">
+              <Heart className="h-4 w-4" />
+              Expectations
+            </TabsTrigger>
+          </TabsList>
+          
+          {userRole === "dominant" && (
+            <div className="flex justify-end">
           <Dialog 
             open={showCreateDialog} 
             onOpenChange={(open) => {
@@ -257,9 +302,9 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
             </DialogTrigger>
             <DialogContent className="bg-card/95 backdrop-blur-xl border-primary/20">
               <DialogHeader>
-                <DialogTitle>Create New Rule</DialogTitle>
+                <DialogTitle>Create New Rule, Protocol, or Expectation</DialogTitle>
                 <DialogDescription>
-                  Add a new rule or protocol for your dynamic
+                  Add a new rule (always-applicable), protocol (situational), or expectation (preference) for your dynamic
                 </DialogDescription>
               </DialogHeader>
               <form action={handleCreateRule} className="space-y-4">
@@ -283,18 +328,46 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Select name="category" defaultValue="standing">
+                    <Label htmlFor="category">Type</Label>
+                    <Select 
+                      name="category" 
+                      defaultValue={activeTab === "rules" ? "standing" : activeTab === "protocols" ? "situational" : "temporary"}
+                    >
                       <SelectTrigger className="bg-muted/50 border-border backdrop-blur-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="standing">Standing</SelectItem>
-                        <SelectItem value="situational">Situational</SelectItem>
-                        <SelectItem value="temporary">Temporary</SelectItem>
-                        <SelectItem value="protocol">Protocol</SelectItem>
+                        <SelectItem value="standing">
+                          <div className="flex items-center gap-2">
+                            <FileText className="h-3 w-3" />
+                            <span>Rule (Always-applicable)</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="situational">
+                          <div className="flex items-center gap-2">
+                            <Settings className="h-3 w-3" />
+                            <span>Protocol (Situational)</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="protocol">
+                          <div className="flex items-center gap-2">
+                            <Settings className="h-3 w-3" />
+                            <span>Protocol (Formal)</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="temporary">
+                          <div className="flex items-center gap-2">
+                            <Heart className="h-3 w-3" />
+                            <span>Expectation (Preference)</span>
+                          </div>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
+                    <p className="text-xs text-muted-foreground">
+                      {activeTab === "rules" && "Rules are always-applicable behavioral requirements"}
+                      {activeTab === "protocols" && "Protocols are situational procedures"}
+                      {activeTab === "expectations" && "Expectations are preferences within conditions"}
+                    </p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="priority">Priority</Label>
@@ -369,79 +442,223 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
                     type="submit"
                     className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/30"
                   >
-                    Create Rule
+                    {activeTab === "rules" && "Create Rule"}
+                    {activeTab === "protocols" && "Create Protocol"}
+                    {activeTab === "expectations" && "Create Expectation"}
                   </Button>
                 </div>
               </form>
             </DialogContent>
           </Dialog>
+            </div>
+          )}
         </div>
-      )}
 
-      {rules.length === 0 ? (
-        <Card className="border-primary/20 bg-card/90 backdrop-blur-xl">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground text-center">
-              {userRole === "dominant"
-                ? "No rules created yet. Create your first rule to get started."
-                : "No active rules at this time."}
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4">
-          {rules.map((rule) => (
-            <Card
-              key={rule.id}
-              className="border-primary/20 bg-card/90 backdrop-blur-xl hover:border-primary/40 transition-all duration-300"
-            >
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <CardTitle className="text-lg">{rule.title}</CardTitle>
-                      <Badge className={getCategoryColor(rule.category)}>
-                        {rule.category}
-                      </Badge>
-                    </div>
-                    {rule.description && (
-                      <CardDescription className="mt-2">
-                        {rule.description}
-                      </CardDescription>
-                    )}
-                  </div>
-                  {userRole === "dominant" && (
-                    <div className="flex gap-2">
-                      <AddToNotionButtonGeneric
-                        tableName="rules"
-                        itemId={rule.id}
-                        syncEndpoint="/api/notion/sync-rule"
-                        variant="ghost"
-                        size="sm"
-                      />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setEditingRule(rule)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteRule(rule.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </CardHeader>
+        {/* Rules Tab */}
+        <TabsContent value="rules" className="space-y-4">
+          {filteredRules.length === 0 ? (
+            <Card className="border-primary/20 bg-card/90 backdrop-blur-xl">
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <FileText className="h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-muted-foreground text-center">
+                  {userRole === "dominant"
+                    ? "No rules created yet. Create your first rule to get started."
+                    : "No active rules at this time."}
+                </p>
+              </CardContent>
             </Card>
-          ))}
-        </div>
-      )}
+          ) : (
+            <div className="grid gap-4">
+              {filteredRules.map((rule) => (
+                <Card
+                  key={rule.id}
+                  className="border-primary/20 bg-card/90 backdrop-blur-xl hover:border-primary/40 transition-all duration-300"
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <CardTitle className="text-lg">{rule.title}</CardTitle>
+                          <Badge className={getCategoryColor(rule.category)}>
+                            {rule.category}
+                          </Badge>
+                        </div>
+                        {rule.description && (
+                          <CardDescription className="mt-2">
+                            {rule.description}
+                          </CardDescription>
+                        )}
+                      </div>
+                      {userRole === "dominant" && (
+                        <div className="flex gap-2">
+                          <AddToNotionButtonGeneric
+                            tableName="rules"
+                            itemId={rule.id}
+                            syncEndpoint="/api/notion/sync-rule"
+                            variant="ghost"
+                            size="sm"
+                          />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditingRule(rule)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteRule(rule.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Protocols Tab */}
+        <TabsContent value="protocols" className="space-y-4">
+          {filteredRules.length === 0 ? (
+            <Card className="border-accent/20 bg-card/90 backdrop-blur-xl">
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <Settings className="h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-muted-foreground text-center">
+                  {userRole === "dominant"
+                    ? "No protocols created yet. Create your first protocol to get started."
+                    : "No active protocols at this time."}
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4">
+              {filteredRules.map((rule) => (
+                <Card
+                  key={rule.id}
+                  className="border-accent/20 bg-card/90 backdrop-blur-xl hover:border-accent/40 transition-all duration-300"
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <CardTitle className="text-lg">{rule.title}</CardTitle>
+                          <Badge className={getCategoryColor(rule.category)}>
+                            {rule.category}
+                          </Badge>
+                        </div>
+                        {rule.description && (
+                          <CardDescription className="mt-2">
+                            {rule.description}
+                          </CardDescription>
+                        )}
+                      </div>
+                      {userRole === "dominant" && (
+                        <div className="flex gap-2">
+                          <AddToNotionButtonGeneric
+                            tableName="rules"
+                            itemId={rule.id}
+                            syncEndpoint="/api/notion/sync-rule"
+                            variant="ghost"
+                            size="sm"
+                          />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditingRule(rule)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteRule(rule.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Expectations Tab */}
+        <TabsContent value="expectations" className="space-y-4">
+          {filteredRules.length === 0 ? (
+            <Card className="border-secondary/20 bg-card/90 backdrop-blur-xl">
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <Heart className="h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-muted-foreground text-center">
+                  {userRole === "dominant"
+                    ? "No expectations set yet. Create your first expectation to get started."
+                    : "No active expectations at this time."}
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4">
+              {filteredRules.map((rule) => (
+                <Card
+                  key={rule.id}
+                  className="border-secondary/20 bg-card/90 backdrop-blur-xl hover:border-secondary/40 transition-all duration-300"
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <CardTitle className="text-lg">{rule.title}</CardTitle>
+                          <Badge className={getCategoryColor(rule.category)}>
+                            {rule.category}
+                          </Badge>
+                        </div>
+                        {rule.description && (
+                          <CardDescription className="mt-2">
+                            {rule.description}
+                          </CardDescription>
+                        )}
+                      </div>
+                      {userRole === "dominant" && (
+                        <div className="flex gap-2">
+                          <AddToNotionButtonGeneric
+                            tableName="rules"
+                            itemId={rule.id}
+                            syncEndpoint="/api/notion/sync-rule"
+                            variant="ghost"
+                            size="sm"
+                          />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditingRule(rule)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteRule(rule.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
+
     </div>
   )
 }
