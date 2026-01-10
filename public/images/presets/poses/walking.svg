@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 150" fill="currentColor">
+  <!-- Head -->
+  <circle cx="55" cy="20" r="12"/>
+  <!-- Body (slight forward lean) -->
+  <rect x="43" y="34" width="24" height="38" rx="4" transform="rotate(5 55 53)"/>
+  <!-- Arms (swinging) -->
+  <rect x="28" y="36" width="14" height="6" rx="3" transform="rotate(30 35 39)"/>
+  <rect x="68" y="42" width="16" height="6" rx="3" transform="rotate(-25 76 45)"/>
+  <!-- Legs (mid-stride) -->
+  <rect x="38" y="74" width="10" height="50" rx="3" transform="rotate(-20 43 99)"/>
+  <rect x="60" y="74" width="10" height="50" rx="3" transform="rotate(25 65 99)"/>
+</svg>

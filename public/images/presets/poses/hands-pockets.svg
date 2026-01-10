@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 150" fill="currentColor">
+  <!-- Head -->
+  <circle cx="50" cy="20" r="12"/>
+  <!-- Body -->
+  <rect x="38" y="34" width="24" height="42" rx="4"/>
+  <!-- Arms going into pockets -->
+  <path d="M36 40 L28 40 L28 46 L38 60 Z"/>
+  <path d="M64 40 L72 40 L72 46 L62 60 Z"/>
+  <!-- Legs -->
+  <rect x="38" y="78" width="10" height="48" rx="3"/>
+  <rect x="52" y="78" width="10" height="48" rx="3"/>
+</svg>

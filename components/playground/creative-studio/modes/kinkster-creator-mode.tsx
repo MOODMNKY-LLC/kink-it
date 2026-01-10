@@ -14,10 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 
 // Dynamically import the wizard to reduce initial bundle
 const KinksterCreationWizard = dynamic(
-  () =>
-    import("@/components/kinksters/kinkster-creation-wizard").then(
-      (mod) => mod.KinksterCreationWizard
-    ),
+  () => import("@/components/kinksters/kinkster-creation-wizard"),
   {
     loading: () => (
       <div className="flex h-full items-center justify-center">

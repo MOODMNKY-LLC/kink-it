@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="currentColor">
+  <!-- Head -->
+  <circle cx="60" cy="20" r="12"/>
+  <!-- Body (seated, leaning back slightly) -->
+  <rect x="48" y="34" width="24" height="30" rx="4" transform="rotate(-10 60 49)"/>
+  <!-- Arms (resting) -->
+  <rect x="30" y="40" width="16" height="6" rx="3" transform="rotate(-20 38 43)"/>
+  <rect x="74" y="40" width="16" height="6" rx="3" transform="rotate(20 82 43)"/>
+  <!-- Thighs (bent) -->
+  <rect x="42" y="62" width="12" height="25" rx="4" transform="rotate(70 48 75)"/>
+  <rect x="66" y="62" width="12" height="25" rx="4" transform="rotate(-70 72 75)"/>
+  <!-- Lower legs -->
+  <rect x="18" y="90" width="8" height="25" rx="3"/>
+  <rect x="94" y="90" width="8" height="25" rx="3"/>
+</svg>

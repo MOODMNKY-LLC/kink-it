@@ -6,7 +6,7 @@
  * Generate pose variations for characters using templates or custom references.
  */
 
-import React, { useState, useCallback } from "react"
+import React, { useState, useCallback, useMemo } from "react"
 import Image from "next/image"
 import {
   User,
@@ -16,6 +16,7 @@ import {
   Upload,
   Wand2,
   ImageIcon,
+  Filter,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -24,46 +25,20 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components/ui/toggle-group"
 import { useCreativeStudio } from "../creative-studio-provider"
 import { useStudioGeneration } from "../hooks/use-studio-generation"
 import { useStudioHistory } from "../hooks/use-studio-history"
 import { ImageUploadBox } from "@/components/playground/kinky-kincade/image-upload-box"
+import {
+  POSE_TEMPLATES,
+  POSE_CATEGORIES,
+  type PoseCategory,
+} from "../presets"
 import type { PoseTemplate } from "@/types/creative-studio"
-
-// ============================================================================
-// Pose Templates (placeholder data)
-// ============================================================================
-
-const POSE_TEMPLATES: PoseTemplate[] = [
-  {
-    id: "standing",
-    name: "Standing",
-    description: "Classic standing pose",
-    category: "basic",
-    poseType: "standing",
-  },
-  {
-    id: "sitting",
-    name: "Sitting",
-    description: "Casual sitting pose",
-    category: "basic",
-    poseType: "sitting",
-  },
-  {
-    id: "action",
-    name: "Action",
-    description: "Dynamic action pose",
-    category: "dynamic",
-    poseType: "action",
-  },
-  {
-    id: "portrait",
-    name: "Portrait",
-    description: "Close-up portrait pose",
-    category: "portrait",
-    poseType: "portrait",
-  },
-]
 
 // ============================================================================
 // Sub-components
@@ -123,19 +98,51 @@ function PoseTemplateCard({
     <button
       onClick={onSelect}
       className={cn(
-        "relative flex flex-col items-center gap-2 rounded-lg border-2 p-4 text-center transition-all",
+        "group relative flex flex-col items-center gap-2 rounded-xl border-2 p-4 text-center transition-all",
+        "hover:scale-[1.02] hover:shadow-lg",
         isSelected
-          ? "border-primary bg-primary/10"
-          : "border-white/20 hover:border-white/40 bg-white/5"
+          ? "border-primary bg-primary/20 shadow-primary/20"
+          : "border-white/20 hover:border-white/40 bg-white/5 hover:bg-white/10"
       )}
     >
-      <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-white/10">
-        <User className="h-8 w-8 text-white/60" />
+      {/* Thumbnail */}
+      <div className={cn(
+        "flex h-20 w-20 items-center justify-center rounded-lg transition-colors",
+        isSelected ? "bg-primary/30" : "bg-white/10 group-hover:bg-white/15"
+      )}>
+        {template.thumbnailUrl ? (
+          <Image
+            src={template.thumbnailUrl}
+            alt={template.name}
+            width={64}
+            height={80}
+            className={cn(
+              "h-16 w-auto object-contain transition-all",
+              isSelected ? "text-primary opacity-100" : "opacity-60 group-hover:opacity-80"
+            )}
+            style={{ filter: isSelected ? "none" : "invert(1)" }}
+            unoptimized
+          />
+        ) : (
+          <User className={cn(
+            "h-10 w-10 transition-colors",
+            isSelected ? "text-primary" : "text-white/40"
+          )} />
+        )}
       </div>
-      <span className="text-sm font-medium text-white">{template.name}</span>
-      <span className="text-xs text-white/50">{template.description}</span>
+      
+      {/* Info */}
+      <div className="space-y-0.5">
+        <span className="text-sm font-medium text-white">{template.name}</span>
+        <span className="text-xs text-white/50 line-clamp-1">{template.description}</span>
+      </div>
+      
+      {/* Selected Badge */}
       {isSelected && (
-        <Badge className="absolute -top-2 -right-2 bg-primary">Selected</Badge>
+        <Badge className="absolute -top-2 -right-2 bg-primary text-white shadow-lg">
+          <Check className="h-3 w-3 mr-1" />
+          Selected
+        </Badge>
       )}
     </button>
   )
@@ -149,10 +156,19 @@ export function PoseVariationMode() {
   const { state, dispatch } = useCreativeStudio()
   const { generate, isGenerating } = useStudioGeneration()
   const { generations, currentGeneration } = useStudioHistory()
+  
+  // Category filter state
+  const [selectedCategory, setSelectedCategory] = useState<PoseCategory | "all">("all")
 
   const { currentSubMode } = state.ui
   const { selectedCharacter, selectedPoseTemplate } = state.selection
   const { imageUpload } = state.propsState
+
+  // Filter poses by category
+  const filteredPoses = useMemo(() => {
+    if (selectedCategory === "all") return POSE_TEMPLATES
+    return POSE_TEMPLATES.filter(pose => pose.category === selectedCategory)
+  }, [selectedCategory])
 
   // Workflow state
   const step1Complete = selectedCharacter !== null
@@ -165,6 +181,8 @@ export function PoseVariationMode() {
   const handleSelectTemplate = useCallback(
     (template: PoseTemplate) => {
       dispatch({ type: "SELECT_POSE_TEMPLATE", payload: template })
+      // Clear uploaded image when selecting a template
+      dispatch({ type: "CLEAR_IMAGE_UPLOAD", payload: 1 })
     },
     [dispatch]
   )
@@ -176,6 +194,7 @@ export function PoseVariationMode() {
         type: "SET_IMAGE_UPLOAD",
         payload: { image1: file, image1Preview: preview },
       })
+      // Clear template selection when uploading custom
       dispatch({ type: "SELECT_POSE_TEMPLATE", payload: null })
     },
     [dispatch]
@@ -295,8 +314,9 @@ export function PoseVariationMode() {
             <div className="space-y-3">
               <Label className="text-white/80">2. Choose Pose</Label>
               <Tabs
+                defaultValue="template"
                 value={
-                  imageUpload.image1Preview ? "upload" : selectedPoseTemplate ? "template" : "template"
+                  imageUpload.image1Preview ? "upload" : "template"
                 }
               >
                 <TabsList className="grid w-full grid-cols-2 bg-white/10">
@@ -310,13 +330,45 @@ export function PoseVariationMode() {
                     value="upload"
                     className="data-[state=active]:bg-white/20 text-white"
                   >
-                    Upload
+                    Upload Reference
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="template" className="mt-4">
+                <TabsContent value="template" className="mt-4 space-y-4">
+                  {/* Category Filter */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-xs text-white/60">
+                      <Filter className="h-3.5 w-3.5" />
+                      <span>Filter by category</span>
+                    </div>
+                    <ToggleGroup
+                      type="single"
+                      value={selectedCategory}
+                      onValueChange={(value) => setSelectedCategory((value || "all") as PoseCategory | "all")}
+                      className="flex flex-wrap justify-start gap-1"
+                    >
+                      <ToggleGroupItem
+                        value="all"
+                        className="h-7 px-2.5 text-xs data-[state=on]:bg-primary data-[state=on]:text-white"
+                      >
+                        All
+                      </ToggleGroupItem>
+                      {POSE_CATEGORIES.map((cat) => (
+                        <ToggleGroupItem
+                          key={cat.value}
+                          value={cat.value}
+                          className="h-7 px-2.5 text-xs data-[state=on]:bg-primary data-[state=on]:text-white"
+                        >
+                          <span className="mr-1">{cat.icon}</span>
+                          {cat.label}
+                        </ToggleGroupItem>
+                      ))}
+                    </ToggleGroup>
+                  </div>
+                  
+                  {/* Pose Grid */}
                   <div className="grid grid-cols-2 gap-3">
-                    {POSE_TEMPLATES.map((template) => (
+                    {filteredPoses.map((template) => (
                       <PoseTemplateCard
                         key={template.id}
                         template={template}
@@ -325,6 +377,12 @@ export function PoseVariationMode() {
                       />
                     ))}
                   </div>
+                  
+                  {filteredPoses.length === 0 && (
+                    <div className="text-center py-8 text-white/50">
+                      <p>No poses in this category</p>
+                    </div>
+                  )}
                 </TabsContent>
 
                 <TabsContent value="upload" className="mt-4">
@@ -335,6 +393,10 @@ export function PoseVariationMode() {
                     label="Upload pose reference"
                     className="aspect-video"
                   />
+                  <p className="mt-2 text-xs text-white/50 text-center">
+                    Upload any image as a pose reference. The AI will attempt to recreate 
+                    your character in a similar pose.
+                  </p>
                 </TabsContent>
               </Tabs>
             </div>

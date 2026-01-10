@@ -9,6 +9,8 @@ export async function getCurrentUser() {
     error,
   } = await supabase.auth.getUser()
 
+  // Silently return null if there's an error or no user
+  // This is expected behavior on login pages and when no session exists
   if (error || !user) {
     return null
   }
@@ -25,6 +27,10 @@ export async function requireAuth() {
   const user = await getCurrentUser()
 
   if (!user) {
+    // Log redirect for debugging
+    if (process.env.NODE_ENV === "development") {
+      console.log("[requireAuth] No user found, redirecting to /auth/login")
+    }
     redirect("/auth/login")
   }
 

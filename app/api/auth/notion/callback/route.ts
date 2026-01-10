@@ -29,11 +29,27 @@ export async function GET(request: NextRequest) {
     let userFriendlyError = error
     if (error === "access_denied") {
       userFriendlyError = "Authentication was cancelled. Please try again."
+    } else if (error === "invalid_request" && decodedDescription?.includes("redirect_uri")) {
+      // Provide helpful instructions for redirect_uri errors
+      const redirectUri = `${requestUrl.origin}/api/auth/notion/callback`
+      userFriendlyError = `Redirect URI not configured. Please add this exact URL to your Notion OAuth app: ${redirectUri}`
+      console.error("[Notion OAuth] Redirect URI Error:")
+      console.error(`Required redirect URI: ${redirectUri}`)
+      console.error("Steps to fix:")
+      console.error("1. Go to https://www.notion.so/my-integrations")
+      console.error("2. Select your KINK IT integration")
+      console.error(`3. Under 'Redirect URIs', add: ${redirectUri}`)
+      console.error("4. Save and try again")
     }
 
     errorUrl.searchParams.set("error", userFriendlyError)
-    if (decodedDescription) {
+    if (decodedDescription && !decodedDescription.includes("redirect_uri")) {
       errorUrl.searchParams.set("error_description", decodedDescription)
+    }
+    
+    // Add redirect URI to error URL for display
+    if (error === "invalid_request" && decodedDescription?.includes("redirect_uri")) {
+      errorUrl.searchParams.set("redirect_uri", `${requestUrl.origin}/api/auth/notion/callback`)
     }
 
     return NextResponse.redirect(errorUrl)
@@ -41,6 +57,16 @@ export async function GET(request: NextRequest) {
 
   // Exchange code for tokens
   if (code) {
+    // Basic state validation (state should be present)
+    // TODO: Implement proper state validation using cookies or signed state
+    // For now, we rely on redirect_uri validation and Notion's CSRF protection
+    if (!state) {
+      console.warn("OAuth callback missing state parameter - potential CSRF attempt")
+      const errorUrl = new URL("/auth/login", requestUrl.origin)
+      errorUrl.searchParams.set("error", "Invalid authentication request. Please try again.")
+      return NextResponse.redirect(errorUrl)
+    }
+
     const clientId = process.env.SUPABASE_AUTH_EXTERNAL_NOTION_CLIENT_ID
     const clientSecret = process.env.SUPABASE_AUTH_EXTERNAL_NOTION_SECRET
     const redirectUri = `${requestUrl.origin}/api/auth/notion/callback`
@@ -166,39 +192,44 @@ export async function GET(request: NextRequest) {
         expires_in: 3600, // Notion tokens expire in 1 hour
       })
 
-      // Generate a session token for the user
+      // Create a session using admin API
+      // Generate a magic link - Supabase will verify it and establish session automatically
+      console.log("[Notion OAuth] Generating magic link for user:", supabaseUser.email)
+      
       const { data: sessionData, error: sessionError } = await adminClient.auth.admin.generateLink({
         type: "magiclink",
         email: supabaseUser.email!,
+        options: {
+          // Redirect to a client-side page that can verify session after cookies are set
+          redirectTo: `${requestUrl.origin}/auth/verify-session?notion_oauth=success`,
+        },
       })
 
       if (sessionError) {
+        console.error("[Notion OAuth] Failed to generate session link:", sessionError)
         throw new Error(`Failed to generate session: ${sessionError.message}`)
       }
 
-      // Create a session using the regular client
-      const supabase = await createClient()
-      
-      // Set the session using the properties token
-      const propertiesToken = sessionData.properties?.token
-      if (propertiesToken) {
-        // Exchange the properties token for a session
-        const { data: session, error: exchangeError } = await supabase.auth.setSession({
-          access_token: propertiesToken,
-          refresh_token: propertiesToken, // Use same token for both (Supabase will handle refresh)
-        })
+      console.log("[Notion OAuth] Magic link generated:", {
+        hasActionLink: !!sessionData.properties?.action_link,
+        redirectTo: `${requestUrl.origin}/auth/verify-session?notion_oauth=success`,
+      })
 
-        if (exchangeError) {
-          console.error("Error setting session:", exchangeError)
-          // Fallback: redirect to login with success message
-          const successUrl = new URL("/auth/login", requestUrl.origin)
-          successUrl.searchParams.set("success", "Authentication successful. Please sign in.")
-          return NextResponse.redirect(successUrl)
-        }
+      const magicLinkUrl = sessionData.properties?.action_link
+      
+      if (!magicLinkUrl) {
+        console.error("[Notion OAuth] No magic link URL generated")
+        throw new Error("Failed to generate authentication link")
       }
 
-      // Success - redirect to home
-      return NextResponse.redirect(new URL("/", requestUrl.origin))
+      // Redirect directly to magic link URL
+      // Supabase will:
+      // 1. Verify the token at their verify endpoint
+      // 2. Establish session via cookies
+      // 3. Redirect to our redirectTo URL (/auth/verify-session?notion_oauth=success)
+      // 4. Our verify-session page will check authentication and redirect to home
+      console.log("[Notion OAuth] Redirecting to Supabase magic link:", magicLinkUrl)
+      return NextResponse.redirect(magicLinkUrl)
     } catch (error) {
       console.error("Error in Notion OAuth callback:", error)
       const errorUrl = new URL("/auth/login", requestUrl.origin)

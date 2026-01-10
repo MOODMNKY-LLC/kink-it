@@ -36,6 +36,22 @@ NOTION_APP_IDEAS_DATABASE_ID=cc491ef5f0a64eac8e05a6ea10dfb735
 NEXT_PUBLIC_NOTION_TEMPLATE_URL=https://www.notion.so/mood-mnky/KINK-IT-User-Template-2dfcd2a6542281bcba14ffa2099160d8
 
 # ============================================
+# NOTION OAUTH (REQUIRED FOR USER AUTHENTICATION)
+# ============================================
+# Notion OAuth Client ID and Secret for Supabase Auth
+# Get these from: https://www.notion.so/my-integrations
+# ⚠️ IMPORTANT: Never expose SUPABASE_AUTH_EXTERNAL_NOTION_SECRET to the client!
+# Only NEXT_PUBLIC_NOTION_CLIENT_ID should be public (it's in OAuth URLs anyway)
+
+# Server-side OAuth credentials (for Supabase Auth and token exchange)
+SUPABASE_AUTH_EXTERNAL_NOTION_CLIENT_ID=2dfd872b-594c-803e-a575-0037d97447ad
+SUPABASE_AUTH_EXTERNAL_NOTION_SECRET=YOUR_NOTION_OAUTH_CLIENT_SECRET_HERE
+
+# Client-side OAuth Client ID (public - required for OAuth URL construction)
+# This must match SUPABASE_AUTH_EXTERNAL_NOTION_CLIENT_ID
+NEXT_PUBLIC_NOTION_CLIENT_ID=2dfd872b-594c-803e-a575-0037d97447ad
+
+# ============================================
 # DEVELOPMENT (OPTIONAL)
 # ============================================
 NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=http://localhost:3000/auth/callback

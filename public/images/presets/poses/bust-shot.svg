@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120" fill="currentColor">
+  <!-- Head (slightly tilted) -->
+  <ellipse cx="52" cy="28" rx="18" ry="20" transform="rotate(5 52 28)"/>
+  <!-- Neck -->
+  <rect x="44" y="46" width="14" height="10" rx="2"/>
+  <!-- Shoulders and upper chest -->
+  <path d="M15 120 Q25 70 44 56 L56 56 Q75 70 85 120 Z"/>
+  <!-- Arms suggestion -->
+  <ellipse cx="22" cy="90" rx="10" ry="15"/>
+  <ellipse cx="78" cy="90" rx="10" ry="15"/>
+</svg>

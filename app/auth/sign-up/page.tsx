@@ -35,10 +35,16 @@ export default function SignUpPage() {
     setError(null)
 
     try {
+      // Normalize redirect URL to use 127.0.0.1 instead of localhost in development
+      // This ensures consistency with Next.js server and Supabase config
+      const origin = window.location.origin
+      const normalizedOrigin = origin.replace(/localhost/i, "127.0.0.1")
+      const redirectTo = `${normalizedOrigin}/auth/callback`
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "notion",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo,
         },
       })
       if (error) throw error

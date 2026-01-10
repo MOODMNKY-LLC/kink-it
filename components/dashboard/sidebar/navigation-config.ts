@@ -30,6 +30,7 @@ import {
   Wand2,
   Image as ImageIcon,
   User,
+  Trophy,
 } from "lucide-react"
 
 export interface NavigationItem {
@@ -71,6 +72,11 @@ export const userNavigation: NavigationGroup[] = [
         title: "Rewards",
         url: "/rewards",
         icon: AtomIcon,
+      },
+      {
+        title: "Achievements",
+        url: "/achievements",
+        icon: Trophy,
       },
     ],
   },

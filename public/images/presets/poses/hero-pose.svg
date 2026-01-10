@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 150" fill="currentColor">
+  <!-- Head (looking up/forward heroically) -->
+  <circle cx="70" cy="22" r="14"/>
+  <!-- Body (broad, heroic) -->
+  <path d="M50 38 L90 38 L95 80 L45 80 Z"/>
+  <!-- Cape suggestion -->
+  <path d="M45 42 L30 130 L50 80 Z" opacity="0.3"/>
+  <path d="M95 42 L110 130 L90 80 Z" opacity="0.3"/>
+  <!-- Arms (fists at sides, powerful) -->
+  <rect x="30" y="42" width="18" height="8" rx="4" transform="rotate(-25 39 46)"/>
+  <rect x="92" y="42" width="18" height="8" rx="4" transform="rotate(25 101 46)"/>
+  <!-- Fists -->
+  <circle cx="22" cy="56" r="6"/>
+  <circle cx="118" cy="56" r="6"/>
+  <!-- Legs (heroic wide stance) -->
+  <rect x="48" y="82" width="14" height="48" rx="4" transform="rotate(-12 55 106)"/>
+  <rect x="78" y="82" width="14" height="48" rx="4" transform="rotate(12 85 106)"/>
+</svg>

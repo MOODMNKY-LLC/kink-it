@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 150" fill="currentColor">
+  <!-- Head -->
+  <circle cx="45" cy="22" r="12"/>
+  <!-- Body (leaning) -->
+  <rect x="33" y="36" width="24" height="38" rx="4" transform="rotate(-8 45 55)"/>
+  <!-- Arm against wall -->
+  <rect x="20" y="30" width="6" height="35" rx="3"/>
+  <!-- Other arm casual -->
+  <rect x="55" y="45" width="16" height="6" rx="3" transform="rotate(30 63 48)"/>
+  <!-- Legs (crossed stance) -->
+  <rect x="30" y="74" width="10" height="52" rx="3" transform="rotate(-5 35 100)"/>
+  <rect x="48" y="74" width="10" height="52" rx="3" transform="rotate(8 53 100)"/>
+</svg>

@@ -18,12 +18,13 @@ extra_search_path = ["public", "extensions"]
 max_rows = 1000
 
 [api.tls]
-# Enable HTTPS endpoints locally using a self-signed certificate.
+# Enable HTTPS endpoints locally using a trusted certificate (via mkcert).
 # Required for Notion OAuth which mandates HTTPS even in local development.
 enabled = true
-# Paths to self-signed certificate pair (optional - Supabase will auto-generate if not specified).
-# cert_path = "../certs/my-cert.pem"
-# key_path = "../certs/my-key.pem"
+# Use mkcert-generated trusted certificates (browsers accept automatically)
+# These certificates are in the supabase/certs/ directory (relative to supabase/)
+cert_path = "./certs/cert.pem"
+key_path = "./certs/key.pem"
 
 [db]
 # Port to use for the local database URL.

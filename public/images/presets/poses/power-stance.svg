@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 150" fill="currentColor">
+  <!-- Head -->
+  <circle cx="60" cy="20" r="13"/>
+  <!-- Body (broader, powerful) -->
+  <rect x="44" y="35" width="32" height="40" rx="5"/>
+  <!-- Arms on hips -->
+  <path d="M44 40 L30 55 L34 60 L44 50 Z"/>
+  <path d="M76 40 L90 55 L86 60 L76 50 Z"/>
+  <!-- Legs (wide stance) -->
+  <rect x="34" y="77" width="12" height="50" rx="4" transform="rotate(-10 40 102)"/>
+  <rect x="74" y="77" width="12" height="50" rx="4" transform="rotate(10 80 102)"/>
+</svg>

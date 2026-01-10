@@ -24,6 +24,7 @@ import { Toaster } from "sonner"
 import { getNotifications } from "@/lib/notifications/get-notifications"
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register"
 import { InstallPrompt } from "@/components/pwa/install-prompt"
+import { CertificateCheck } from "@/components/supabase/certificate-check"
 
 const robotoMono = Roboto_Mono({
   variable: "--font-roboto-mono",
@@ -142,6 +143,7 @@ export default async function RootLayout({
       </head>
       <body className={`${rebelGrotesk.variable} ${robotoMono.variable} antialiased`} suppressHydrationWarning>
         <V0Provider isV0={isV0}>
+          <CertificateCheck />
           {profile ? (
             <div className="dark min-h-screen bg-background relative overflow-hidden">
               {/* Character-based backgrounds - dark mode first */}

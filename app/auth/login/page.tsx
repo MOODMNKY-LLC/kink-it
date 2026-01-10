@@ -26,28 +26,81 @@ export default function LoginPage() {
   const router = useRouter()
 
   const handleNotionLogin = async () => {
-    const supabase = createClient()
     setIsOAuthLoading(true)
     setError(null)
 
     try {
-      // Use Supabase OAuth handler - it handles user creation and sessions properly
-      // We'll capture refresh tokens in the callback handler
-      const { error } = await supabase.auth.signInWithOAuth({
+      // Use Supabase's built-in OAuth handler for proper session establishment
+      // This fixes the redirect loop issue
+      // Note: We'll try to capture refresh tokens in the callback
+      const supabase = createClient()
+      
+      // Normalize redirect URL to use 127.0.0.1 instead of localhost in development
+      // This ensures consistency with Next.js server and Supabase config
+      const origin = window.location.origin
+      const normalizedOrigin = origin.replace(/localhost/i, "127.0.0.1")
+      const redirectTo = `${normalizedOrigin}/auth/callback`
+      
+      console.log("[Notion OAuth] Initiating OAuth flow:", {
+        origin,
+        normalizedOrigin,
+        redirectTo,
+        supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+      })
+      
+      // Log cookies before OAuth initiation to verify PKCE setup
+      if (process.env.NODE_ENV === "development") {
+        const allCookies = document.cookie.split(';').map(c => c.trim())
+        const pkceCookies = allCookies.filter(c => c.includes("code-verifier") || c.includes("pkce"))
+        console.log("[Notion OAuth] Cookies before OAuth:", {
+          allCookies: allCookies.length,
+          pkceCookies: pkceCookies.length,
+          pkceCookieNames: pkceCookies.map(c => c.split('=')[0]),
+        })
+      }
+      
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "notion",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          // Try to request offline access (if Supabase supports it)
+          redirectTo,
+          // Request offline access to get refresh token
           queryParams: {
             access_type: "offline",
-            prompt: "consent", // Force consent to get refresh token
+            prompt: "consent",
           },
         },
       })
-      if (error) throw error
+      
+      // Log cookies after OAuth initiation to verify PKCE cookie was set
+      if (process.env.NODE_ENV === "development") {
+        setTimeout(() => {
+          const allCookies = document.cookie.split(';').map(c => c.trim())
+          const pkceCookies = allCookies.filter(c => c.includes("code-verifier") || c.includes("pkce"))
+          console.log("[Notion OAuth] Cookies after OAuth initiation:", {
+            allCookies: allCookies.length,
+            pkceCookies: pkceCookies.length,
+            pkceCookieNames: pkceCookies.map(c => c.split('=')[0]),
+          })
+        }, 100)
+      }
+
+      if (oauthError) {
+        console.error("[Notion OAuth] OAuth error:", oauthError)
+        throw oauthError
+      }
+      
+      if (data?.url) {
+        console.log("[Notion OAuth] Redirecting to:", data.url)
+        // signInWithOAuth should redirect automatically, but log the URL for debugging
+      }
+      
+      // signInWithOAuth redirects automatically, so we don't need to do anything else
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred")
+      const errorMessage = error instanceof Error ? error.message : "An error occurred"
+      setError(errorMessage)
       setIsOAuthLoading(false)
+      
+      console.error("[Notion OAuth] Error:", errorMessage)
     }
   }
 
@@ -163,8 +216,19 @@ export default function LoginPage() {
                       />
                     </div>
                     {error && (
-                      <div className="text-xs text-destructive-foreground bg-destructive/20 border border-destructive/50 rounded-md p-2 backdrop-blur-sm">
-                        {error}
+                      <div className="text-xs text-destructive-foreground bg-destructive/20 border border-destructive/50 rounded-md p-2 backdrop-blur-sm space-y-2">
+                        <div>{error}</div>
+                        {error.includes("Redirect URI") && (
+                          <div className="mt-2 pt-2 border-t border-destructive/30">
+                            <div className="font-semibold mb-1">Quick Fix:</div>
+                            <ol className="list-decimal list-inside space-y-1 text-[10px]">
+                              <li>Go to <a href="https://www.notion.so/my-integrations" target="_blank" rel="noopener noreferrer" className="underline">notion.so/my-integrations</a></li>
+                              <li>Select your KINK IT integration</li>
+                              <li>Add the redirect URI shown above</li>
+                              <li>Save and try again</li>
+                            </ol>
+                          </div>
+                        )}
                       </div>
                     )}
                     <Button

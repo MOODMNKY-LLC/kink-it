@@ -129,9 +129,9 @@ function StudioLayout() {
 
   return (
     <div className="relative flex h-screen w-full overflow-hidden">
-      {/* Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-oklch(0.70 0.20 30) via-oklch(0.70 0.20 220) to-oklch(0.7 0.18 155) opacity-90" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)]" />
+      {/* Gradient Background - pointer-events-none to prevent blocking clicks */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-oklch(0.70 0.20 30) via-oklch(0.70 0.20 220) to-oklch(0.7 0.18 155) opacity-90" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)]" />
 
       {/* Main Layout */}
       <div className="relative z-10 flex h-full w-full">

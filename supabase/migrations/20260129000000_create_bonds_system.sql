@@ -194,6 +194,35 @@ ADD COLUMN IF NOT EXISTS bond_id uuid REFERENCES public.bonds(id) ON DELETE SET 
 
 CREATE INDEX IF NOT EXISTS idx_profiles_bond_id ON public.profiles(bond_id) WHERE bond_id IS NOT NULL;
 
+-- Add foreign key constraint to user_achievements.bond_id if it doesn't exist
+-- This was deferred because achievements migration runs before bonds migration
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint 
+    WHERE conname = 'user_achievements_bond_id_fkey'
+  ) THEN
+    ALTER TABLE public.user_achievements
+    ADD CONSTRAINT user_achievements_bond_id_fkey 
+    FOREIGN KEY (bond_id) REFERENCES public.bonds(id) ON DELETE CASCADE;
+  END IF;
+END $$;
+
+-- Update user_achievements RLS policy to include bond_members check
+-- This was deferred because bond_members table didn't exist when achievements migration ran
+DROP POLICY IF EXISTS "user_achievements_select_bond" ON public.user_achievements;
+CREATE POLICY "user_achievements_select_bond"
+ON public.user_achievements FOR SELECT
+USING (
+  bond_id IS NULL
+  OR EXISTS (
+    SELECT 1 FROM public.bond_members
+    WHERE bond_id = user_achievements.bond_id
+    AND user_id = auth.uid()
+    AND is_active = true
+  )
+);
+
 -- Function to generate unique invite codes
 CREATE OR REPLACE FUNCTION public.generate_bond_invite_code()
 RETURNS text
