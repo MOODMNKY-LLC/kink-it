@@ -12,6 +12,9 @@ import QuickActions from "@/components/dashboard/quick-actions"
 import { RoleDashboardDominant } from "@/components/dashboard/role-dashboard-dominant"
 import { RoleDashboardSubmissive } from "@/components/dashboard/role-dashboard-submissive"
 import { RoleDashboardSwitch } from "@/components/dashboard/role-dashboard-switch"
+import { ActivityFeed } from "@/components/dashboard/activity-feed"
+import { PendingTasksWidget } from "@/components/dashboard/widgets/pending-tasks-widget"
+import { TodaysTasksWidget } from "@/components/dashboard/widgets/todays-tasks-widget"
 import BracketsIcon from "@/components/icons/brackets"
 import GearIcon from "@/components/icons/gear"
 import ProcessorIcon from "@/components/icons/proccesor"
@@ -121,6 +124,32 @@ export default async function DashboardOverview() {
               partnerName={partnerName}
             />
           </div>
+
+          {/* Role-Based Task Widgets */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            {profile.dynamic_role === "dominant" && profile.partner_id && (
+              <PendingTasksWidget
+                userId={profile.id}
+                partnerId={profile.partner_id}
+                limit={5}
+              />
+            )}
+            {profile.dynamic_role === "submissive" && (
+              <TodaysTasksWidget userId={profile.id} limit={10} />
+            )}
+            {profile.dynamic_role === "switch" && (
+              <>
+                {profile.partner_id && (
+                  <PendingTasksWidget
+                    userId={profile.id}
+                    partnerId={profile.partner_id}
+                    limit={5}
+                  />
+                )}
+                <TodaysTasksWidget userId={profile.id} limit={10} />
+              </>
+            )}
+          </div>
         </>
       )}
 
@@ -171,28 +200,12 @@ export default async function DashboardOverview() {
             await getPartnerRanking(profile.id, profile.partner_id)
           }
         />
-        {/* Security Status - Coming Soon (Modules 5, 6, 7) */}
-        <SecurityStatus
-          statuses={[
-            {
-              title: "ACTIVE CONTRACT",
-              value: "Coming Soon",
-              status: "[MODULE 6]",
-              variant: "warning",
-            },
-            {
-              title: "BOUNDARIES SET",
-              value: "Coming Soon",
-              status: "[MODULE 5]",
-              variant: "warning",
-            },
-            {
-              title: "CHECK-INS",
-              value: "Coming Soon",
-              status: "[MODULE 7]",
-              variant: "warning",
-            },
-          ]}
+        {/* Activity Feed - Recent activities from tasks, check-ins, rewards, etc. */}
+        <ActivityFeed
+          userId={profile.id}
+          partnerId={profile.partner_id}
+          userRole={profile.dynamic_role}
+          limit={20}
         />
       </div>
     </DashboardPageLayout>

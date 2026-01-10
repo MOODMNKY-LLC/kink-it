@@ -97,6 +97,35 @@ export async function getDashboardStats({
     console.error("[Dashboard Stats] Rewards count error:", rewardsError)
   }
 
+  // Count pending tasks (for dominants) or today's tasks (for submissives)
+  let pendingTasksCount = 0
+  if (userRole === "dominant" && partnerId) {
+    // Count pending tasks assigned to partner
+    const { count: pendingCount, error: pendingError } = await supabase
+      .from("tasks")
+      .select("*", { count: "exact", head: true })
+      .eq("assigned_to", partnerId)
+      .in("status", ["pending", "in_progress"])
+    
+    if (!pendingError) {
+      pendingTasksCount = pendingCount || 0
+    }
+  } else if (userRole === "submissive") {
+    // Count tasks due today or overdue
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const { count: todayCount, error: todayError } = await supabase
+      .from("tasks")
+      .select("*", { count: "exact", head: true })
+      .eq("assigned_to", userId)
+      .in("status", ["pending", "in_progress"])
+      .or(`due_date.is.null,due_date.lte.${today.toISOString()}`)
+    
+    if (!todayError) {
+      pendingTasksCount = todayCount || 0
+    }
+  }
+
   // Build stats array
   const stats: DashboardStat[] = [
     {

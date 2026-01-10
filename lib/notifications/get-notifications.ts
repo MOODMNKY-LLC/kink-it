@@ -10,15 +10,39 @@ export async function getNotifications(userId: string): Promise<Notification[]> 
   const supabase = await createClient()
 
   // Query notifications table
-  const { data: dbNotifications, error: dbError } = await supabase
-    .from("notifications")
-    .select("*")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false })
-    .limit(50)
+  // Handle case where table might not exist yet (graceful degradation)
+  let dbNotifications: any[] | null = null
+  let dbError: any = null
+  
+  try {
+    const result = await supabase
+      .from("notifications")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(50)
+    
+    dbNotifications = result.data
+    dbError = result.error
+  } catch (error) {
+    // Table might not exist - log but continue with task-based notifications
+    console.warn("[Notifications] Table query failed (may not exist yet):", error)
+    dbError = error
+  }
 
   if (dbError) {
-    console.error("[Notifications] Error fetching from table:", dbError)
+    // Check if it's a schema error (table doesn't exist)
+    const isSchemaError = 
+      dbError.message?.includes("relation") && dbError.message?.includes("does not exist") ||
+      dbError.message?.includes("Could not find the table") ||
+      dbError.code === "PGRST204" ||
+      dbError.code === "PGRST205"
+    
+    if (isSchemaError) {
+      console.warn("[Notifications] Notifications table not found - using task-based notifications only")
+    } else {
+      console.error("[Notifications] Error fetching from table:", dbError)
+    }
   }
 
   // Convert database notifications to Notification type

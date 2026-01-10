@@ -97,6 +97,7 @@ export async function PATCH(req: Request) {
     success: true,
     previous_state,
     new_state: state,
+    reason: reason || null,
     updated_at: new Date().toISOString(),
   })
 }

@@ -28,15 +28,34 @@ export function useNotifications() {
 
         // Fetch notifications from API route
         const response = await fetch("/api/notifications")
+        
         if (!response.ok) {
-          throw new Error("Failed to fetch notifications")
+          // Try to get error details from response
+          let errorMessage = "Failed to fetch notifications"
+          try {
+            const errorData = await response.json()
+            errorMessage = errorData.error || errorMessage
+          } catch {
+            // If response isn't JSON, use status text
+            errorMessage = response.statusText || errorMessage
+          }
+          
+          // Don't throw for 401 (unauthorized) - user might not be logged in yet
+          if (response.status === 401) {
+            setIsLoading(false)
+            return
+          }
+          
+          throw new Error(`${errorMessage} (${response.status})`)
         }
 
         const data = await response.json()
         setNotifications(data.notifications || [])
         setIsLoading(false)
       } catch (error) {
+        // Log error but don't break the app - set empty array and continue
         console.error("[useNotifications] Error fetching notifications:", error)
+        setNotifications([])
         setIsLoading(false)
       }
     }
