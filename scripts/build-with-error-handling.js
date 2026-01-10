@@ -53,7 +53,9 @@ buildEnv.TURBOPACK = '' // Disable Turbopack to avoid error page static generati
 const stderrFile = path.join(process.cwd(), '.next-build-stderr.log')
 const stderrStream = fs.createWriteStream(stderrFile, { flags: 'w' })
 
-const buildProcess = spawn('next', ['build'], {
+// Use pnpm to run next build to ensure it's found in node_modules
+// In Vercel, pnpm is available and next is installed via pnpm
+const buildProcess = spawn('pnpm', ['next', 'build'], {
   cwd: process.cwd(),
   env: buildEnv,
   stdio: ['inherit', 'pipe', 'pipe'], // Use pipe for stderr, then redirect manually
