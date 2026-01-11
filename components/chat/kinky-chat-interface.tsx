@@ -31,6 +31,7 @@ import {
   Search,
   MoreHorizontal,
   Info,
+  File,
 } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -38,12 +39,22 @@ import { EnhancedChatInputBar } from "./enhanced-chat-input-bar"
 import type { FileAttachment } from "./file-upload-handler"
 import { ChatSettingsPanel } from "./chat-settings-panel"
 import { ChatHelpDialog } from "./chat-help-dialog"
+import { uploadChatAttachments } from "@/lib/chat/upload-attachment"
+
+interface ChatMessageAttachment {
+  url: string
+  fileName: string
+  fileSize: number
+  mimeType: string
+  type: "image" | "video" | "audio" | "document" | "file"
+}
 
 interface ChatMessage {
   id: string
   role: "user" | "assistant"
   content: string
   timestamp: Date
+  attachments?: ChatMessageAttachment[]
 }
 
 interface KinkyChatInterfaceProps {
@@ -327,13 +338,35 @@ export function KinkyChatInterface({
 
   const handleSendMessage = useCallback(
     async (data: { text: string; files: FileAttachment[]; tools?: Array<{ id: string; name: string; category: string; mode: "one-shot" | "agent" }> }) => {
-      if (!data.text.trim() || isStreaming) return
+      // Allow sending if there's text OR files
+      if ((!data.text.trim() && (!data.files || data.files.length === 0)) || isStreaming) return
+
+      // Upload files before sending message
+      let uploadedAttachments: ChatMessageAttachment[] = []
+      if (data.files && data.files.length > 0 && profile) {
+        try {
+          const uploaded = await uploadChatAttachments(data.files, profile.id)
+          uploadedAttachments = uploaded.map((att) => ({
+            url: att.url,
+            fileName: att.fileName,
+            fileSize: att.fileSize,
+            mimeType: att.mimeType,
+            type: att.type,
+          }))
+        } catch (uploadError) {
+          console.error("[KinkyChat] Error uploading attachments:", uploadError)
+          toast.error("Failed to upload some files. Please try again.")
+          setIsStreaming(false)
+          return
+        }
+      }
 
       const userMessage: ChatMessage = {
         id: `user-${Date.now()}`,
         role: "user",
         content: data.text.trim(),
         timestamp: new Date(),
+        attachments: uploadedAttachments.length > 0 ? uploadedAttachments : undefined,
       }
 
       setMessages((prev) => [...prev, userMessage])
@@ -343,8 +376,6 @@ export function KinkyChatInterface({
       // Declare variables outside try blocks so they're accessible in catch
       let assistantMessageId = `assistant-${Date.now()}`
       let fullResponse = ""
-
-      // TODO: Handle file attachments (upload to Supabase Storage and include URLs)
 
       try {
         // Route based on active tab:
@@ -357,6 +388,7 @@ export function KinkyChatInterface({
         const apiEndpoint = isKinkyKincade ? "/api/openai/chat" : "/api/flowise/chat"
 
         // Build request body based on provider
+        const fileUrls = uploadedAttachments.map((att) => att.url)
         const requestBody = isKinkyKincade
           ? {
               // OpenAI (Kinky Kincade) request
@@ -365,6 +397,7 @@ export function KinkyChatInterface({
                 role: msg.role,
                 content: msg.content,
               })),
+              fileUrls: fileUrls.length > 0 ? fileUrls : undefined,
               realtime: realtimeEnabled,
               conversationId,
             }
@@ -378,6 +411,7 @@ export function KinkyChatInterface({
                 role: msg.role,
                 content: msg.content,
               })),
+              fileUrls: fileUrls.length > 0 ? fileUrls : undefined,
               realtime: realtimeEnabled,
               conversationId,
             }
@@ -880,6 +914,36 @@ export function KinkyChatInterface({
                                 timeStyle: "short",
                               }).format(message.timestamp)}
                             </ChatEventDescription>
+                          </div>
+                        )}
+                        {/* Message Attachments (Images Preview) */}
+                        {message.attachments && message.attachments.length > 0 && (
+                          <div className="mt-2 mb-1 flex flex-wrap gap-2">
+                            {message.attachments.map((attachment, attIndex) => (
+                              <div key={`${message.id}-att-${attIndex}`} className="relative">
+                                {attachment.type === "image" ? (
+                                  <img
+                                    src={attachment.url}
+                                    alt={attachment.fileName}
+                                    className="max-w-[200px] sm:max-w-[300px] rounded-lg border border-border/50 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                    onClick={() => window.open(attachment.url, "_blank")}
+                                  />
+                                ) : (
+                                  <a
+                                    href={attachment.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg border border-border/50 hover:bg-muted/80 transition-colors"
+                                  >
+                                    <File className="h-4 w-4" />
+                                    <span className="text-xs truncate max-w-[150px]">{attachment.fileName}</span>
+                                    <span className="text-xs text-muted-foreground">
+                                      {(attachment.fileSize / 1024).toFixed(1)} KB
+                                    </span>
+                                  </a>
+                                )}
+                              </div>
+                            ))}
                           </div>
                         )}
                         <ChatEventContent className={cn(

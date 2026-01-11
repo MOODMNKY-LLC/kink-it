@@ -10,6 +10,7 @@ interface ChatRequest {
   chatId?: string // Optional: for conversation continuity (Flowise chatId)
   conversationId?: string // Optional: Supabase conversation ID for Realtime
   history?: Array<{ role: "user" | "assistant"; content: string }>
+  fileUrls?: string[] // URLs of uploaded file attachments
   realtime?: boolean // Optional: enable Realtime mode
 }
 
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = (await request.json()) as ChatRequest
-    const { message, chatflowId, kinksterId, chatId, conversationId, history, realtime } = body
+    const { message, chatflowId, kinksterId, chatId, conversationId, history, fileUrls, realtime } = body
 
     if (!message || !message.trim()) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 })
@@ -99,8 +100,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Save user message if realtime mode is enabled
+    let userMessageId: string | undefined
     if (realtime && finalConversationId) {
-      const { error: messageError } = await supabase
+      const { data: userMessage, error: messageError } = await supabase
         .from("messages")
         .insert({
           conversation_id: finalConversationId,
@@ -108,9 +110,45 @@ export async function POST(request: NextRequest) {
           content: message,
           is_streaming: false,
         })
+        .select("id")
+        .single()
 
       if (messageError) {
         console.error("[Flowise Chat API] Error saving user message:", messageError)
+      } else {
+        userMessageId = userMessage.id
+        
+        // Save attachment metadata if files were uploaded
+        if (fileUrls && fileUrls.length > 0 && userMessageId) {
+          const attachments = fileUrls.map((url) => {
+            // Determine attachment type from URL or file extension
+            const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url)
+            const isVideo = /\.(mp4|webm|mov|avi)$/i.test(url)
+            const isAudio = /\.(mp3|wav|ogg)$/i.test(url)
+            const isDocument = /\.(pdf|doc|docx|txt)$/i.test(url)
+            
+            const attachmentType = isImage ? "image" 
+              : isVideo ? "video"
+              : isAudio ? "audio"
+              : isDocument ? "document"
+              : "file"
+            
+            return {
+              message_id: userMessageId,
+              attachment_type: attachmentType,
+              attachment_url: url,
+              file_name: url.split("/").pop() || "attachment",
+            }
+          })
+          
+          const { error: attachmentError } = await supabase
+            .from("ai_message_attachments")
+            .insert(attachments)
+          
+          if (attachmentError) {
+            console.error("[Flowise Chat API] Error saving attachments:", attachmentError)
+          }
+        }
       }
     }
 

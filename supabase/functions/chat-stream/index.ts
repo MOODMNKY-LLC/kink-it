@@ -193,11 +193,68 @@ Deno.serve(async (req: Request) => {
       )
     }
 
+    // Check if we have image URLs for vision processing
+    const imageUrls = file_urls?.filter(url => {
+      const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url) || 
+                     /image\//i.test(url) ||
+                     url.includes('/storage/v1/object/public/chat-attachments')
+      return isImage
+    }) || []
+    
     // Enhance message content with file URLs if provided
+    // For images, we'll use vision API format; for other files, append as text
     let enhancedContent = lastUserMessage.content
-    if (file_urls && file_urls.length > 0) {
-      const fileList = file_urls.map((url, idx) => `[Image ${idx + 1}: ${url}]`).join("\n")
+    const nonImageUrls = file_urls?.filter(url => !imageUrls.includes(url)) || []
+    
+    if (nonImageUrls.length > 0) {
+      const fileList = nonImageUrls.map((url, idx) => `[File ${idx + 1}: ${url}]`).join("\n")
       enhancedContent = enhancedContent ? `${enhancedContent}\n\n${fileList}` : fileList
+    }
+    
+    // Build messages array for OpenAI API (with vision support if images present)
+    const openAIMessages: any[] = []
+    
+    // Add history messages (excluding the last user message which we'll add with images)
+    for (const msg of messages.slice(0, -1)) {
+      openAIMessages.push({
+        role: msg.role,
+        content: msg.content,
+      })
+    }
+    
+    // Add last user message with vision support if images are present
+    if (imageUrls.length > 0) {
+      const contentParts: any[] = []
+      
+      // Add text content (required - even if empty, provide a prompt)
+      const textContent = enhancedContent && enhancedContent.trim() 
+        ? enhancedContent 
+        : "Please analyze these images."
+      contentParts.push({
+        type: "text",
+        text: textContent,
+      })
+      
+      // Add image URLs for vision processing
+      for (const imageUrl of imageUrls) {
+        contentParts.push({
+          type: "image_url",
+          image_url: {
+            url: imageUrl,
+          },
+        })
+      }
+      
+      openAIMessages.push({
+        role: "user",
+        content: contentParts,
+      })
+    } else {
+      // No images, use text format
+      openAIMessages.push({
+        role: "user",
+        content: enhancedContent || "",
+      })
     }
 
     // Create or get conversation
@@ -284,6 +341,11 @@ Deno.serve(async (req: Request) => {
       )
     }
 
+    // Get API base URL (used by both Notion tools and YouTube transcript tool)
+    const apiBaseUrl = Deno.env.get("NEXT_PUBLIC_APP_URL") || 
+      (Deno.env.get("VERCEL_URL") ? `https://${Deno.env.get("VERCEL_URL")}` : null) ||
+      "http://localhost:3000"
+
     // Check if user has Notion API key and create Notion tools
     let notionTools: any[] = []
     try {
@@ -296,10 +358,6 @@ Deno.serve(async (req: Request) => {
 
       if (notionKeys && notionKeys.length > 0) {
         // User has Notion API key, create Notion tools
-        // Use environment variable or construct from request
-        const apiBaseUrl = Deno.env.get("NEXT_PUBLIC_APP_URL") || 
-          Deno.env.get("VERCEL_URL") ? `https://${Deno.env.get("VERCEL_URL")}` :
-          "http://localhost:3000"
 
         notionTools = [
           tool({
@@ -507,20 +565,16 @@ Deno.serve(async (req: Request) => {
             type: "string",
             description: "YouTube video URL (e.g., https://youtu.be/VIDEO_ID or https://www.youtube.com/watch?v=VIDEO_ID)"
           },
-          videoId: {
-            type: ["string", "null"],
-            description: "Optional: YouTube video ID if you already have it (e.g., 'OgnYxRkxEUw')"
-          },
         },
         required: ["videoUrl"],
         additionalProperties: false,
       },
-      execute: async ({ videoUrl, videoId }: { videoUrl: string; videoId?: string }) => {
+      execute: async ({ videoUrl }: { videoUrl: string }) => {
         try {
           const response = await fetch(`${apiBaseUrl}/api/youtube/transcript`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ videoUrl, videoId }),
+            body: JSON.stringify({ videoUrl }),
           })
           
           if (!response.ok) {
@@ -548,7 +602,7 @@ Deno.serve(async (req: Request) => {
     })
 
     // Combine user-provided tools with Notion tools and YouTube transcript tool
-    const allTools = [...tools, ...notionTools]
+    const allTools = [...tools, ...notionTools, youtubeTranscriptTool]
 
     // Create agent
     const agent = new Agent({
@@ -564,67 +618,288 @@ Deno.serve(async (req: Request) => {
     // Stream response
     if (stream) {
       const encoder = new TextEncoder()
+      // Capture variables needed in the stream callback
+      const capturedOpenAIMessages = openAIMessages
+      const capturedImageUrls = imageUrls
+      const capturedEnhancedContent = enhancedContent
+      const capturedSupabase = supabase // Capture Supabase client for storage access
+      
       const responseStream = new ReadableStream({
         async start(controller) {
           try {
             let fullContent = ""
             let chunkIndex = 0
+            let agentStream: any = null // Declare outside if/else for scope
 
             // Get Supabase URL and service role key once (before the loop)
             const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? ""
             const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
 
-            // Run agent with streaming (use enhanced content with file URLs)
-            const agentStream = await run(agent, enhancedContent, {
-              stream: true,
-              openai: { apiKey: openaiApiKey },
-            })
+            // Use OpenAI Chat Completions API directly for vision support
+            // The Agents SDK doesn't properly support vision, so we'll use the API directly when images are present
+            if (capturedImageUrls.length > 0) {
+              // Download images and convert to base64 (OpenAI can't access localhost URLs)
+              const imageContentParts: any[] = []
+              
+              // Add text content if present
+              if (capturedEnhancedContent && capturedEnhancedContent.trim()) {
+                imageContentParts.push({
+                  type: "text",
+                  text: capturedEnhancedContent,
+                })
+              } else {
+                imageContentParts.push({
+                  type: "text",
+                  text: "Please analyze these images.",
+                })
+              }
+              
+              // Download each image and convert to base64
+              // Use Supabase client to download from storage (handles localhost/Docker networking)
+              for (const imageUrl of capturedImageUrls) {
+                try {
+                  console.log("[Vision] Downloading image:", imageUrl)
+                  
+                  // Extract bucket and path from URL
+                  // URL format: https://127.0.0.1:55321/storage/v1/object/public/chat-attachments/path/to/file.png
+                  const urlMatch = imageUrl.match(/\/storage\/v1\/object\/public\/([^\/]+)\/(.+)$/)
+                  
+                  if (!urlMatch) {
+                    console.error(`[Vision] Invalid image URL format: ${imageUrl}`)
+                    continue
+                  }
+                  
+                  const [, bucket, filePath] = urlMatch
+                  
+                  // Use Supabase client to download the file (handles networking correctly)
+                  const { data: imageData, error: downloadError } = await capturedSupabase
+                    .storage
+                    .from(bucket)
+                    .download(filePath)
+                  
+                  if (downloadError || !imageData) {
+                    console.error(`[Vision] Failed to download image from storage:`, downloadError?.message || "Unknown error")
+                    continue
+                  }
+                  
+                  // Convert blob to array buffer
+                  const imageBuffer = await imageData.arrayBuffer()
+                  const imageBytes = new Uint8Array(imageBuffer)
+                  
+                  // Use Deno's native base64 encoding (more reliable for binary data)
+                  // Convert Uint8Array to base64 string
+                  let imageBase64 = ""
+                  try {
+                    // Deno Edge Functions support base64 encoding via btoa, but we need to handle binary correctly
+                    // Convert bytes to string properly for base64 encoding
+                    const binaryString = Array.from(imageBytes, byte => String.fromCharCode(byte)).join('')
+                    imageBase64 = btoa(binaryString)
+                  } catch (encodeError: any) {
+                    console.error(`[Vision] Base64 encoding error:`, encodeError.message)
+                    // Fallback: try chunked encoding
+                    const chunkSize = 8192
+                    for (let i = 0; i < imageBytes.length; i += chunkSize) {
+                      const chunk = imageBytes.slice(i, i + chunkSize)
+                      const chunkString = Array.from(chunk, byte => String.fromCharCode(byte)).join('')
+                      imageBase64 += btoa(chunkString)
+                    }
+                  }
+                  
+                  // Validate base64 string
+                  if (!imageBase64 || imageBase64.length === 0) {
+                    console.error(`[Vision] Empty base64 string after encoding`)
+                    continue
+                  }
+                  
+                  // Determine MIME type from file extension or blob type
+                  let contentType = imageData.type || ""
+                  
+                  // If no type from blob, infer from URL extension
+                  if (!contentType) {
+                    if (imageUrl.match(/\.(jpg|jpeg)$/i)) {
+                      contentType = "image/jpeg"
+                    } else if (imageUrl.match(/\.png$/i)) {
+                      contentType = "image/png"
+                    } else if (imageUrl.match(/\.gif$/i)) {
+                      contentType = "image/gif"
+                    } else if (imageUrl.match(/\.webp$/i)) {
+                      contentType = "image/webp"
+                    } else {
+                      contentType = "image/png" // Default to PNG (more common)
+                    }
+                  }
+                  
+                  // Ensure content type is valid
+                  const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"]
+                  if (!validTypes.includes(contentType)) {
+                    console.warn(`[Vision] Invalid content type ${contentType}, defaulting to image/png`)
+                    contentType = "image/png"
+                  }
+                  
+                  console.log(`[Vision] Image processed: ${imageBase64.length} chars base64, type: ${contentType}, size: ${imageBytes.length} bytes`)
+                  
+                  imageContentParts.push({
+                    type: "image_url",
+                    image_url: {
+                      url: `data:${contentType};base64,${imageBase64}`,
+                    },
+                  })
+                  
+                  console.log(`[Vision] Successfully converted image to base64 (${imageBase64.length} chars, ${contentType})`)
+                } catch (imageError: any) {
+                  console.error(`[Vision] Error processing image ${imageUrl}:`, imageError.message)
+                  console.error(`[Vision] Error stack:`, imageError.stack)
+                  // Continue with other images
+                }
+              }
+              
+              if (imageContentParts.length === 1) {
+                // Only text, no images successfully processed
+                throw new Error("Failed to process any images. All image downloads failed.")
+              }
+              
+              // Use OpenAI Chat Completions API directly for vision
+              const systemMessage = agent_instructions 
+                ? { role: "system", content: agent_instructions }
+                : { role: "system", content: `You are ${agent_name || "a helpful assistant"}.` }
+              
+              const visionMessages = [
+                systemMessage,
+                ...capturedOpenAIMessages.slice(0, -1), // All messages except the last user message
+                {
+                  role: "user",
+                  content: imageContentParts,
+                },
+              ]
+              
+              // Call OpenAI Chat Completions API with vision support
+              console.log("[Vision] Calling OpenAI API with", imageContentParts.filter(p => p.type === "image_url").length, "images")
+              
+              const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                  "Authorization": `Bearer ${openaiApiKey}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  model: model || "gpt-4o-mini", // gpt-4o-mini supports vision
+                  messages: visionMessages,
+                  stream: true,
+                  temperature: temperature || 0.7,
+                }),
+              })
+              
+              if (!openaiResponse.ok) {
+                const errorText = await openaiResponse.text().catch(() => "Unknown error")
+                let errorMessage = "OpenAI API error"
+                try {
+                  const errorJson = JSON.parse(errorText)
+                  errorMessage = errorJson.error?.message || errorText
+                } catch {
+                  errorMessage = errorText
+                }
+                console.error("[Vision] OpenAI API error:", errorMessage, "Status:", openaiResponse.status)
+                throw new Error(`OpenAI Vision API error: ${errorMessage}`)
+              }
+              
+              // Stream the response
+              const reader = openaiResponse.body?.getReader()
+              const decoder = new TextDecoder()
+              
+              if (!reader) {
+                throw new Error("No response body")
+              }
+              
+              while (true) {
+                const { done, value } = await reader.read()
+                if (done) break
+                
+                const chunk = decoder.decode(value, { stream: true })
+                const lines = chunk.split("\n")
+                
+                for (const line of lines) {
+                  if (line.startsWith("data: ")) {
+                    const data = line.slice(6)
+                    if (data === "[DONE]") {
+                      // Stream complete - will be handled below
+                      continue
+                    }
+                    
+                    try {
+                      const parsed = JSON.parse(data)
+                      const delta = parsed.choices?.[0]?.delta?.content
+                      if (delta) {
+                        fullContent += delta
+                        chunkIndex++
 
-            // Stream text chunks
-            for await (const chunk of agentStream.toTextStream()) {
-              fullContent += chunk
-              chunkIndex++
-
-              // Send SSE chunk
-              const data = JSON.stringify({
-                type: "content_delta",
-                content: chunk,
-                message_id: messageId,
-                chunk_index: chunkIndex,
+                        // Send SSE chunk
+                        const dataChunk = JSON.stringify({
+                          type: "content_delta",
+                          content: delta,
+                          message_id: messageId,
+                          chunk_index: chunkIndex,
+                        })
+                        controller.enqueue(encoder.encode(`data: ${dataChunk}\n\n`))
+                      }
+                    } catch (e) {
+                      // Ignore JSON parse errors
+                    }
+                  }
+                }
+              }
+            } else {
+              // No images, use Agents SDK as normal
+              agentStream = await run(agent, capturedEnhancedContent, {
+                stream: true,
+                openai: { apiKey: openaiApiKey },
               })
 
-              controller.enqueue(
-                encoder.encode(`data: ${data}\n\n`)
-              )
+              // Stream text chunks
+              for await (const chunk of agentStream.toTextStream()) {
+                fullContent += chunk
+                chunkIndex++
 
-              // Broadcast via Realtime REST API (optional, for multi-client sync)
-              // Note: supabase.realtime.send() doesn't work in Edge Functions
-              // Use REST API instead - don't await to avoid blocking
-              if (supabaseUrl && serviceRoleKey) {
-                fetch(`${supabaseUrl}/realtime/v1/api/broadcast`, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "apikey": serviceRoleKey,
-                    "Authorization": `Bearer ${serviceRoleKey}`,
-                  },
-                  body: JSON.stringify({
-                    messages: [
-                      {
-                        topic: `conversation:${convId}:messages`,
-                        event: "message_chunk",
-                        payload: {
-                          message_id: messageId,
-                          chunk: chunk,
-                          chunk_index: chunkIndex,
-                        },
-                      },
-                    ],
-                  }),
-                }).catch((broadcastError) => {
-                  // Ignore broadcast errors - SSE is the primary communication method
-                  console.error("Failed to broadcast chunk:", broadcastError)
+                // Send SSE chunk
+                const data = JSON.stringify({
+                  type: "content_delta",
+                  content: chunk,
+                  message_id: messageId,
+                  chunk_index: chunkIndex,
                 })
+
+                controller.enqueue(
+                  encoder.encode(`data: ${data}\n\n`)
+                )
+
+                // Broadcast via Realtime REST API (optional, for multi-client sync)
+                // Note: supabase.realtime.send() doesn't work in Edge Functions
+                // Use REST API instead - don't await to avoid blocking
+                if (supabaseUrl && serviceRoleKey) {
+                  fetch(`${supabaseUrl}/realtime/v1/api/broadcast`, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "apikey": serviceRoleKey,
+                      "Authorization": `Bearer ${serviceRoleKey}`,
+                    },
+                    body: JSON.stringify({
+                      messages: [
+                        {
+                          topic: `conversation:${convId}:messages`,
+                          event: "message_chunk",
+                          payload: {
+                            message_id: messageId,
+                            chunk: chunk,
+                            chunk_index: chunkIndex,
+                          },
+                        },
+                      ],
+                    }),
+                  }).catch((broadcastError) => {
+                    // Ignore broadcast errors - SSE is the primary communication method
+                    console.error("Failed to broadcast chunk:", broadcastError)
+                  })
+                }
               }
             }
 
@@ -647,11 +922,14 @@ Deno.serve(async (req: Request) => {
             const updateDatabase = async () => {
               try {
                 // Wait for agent stream completion (if needed for final state)
-                try {
-                  await agentStream.completed
-                } catch (streamError) {
-                  console.warn("Agent stream completion check failed:", streamError)
-                  // Continue anyway - we have the content
+                // Only if we used Agents SDK (not vision API)
+                if (agentStream && agentStream.completed) {
+                  try {
+                    await agentStream.completed
+                  } catch (streamError) {
+                    console.warn("Agent stream completion check failed:", streamError)
+                    // Continue anyway - we have the content
+                  }
                 }
 
                 // Update message in database
@@ -746,7 +1024,12 @@ Deno.serve(async (req: Request) => {
               updateDatabase().catch((err) => console.error("Background update error:", err))
             }
           } catch (error: any) {
-            console.error("Streaming error:", error)
+            console.error("[Edge Function] Streaming error:", error)
+            console.error("[Edge Function] Error details:", {
+              message: error.message,
+              name: error.name,
+              stack: error.stack,
+            })
 
             // Update message with error
             if (messageId) {
@@ -761,7 +1044,7 @@ Deno.serve(async (req: Request) => {
 
             const errorData = JSON.stringify({
               type: "error",
-              error: error.message,
+              error: error.message || "Unknown error",
             })
 
             controller.enqueue(encoder.encode(`data: ${errorData}\n\n`))
@@ -802,12 +1085,58 @@ Deno.serve(async (req: Request) => {
         model,
       })
       
-      const result = await run(agent, enhancedContent, {
-        openai: { apiKey: openaiApiKey },
-      })
+      // Use OpenAI Chat Completions API directly for vision support (non-streaming)
+      let finalOutput = ""
+      if (imageUrls.length > 0) {
+        // Use OpenAI Chat Completions API directly for vision
+        const systemMessage = agent_instructions 
+          ? { role: "system", content: agent_instructions }
+          : { role: "system", content: `You are ${agent_name || "a helpful assistant"}.` }
+        
+        const visionMessages = [
+          systemMessage,
+          ...openAIMessages,
+        ]
+        
+        console.log("[Vision] Calling OpenAI API (non-streaming) with", imageUrls.length, "images")
+        
+        const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${openaiApiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: model || "gpt-4o-mini",
+            messages: visionMessages,
+            temperature: temperature || 0.7,
+          }),
+        })
+        
+        if (!openaiResponse.ok) {
+          const errorText = await openaiResponse.text().catch(() => "Unknown error")
+          let errorMessage = "OpenAI API error"
+          try {
+            const errorJson = JSON.parse(errorText)
+            errorMessage = errorJson.error?.message || errorText
+          } catch {
+            errorMessage = errorText
+          }
+          console.error("[Vision] OpenAI API error (non-streaming):", errorMessage, "Status:", openaiResponse.status)
+          throw new Error(`OpenAI Vision API error: ${errorMessage}`)
+        }
+        
+        const result = await openaiResponse.json()
+        finalOutput = result.choices?.[0]?.message?.content || ""
+      } else {
+        // No images, use Agents SDK as normal
+        const result = await run(agent, enhancedContent, {
+          openai: { apiKey: openaiApiKey },
+        })
+        finalOutput = result.finalOutput || ""
+      }
 
       // Save assistant message
-      const finalOutput = result.finalOutput || ""
       await supabase.from("messages").insert({
         conversation_id: convId,
         role: "assistant",

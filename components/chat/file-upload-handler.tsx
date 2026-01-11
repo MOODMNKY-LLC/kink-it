@@ -121,11 +121,8 @@ export function FileUploadHandler({
       {/* File List */}
       {files.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {files.map((attachment) => (
-            <div
-              key={attachment.id}
-              className="relative group flex items-center gap-2 bg-muted rounded-lg p-2 pr-8"
-            >
+          {files.map((attachment, index) => (
+            <div key={`file-${attachment.id}-${index}`} className="relative group flex items-center gap-2 bg-muted rounded-lg p-2 pr-8">
               {attachment.preview ? (
                 <img
                   src={attachment.preview}

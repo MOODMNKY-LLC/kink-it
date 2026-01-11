@@ -8,6 +8,7 @@ interface OpenAIChatRequest {
   message: string
   conversationId?: string
   history?: Array<{ role: "user" | "assistant"; content: string }>
+  fileUrls?: string[] // URLs of uploaded file attachments
   realtime?: boolean
 }
 
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = (await request.json()) as OpenAIChatRequest
-    const { message, conversationId, history, realtime } = body
+    const { message, conversationId, history, fileUrls, realtime } = body
 
     if (!message || !message.trim()) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 })
@@ -60,8 +61,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Save user message if realtime mode is enabled
+    let userMessageId: string | undefined
     if (realtime && finalConversationId) {
-      const { error: messageError } = await supabase
+      const { data: userMessage, error: messageError } = await supabase
         .from("messages")
         .insert({
           conversation_id: finalConversationId,
@@ -69,9 +71,45 @@ export async function POST(request: NextRequest) {
           content: message,
           is_streaming: false,
         })
+        .select("id")
+        .single()
 
       if (messageError) {
         console.error("[OpenAI Chat API] Error saving user message:", messageError)
+      } else {
+        userMessageId = userMessage.id
+        
+        // Save attachment metadata if files were uploaded
+        if (fileUrls && fileUrls.length > 0 && userMessageId) {
+          const attachments = fileUrls.map((url) => {
+            // Determine attachment type from URL or file extension
+            const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url)
+            const isVideo = /\.(mp4|webm|mov|avi)$/i.test(url)
+            const isAudio = /\.(mp3|wav|ogg)$/i.test(url)
+            const isDocument = /\.(pdf|doc|docx|txt)$/i.test(url)
+            
+            const attachmentType = isImage ? "image" 
+              : isVideo ? "video"
+              : isAudio ? "audio"
+              : isDocument ? "document"
+              : "file"
+            
+            return {
+              message_id: userMessageId,
+              attachment_type: attachmentType,
+              attachment_url: url,
+              file_name: url.split("/").pop() || "attachment",
+            }
+          })
+          
+          const { error: attachmentError } = await supabase
+            .from("ai_message_attachments")
+            .insert(attachments)
+          
+          if (attachmentError) {
+            console.error("[OpenAI Chat API] Error saving attachments:", attachmentError)
+          }
+        }
       }
     }
 
@@ -110,15 +148,28 @@ export async function POST(request: NextRequest) {
         agent_instructions: agentInstructions,
         model: "gpt-4o-mini",
         temperature: 0.8,
+        file_urls: fileUrls || [],
         stream: !realtime, // Stream if not realtime mode
         realtime: realtime || false,
       }),
     })
 
     if (!edgeFunctionResponse.ok) {
-      const error = await edgeFunctionResponse.json().catch(() => ({ error: "Edge function error" }))
+      let errorMessage = "Edge function error"
+      try {
+        const errorText = await edgeFunctionResponse.text()
+        try {
+          const errorJson = JSON.parse(errorText)
+          errorMessage = errorJson.error || errorJson.message || errorText
+        } catch {
+          errorMessage = errorText || `Edge function returned ${edgeFunctionResponse.status} ${edgeFunctionResponse.statusText}`
+        }
+      } catch (e) {
+        errorMessage = `Edge function returned ${edgeFunctionResponse.status} ${edgeFunctionResponse.statusText}`
+      }
+      console.error("[OpenAI Chat API] Edge Function error:", errorMessage)
       return NextResponse.json(
-        { error: error.error || "Failed to get response from OpenAI" },
+        { error: errorMessage },
         { status: edgeFunctionResponse.status }
       )
     }

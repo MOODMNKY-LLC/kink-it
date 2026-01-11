@@ -49,28 +49,36 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
--- Storage policies
+-- Storage policies (drop if exists to allow re-running migration)
+DROP POLICY IF EXISTS "Users can upload their own kinkster avatars" ON storage.objects;
 CREATE POLICY "Users can upload their own kinkster avatars" ON storage.objects FOR INSERT TO authenticated
 WITH CHECK (bucket_id = 'kinkster-avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
 
+DROP POLICY IF EXISTS "Users can update their own kinkster avatars" ON storage.objects;
 CREATE POLICY "Users can update their own kinkster avatars" ON storage.objects FOR UPDATE TO authenticated
 USING (bucket_id = 'kinkster-avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
 
+DROP POLICY IF EXISTS "Users can delete their own kinkster avatars" ON storage.objects;
 CREATE POLICY "Users can delete their own kinkster avatars" ON storage.objects FOR DELETE TO authenticated
 USING (bucket_id = 'kinkster-avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
 
+DROP POLICY IF EXISTS "Anyone can view kinkster avatars" ON storage.objects;
 CREATE POLICY "Anyone can view kinkster avatars" ON storage.objects FOR SELECT TO public
 USING (bucket_id = 'kinkster-avatars');
 
+DROP POLICY IF EXISTS "Users can upload to their kinkster gallery" ON storage.objects;
 CREATE POLICY "Users can upload to their kinkster gallery" ON storage.objects FOR INSERT TO authenticated
 WITH CHECK (bucket_id = 'kinkster-gallery' AND (storage.foldername(name))[1] = auth.uid()::text);
 
+DROP POLICY IF EXISTS "Users can update their kinkster gallery" ON storage.objects;
 CREATE POLICY "Users can update their kinkster gallery" ON storage.objects FOR UPDATE TO authenticated
 USING (bucket_id = 'kinkster-gallery' AND (storage.foldername(name))[1] = auth.uid()::text);
 
+DROP POLICY IF EXISTS "Users can delete from their kinkster gallery" ON storage.objects;
 CREATE POLICY "Users can delete from their kinkster gallery" ON storage.objects FOR DELETE TO authenticated
 USING (bucket_id = 'kinkster-gallery' AND (storage.foldername(name))[1] = auth.uid()::text);
 
+DROP POLICY IF EXISTS "Anyone can view kinkster gallery" ON storage.objects;
 CREATE POLICY "Anyone can view kinkster gallery" ON storage.objects FOR SELECT TO public
 USING (bucket_id = 'kinkster-gallery');
 
