@@ -25,11 +25,12 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "50")
     const offset = parseInt(searchParams.get("offset") || "0")
 
-    // Build query
+    // Build query - include system kinksters and user's kinksters
     let query = supabase
       .from("kinksters")
       .select("*")
-      .eq("user_id", profile.id)
+      .or(`is_system_kinkster.eq.true,user_id.eq.${profile.id}`)
+      .order("is_system_kinkster", { ascending: false }) // System kinksters first
       .order("created_at", { ascending: false })
 
     // Apply filters

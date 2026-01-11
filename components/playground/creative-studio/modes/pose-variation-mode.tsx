@@ -121,6 +121,7 @@ function PoseTemplateCard({
               isSelected ? "text-primary opacity-100" : "opacity-60 group-hover:opacity-80"
             )}
             style={{ filter: isSelected ? "none" : "invert(1)" }}
+            loader={undefined}
             unoptimized
           />
         ) : (
@@ -207,10 +208,60 @@ export function PoseVariationMode() {
   const handleGenerate = useCallback(async () => {
     if (!selectedCharacter) return
 
+    // Determine pose reference URL
+    // Priority: template thumbnail > uploaded URL > uploaded file (convert to data URL)
+    let poseReferenceUrl = selectedPoseTemplate?.thumbnailUrl ?? imageUpload.image1Url
+    
+    // If we have an uploaded file, convert it to data URL (blob URLs don't work server-side)
+    if (!poseReferenceUrl && imageUpload.image1) {
+      try {
+        // Check if preview is already a data URL
+        if (imageUpload.image1Preview?.startsWith("data:")) {
+          poseReferenceUrl = imageUpload.image1Preview
+          console.log("[Pose Variation] Using existing data URL from preview")
+        } else {
+          // Convert File to data URL
+          console.log("[Pose Variation] Converting uploaded file to data URL...", {
+            fileName: imageUpload.image1.name,
+            fileSize: imageUpload.image1.size,
+            fileType: imageUpload.image1.type,
+          })
+          const arrayBuffer = await imageUpload.image1.arrayBuffer()
+          // Convert ArrayBuffer to base64 using browser APIs
+          const bytes = new Uint8Array(arrayBuffer)
+          let binary = ""
+          for (let i = 0; i < bytes.length; i++) {
+            binary += String.fromCharCode(bytes[i])
+          }
+          const base64 = btoa(binary)
+          const mimeType = imageUpload.image1.type || "image/png"
+          poseReferenceUrl = `data:${mimeType};base64,${base64}`
+          console.log("[Pose Variation] File converted to data URL successfully", {
+            dataUrlLength: poseReferenceUrl.length,
+            dataUrlPreview: poseReferenceUrl.substring(0, 50) + "...",
+          })
+        }
+      } catch (error) {
+        console.error("[Pose Variation] Error converting file to data URL:", error)
+        // Fallback to preview URL (might not work server-side but better than nothing)
+        poseReferenceUrl = imageUpload.image1Preview || undefined
+      }
+    }
+
+    // Log final pose reference URL for debugging
+    if (poseReferenceUrl) {
+      console.log("[Pose Variation] Final pose reference URL:", {
+        type: poseReferenceUrl.startsWith("data:") ? "data URL" : "regular URL",
+        preview: poseReferenceUrl.substring(0, 100) + "...",
+      })
+    } else {
+      console.warn("[Pose Variation] No pose reference URL available!")
+    }
+
     await generate({
       mode: "pose-variation",
       characterUrl: selectedCharacter.avatar_url ?? undefined,
-      poseReferenceUrl: selectedPoseTemplate?.thumbnailUrl ?? imageUpload.image1Url,
+      poseReferenceUrl: poseReferenceUrl ?? undefined,
       poseDescription: selectedPoseTemplate?.generationPrompt ?? "",
     })
   }, [generate, selectedCharacter, selectedPoseTemplate, imageUpload])
@@ -278,6 +329,7 @@ export function PoseVariationMode() {
                         alt={selectedCharacter.name}
                         fill
                         className="object-cover"
+                        loader={undefined}
                         unoptimized
                       />
                     </div>
@@ -446,6 +498,7 @@ export function PoseVariationMode() {
                     alt=""
                     fill
                     className="object-contain"
+                    loader={undefined}
                     unoptimized
                   />
                 </div>

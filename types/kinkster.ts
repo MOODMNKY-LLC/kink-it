@@ -43,7 +43,7 @@ export interface KinksterKinkProfile {
 
 export interface Kinkster extends KinksterNotionSync {
   id: string
-  user_id: string
+  user_id: string | null // Null for system kinksters
   partnership_id?: string
   name: string
   display_name?: string
@@ -101,11 +101,18 @@ export interface Kinkster extends KinksterNotionSync {
   personality_traits?: string[]
   role_preferences?: string[]
   archetype?: string
+  specialty?: string // Unique specialty or focus area (e.g., "Protocol Training", "Brat Taming")
   // Status
   is_active: boolean
   is_primary: boolean
+  is_system_kinkster?: boolean // System kinksters are persistent characters available to all users
   metadata?: Record<string, any>
   flowise_chatflow_id?: string | null // Flowise chatflow ID for this Kinkster
+  // Chat Provider Configuration (Hybrid Mode)
+  provider?: "flowise" | "openai_responses" // Chat provider: flowise (visual workflows) or openai_responses (direct OpenAI)
+  openai_model?: string // OpenAI model for Responses API (e.g., gpt-5-mini, gpt-5, gpt-4o-mini)
+  openai_instructions?: string // Custom system instructions for OpenAI Responses API
+  openai_previous_response_id?: string // Previous response ID for conversation continuity
   // Timestamps
   created_at: string
   updated_at: string
@@ -240,11 +247,17 @@ export interface KinksterCreationData {
   fetish_wear?: string[]
   aesthetic?: string
 
-  // Step 7: Avatar Generation
+  // Step 4: Avatar & Provider
   avatar_prompt?: string
   generation_prompt?: string
   avatar_url?: string
   avatar_urls?: string[]
+  preset_id?: string // Preset reference if using preset
+  // Provider Configuration
+  provider?: "flowise" | "openai_responses"
+  flowise_chatflow_id?: string | null
+  openai_model?: string
+  openai_instructions?: string
 }
 
 export interface StatDefinition {

@@ -305,6 +305,7 @@ export function LibraryMode() {
                       alt=""
                       fill
                       className="object-cover"
+                      loader={undefined}
                       unoptimized
                     />
                   )}

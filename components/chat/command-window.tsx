@@ -14,31 +14,15 @@ import {
 import {
   Image,
   FileText,
-  Search,
   Sparkles,
-  Bot,
   Settings,
   Camera,
   Upload,
   Wand2,
-  Zap,
-  Brain,
-  Code,
-  Database,
-  RotateCcw,
   X,
-  Trash2,
   RefreshCw,
-  FileImage,
-  Globe,
-  BookOpen,
   Layers,
   MessageSquare,
-  SquareStack,
-  Github,
-  FileCode,
-  Terminal,
-  WandSparkles,
 } from "lucide-react"
 import { NotionIcon } from "@/components/icons/notion"
 import { Badge } from "@/components/ui/badge"
@@ -146,173 +130,230 @@ export function CommandWindow({
         description: "Edit an existing image",
       },
       
-      // Research
-      {
-        id: "deep-research",
-        label: "Deep Research",
-        icon: BookOpen,
-        category: "research",
-        action: "deep-research",
-        description: "Perform comprehensive research on a topic",
-      },
-      {
-        id: "web-search",
-        label: "Web Search",
-        icon: Globe,
-        category: "research",
-        action: "web-search",
-        description: "Search the web for information",
-      },
+      // Research Tools - ACTUALLY IMPLEMENTED IN EDGE FUNCTION
       {
         id: "youtube-transcript",
         label: "YouTube Transcript",
         icon: MessageSquare,
         category: "research",
         action: "youtube-transcript",
-        description: "Get transcript from a YouTube video for analysis",
+        description: "Fetch transcript from a YouTube video URL for analysis (with timestamps)",
       },
       
-      // Notion Tools (if user has Notion key)
+      // Notion Tools (if user has Notion key) - ACTUALLY IMPLEMENTED IN EDGE FUNCTION
       {
         id: "notion-search",
         label: "Search Notion",
-        icon: NotionIcon as any, // Use official Notion icon
+        icon: NotionIcon as any,
         category: "notion",
         action: "notion-search",
         requiresNotionKey: true,
-        description: "Search your Notion workspace",
+        description: "Search your Notion workspace for pages, databases, or content",
       },
       {
-        id: "notion-query-tasks",
-        label: "Query Tasks",
+        id: "notion-fetch-page",
+        label: "Fetch Notion Page",
+        icon: NotionIcon as any,
+        category: "notion",
+        action: "notion-fetch-page",
+        requiresNotionKey: true,
+        description: "Get full details of a specific Notion page by ID",
+      },
+      {
+        id: "notion-query-database",
+        label: "Query Notion Database",
         icon: Layers,
         category: "notion",
-        action: "notion-query-tasks",
+        action: "notion-query-database",
         requiresNotionKey: true,
-        description: "Query your Notion tasks database",
+        description: "Query Notion databases (tasks, ideas, kinksters, etc.) with filters",
       },
       {
         id: "notion-create-task",
-        label: "Create Task",
+        label: "Create Notion Task",
         icon: Layers,
         category: "notion",
         action: "notion-create-task",
         requiresNotionKey: true,
         requiresRole: "dominant",
-        description: "Create a new task in Notion",
-      },
-      {
-        id: "notion-query-ideas",
-        label: "Query Ideas",
-        icon: Sparkles,
-        category: "notion",
-        action: "notion-query-ideas",
-        requiresNotionKey: true,
-        description: "Query your Notion ideas database",
+        description: "Create a new task in your Notion Tasks database",
       },
       {
         id: "notion-create-idea",
-        label: "Create Idea",
+        label: "Create Notion Idea",
         icon: Sparkles,
         category: "notion",
         action: "notion-create-idea",
         requiresNotionKey: true,
         requiresRole: "dominant",
-        description: "Create a new idea in Notion",
+        description: "Create a new idea in your Notion Ideas database",
       },
       
-      // MCP Tools
+      // App Context Tools - ACTUALLY IMPLEMENTED IN EDGE FUNCTION
+      // Bonds Tools
       {
-        id: "mcp-agent-mode",
-        label: "Agent Mode (MCP)",
-        icon: Bot,
-        category: "mcp",
-        action: "agent-mode",
-        shortcut: "⌘A",
-        description: "Enable MCP agent mode for advanced tool usage",
+        id: "query-bonds",
+        label: "Query Bonds",
+        icon: Layers,
+        category: "tools",
+        action: "query-bonds",
+        description: "Query your bonds (relationships/partnerships) by status or type",
       },
       {
-        id: "mcp-notion",
-        label: "Notion MCP",
-        icon: NotionIcon as any, // Use official Notion icon
-        category: "mcp",
-        action: "mcp-notion",
-        requiresNotionKey: true,
-        description: "Access Notion via MCP server",
+        id: "get-bond-details",
+        label: "Get Bond Details",
+        icon: Layers,
+        category: "tools",
+        action: "get-bond-details",
+        description: "Get full details of a specific bond",
       },
       {
-        id: "mcp-github",
-        label: "GitHub MCP",
-        icon: Github,
-        category: "mcp",
-        action: "mcp-github",
-        description: "Access GitHub via MCP server",
-      },
-      {
-        id: "mcp-supabase",
-        label: "Supabase MCP",
-        icon: Database,
-        category: "mcp",
-        action: "mcp-supabase",
-        description: "Query Supabase database via MCP",
-      },
-      {
-        id: "mcp-filesystem",
-        label: "Filesystem MCP",
-        icon: FileCode,
-        category: "mcp",
-        action: "mcp-filesystem",
-        description: "Access filesystem via MCP server",
-      },
-      {
-        id: "mcp-brave-search",
-        label: "Brave Search MCP",
-        icon: Search,
-        category: "mcp",
-        action: "mcp-brave-search",
-        description: "Search the web using Brave Search MCP",
-      },
-      {
-        id: "mcp-tavily",
-        label: "Tavily Research MCP",
-        icon: BookOpen,
-        category: "mcp",
-        action: "mcp-tavily",
-        description: "Deep research using Tavily MCP",
-      },
-      {
-        id: "mcp-firecrawl",
-        label: "Firecrawl MCP",
-        icon: Globe,
-        category: "mcp",
-        action: "mcp-firecrawl",
-        description: "Scrape and crawl websites via Firecrawl MCP",
+        id: "create-bond-request",
+        label: "Create Bond Request",
+        icon: Layers,
+        category: "tools",
+        action: "create-bond-request",
+        description: "Request to join an existing bond",
       },
       
-      // Tools
+      // Tasks Tools
       {
-        id: "code-assistant",
-        label: "Code Assistant",
-        icon: Code,
+        id: "query-tasks",
+        label: "Query Tasks",
+        icon: FileText,
         category: "tools",
-        action: "code-assistant",
-        description: "Get help with code and programming",
+        action: "query-tasks",
+        description: "Query tasks by status, assignment, or due date",
       },
       {
-        id: "database-query",
-        label: "Database Query",
-        icon: Database,
+        id: "get-task-details",
+        label: "Get Task Details",
+        icon: FileText,
         category: "tools",
-        action: "database-query",
-        description: "Query the database directly",
+        action: "get-task-details",
+        description: "Get full details of a specific task",
       },
       {
-        id: "terminal",
-        label: "Terminal",
-        icon: Terminal,
+        id: "create-task",
+        label: "Create Task",
+        icon: FileText,
         category: "tools",
-        action: "terminal",
-        description: "Open terminal interface",
+        action: "create-task",
+        requiresRole: "dominant",
+        description: "Create a new task (Dominant/Admin only)",
+      },
+      {
+        id: "update-task-status",
+        label: "Update Task Status",
+        icon: RefreshCw,
+        category: "tools",
+        action: "update-task-status",
+        description: "Update task status (in_progress, completed, etc.)",
+      },
+      
+      // Kinksters Tools
+      {
+        id: "query-kinksters",
+        label: "Query Kinksters",
+        icon: Sparkles,
+        category: "tools",
+        action: "query-kinksters",
+        description: "Query your Kinkster characters by name, archetype, or search",
+      },
+      {
+        id: "get-kinkster-details",
+        label: "Get Kinkster Details",
+        icon: Sparkles,
+        category: "tools",
+        action: "get-kinkster-details",
+        description: "Get full details of a specific Kinkster character",
+      },
+      {
+        id: "create-kinkster",
+        label: "Create Kinkster",
+        icon: Sparkles,
+        category: "tools",
+        action: "create-kinkster",
+        description: "Create a new Kinkster character profile",
+      },
+      
+      // Phase 2: Journal Tools
+      {
+        id: "query-journal-entries",
+        label: "Query Journal Entries",
+        icon: FileText,
+        category: "tools",
+        action: "query-journal-entries",
+        description: "Query journal entries by type, tags, or date range",
+      },
+      {
+        id: "get-journal-entry",
+        label: "Get Journal Entry",
+        icon: FileText,
+        category: "tools",
+        action: "get-journal-entry",
+        description: "Get full details of a specific journal entry",
+      },
+      {
+        id: "create-journal-entry",
+        label: "Create Journal Entry",
+        icon: FileText,
+        category: "tools",
+        action: "create-journal-entry",
+        description: "Create a new journal entry",
+      },
+      
+      // Phase 2: Rules Tools
+      {
+        id: "query-rules",
+        label: "Query Rules",
+        icon: Layers,
+        category: "tools",
+        action: "query-rules",
+        description: "Query bond rules by status, category, or assignment",
+      },
+      {
+        id: "get-rule-details",
+        label: "Get Rule Details",
+        icon: Layers,
+        category: "tools",
+        action: "get-rule-details",
+        description: "Get full details of a specific rule",
+      },
+      {
+        id: "create-rule",
+        label: "Create Rule",
+        icon: Layers,
+        category: "tools",
+        action: "create-rule",
+        requiresRole: "dominant",
+        description: "Create a new bond rule (Dominant/Admin only)",
+      },
+      
+      // Phase 2: Calendar Tools
+      {
+        id: "query-calendar-events",
+        label: "Query Calendar Events",
+        icon: MessageSquare,
+        category: "tools",
+        action: "query-calendar-events",
+        description: "Query calendar events by type or date range",
+      },
+      {
+        id: "get-calendar-event-details",
+        label: "Get Calendar Event Details",
+        icon: MessageSquare,
+        category: "tools",
+        action: "get-calendar-event-details",
+        description: "Get full details of a specific calendar event",
+      },
+      {
+        id: "create-calendar-event",
+        label: "Create Calendar Event",
+        icon: MessageSquare,
+        category: "tools",
+        action: "create-calendar-event",
+        description: "Create a new calendar event",
       },
       
       // Settings
@@ -360,17 +401,16 @@ export function CommandWindow({
   }, [filteredCommands])
 
   const categoryLabels: Record<string, string> = {
-    chat: "Chat",
-    files: "Files",
-    images: "Images",
-    research: "Research",
-    notion: "Notion",
-    mcp: "MCP Tools",
-    tools: "Tools",
+    chat: "Chat Actions",
+    files: "File Uploads",
+    images: "Image Generation",
+    research: "Research Tools",
+    notion: "Notion Integration",
+    tools: "App Tools",
     settings: "Settings",
   }
 
-  const categoryOrder: string[] = ["chat", "files", "images", "research", "notion", "mcp", "tools", "settings"]
+  const categoryOrder: string[] = ["chat", "files", "images", "research", "notion", "tools", "settings"]
 
   const handleSelect = (command: Command) => {
     // Handle clear/refresh chat directly
@@ -394,7 +434,7 @@ export function CommandWindow({
       className="max-w-2xl"
     >
       <CommandInput
-        placeholder="Search commands, tools, MCP functions..."
+        placeholder="Search commands and tools..."
         value={search}
         onValueChange={setSearch}
       />

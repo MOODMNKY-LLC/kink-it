@@ -69,7 +69,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { key_name, api_key } = body
+    let { key_name, api_key } = body
+
+    // Trim whitespace from inputs
+    key_name = typeof key_name === "string" ? key_name.trim() : key_name
+    api_key = typeof api_key === "string" ? api_key.trim() : api_key
 
     // Validate input
     if (!key_name || !api_key) {
@@ -88,18 +92,86 @@ export async function POST(request: NextRequest) {
     }
 
     // Test the API key against Notion API
-    const testResponse = await fetch("https://api.notion.com/v1/users/me", {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${api_key}`,
-        "Notion-Version": "2022-06-28",
-      },
-    })
+    let testResponse: Response
+    let errorDetails: any = {}
+    
+    try {
+      // Use the latest Notion API version
+      testResponse = await fetch("https://api.notion.com/v1/users/me", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${api_key}`,
+          "Notion-Version": "2022-06-28",
+          "Content-Type": "application/json",
+        },
+      })
 
-    if (!testResponse.ok) {
+      // Try to read error details even if response is not ok
+      if (!testResponse.ok) {
+        try {
+          const responseText = await testResponse.text()
+          if (responseText) {
+            try {
+              errorDetails = JSON.parse(responseText)
+            } catch (e) {
+              errorDetails = { raw: responseText.substring(0, 500) }
+            }
+          }
+        } catch (e) {
+          console.error("[Notion API Keys] Failed to read error response:", e)
+        }
+        
+        console.error("[Notion API Keys] API key validation failed:", {
+          status: testResponse.status,
+          statusText: testResponse.statusText,
+          errorDetails: errorDetails,
+          errorCode: errorDetails?.code,
+          errorMessage: errorDetails?.message,
+          apiKeyPrefix: api_key.substring(0, 10) + "...", // Log first 10 chars for debugging (not full key)
+          apiKeyLength: api_key.length,
+        })
+        
+        // Provide more helpful error messages based on status code and Notion's error
+        let errorMessage = "Invalid API key. Please check your key and try again."
+        
+        if (testResponse.status === 401) {
+          if (errorDetails?.code === "unauthorized") {
+            errorMessage = "Invalid API key. Please verify that:\n" +
+              "1. You copied the correct 'Internal Integration Token' from your Notion integration settings\n" +
+              "2. You copied the entire token (it should be quite long)\n" +
+              "3. The integration is still active and hasn't been deleted\n" +
+              "4. There are no extra spaces before or after the token"
+          } else {
+            errorMessage = "Invalid API key. Please verify that you copied the correct 'Internal Integration Token' from your Notion integration settings."
+          }
+        } else if (testResponse.status === 403) {
+          errorMessage = "API key is valid but lacks necessary permissions. Make sure your integration has access to your workspace and that you've shared at least one page with it."
+        } else if (testResponse.status === 404) {
+          errorMessage = "Notion API endpoint not found. Please try again later."
+        } else if (errorDetails?.message) {
+          errorMessage = `Notion API error: ${errorDetails.message}`
+        } else if (errorDetails?.code) {
+          errorMessage = `Notion API error (${errorDetails.code}). Please check your integration settings.`
+        }
+        
+        return NextResponse.json(
+          { 
+            error: errorMessage,
+            details: errorDetails,
+            status: testResponse.status,
+            statusText: testResponse.statusText,
+          },
+          { status: 400 }
+        )
+      }
+    } catch (fetchError) {
+      console.error("[Notion API Keys] Network error during API key validation:", fetchError)
       return NextResponse.json(
-        { error: "Invalid API key. Please check your key and try again." },
-        { status: 400 }
+        { 
+          error: "Failed to connect to Notion API. Please check your internet connection and try again.",
+          details: fetchError instanceof Error ? fetchError.message : "Unknown network error"
+        },
+        { status: 500 }
       )
     }
 
@@ -142,9 +214,14 @@ export async function POST(request: NextRequest) {
       message: "API key stored successfully",
     })
   } catch (error) {
-    console.error("Unexpected error:", error)
+    console.error("[Notion API Keys POST] Unexpected error:", error)
+    const errorMessage = error instanceof Error ? error.message : "Internal server error"
+    const errorStack = error instanceof Error ? error.stack : undefined
     return NextResponse.json(
-      { error: "Internal server error" },
+      { 
+        error: errorMessage,
+        details: errorStack ? "Check server logs for details" : undefined
+      },
       { status: 500 }
     )
   }

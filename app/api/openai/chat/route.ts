@@ -3,6 +3,7 @@ import { getUserProfile } from "@/lib/auth/get-user"
 import { createClient } from "@/lib/supabase/server"
 import { buildKinksterPersonalityPrompt } from "@/lib/chat/kinkster-personality"
 import { kinkyKincadeProfile } from "@/lib/kinky/kinky-kincade-profile"
+import { KINKY_KINCADE_INSTRUCTIONS } from "@/lib/ai/kinky-kincade-instructions"
 
 interface OpenAIChatRequest {
   message: string
@@ -33,8 +34,9 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createClient()
 
-    // Build Kinky Kincade instructions
-    const agentInstructions = buildKinksterPersonalityPrompt(kinkyKincadeProfile as any)
+    // Use enhanced Kinky Kincade instructions with tool awareness
+    // The enhanced instructions include comprehensive tool documentation
+    const agentInstructions = KINKY_KINCADE_INSTRUCTIONS
 
     // Create or get conversation if realtime mode is enabled
     let finalConversationId = conversationId

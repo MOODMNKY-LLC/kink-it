@@ -38,9 +38,18 @@ interface ChatConfigPanelProps {
   onOpenChange?: (open: boolean) => void
 }
 
-const AVAILABLE_MODELS = [
-  { value: "gpt-4o-mini", label: "GPT-4o Mini (Fast, Cost-Effective)" },
+// Default models (fallback if API fails)
+const DEFAULT_MODELS = [
+  { value: "gpt-5", label: "GPT-5 (Flagship)" },
+  { value: "gpt-5-mini", label: "GPT-5 Mini (Fast & Efficient)" },
+  { value: "gpt-5-nano", label: "GPT-5 Nano (Ultra Fast)" },
+  { value: "gpt-5-chat", label: "GPT-5 Chat" },
+  { value: "gpt-5-codex", label: "GPT-5 Codex (Coding Specialist)" },
+  { value: "o3", label: "o3 (Advanced Reasoning)" },
+  { value: "o3-mini", label: "o3 Mini (Efficient Reasoning)" },
+  { value: "o4-mini", label: "o4 Mini (Cost-Efficient Reasoning)" },
   { value: "gpt-4o", label: "GPT-4o (Balanced)" },
+  { value: "gpt-4o-mini", label: "GPT-4o Mini (Fast & Cost-Effective)" },
   { value: "gpt-4-turbo", label: "GPT-4 Turbo (Advanced)" },
 ]
 
@@ -62,6 +71,35 @@ export function ChatConfigPanel({
   React.useEffect(() => {
     setLocalConfig(config)
   }, [config])
+
+  // Fetch available models when panel opens
+  React.useEffect(() => {
+    if (isOpen) {
+      fetchAvailableModels()
+    }
+  }, [isOpen])
+
+  const fetchAvailableModels = async () => {
+    setIsLoadingModels(true)
+    try {
+      const response = await fetch("/api/openai/models")
+      if (response.ok) {
+        const data = await response.json()
+        const formattedModels = data.models.map((model: { id: string; name: string }) => ({
+          value: model.id,
+          label: model.name,
+        }))
+        setAvailableModels(formattedModels.length > 0 ? formattedModels : DEFAULT_MODELS)
+      } else {
+        setAvailableModels(DEFAULT_MODELS)
+      }
+    } catch (error) {
+      console.error("Error fetching models:", error)
+      setAvailableModels(DEFAULT_MODELS)
+    } finally {
+      setIsLoadingModels(false)
+    }
+  }
 
   const handleSave = () => {
     onConfigChange(localConfig)
@@ -112,18 +150,30 @@ export function ChatConfigPanel({
                 onValueChange={(value) =>
                   setLocalConfig((prev) => ({ ...prev, model: value }))
                 }
+                disabled={isLoadingModels}
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder={isLoadingModels ? "Loading models..." : "Select model"} />
                 </SelectTrigger>
-                <SelectContent>
-                  {AVAILABLE_MODELS.map((model) => (
-                    <SelectItem key={model.value} value={model.value}>
-                      {model.label}
+                <SelectContent className="max-h-[300px]">
+                  {isLoadingModels ? (
+                    <SelectItem value="loading" disabled>
+                      Loading models...
                     </SelectItem>
-                  ))}
+                  ) : (
+                    availableModels.map((model) => (
+                      <SelectItem key={model.value} value={model.value}>
+                        {model.label}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
+              {availableModels.length > 0 && !isLoadingModels && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  {availableModels.length} model{availableModels.length !== 1 ? "s" : ""} available
+                </p>
+              )}
             </CardContent>
           </Card>
 

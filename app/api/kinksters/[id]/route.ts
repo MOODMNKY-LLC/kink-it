@@ -19,14 +19,15 @@ export async function GET(
     const supabase = await createClient()
     const kinksterId = params.id
 
+    // Fetch kinkster - allow system kinksters or user's own kinksters
     const { data: kinkster, error } = await supabase
       .from("kinksters")
       .select("*")
       .eq("id", kinksterId)
-      .eq("user_id", profile.id)
+      .or(`is_system_kinkster.eq.true,user_id.eq.${profile.id}`)
       .single()
 
-    if (error) {
+    if (error || !kinkster) {
       console.error("Error fetching kinkster:", error)
       return NextResponse.json({ error: "KINKSTER not found" }, { status: 404 })
     }

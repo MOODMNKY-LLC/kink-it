@@ -85,6 +85,11 @@ export async function POST(request: NextRequest) {
         )
       }
 
+      // Log pose reference URL type for debugging
+      console.log("[Pose Variation] Character URL:", characterUrl?.substring(0, 50) + "...")
+      console.log("[Pose Variation] Pose Reference URL type:", poseReferenceUrl?.startsWith("data:") ? "data URL" : "regular URL")
+      console.log("[Pose Variation] Pose Reference URL preview:", poseReferenceUrl?.substring(0, 100) + "...")
+
       // Pose variation must use Gemini 3 Pro for multi-image support
       const apiKey = process.env.AI_GATEWAY_API_KEY
       if (!apiKey) {
@@ -117,6 +122,11 @@ export async function POST(request: NextRequest) {
       // Handles localhost/127.0.0.1 routing issues and certificate problems
       const convertToDataUrl = async (url: string): Promise<string> => {
         try {
+          // If URL is already a data URL, return it as-is
+          if (url.startsWith("data:")) {
+            return url
+          }
+          
           // Normalize URL: replace localhost with 127.0.0.1 for consistency
           let normalizedUrl = url.replace(/localhost/g, "127.0.0.1")
           
@@ -327,6 +337,11 @@ export async function POST(request: NextRequest) {
       // Handles localhost/127.0.0.1 routing issues and certificate problems
       const convertToDataUrl = async (url: string): Promise<string> => {
         try {
+          // If URL is already a data URL, return it as-is
+          if (url.startsWith("data:")) {
+            return url
+          }
+          
           // Normalize URL: replace localhost with 127.0.0.1 for consistency
           let normalizedUrl = url.replace(/localhost/g, "127.0.0.1")
           
@@ -869,6 +884,11 @@ export async function POST(request: NextRequest) {
 
         const convertToDataUrl = async (source: File | string): Promise<string> => {
           if (typeof source === "string") {
+            // If URL is already a data URL, return it as-is
+            if (source.startsWith("data:")) {
+              return source
+            }
+            
             // Handle URL strings - normalize localhost and use Supabase client for storage URLs
             try {
               // Normalize URL: replace localhost with 127.0.0.1 for consistency

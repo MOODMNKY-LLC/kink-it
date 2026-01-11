@@ -13,6 +13,9 @@ import Image from "next/image"
 import { cn } from "@/lib/utils"
 import supabaseImageLoader from "@/lib/supabase-image-loader"
 
+// No-op loader for unoptimized images when Next.js requires a loader prop
+const noOpLoader = ({ src }: { src: string }) => src
+
 interface SafeImageProps {
   src: string
   alt?: string
@@ -52,17 +55,25 @@ export function SafeImage({
   const [fallbackError, setFallbackError] = useState(false)
   const errorLoggedRef = useRef(false)
 
+  // Validate src - normalize to empty string if invalid
+  const validSrc = src && typeof src === "string" && src.trim() !== "" ? src : ""
+
   // Check if URL should use fallback img tag
   useEffect(() => {
-    if (src.startsWith("data:") || src.startsWith("blob:")) {
+    if (!validSrc) {
+      setUseFallback(false)
+      return
+    }
+    
+    if (validSrc.startsWith("data:") || validSrc.startsWith("blob:")) {
       setUseFallback(true)
-    } else if (src.includes("127.0.0.1") || src.includes("localhost")) {
+    } else if (validSrc.includes("127.0.0.1") || validSrc.includes("localhost")) {
       // For localhost URLs, use regular img tag directly (render endpoint may not be available)
       setUseFallback(true)
     } else {
       setUseFallback(false)
     }
-  }, [src])
+  }, [validSrc])
 
   const handleImageError = () => {
     // If Next.js Image failed, try fallback img tag
@@ -80,16 +91,16 @@ export function SafeImage({
       // Only log error once per unique URL to avoid spam
       if (!errorLoggedRef.current) {
         errorLoggedRef.current = true
-        if (!loggedErrors.has(src)) {
-          loggedErrors.add(src)
+        if (validSrc && !loggedErrors.has(validSrc)) {
+          loggedErrors.add(validSrc)
           // Don't log data URLs fully (they're huge)
-          const logSrc = src.startsWith("data:") 
-            ? `data:image/... (data URL, length: ${src.length})` 
-            : src.substring(0, 100) + "..."
+          const logSrc = validSrc.startsWith("data:") 
+            ? `data:image/... (data URL, length: ${validSrc.length})` 
+            : validSrc.substring(0, 100) + "..."
           console.warn("Failed to load image:", logSrc)
           // For data URLs, also log the first few chars to verify format
-          if (src.startsWith("data:")) {
-            console.warn("Data URL preview:", src.substring(0, 50) + "...")
+          if (validSrc.startsWith("data:")) {
+            console.warn("Data URL preview:", validSrc.substring(0, 50) + "...")
           }
         }
       }
@@ -102,10 +113,10 @@ export function SafeImage({
     setImageError(false)
     setFallbackError(false)
     errorLoggedRef.current = false
-  }, [src])
+  }, [validSrc])
 
-  // Show placeholder only if both Next.js Image and fallback img failed
-  if (fallbackError) {
+  // Show placeholder if src is invalid or both Next.js Image and fallback img failed
+  if (!validSrc || fallbackError) {
     return (
       <div
         className={cn(
@@ -140,7 +151,7 @@ export function SafeImage({
     if (fill) {
       return (
         <img
-          src={src}
+          src={validSrc}
           alt={alt}
           className={cn("absolute inset-0", `object-${objectFit}`, className)}
           onError={handleImageError}
@@ -149,7 +160,7 @@ export function SafeImage({
     }
     return (
       <img
-        src={src}
+        src={validSrc}
         alt={alt}
         width={width}
         height={height}
@@ -161,14 +172,15 @@ export function SafeImage({
 
   // Use Next.js Image for regular URLs
   // For Supabase Storage URLs, use the Supabase image loader
-  const isSupabaseUrl = isSupabaseStorageUrl(src)
+  // When unoptimized, use no-op loader to satisfy Next.js loader requirement
+  const isSupabaseUrl = validSrc ? isSupabaseStorageUrl(validSrc) : false
   const shouldUseLoader = isSupabaseUrl && !useFallback && !imageError
 
   if (fill) {
     return (
       <Image
-        loader={shouldUseLoader ? supabaseImageLoader : undefined}
-        src={src}
+        loader={shouldUseLoader ? supabaseImageLoader : noOpLoader}
+        src={validSrc}
         alt={alt}
         fill
         className={cn(`object-${objectFit}`, className)}
@@ -181,8 +193,8 @@ export function SafeImage({
 
   return (
     <Image
-      loader={shouldUseLoader ? supabaseImageLoader : undefined}
-      src={src}
+      loader={shouldUseLoader ? supabaseImageLoader : noOpLoader}
+      src={validSrc}
       alt={alt}
       width={width ?? 512}
       height={height ?? 512}

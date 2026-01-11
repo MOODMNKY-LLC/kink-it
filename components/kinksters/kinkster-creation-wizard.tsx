@@ -9,14 +9,12 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { toast } from "sonner"
 import { KinksterCreationData } from "@/types/kinkster"
 import BasicInfoStep from "./steps/basic-info-step"
-import AppearanceStep from "./steps/appearance-step"
-import StatsStep from "./steps/stats-step"
-import KinkPreferencesStep from "./steps/kink-preferences-step"
-import PersonalityStep from "./steps/personality-step"
-import AvatarGenerationStep from "./steps/avatar-generation-step"
+import AppearanceStyleStep from "./steps/appearance-style-step"
+import PersonalityKinksStep from "./steps/personality-kinks-step"
+import AvatarProviderStep from "./steps/avatar-provider-step"
 import FinalizeStep from "./steps/finalize-step"
 
-const TOTAL_STEPS = 7
+const TOTAL_STEPS = 5
 
 interface KinksterCreationWizardProps {
   onComplete?: (kinksterId: string) => void
@@ -76,25 +74,55 @@ export default function KinksterCreationWizard({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          // Basic Info
           name: creationData.name,
+          display_name: creationData.display_name,
+          role: creationData.role,
+          pronouns: creationData.pronouns,
+          archetype: creationData.archetype,
+          // Appearance (Structured Fields)
+          body_type: creationData.body_type,
+          height: creationData.height,
+          build: creationData.build,
+          hair_color: creationData.hair_color,
+          hair_style: creationData.hair_style,
+          eye_color: creationData.eye_color,
+          skin_tone: creationData.skin_tone,
+          facial_hair: creationData.facial_hair,
+          age_range: creationData.age_range,
+          // Style Preferences
+          clothing_style: creationData.clothing_style,
+          favorite_colors: creationData.favorite_colors,
+          fetish_wear: creationData.fetish_wear,
+          aesthetic: creationData.aesthetic,
+          // Personality & Kinks
+          personality_traits: creationData.personality_traits,
           bio: creationData.bio,
           backstory: creationData.backstory,
+          top_kinks: creationData.top_kinks,
+          kink_interests: creationData.kink_interests,
+          hard_limits: creationData.hard_limits,
+          soft_limits: creationData.soft_limits,
+          role_preferences: creationData.role_preferences,
+          experience_level: creationData.experience_level,
+          // Avatar
           avatar_url: creationData.avatar_url,
+          avatar_urls: creationData.avatar_urls,
           avatar_prompt: creationData.avatar_prompt,
+          generation_prompt: creationData.generation_prompt,
+          preset_id: creationData.preset_id,
+          // Provider Configuration
+          provider: creationData.provider,
+          flowise_chatflow_id: creationData.flowise_chatflow_id,
+          openai_model: creationData.openai_model,
+          openai_instructions: creationData.openai_instructions,
+          // Stats (optional, auto-calculated from archetype if not provided)
           dominance: creationData.stats?.dominance,
           submission: creationData.stats?.submission,
           charisma: creationData.stats?.charisma,
           stamina: creationData.stats?.stamina,
           creativity: creationData.stats?.creativity,
           control: creationData.stats?.control,
-          appearance_description: creationData.appearance_description,
-          physical_attributes: creationData.physical_attributes,
-          kink_interests: creationData.kink_interests,
-          hard_limits: creationData.hard_limits,
-          soft_limits: creationData.soft_limits,
-          personality_traits: creationData.personality_traits,
-          role_preferences: creationData.role_preferences,
-          archetype: creationData.archetype,
         }),
       })
 
@@ -131,7 +159,7 @@ export default function KinksterCreationWizard({
         )
       case 2:
         return (
-          <AppearanceStep
+          <AppearanceStyleStep
             onNext={handleStepComplete}
             onBack={handleBack}
             initialData={creationData}
@@ -139,7 +167,7 @@ export default function KinksterCreationWizard({
         )
       case 3:
         return (
-          <StatsStep
+          <PersonalityKinksStep
             onNext={handleStepComplete}
             onBack={handleBack}
             initialData={creationData}
@@ -147,30 +175,14 @@ export default function KinksterCreationWizard({
         )
       case 4:
         return (
-          <KinkPreferencesStep
-            onNext={handleStepComplete}
-            onBack={handleBack}
-            initialData={creationData}
-          />
-        )
-      case 5:
-        return (
-          <PersonalityStep
-            onNext={handleStepComplete}
-            onBack={handleBack}
-            initialData={creationData}
-          />
-        )
-      case 6:
-        return (
-          <AvatarGenerationStep
+          <AvatarProviderStep
             onNext={handleStepComplete}
             onBack={handleBack}
             initialData={creationData}
             updateData={updateCreationData}
           />
         )
-      case 7:
+      case 5:
         return (
           <FinalizeStep
             onBack={handleBack}
@@ -185,35 +197,41 @@ export default function KinksterCreationWizard({
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
-      <Card className="border-2">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-3xl font-display bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-                Create Your Kinkster
-              </CardTitle>
-              <CardDescription className="mt-2">
-                Step {currentStep} of {TOTAL_STEPS}
-              </CardDescription>
+    <div className="w-full min-h-screen safe-area-insets">
+      <div className="container mx-auto py-4 sm:py-8 px-2 sm:px-4 max-w-full sm:max-w-4xl">
+        <Card className="border-2 shadow-lg">
+          <CardHeader className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-xl sm:text-2xl lg:text-3xl font-display bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent break-words">
+                  Create Your Kinkster
+                </CardTitle>
+                <CardDescription className="mt-1 sm:mt-2 text-sm sm:text-base">
+                  Step {currentStep} of {TOTAL_STEPS}
+                </CardDescription>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="shrink-0 h-9 sm:h-10 px-3 sm:px-4 text-sm sm:text-base"
+                onClick={() => {
+                  if (onCancel) {
+                    onCancel()
+                  } else {
+                    router.push("/account/profile")
+                  }
+                }}
+              >
+                Cancel
+              </Button>
             </div>
-            <Button
-              variant="ghost"
-              onClick={() => {
-                if (onCancel) {
-                  onCancel()
-                } else {
-                  router.push("/account/profile")
-                }
-              }}
-            >
-              Cancel
-            </Button>
-          </div>
-          <Progress value={progress} className="mt-4" />
-        </CardHeader>
-        <CardContent className="mt-6">{renderStep()}</CardContent>
-      </Card>
+            <Progress value={progress} className="mt-3 sm:mt-4 h-2" />
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6 mt-0 sm:mt-6 overflow-x-hidden">
+            {renderStep()}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

@@ -213,7 +213,9 @@ export function useStudioGeneration() {
           ? kinkItMode
             ? normalizePromptWithStyle(poseDesc, { forceStyle: false })
             : poseDesc
-          : "Generate pose variation"
+          : kinkItMode
+            ? normalizePromptWithStyle("Generate pose variation", { forceStyle: true })
+            : "Generate pose variation"
       } else if (effectiveMode === "scene-composition") {
         // Scene composition mode
         const compositionPrompt =

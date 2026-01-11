@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/client"
 import type { Kinkster } from "@/types/kinkster"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { KinksterTradingCard } from "@/components/kinksters/kinkster-trading-card"
 
 interface KinksterChatSelectorProps {
   onKinksterSelect?: (kinksterId: string) => void
@@ -32,8 +33,9 @@ export function KinksterChatSelector({ onKinksterSelect, className }: KinksterCh
         const { data, error } = await supabase
           .from("kinksters")
           .select("*")
-          .eq("user_id", user.id)
+          .or(`is_system_kinkster.eq.true,user_id.eq.${user.id}`)
           .eq("is_active", true)
+          .order("is_system_kinkster", { ascending: false }) // System kinksters first
           .order("is_primary", { ascending: false })
           .order("created_at", { ascending: false })
 
@@ -111,37 +113,17 @@ export function KinksterChatSelector({ onKinksterSelect, className }: KinksterCh
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {kinksters.map((kinkster) => (
-            <Button
+            <KinksterTradingCard
               key={kinkster.id}
-              variant={selectedKinkster === kinkster.id ? "default" : "outline"}
-              className={cn(
-                "h-auto p-4 flex items-start gap-3 justify-start",
-                selectedKinkster === kinkster.id && "ring-2 ring-primary"
-              )}
+              kinkster={kinkster}
               onClick={() => handleKinksterSelect(kinkster.id)}
-            >
-              <Avatar className="h-12 w-12 shrink-0">
-                <AvatarImage src={kinkster.avatar_url || undefined} alt={kinkster.name} />
-                <AvatarFallback>{kinkster.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0 text-left">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-semibold truncate">{kinkster.name}</span>
-                  {kinkster.is_primary && (
-                    <Badge variant="secondary" className="text-xs">Primary</Badge>
-                  )}
-                </div>
-                {kinkster.bio && (
-                  <p className="text-xs text-muted-foreground line-clamp-2">{kinkster.bio}</p>
-                )}
-                <div className="flex items-center gap-2 mt-2">
-                  <MessageSquare className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Start Chat</span>
-                </div>
-              </div>
-            </Button>
+              selected={selectedKinkster === kinkster.id}
+              variant="compact"
+              showStats={true}
+              showBio={true}
+            />
           ))}
         </div>
       </CardContent>

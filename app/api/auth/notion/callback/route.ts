@@ -192,6 +192,22 @@ export async function GET(request: NextRequest) {
         expires_in: 3600, // Notion tokens expire in 1 hour
       })
 
+      // ALSO: Store duplicated_template_id directly in profiles for easy access
+      // This makes sync much simpler - no RPC call needed
+      if (duplicated_template_id) {
+        const { createClient } = await import("@/lib/supabase/server")
+        const supabase = await createClient()
+        await supabase
+          .from("profiles")
+          .update({
+            notion_parent_page_id: duplicated_template_id,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", supabaseUser.id)
+        
+        console.log(`[Notion OAuth] Stored duplicated_template_id in profiles: ${duplicated_template_id}`)
+      }
+
       // Create a session using admin API
       // Generate a magic link - Supabase will verify it and establish session automatically
       console.log("[Notion OAuth] Generating magic link for user:", supabaseUser.email)

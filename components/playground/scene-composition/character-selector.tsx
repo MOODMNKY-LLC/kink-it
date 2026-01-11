@@ -13,6 +13,7 @@ import { toast } from "sonner"
 import { KinkyAvatar } from "@/components/kinky/kinky-avatar"
 import { cn } from "@/lib/utils"
 import type { Kinkster } from "@/types/kinkster"
+import { KinksterTradingCard } from "@/components/kinksters/kinkster-trading-card"
 
 interface CharacterSelectorProps {
   onSelect: (character: Kinkster | null) => void
@@ -253,57 +254,15 @@ export function CharacterSelector({
             {filteredKinksters.map((kinkster) => {
               const isSelected = internalSelectedIds.includes(kinkster.id)
               return (
-                <Card
+                <KinksterTradingCard
                   key={kinkster.id}
-                  className={cn(
-                    "cursor-pointer transition-all hover:shadow-md",
-                    isSelected && "ring-2 ring-primary ring-offset-2"
-                  )}
+                  kinkster={kinkster}
                   onClick={() => handleCharacterClick(kinkster)}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="relative">
-                        {kinkster.avatar_url ? (
-                          <Avatar className="h-16 w-16">
-                            <AvatarImage src={kinkster.avatar_url} alt={kinkster.name} />
-                            <AvatarFallback>
-                              <KinkyAvatar size="md" />
-                            </AvatarFallback>
-                          </Avatar>
-                        ) : (
-                          <Avatar className="h-16 w-16">
-                            <AvatarFallback>
-                              <KinkyAvatar size="md" />
-                            </AvatarFallback>
-                          </Avatar>
-                        )}
-                        {isSelected && (
-                          <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full p-1">
-                            <Check className="h-3 w-3" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-sm truncate">{kinkster.name}</h3>
-                        {kinkster.archetype && (
-                          <Badge variant="outline" className="mt-1 text-xs">
-                            {kinkster.archetype}
-                          </Badge>
-                        )}
-                        {kinkster.role_preferences && kinkster.role_preferences.length > 0 && (
-                          <div className="mt-1 flex flex-wrap gap-1">
-                            {kinkster.role_preferences.slice(0, 2).map((role) => (
-                              <Badge key={role} variant="secondary" className="text-xs">
-                                {role}
-                              </Badge>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                  selected={isSelected}
+                  variant="full"
+                  showStats={true}
+                  showBio={false}
+                />
               )
             })}
           </div>

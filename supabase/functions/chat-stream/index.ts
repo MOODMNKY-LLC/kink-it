@@ -601,13 +601,724 @@ Deno.serve(async (req: Request) => {
       },
     })
 
-    // Combine user-provided tools with Notion tools and YouTube transcript tool
-    const allTools = [...tools, ...notionTools, youtubeTranscriptTool]
+    // Add App Context-Aware Tools (Bonds, Tasks, Kinksters)
+    const appContextTools: any[] = []
+
+    // Bonds Tools
+    appContextTools.push(
+      tool({
+        name: "query_bonds",
+        description: "Query user's bonds (relationships/partnerships). Use this to find active bonds, pending bonds, or bonds by type.",
+        parameters: {
+          type: "object",
+          properties: {
+            status: {
+              type: ["string", "null"],
+              enum: ["forming", "active", "archived", null],
+              description: "Filter by bond status (optional)",
+            },
+            bond_type: {
+              type: ["string", "null"],
+              enum: ["dyad", "dynamic", "poly", null],
+              description: "Filter by bond type (optional)",
+            },
+          },
+          required: ["status", "bond_type"],
+          additionalProperties: false,
+        },
+        execute: async ({ status, bond_type }: { status?: string; bond_type?: string }) => {
+          try {
+            const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                tool_name: "query_bonds",
+                args: { status, bond_type },
+                user_id,
+              }),
+            })
+            const result = await response.json()
+            return result.formatted || JSON.stringify(result.data)
+          } catch (error: any) {
+            return `Error querying bonds: ${error.message || "Unknown error"}`
+          }
+        },
+      }),
+      tool({
+        name: "get_bond_details",
+        description: "Get full details of a specific bond by ID. Use this after querying bonds to get more information.",
+        parameters: {
+          type: "object",
+          properties: {
+            bond_id: {
+              type: "string",
+              description: "Bond ID (UUID)",
+            },
+          },
+          required: ["bond_id"],
+          additionalProperties: false,
+        },
+        execute: async ({ bond_id }: { bond_id: string }) => {
+          try {
+            const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                tool_name: "get_bond_details",
+                args: { bond_id },
+                user_id,
+              }),
+            })
+            const result = await response.json()
+            return result.formatted || JSON.stringify(result.data)
+          } catch (error: any) {
+            return `Error getting bond details: ${error.message || "Unknown error"}`
+          }
+        },
+      }),
+      tool({
+        name: "create_bond_request",
+        description: "Create a request to join a bond. Use this when user wants to join an existing bond.",
+        parameters: {
+          type: "object",
+          properties: {
+            bond_id: {
+              type: "string",
+              description: "Bond ID to request joining",
+            },
+            message: {
+              type: ["string", "null"],
+              description: "Optional message with the request",
+            },
+          },
+          required: ["bond_id", "message"],
+          additionalProperties: false,
+        },
+        execute: async ({ bond_id, message }: { bond_id: string; message?: string }) => {
+          try {
+            const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                tool_name: "create_bond_request",
+                args: { bond_id, message },
+                user_id,
+              }),
+            })
+            const result = await response.json()
+            return result.formatted || JSON.stringify(result.data)
+          } catch (error: any) {
+            return `Error creating bond request: ${error.message || "Unknown error"}`
+          }
+        },
+      })
+    )
+
+    // Tasks Tools
+    appContextTools.push(
+      tool({
+        name: "query_tasks",
+        description: "Query tasks assigned to or by the user. Use this to find tasks by status, due date, or assignment.",
+        parameters: {
+          type: "object",
+          properties: {
+            status: {
+              type: ["string", "null"],
+              enum: ["pending", "in_progress", "completed", "approved", "cancelled", null],
+              description: "Filter by task status",
+            },
+            assigned_to: {
+              type: ["string", "null"],
+              description: "Filter by user ID assigned to",
+            },
+            assigned_by: {
+              type: ["string", "null"],
+              description: "Filter by user ID assigned by",
+            },
+            due_today: {
+              type: ["boolean", "null"],
+              description: "Filter to tasks due today",
+            },
+          },
+          required: ["status", "assigned_to", "assigned_by", "due_today"],
+          additionalProperties: false,
+        },
+        execute: async ({ status, assigned_to, assigned_by, due_today }: { status?: string; assigned_to?: string; assigned_by?: string; due_today?: boolean }) => {
+          try {
+            const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                tool_name: "query_tasks",
+                args: { status, assigned_to, assigned_by, due_today },
+                user_id,
+              }),
+            })
+            const result = await response.json()
+            return result.formatted || JSON.stringify(result.data)
+          } catch (error: any) {
+            return `Error querying tasks: ${error.message || "Unknown error"}`
+          }
+        },
+      }),
+      tool({
+        name: "get_task_details",
+        description: "Get full details of a specific task by ID. Use this after querying tasks to get more information.",
+        parameters: {
+          type: "object",
+          properties: {
+            task_id: {
+              type: "string",
+              description: "Task ID (UUID)",
+            },
+          },
+          required: ["task_id"],
+          additionalProperties: false,
+        },
+        execute: async ({ task_id }: { task_id: string }) => {
+          try {
+            const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                tool_name: "get_task_details",
+                args: { task_id },
+                user_id,
+              }),
+            })
+            const result = await response.json()
+            return result.formatted || JSON.stringify(result.data)
+          } catch (error: any) {
+            return `Error getting task details: ${error.message || "Unknown error"}`
+          }
+        },
+      }),
+      tool({
+        name: "create_task",
+        description: "Create a new task. Only available to Dominants and Admins. Use this to assign tasks to submissives or yourself.",
+        parameters: {
+          type: "object",
+          properties: {
+            title: {
+              type: "string",
+              description: "Task title (required)",
+            },
+            description: {
+              type: ["string", "null"],
+              description: "Task description",
+            },
+            priority: {
+              type: ["string", "null"],
+              enum: ["low", "medium", "high", null],
+              description: "Task priority",
+            },
+            due_date: {
+              type: ["string", "null"],
+              description: "Due date (ISO 8601 format)",
+            },
+            assigned_to: {
+              type: ["string", "null"],
+              description: "User ID to assign task to (defaults to creator if not provided)",
+            },
+            point_value: {
+              type: ["number", "null"],
+              description: "Points awarded for completion",
+            },
+          },
+          required: ["title", "description", "priority", "due_date", "assigned_to", "point_value"],
+          additionalProperties: false,
+        },
+        execute: async ({ title, description, priority, due_date, assigned_to, point_value }: { title: string; description?: string; priority?: string; due_date?: string; assigned_to?: string; point_value?: number }) => {
+          try {
+            const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                tool_name: "create_task",
+                args: { title, description, priority, due_date, assigned_to, point_value },
+                user_id,
+              }),
+            })
+            const result = await response.json()
+            if (!response.ok) {
+              return `Error: ${result.error || "Failed to create task"}`
+            }
+            return result.formatted || JSON.stringify(result.data)
+          } catch (error: any) {
+            return `Error creating task: ${error.message || "Unknown error"}`
+          }
+        },
+      }),
+      tool({
+        name: "update_task_status",
+        description: "Update the status of a task. Submissives can update to 'in_progress' or 'completed'. Dominants can update to any status.",
+        parameters: {
+          type: "object",
+          properties: {
+            task_id: {
+              type: "string",
+              description: "Task ID to update",
+            },
+            status: {
+              type: "string",
+              enum: ["pending", "in_progress", "completed", "approved", "cancelled"],
+              description: "New task status",
+            },
+            completion_notes: {
+              type: ["string", "null"],
+              description: "Optional notes when completing task",
+            },
+          },
+          required: ["task_id", "status", "completion_notes"],
+          additionalProperties: false,
+        },
+        execute: async ({ task_id, status, completion_notes }: { task_id: string; status: string; completion_notes?: string }) => {
+          try {
+            const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                tool_name: "update_task_status",
+                args: { task_id, status, completion_notes },
+                user_id,
+              }),
+            })
+            const result = await response.json()
+            if (!response.ok) {
+              return `Error: ${result.error || "Failed to update task"}`
+            }
+            return result.formatted || JSON.stringify(result.data)
+          } catch (error: any) {
+            return `Error updating task: ${error.message || "Unknown error"}`
+          }
+        },
+      })
+    )
+
+    // Kinksters Tools
+    appContextTools.push(
+      tool({
+        name: "query_kinksters",
+        description: "Query user's Kinkster characters. Use this to find characters by name, archetype, or search term.",
+        parameters: {
+          type: "object",
+          properties: {
+            search: {
+              type: ["string", "null"],
+              description: "Search term for name or bio",
+            },
+            archetype: {
+              type: ["string", "null"],
+              description: "Filter by archetype",
+            },
+            is_active: {
+              type: ["boolean", "null"],
+              description: "Filter by active status (default: true)",
+            },
+          },
+          required: ["search", "archetype", "is_active"],
+          additionalProperties: false,
+        },
+        execute: async ({ search, archetype, is_active }: { search?: string; archetype?: string; is_active?: boolean }) => {
+          try {
+            const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                tool_name: "query_kinksters",
+                args: { search, archetype, is_active },
+                user_id,
+              }),
+            })
+            const result = await response.json()
+            return result.formatted || JSON.stringify(result.data)
+          } catch (error: any) {
+            return `Error querying kinksters: ${error.message || "Unknown error"}`
+          }
+        },
+      }),
+      tool({
+        name: "get_kinkster_details",
+        description: "Get full details of a specific Kinkster character by ID. Use this after querying kinksters to get stats, bio, and other details.",
+        parameters: {
+          type: "object",
+          properties: {
+            kinkster_id: {
+              type: "string",
+              description: "Kinkster ID (UUID)",
+            },
+          },
+          required: ["kinkster_id"],
+          additionalProperties: false,
+        },
+        execute: async ({ kinkster_id }: { kinkster_id: string }) => {
+          try {
+            const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                tool_name: "get_kinkster_details",
+                args: { kinkster_id },
+                user_id,
+              }),
+            })
+            const result = await response.json()
+            return result.formatted || JSON.stringify(result.data)
+          } catch (error: any) {
+            return `Error getting kinkster details: ${error.message || "Unknown error"}`
+          }
+        },
+      }),
+      tool({
+        name: "create_kinkster",
+        description: "Create a new Kinkster character with full customization. You can guide users through creating a character step-by-step by asking about their preferences. Only 'name' is required - all other fields are optional and can be added incrementally through conversation.",
+        parameters: {
+          type: "object",
+          properties: {
+            // Basic Info
+            name: { type: "string", description: "Character name (required)" },
+            display_name: { type: ["string", "null"], description: "Display name (defaults to name if not provided)" },
+            role: { type: ["string", "null"], enum: ["dominant", "submissive", "switch", null], description: "Character's role preference" },
+            pronouns: { type: ["string", "null"], description: "Character pronouns (e.g., 'She/Her', 'They/Them')" },
+            archetype: { type: ["string", "null"], description: "Character archetype (e.g., 'The Dominant', 'The Submissive', 'The Brat')" },
+            // Appearance
+            body_type: { type: ["string", "null"], description: "Body type (e.g., 'athletic', 'curvy', 'slender')" },
+            height: { type: ["string", "null"], description: "Height (e.g., '5\'8\"', 'tall', 'average')" },
+            build: { type: ["string", "null"], description: "Build (e.g., 'muscular', 'petite', 'stocky')" },
+            hair_color: { type: ["string", "null"], description: "Hair color" },
+            hair_style: { type: ["string", "null"], description: "Hair style (e.g., 'long', 'short', 'curly')" },
+            eye_color: { type: ["string", "null"], description: "Eye color" },
+            skin_tone: { type: ["string", "null"], description: "Skin tone" },
+            facial_hair: { type: ["string", "null"], description: "Facial hair (if applicable)" },
+            age_range: { type: ["string", "null"], description: "Age range (e.g., 'mid-20s', '30s')" },
+            // Style Preferences
+            clothing_style: { type: ["array", "null"], items: { type: "string" }, description: "Clothing style preferences (array of strings)" },
+            favorite_colors: { type: ["array", "null"], items: { type: "string" }, description: "Favorite colors (array of strings)" },
+            fetish_wear: { type: ["array", "null"], items: { type: "string" }, description: "Fetish wear preferences (array of strings)" },
+            aesthetic: { type: ["string", "null"], description: "Overall aesthetic (e.g., 'goth', 'punk', 'elegant')" },
+            // Personality & Kinks
+            personality_traits: { type: ["array", "null"], items: { type: "string" }, description: "Personality traits (array of strings)" },
+            bio: { type: ["string", "null"], description: "Character biography/description" },
+            backstory: { type: ["string", "null"], description: "Character backstory/history" },
+            top_kinks: { type: ["array", "null"], items: { type: "string" }, description: "Top kink interests (array of strings)" },
+            kink_interests: { type: ["array", "null"], items: { type: "string" }, description: "General kink interests (array of strings)" },
+            hard_limits: { type: ["array", "null"], items: { type: "string" }, description: "Hard limits (array of strings)" },
+            soft_limits: { type: ["array", "null"], items: { type: "string" }, description: "Soft limits (array of strings)" },
+            role_preferences: { type: ["array", "null"], items: { type: "string" }, description: "Role preferences (array of strings)" },
+            experience_level: { type: ["string", "null"], enum: ["beginner", "intermediate", "advanced", "expert", null], description: "Experience level" },
+            // Avatar
+            avatar_url: { type: ["string", "null"], description: "Avatar image URL" },
+            avatar_urls: { type: ["array", "null"], items: { type: "string" }, description: "Multiple avatar URLs (array of strings)" },
+            avatar_prompt: { type: ["string", "null"], description: "Avatar generation prompt" },
+            generation_prompt: { type: ["string", "null"], description: "Avatar generation prompt (alternative field)" },
+            preset_id: { type: ["string", "null"], description: "Preset ID if using a preset avatar" },
+            // Provider Configuration
+            provider: { type: ["string", "null"], enum: ["flowise", "openai_responses", null], description: "Chat provider ('flowise' or 'openai_responses')" },
+            flowise_chatflow_id: { type: ["string", "null"], description: "Flowise chatflow ID (if using Flowise provider)" },
+            openai_model: { type: ["string", "null"], description: "OpenAI model (if using OpenAI provider, e.g., 'gpt-4o-mini')" },
+            openai_instructions: { type: ["string", "null"], description: "Custom OpenAI instructions for the character" },
+            // Stats (1-20 scale, total should be ~60)
+            dominance: { type: ["number", "null"], description: "Dominance stat (1-20)" },
+            submission: { type: ["number", "null"], description: "Submission stat (1-20)" },
+            charisma: { type: ["number", "null"], description: "Charisma stat (1-20)" },
+            stamina: { type: ["number", "null"], description: "Stamina stat (1-20)" },
+            creativity: { type: ["number", "null"], description: "Creativity stat (1-20)" },
+            control: { type: ["number", "null"], description: "Control stat (1-20)" },
+          },
+          required: ["name", "display_name", "role", "pronouns", "archetype", "body_type", "height", "build", "hair_color", "hair_style", "eye_color", "skin_tone", "facial_hair", "age_range", "clothing_style", "favorite_colors", "fetish_wear", "aesthetic", "personality_traits", "bio", "backstory", "top_kinks", "kink_interests", "hard_limits", "soft_limits", "role_preferences", "experience_level", "avatar_url", "avatar_urls", "avatar_prompt", "generation_prompt", "preset_id", "provider", "flowise_chatflow_id", "openai_model", "openai_instructions", "dominance", "submission", "charisma", "stamina", "creativity", "control"],
+          additionalProperties: false,
+        },
+        execute: async (args: any) => {
+          try {
+            console.log("[create_kinkster tool] Calling chat-tools API with args:", JSON.stringify(args, null, 2))
+            const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                tool_name: "create_kinkster",
+                args,
+                user_id,
+              }),
+            })
+            
+            const result = await response.json().catch(async (parseError) => {
+              const text = await response.text().catch(() => "Unknown error")
+              console.error("[create_kinkster tool] Failed to parse response:", parseError, "Response text:", text)
+              throw new Error(`Server returned invalid response: ${response.status} ${response.statusText}`)
+            })
+            
+            if (!response.ok) {
+              console.error("[create_kinkster tool] API error response:", result)
+              const errorMsg = result.error || result.details || `Failed to create kinkster (${response.status})`
+              return `Error: ${errorMsg}`
+            }
+            
+            console.log("[create_kinkster tool] Success:", result.formatted)
+            return result.formatted || JSON.stringify(result.data)
+          } catch (error: any) {
+            console.error("[create_kinkster tool] Exception:", error)
+            return `Error creating kinkster: ${error.message || "Unknown error"}`
+          }
+        },
+      })
+    )
+
+    // Phase 2: Journal, Rules, Calendar Tools
+    appContextTools.push(
+      // Journal Tools
+      tool({
+        name: "query_journal_entries",
+        description: "Query journal entries. Use this to find entries by type, tags, or date range.",
+        parameters: {
+          type: "object",
+          properties: {
+            entry_type: { type: ["string", "null"], description: "Filter by entry type (personal, scene, reflection, etc.)" },
+            tag: { type: ["string", "null"], description: "Filter by tag" },
+            date_from: { type: ["string", "null"], description: "Filter entries from this date (ISO 8601)" },
+            date_to: { type: ["string", "null"], description: "Filter entries until this date (ISO 8601)" },
+          },
+          required: ["entry_type", "tag", "date_from", "date_to"],
+          additionalProperties: false,
+        },
+        execute: async ({ entry_type, tag, date_from, date_to }: { entry_type?: string; tag?: string; date_from?: string; date_to?: string }) => {
+          try {
+            const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ tool_name: "query_journal_entries", args: { entry_type, tag, date_from, date_to }, user_id }),
+            })
+            const result = await response.json()
+            return result.formatted || JSON.stringify(result.data)
+          } catch (error: any) {
+            return `Error querying journal entries: ${error.message || "Unknown error"}`
+          }
+        },
+      }),
+      tool({
+        name: "get_journal_entry",
+        description: "Get full details of a specific journal entry by ID. Use this after querying entries to read the full content.",
+        parameters: {
+          type: "object",
+          properties: { entry_id: { type: "string", description: "Journal entry ID (UUID)" } },
+          required: ["entry_id"],
+          additionalProperties: false,
+        },
+        execute: async ({ entry_id }: { entry_id: string }) => {
+          try {
+            const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ tool_name: "get_journal_entry", args: { entry_id }, user_id }),
+            })
+            const result = await response.json()
+            return result.formatted || JSON.stringify(result.data)
+          } catch (error: any) {
+            return `Error getting journal entry: ${error.message || "Unknown error"}`
+          }
+        },
+      }),
+      tool({
+        name: "create_journal_entry",
+        description: "Create a new journal entry. Use this to document thoughts, scenes, reflections, etc.",
+        parameters: {
+          type: "object",
+          properties: {
+            title: { type: "string", description: "Entry title (required)" },
+            content: { type: "string", description: "Entry content (required)" },
+            entry_type: { type: ["string", "null"], description: "Entry type (personal, scene, reflection, etc.)" },
+            tags: { type: ["array", "null"], items: { type: "string" }, description: "Tags for the entry" },
+          },
+          required: ["title", "content", "entry_type", "tags"],
+          additionalProperties: false,
+        },
+        execute: async ({ title, content, entry_type, tags }: { title: string; content: string; entry_type?: string; tags?: string[] }) => {
+          try {
+            const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ tool_name: "create_journal_entry", args: { title, content, entry_type, tags }, user_id }),
+            })
+            const result = await response.json()
+            if (!response.ok) return `Error: ${result.error || "Failed to create journal entry"}`
+            return result.formatted || JSON.stringify(result.data)
+          } catch (error: any) {
+            return `Error creating journal entry: ${error.message || "Unknown error"}`
+          }
+        },
+      }),
+      // Rules Tools
+      tool({
+        name: "query_rules",
+        description: "Query rules for the bond. Use this to find active rules, rules by category, or rules assigned to specific users.",
+        parameters: {
+          type: "object",
+          properties: {
+            status: { type: ["string", "null"], enum: ["active", "archived", null], description: "Filter by rule status" },
+            category: { type: ["string", "null"], description: "Filter by rule category" },
+            assigned_to: { type: ["string", "null"], description: "Filter by user ID assigned to" },
+          },
+          required: ["status", "category", "assigned_to"],
+          additionalProperties: false,
+        },
+        execute: async ({ status, category, assigned_to }: { status?: string; category?: string; assigned_to?: string }) => {
+          try {
+            const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ tool_name: "query_rules", args: { status, category, assigned_to }, user_id }),
+            })
+            const result = await response.json()
+            return result.formatted || JSON.stringify(result.data)
+          } catch (error: any) {
+            return `Error querying rules: ${error.message || "Unknown error"}`
+          }
+        },
+      }),
+      tool({
+        name: "get_rule_details",
+        description: "Get full details of a specific rule by ID. Use this after querying rules to get more information.",
+        parameters: {
+          type: "object",
+          properties: { rule_id: { type: "string", description: "Rule ID (UUID)" } },
+          required: ["rule_id"],
+          additionalProperties: false,
+        },
+        execute: async ({ rule_id }: { rule_id: string }) => {
+          try {
+            const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ tool_name: "get_rule_details", args: { rule_id }, user_id }),
+            })
+            const result = await response.json()
+            return result.formatted || JSON.stringify(result.data)
+          } catch (error: any) {
+            return `Error getting rule details: ${error.message || "Unknown error"}`
+          }
+        },
+      }),
+      tool({
+        name: "create_rule",
+        description: "Create a new rule for the bond. Only available to Dominants and Admins. Use this to establish relationship rules.",
+        parameters: {
+          type: "object",
+          properties: {
+            title: { type: "string", description: "Rule title (required)" },
+            description: { type: ["string", "null"], description: "Rule description" },
+            category: { type: ["string", "null"], description: "Rule category (standing, scene, daily, etc.)" },
+            priority: { type: ["number", "null"], description: "Rule priority (higher = more important)" },
+            assigned_to: { type: ["string", "null"], description: "User ID to assign rule to (null = applies to all)" },
+          },
+          required: ["title", "description", "category", "priority", "assigned_to"],
+          additionalProperties: false,
+        },
+        execute: async ({ title, description, category, priority, assigned_to }: { title: string; description?: string; category?: string; priority?: number; assigned_to?: string }) => {
+          try {
+            const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ tool_name: "create_rule", args: { title, description, category, priority, assigned_to }, user_id }),
+            })
+            const result = await response.json()
+            if (!response.ok) return `Error: ${result.error || "Failed to create rule"}`
+            return result.formatted || JSON.stringify(result.data)
+          } catch (error: any) {
+            return `Error creating rule: ${error.message || "Unknown error"}`
+          }
+        },
+      }),
+      // Calendar Tools
+      tool({
+        name: "query_calendar_events",
+        description: "Query calendar events. Use this to find events by type, date range, or bond.",
+        parameters: {
+          type: "object",
+          properties: {
+            event_type: { type: ["string", "null"], description: "Filter by event type" },
+            start_date: { type: ["string", "null"], description: "Filter events from this date (ISO 8601)" },
+            end_date: { type: ["string", "null"], description: "Filter events until this date (ISO 8601)" },
+          },
+          required: ["event_type", "start_date", "end_date"],
+          additionalProperties: false,
+        },
+        execute: async ({ event_type, start_date, end_date }: { event_type?: string; start_date?: string; end_date?: string }) => {
+          try {
+            const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ tool_name: "query_calendar_events", args: { event_type, start_date, end_date }, user_id }),
+            })
+            const result = await response.json()
+            return result.formatted || JSON.stringify(result.data)
+          } catch (error: any) {
+            return `Error querying calendar events: ${error.message || "Unknown error"}`
+          }
+        },
+      }),
+      tool({
+        name: "get_calendar_event_details",
+        description: "Get full details of a specific calendar event by ID. Use this after querying events to get more information.",
+        parameters: {
+          type: "object",
+          properties: { event_id: { type: "string", description: "Calendar event ID (UUID)" } },
+          required: ["event_id"],
+          additionalProperties: false,
+        },
+        execute: async ({ event_id }: { event_id: string }) => {
+          try {
+            const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ tool_name: "get_calendar_event_details", args: { event_id }, user_id }),
+            })
+            const result = await response.json()
+            return result.formatted || JSON.stringify(result.data)
+          } catch (error: any) {
+            return `Error getting calendar event details: ${error.message || "Unknown error"}`
+          }
+        },
+      }),
+      tool({
+        name: "create_calendar_event",
+        description: "Create a new calendar event. Use this to schedule scenes, check-ins, or other events.",
+        parameters: {
+          type: "object",
+          properties: {
+            title: { type: "string", description: "Event title (required)" },
+            description: { type: ["string", "null"], description: "Event description" },
+            event_type: { type: ["string", "null"], description: "Event type (scene, check_in, task_deadline, other)" },
+            start_date: { type: "string", description: "Start date/time (ISO 8601 format, required)" },
+            end_date: { type: ["string", "null"], description: "End date/time (ISO 8601 format)" },
+            all_day: { type: ["boolean", "null"], description: "Whether event is all-day" },
+            reminder_minutes: { type: ["number", "null"], description: "Reminder minutes before event" },
+          },
+          required: ["title", "description", "event_type", "start_date", "end_date", "all_day", "reminder_minutes"],
+          additionalProperties: false,
+        },
+        execute: async ({ title, description, event_type, start_date, end_date, all_day, reminder_minutes }: { title: string; start_date: string; description?: string; event_type?: string; end_date?: string; all_day?: boolean; reminder_minutes?: number }) => {
+          try {
+            const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ tool_name: "create_calendar_event", args: { title, description, event_type, start_date, end_date, all_day, reminder_minutes }, user_id }),
+            })
+            const result = await response.json()
+            if (!response.ok) return `Error: ${result.error || "Failed to create calendar event"}`
+            return result.formatted || JSON.stringify(result.data)
+          } catch (error: any) {
+            return `Error creating calendar event: ${error.message || "Unknown error"}`
+          }
+        },
+      })
+    )
+
+    // Combine user-provided tools with Notion tools, YouTube transcript tool, and app context tools
+    const allTools = [...tools, ...notionTools, youtubeTranscriptTool, ...appContextTools]
 
     // Create agent
     const agent = new Agent({
       name: agent_name,
-      instructions: agent_instructions || "You are a helpful assistant.",
+      instructions: agent_instructions || getDefaultKinkyKincadeInstructions(),
       tools: allTools.length > 0 ? allTools : undefined,
       model,
     })
@@ -761,7 +1472,7 @@ Deno.serve(async (req: Request) => {
               // Use OpenAI Chat Completions API directly for vision
               const systemMessage = agent_instructions 
                 ? { role: "system", content: agent_instructions }
-                : { role: "system", content: `You are ${agent_name || "a helpful assistant"}.` }
+                : { role: "system", content: getDefaultKinkyKincadeInstructions() }
               
               const visionMessages = [
                 systemMessage,
@@ -775,19 +1486,29 @@ Deno.serve(async (req: Request) => {
               // Call OpenAI Chat Completions API with vision support
               console.log("[Vision] Calling OpenAI API with", imageContentParts.filter(p => p.type === "image_url").length, "images")
               
-              const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                  "Authorization": `Bearer ${openaiApiKey}`,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  model: model || "gpt-4o-mini", // gpt-4o-mini supports vision
-                  messages: visionMessages,
-                  stream: true,
-                  temperature: temperature || 0.7,
-                }),
-              })
+              let openaiResponse: Response
+              try {
+                openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+                  method: "POST",
+                  headers: {
+                    "Authorization": `Bearer ${openaiApiKey}`,
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    model: model || "gpt-4o-mini", // gpt-4o-mini supports vision
+                    messages: visionMessages,
+                    stream: true,
+                    temperature: temperature || 0.7,
+                  }),
+                })
+              } catch (fetchError: any) {
+                console.error("[Vision] Network error calling OpenAI API:", fetchError.message)
+                // Check if it's a DNS/network error (common in local dev)
+                if (fetchError.message?.includes("dns error") || fetchError.message?.includes("name resolution")) {
+                  throw new Error("Network error: Unable to connect to OpenAI API. This may be a DNS/network configuration issue in your local environment. In production, this should work correctly.")
+                }
+                throw new Error(`Network error calling OpenAI API: ${fetchError.message || "Unknown error"}`)
+              }
               
               if (!openaiResponse.ok) {
                 const errorText = await openaiResponse.text().catch(() => "Unknown error")
@@ -918,23 +1639,12 @@ Deno.serve(async (req: Request) => {
             controller.close()
 
             // Handle database updates and embedding generation asynchronously (don't block)
-            // Use EdgeRuntime.waitUntil if available, otherwise just fire-and-forget
+            // All operations are fire-and-forget to prevent timeout
             const updateDatabase = async () => {
               try {
-                // Wait for agent stream completion (if needed for final state)
-                // Only if we used Agents SDK (not vision API)
-                if (agentStream && agentStream.completed) {
-                  try {
-                    await agentStream.completed
-                  } catch (streamError) {
-                    console.warn("Agent stream completion check failed:", streamError)
-                    // Continue anyway - we have the content
-                  }
-                }
-
-                // Update message in database
+                // Update message in database (fire-and-forget, don't await)
                 if (messageId) {
-                  await supabase
+                  supabase
                     .from("messages")
                     .update({
                       content: fullContent,
@@ -942,8 +1652,14 @@ Deno.serve(async (req: Request) => {
                       token_count: Math.ceil(fullContent.length / 4), // Rough estimate
                     })
                     .eq("id", messageId)
+                    .then(() => {
+                      console.log("✅ Message updated:", messageId)
+                    })
+                    .catch((dbError) => {
+                      console.error("Failed to update message:", dbError)
+                    })
 
-                  // Generate embedding for semantic search (async, don't wait)
+                  // Generate embedding for semantic search (completely async, don't wait)
                   const generateEmbedding = async () => {
                     try {
                       const openaiEmbeddingResponse = await fetch("https://api.openai.com/v1/embeddings", {
@@ -984,9 +1700,9 @@ Deno.serve(async (req: Request) => {
                   generateEmbedding().catch((err) => console.error("Embedding generation error:", err))
                 }
 
-                // Broadcast completion via Realtime REST API
+                // Broadcast completion via Realtime REST API (fire-and-forget)
                 if (supabaseUrl && serviceRoleKey) {
-                  await fetch(`${supabaseUrl}/realtime/v1/api/broadcast`, {
+                  fetch(`${supabaseUrl}/realtime/v1/api/broadcast`, {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/json",
@@ -1011,12 +1727,13 @@ Deno.serve(async (req: Request) => {
                   })
                 }
               } catch (updateError) {
-                console.error("Error updating database:", updateError)
+                console.error("Error in background update:", updateError)
                 // Don't throw - stream is already closed
               }
             }
 
             // Run database updates in background if EdgeRuntime.waitUntil is available
+            // This ensures operations complete even after function returns
             if (typeof EdgeRuntime !== "undefined" && EdgeRuntime.waitUntil) {
               EdgeRuntime.waitUntil(updateDatabase())
             } else {
@@ -1070,17 +1787,606 @@ Deno.serve(async (req: Request) => {
         run = agentsModule.run
       }
       
-      // Combine all tools: user-provided + Notion + YouTube transcript
+      // Combine all tools: user-provided + Notion + YouTube transcript + App Context Tools
+      // Note: appContextTools is defined above in the streaming path, but we need to recreate it here
+      // for the non-streaming path. We'll define it inline to avoid duplication.
+      const appContextToolsNonStream: any[] = []
+      
+      // Bonds Tools (same as streaming path)
+      appContextToolsNonStream.push(
+        tool({
+          name: "query_bonds",
+          description: "Query user's bonds (relationships/partnerships). Use this to find active bonds, pending bonds, or bonds by type.",
+          parameters: {
+            type: "object",
+            properties: {
+              status: { type: ["string", "null"], enum: ["forming", "active", "archived", null], description: "Filter by bond status (optional)" },
+              bond_type: { type: ["string", "null"], enum: ["dyad", "dynamic", "poly", null], description: "Filter by bond type (optional)" },
+            },
+            required: ["status", "bond_type"],
+            additionalProperties: false,
+          },
+          execute: async ({ status, bond_type }: { status?: string; bond_type?: string }) => {
+            try {
+              const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tool_name: "query_bonds", args: { status, bond_type }, user_id }),
+              })
+              const result = await response.json()
+              return result.formatted || JSON.stringify(result.data)
+            } catch (error: any) {
+              return `Error querying bonds: ${error.message || "Unknown error"}`
+            }
+          },
+        }),
+        tool({
+          name: "get_bond_details",
+          description: "Get full details of a specific bond by ID. Use this after querying bonds to get more information.",
+          parameters: {
+            type: "object",
+            properties: { bond_id: { type: "string", description: "Bond ID (UUID)" } },
+            required: ["bond_id"],
+            additionalProperties: false,
+          },
+          execute: async ({ bond_id }: { bond_id: string }) => {
+            try {
+              const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tool_name: "get_bond_details", args: { bond_id }, user_id }),
+              })
+              const result = await response.json()
+              return result.formatted || JSON.stringify(result.data)
+            } catch (error: any) {
+              return `Error getting bond details: ${error.message || "Unknown error"}`
+            }
+          },
+        }),
+        tool({
+          name: "create_bond_request",
+          description: "Create a request to join a bond. Use this when user wants to join an existing bond.",
+          parameters: {
+            type: "object",
+            properties: {
+              bond_id: { type: "string", description: "Bond ID to request joining" },
+              message: { type: ["string", "null"], description: "Optional message with the request" },
+            },
+            required: ["bond_id", "message"],
+            additionalProperties: false,
+          },
+          execute: async ({ bond_id, message }: { bond_id: string; message?: string }) => {
+            try {
+              const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tool_name: "create_bond_request", args: { bond_id, message }, user_id }),
+              })
+              const result = await response.json()
+              return result.formatted || JSON.stringify(result.data)
+            } catch (error: any) {
+              return `Error creating bond request: ${error.message || "Unknown error"}`
+            }
+          },
+        })
+      )
+
+      // Tasks Tools
+      appContextToolsNonStream.push(
+        tool({
+          name: "query_tasks",
+          description: "Query tasks assigned to or by the user. Use this to find tasks by status, due date, or assignment.",
+          parameters: {
+            type: "object",
+            properties: {
+              status: { type: ["string", "null"], enum: ["pending", "in_progress", "completed", "approved", "cancelled", null], description: "Filter by task status" },
+              assigned_to: { type: ["string", "null"], description: "Filter by user ID assigned to" },
+              assigned_by: { type: ["string", "null"], description: "Filter by user ID assigned by" },
+              due_today: { type: ["boolean", "null"], description: "Filter to tasks due today" },
+            },
+            required: ["status", "assigned_to", "assigned_by", "due_today"],
+            additionalProperties: false,
+          },
+          execute: async ({ status, assigned_to, assigned_by, due_today }: { status?: string; assigned_to?: string; assigned_by?: string; due_today?: boolean }) => {
+            try {
+              const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tool_name: "query_tasks", args: { status, assigned_to, assigned_by, due_today }, user_id }),
+              })
+              const result = await response.json()
+              return result.formatted || JSON.stringify(result.data)
+            } catch (error: any) {
+              return `Error querying tasks: ${error.message || "Unknown error"}`
+            }
+          },
+        }),
+        tool({
+          name: "get_task_details",
+          description: "Get full details of a specific task by ID. Use this after querying tasks to get more information.",
+          parameters: {
+            type: "object",
+            properties: { task_id: { type: "string", description: "Task ID (UUID)" } },
+            required: ["task_id"],
+            additionalProperties: false,
+          },
+          execute: async ({ task_id }: { task_id: string }) => {
+            try {
+              const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tool_name: "get_task_details", args: { task_id }, user_id }),
+              })
+              const result = await response.json()
+              return result.formatted || JSON.stringify(result.data)
+            } catch (error: any) {
+              return `Error getting task details: ${error.message || "Unknown error"}`
+            }
+          },
+        }),
+        tool({
+          name: "create_task",
+          description: "Create a new task. Only available to Dominants and Admins. Use this to assign tasks to submissives or yourself.",
+          parameters: {
+            type: "object",
+            properties: {
+              title: { type: "string", description: "Task title (required)" },
+              description: { type: ["string", "null"], description: "Task description" },
+              priority: { type: ["string", "null"], enum: ["low", "medium", "high", null], description: "Task priority" },
+              due_date: { type: ["string", "null"], description: "Due date (ISO 8601 format)" },
+              assigned_to: { type: ["string", "null"], description: "User ID to assign task to (defaults to creator if not provided)" },
+              point_value: { type: ["number", "null"], description: "Points awarded for completion" },
+            },
+            required: ["title", "description", "priority", "due_date", "assigned_to", "point_value"],
+            additionalProperties: false,
+          },
+          execute: async ({ title, description, priority, due_date, assigned_to, point_value }: { title: string; description?: string; priority?: string; due_date?: string; assigned_to?: string; point_value?: number }) => {
+            try {
+              const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tool_name: "create_task", args: { title, description, priority, due_date, assigned_to, point_value }, user_id }),
+              })
+              const result = await response.json()
+              if (!response.ok) return `Error: ${result.error || "Failed to create task"}`
+              return result.formatted || JSON.stringify(result.data)
+            } catch (error: any) {
+              return `Error creating task: ${error.message || "Unknown error"}`
+            }
+          },
+        }),
+        tool({
+          name: "update_task_status",
+          description: "Update the status of a task. Submissives can update to 'in_progress' or 'completed'. Dominants can update to any status.",
+          parameters: {
+            type: "object",
+            properties: {
+              task_id: { type: "string", description: "Task ID to update" },
+              status: { type: "string", enum: ["pending", "in_progress", "completed", "approved", "cancelled"], description: "New task status" },
+              completion_notes: { type: ["string", "null"], description: "Optional notes when completing task" },
+            },
+            required: ["task_id", "status", "completion_notes"],
+            additionalProperties: false,
+          },
+          execute: async ({ task_id, status, completion_notes }: { task_id: string; status: string; completion_notes?: string }) => {
+            try {
+              const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tool_name: "update_task_status", args: { task_id, status, completion_notes }, user_id }),
+              })
+              const result = await response.json()
+              if (!response.ok) return `Error: ${result.error || "Failed to update task"}`
+              return result.formatted || JSON.stringify(result.data)
+            } catch (error: any) {
+              return `Error updating task: ${error.message || "Unknown error"}`
+            }
+          },
+        })
+      )
+
+      // Kinksters Tools
+      appContextToolsNonStream.push(
+        tool({
+          name: "query_kinksters",
+          description: "Query user's Kinkster characters. Use this to find characters by name, archetype, or search term.",
+          parameters: {
+            type: "object",
+            properties: {
+              search: { type: ["string", "null"], description: "Search term for name or bio" },
+              archetype: { type: ["string", "null"], description: "Filter by archetype" },
+              is_active: { type: ["boolean", "null"], description: "Filter by active status (default: true)" },
+            },
+            required: ["search", "archetype", "is_active"],
+            additionalProperties: false,
+          },
+          execute: async ({ search, archetype, is_active }: { search?: string; archetype?: string; is_active?: boolean }) => {
+            try {
+              const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tool_name: "query_kinksters", args: { search, archetype, is_active }, user_id }),
+              })
+              const result = await response.json()
+              return result.formatted || JSON.stringify(result.data)
+            } catch (error: any) {
+              return `Error querying kinksters: ${error.message || "Unknown error"}`
+            }
+          },
+        }),
+        tool({
+          name: "get_kinkster_details",
+          description: "Get full details of a specific Kinkster character by ID. Use this after querying kinksters to get stats, bio, and other details.",
+          parameters: {
+            type: "object",
+            properties: { kinkster_id: { type: "string", description: "Kinkster ID (UUID)" } },
+            required: ["kinkster_id"],
+            additionalProperties: false,
+          },
+          execute: async ({ kinkster_id }: { kinkster_id: string }) => {
+            try {
+              const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tool_name: "get_kinkster_details", args: { kinkster_id }, user_id }),
+              })
+              const result = await response.json()
+              return result.formatted || JSON.stringify(result.data)
+            } catch (error: any) {
+              return `Error getting kinkster details: ${error.message || "Unknown error"}`
+            }
+          },
+        }),
+        tool({
+          name: "create_kinkster",
+          description: "Create a new Kinkster character with full customization. You can guide users through creating a character step-by-step by asking about their preferences. Only 'name' is required - all other fields are optional and can be added incrementally through conversation.",
+          parameters: {
+            type: "object",
+            properties: {
+              // Basic Info
+              name: { type: "string", description: "Character name (required)" },
+              display_name: { type: ["string", "null"], description: "Display name (defaults to name if not provided)" },
+              role: { type: ["string", "null"], enum: ["dominant", "submissive", "switch", null], description: "Character's role preference" },
+              pronouns: { type: ["string", "null"], description: "Character pronouns (e.g., 'She/Her', 'They/Them')" },
+              archetype: { type: ["string", "null"], description: "Character archetype (e.g., 'The Dominant', 'The Submissive', 'The Brat')" },
+              // Appearance
+              body_type: { type: ["string", "null"], description: "Body type (e.g., 'athletic', 'curvy', 'slender')" },
+              height: { type: ["string", "null"], description: "Height (e.g., '5\'8\"', 'tall', 'average')" },
+              build: { type: ["string", "null"], description: "Build (e.g., 'muscular', 'petite', 'stocky')" },
+              hair_color: { type: ["string", "null"], description: "Hair color" },
+              hair_style: { type: ["string", "null"], description: "Hair style (e.g., 'long', 'short', 'curly')" },
+              eye_color: { type: ["string", "null"], description: "Eye color" },
+              skin_tone: { type: ["string", "null"], description: "Skin tone" },
+              facial_hair: { type: ["string", "null"], description: "Facial hair (if applicable)" },
+              age_range: { type: ["string", "null"], description: "Age range (e.g., 'mid-20s', '30s')" },
+              // Style Preferences
+              clothing_style: { type: ["array", "null"], items: { type: "string" }, description: "Clothing style preferences (array of strings)" },
+              favorite_colors: { type: ["array", "null"], items: { type: "string" }, description: "Favorite colors (array of strings)" },
+              fetish_wear: { type: ["array", "null"], items: { type: "string" }, description: "Fetish wear preferences (array of strings)" },
+              aesthetic: { type: ["string", "null"], description: "Overall aesthetic (e.g., 'goth', 'punk', 'elegant')" },
+              // Personality & Kinks
+              personality_traits: { type: ["array", "null"], items: { type: "string" }, description: "Personality traits (array of strings)" },
+              bio: { type: ["string", "null"], description: "Character biography/description" },
+              backstory: { type: ["string", "null"], description: "Character backstory/history" },
+              top_kinks: { type: ["array", "null"], items: { type: "string" }, description: "Top kink interests (array of strings)" },
+              kink_interests: { type: ["array", "null"], items: { type: "string" }, description: "General kink interests (array of strings)" },
+              hard_limits: { type: ["array", "null"], items: { type: "string" }, description: "Hard limits (array of strings)" },
+              soft_limits: { type: ["array", "null"], items: { type: "string" }, description: "Soft limits (array of strings)" },
+              role_preferences: { type: ["array", "null"], items: { type: "string" }, description: "Role preferences (array of strings)" },
+              experience_level: { type: ["string", "null"], enum: ["beginner", "intermediate", "advanced", "expert", null], description: "Experience level" },
+              // Avatar
+              avatar_url: { type: ["string", "null"], description: "Avatar image URL" },
+              avatar_urls: { type: ["array", "null"], items: { type: "string" }, description: "Multiple avatar URLs (array of strings)" },
+              avatar_prompt: { type: ["string", "null"], description: "Avatar generation prompt" },
+              generation_prompt: { type: ["string", "null"], description: "Avatar generation prompt (alternative field)" },
+              preset_id: { type: ["string", "null"], description: "Preset ID if using a preset avatar" },
+              // Provider Configuration
+              provider: { type: ["string", "null"], enum: ["flowise", "openai_responses", null], description: "Chat provider ('flowise' or 'openai_responses')" },
+              flowise_chatflow_id: { type: ["string", "null"], description: "Flowise chatflow ID (if using Flowise provider)" },
+              openai_model: { type: ["string", "null"], description: "OpenAI model (if using OpenAI provider, e.g., 'gpt-4o-mini')" },
+              openai_instructions: { type: ["string", "null"], description: "Custom OpenAI instructions for the character" },
+              // Stats (1-20 scale, total should be ~60)
+              dominance: { type: ["number", "null"], description: "Dominance stat (1-20)" },
+              submission: { type: ["number", "null"], description: "Submission stat (1-20)" },
+              charisma: { type: ["number", "null"], description: "Charisma stat (1-20)" },
+              stamina: { type: ["number", "null"], description: "Stamina stat (1-20)" },
+              creativity: { type: ["number", "null"], description: "Creativity stat (1-20)" },
+              control: { type: ["number", "null"], description: "Control stat (1-20)" },
+            },
+            required: ["name", "display_name", "role", "pronouns", "archetype", "body_type", "height", "build", "hair_color", "hair_style", "eye_color", "skin_tone", "facial_hair", "age_range", "clothing_style", "favorite_colors", "fetish_wear", "aesthetic", "personality_traits", "bio", "backstory", "top_kinks", "kink_interests", "hard_limits", "soft_limits", "role_preferences", "experience_level", "avatar_url", "avatar_urls", "avatar_prompt", "generation_prompt", "preset_id", "provider", "flowise_chatflow_id", "openai_model", "openai_instructions", "dominance", "submission", "charisma", "stamina", "creativity", "control"],
+            additionalProperties: false,
+          },
+          execute: async (args: any) => {
+            try {
+              console.log("[create_kinkster tool non-stream] Calling chat-tools API with args:", JSON.stringify(args, null, 2))
+              const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tool_name: "create_kinkster", args, user_id }),
+              })
+              
+              const result = await response.json().catch(async (parseError) => {
+                const text = await response.text().catch(() => "Unknown error")
+                console.error("[create_kinkster tool non-stream] Failed to parse response:", parseError, "Response text:", text)
+                throw new Error(`Server returned invalid response: ${response.status} ${response.statusText}`)
+              })
+              
+              if (!response.ok) {
+                console.error("[create_kinkster tool non-stream] API error response:", result)
+                const errorMsg = result.error || result.details || `Failed to create kinkster (${response.status})`
+                return `Error: ${errorMsg}`
+              }
+              
+              console.log("[create_kinkster tool non-stream] Success:", result.formatted)
+              return result.formatted || JSON.stringify(result.data)
+            } catch (error: any) {
+              console.error("[create_kinkster tool non-stream] Exception:", error)
+              return `Error creating kinkster: ${error.message || "Unknown error"}`
+            }
+          },
+        })
+      )
+
+      // Phase 2: Journal, Rules, Calendar Tools (non-streaming)
+      appContextToolsNonStream.push(
+        // Journal Tools
+        tool({
+          name: "query_journal_entries",
+          description: "Query journal entries. Use this to find entries by type, tags, or date range.",
+          parameters: {
+            type: "object",
+            properties: {
+              entry_type: { type: ["string", "null"], description: "Filter by entry type (personal, scene, reflection, etc.)" },
+              tag: { type: ["string", "null"], description: "Filter by tag" },
+              date_from: { type: ["string", "null"], description: "Filter entries from this date (ISO 8601)" },
+              date_to: { type: ["string", "null"], description: "Filter entries until this date (ISO 8601)" },
+            },
+            required: ["entry_type", "tag", "date_from", "date_to"],
+            additionalProperties: false,
+          },
+          execute: async ({ entry_type, tag, date_from, date_to }: { entry_type?: string; tag?: string; date_from?: string; date_to?: string }) => {
+            try {
+              const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tool_name: "query_journal_entries", args: { entry_type, tag, date_from, date_to }, user_id }),
+              })
+              const result = await response.json()
+              return result.formatted || JSON.stringify(result.data)
+            } catch (error: any) {
+              return `Error querying journal entries: ${error.message || "Unknown error"}`
+            }
+          },
+        }),
+        tool({
+          name: "get_journal_entry",
+          description: "Get full details of a specific journal entry by ID. Use this after querying entries to read the full content.",
+          parameters: {
+            type: "object",
+            properties: { entry_id: { type: "string", description: "Journal entry ID (UUID)" } },
+            required: ["entry_id"],
+            additionalProperties: false,
+          },
+          execute: async ({ entry_id }: { entry_id: string }) => {
+            try {
+              const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tool_name: "get_journal_entry", args: { entry_id }, user_id }),
+              })
+              const result = await response.json()
+              return result.formatted || JSON.stringify(result.data)
+            } catch (error: any) {
+              return `Error getting journal entry: ${error.message || "Unknown error"}`
+            }
+          },
+        }),
+        tool({
+          name: "create_journal_entry",
+          description: "Create a new journal entry. Use this to document thoughts, scenes, reflections, etc.",
+          parameters: {
+            type: "object",
+            properties: {
+              title: { type: "string", description: "Entry title (required)" },
+              content: { type: "string", description: "Entry content (required)" },
+              entry_type: { type: ["string", "null"], description: "Entry type (personal, scene, reflection, etc.)" },
+              tags: { type: ["array", "null"], items: { type: "string" }, description: "Tags for the entry" },
+            },
+            required: ["title", "content", "entry_type", "tags"],
+            additionalProperties: false,
+          },
+          execute: async ({ title, content, entry_type, tags }: { title: string; content: string; entry_type?: string; tags?: string[] }) => {
+            try {
+              const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tool_name: "create_journal_entry", args: { title, content, entry_type, tags }, user_id }),
+              })
+              const result = await response.json()
+              if (!response.ok) return `Error: ${result.error || "Failed to create journal entry"}`
+              return result.formatted || JSON.stringify(result.data)
+            } catch (error: any) {
+              return `Error creating journal entry: ${error.message || "Unknown error"}`
+            }
+          },
+        }),
+        // Rules Tools
+        tool({
+          name: "query_rules",
+          description: "Query rules for the bond. Use this to find active rules, rules by category, or rules assigned to specific users.",
+          parameters: {
+            type: "object",
+            properties: {
+              status: { type: ["string", "null"], enum: ["active", "archived", null], description: "Filter by rule status" },
+              category: { type: ["string", "null"], description: "Filter by rule category" },
+              assigned_to: { type: ["string", "null"], description: "Filter by user ID assigned to" },
+            },
+            required: ["status", "category", "assigned_to"],
+            additionalProperties: false,
+          },
+          execute: async ({ status, category, assigned_to }: { status?: string; category?: string; assigned_to?: string }) => {
+            try {
+              const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tool_name: "query_rules", args: { status, category, assigned_to }, user_id }),
+              })
+              const result = await response.json()
+              return result.formatted || JSON.stringify(result.data)
+            } catch (error: any) {
+              return `Error querying rules: ${error.message || "Unknown error"}`
+            }
+          },
+        }),
+        tool({
+          name: "get_rule_details",
+          description: "Get full details of a specific rule by ID. Use this after querying rules to get more information.",
+          parameters: {
+            type: "object",
+            properties: { rule_id: { type: "string", description: "Rule ID (UUID)" } },
+            required: ["rule_id"],
+            additionalProperties: false,
+          },
+          execute: async ({ rule_id }: { rule_id: string }) => {
+            try {
+              const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tool_name: "get_rule_details", args: { rule_id }, user_id }),
+              })
+              const result = await response.json()
+              return result.formatted || JSON.stringify(result.data)
+            } catch (error: any) {
+              return `Error getting rule details: ${error.message || "Unknown error"}`
+            }
+          },
+        }),
+        tool({
+          name: "create_rule",
+          description: "Create a new rule for the bond. Only available to Dominants and Admins. Use this to establish relationship rules.",
+          parameters: {
+            type: "object",
+            properties: {
+              title: { type: "string", description: "Rule title (required)" },
+              description: { type: ["string", "null"], description: "Rule description" },
+              category: { type: ["string", "null"], description: "Rule category (standing, scene, daily, etc.)" },
+              priority: { type: ["number", "null"], description: "Rule priority (higher = more important)" },
+              assigned_to: { type: ["string", "null"], description: "User ID to assign rule to (null = applies to all)" },
+            },
+            required: ["title", "description", "category", "priority", "assigned_to"],
+            additionalProperties: false,
+          },
+          execute: async ({ title, description, category, priority, assigned_to }: { title: string; description?: string; category?: string; priority?: number; assigned_to?: string }) => {
+            try {
+              const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tool_name: "create_rule", args: { title, description, category, priority, assigned_to }, user_id }),
+              })
+              const result = await response.json()
+              if (!response.ok) return `Error: ${result.error || "Failed to create rule"}`
+              return result.formatted || JSON.stringify(result.data)
+            } catch (error: any) {
+              return `Error creating rule: ${error.message || "Unknown error"}`
+            }
+          },
+        }),
+        // Calendar Tools
+        tool({
+          name: "query_calendar_events",
+          description: "Query calendar events. Use this to find events by type, date range, or bond.",
+          parameters: {
+            type: "object",
+            properties: {
+              event_type: { type: ["string", "null"], description: "Filter by event type" },
+              start_date: { type: ["string", "null"], description: "Filter events from this date (ISO 8601)" },
+              end_date: { type: ["string", "null"], description: "Filter events until this date (ISO 8601)" },
+            },
+            required: ["event_type", "start_date", "end_date"],
+            additionalProperties: false,
+          },
+          execute: async ({ event_type, start_date, end_date }: { event_type?: string; start_date?: string; end_date?: string }) => {
+            try {
+              const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tool_name: "query_calendar_events", args: { event_type, start_date, end_date }, user_id }),
+              })
+              const result = await response.json()
+              return result.formatted || JSON.stringify(result.data)
+            } catch (error: any) {
+              return `Error querying calendar events: ${error.message || "Unknown error"}`
+            }
+          },
+        }),
+        tool({
+          name: "get_calendar_event_details",
+          description: "Get full details of a specific calendar event by ID. Use this after querying events to get more information.",
+          parameters: {
+            type: "object",
+            properties: { event_id: { type: "string", description: "Calendar event ID (UUID)" } },
+            required: ["event_id"],
+            additionalProperties: false,
+          },
+          execute: async ({ event_id }: { event_id: string }) => {
+            try {
+              const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tool_name: "get_calendar_event_details", args: { event_id }, user_id }),
+              })
+              const result = await response.json()
+              return result.formatted || JSON.stringify(result.data)
+            } catch (error: any) {
+              return `Error getting calendar event details: ${error.message || "Unknown error"}`
+            }
+          },
+        }),
+        tool({
+          name: "create_calendar_event",
+          description: "Create a new calendar event. Use this to schedule scenes, check-ins, or other events.",
+          parameters: {
+            type: "object",
+            properties: {
+              title: { type: "string", description: "Event title (required)" },
+              description: { type: ["string", "null"], description: "Event description" },
+              event_type: { type: ["string", "null"], description: "Event type (scene, check_in, task_deadline, other)" },
+              start_date: { type: "string", description: "Start date/time (ISO 8601 format, required)" },
+              end_date: { type: ["string", "null"], description: "End date/time (ISO 8601 format)" },
+              all_day: { type: ["boolean", "null"], description: "Whether event is all-day" },
+              reminder_minutes: { type: ["number", "null"], description: "Reminder minutes before event" },
+            },
+            required: ["title", "description", "event_type", "start_date", "end_date", "all_day", "reminder_minutes"],
+            additionalProperties: false,
+          },
+          execute: async ({ title, description, event_type, start_date, end_date, all_day, reminder_minutes }: { title: string; start_date: string; description?: string; event_type?: string; end_date?: string; all_day?: boolean; reminder_minutes?: number }) => {
+            try {
+              const response = await fetch(`${apiBaseUrl}/api/chat-tools`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tool_name: "create_calendar_event", args: { title, description, event_type, start_date, end_date, all_day, reminder_minutes }, user_id }),
+              })
+              const result = await response.json()
+              if (!response.ok) return `Error: ${result.error || "Failed to create calendar event"}`
+              return result.formatted || JSON.stringify(result.data)
+            } catch (error: any) {
+              return `Error creating calendar event: ${error.message || "Unknown error"}`
+            }
+          },
+        })
+      )
+
       const allTools = [
         ...(tools || []),
         ...notionTools,
         youtubeTranscriptTool,
+        ...appContextToolsNonStream,
       ]
 
       // Create agent for non-streaming
       const agent = new Agent({
         name: agent_name,
-        instructions: agent_instructions || "You are a helpful assistant.",
+        instructions: agent_instructions || getDefaultKinkyKincadeInstructions(),
         tools: allTools.length > 0 ? allTools : undefined,
         model,
       })
@@ -1091,7 +2397,7 @@ Deno.serve(async (req: Request) => {
         // Use OpenAI Chat Completions API directly for vision
         const systemMessage = agent_instructions 
           ? { role: "system", content: agent_instructions }
-          : { role: "system", content: `You are ${agent_name || "a helpful assistant"}.` }
+          : { role: "system", content: getDefaultKinkyKincadeInstructions() }
         
         const visionMessages = [
           systemMessage,
@@ -1100,18 +2406,28 @@ Deno.serve(async (req: Request) => {
         
         console.log("[Vision] Calling OpenAI API (non-streaming) with", imageUrls.length, "images")
         
-        const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${openaiApiKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: model || "gpt-4o-mini",
-            messages: visionMessages,
-            temperature: temperature || 0.7,
-          }),
-        })
+        let openaiResponse: Response
+        try {
+          openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${openaiApiKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: model || "gpt-4o-mini",
+              messages: visionMessages,
+              temperature: temperature || 0.7,
+            }),
+          })
+        } catch (fetchError: any) {
+          console.error("[Vision] Network error calling OpenAI API (non-streaming):", fetchError.message)
+          // Check if it's a DNS/network error (common in local dev)
+          if (fetchError.message?.includes("dns error") || fetchError.message?.includes("name resolution")) {
+            throw new Error("Network error: Unable to connect to OpenAI API. This may be a DNS/network configuration issue in your local environment. In production, this should work correctly.")
+          }
+          throw new Error(`Network error calling OpenAI API: ${fetchError.message || "Unknown error"}`)
+        }
         
         if (!openaiResponse.ok) {
           const errorText = await openaiResponse.text().catch(() => "Unknown error")

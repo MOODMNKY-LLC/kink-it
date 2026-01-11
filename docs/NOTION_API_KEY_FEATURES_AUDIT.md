@@ -277,21 +277,32 @@ This report analyzes the features mentioned in the Notion API key onboarding ste
 
 The following database types are detected and stored in `notion_databases` table:
 
-1. ✅ `image_generations` - **SYNC IMPLEMENTED**
-2. ✅ `calendar` - **SYNC IMPLEMENTED**
-3. ✅ `tasks` - **SYNC IMPLEMENTED**
-4. ✅ `rules` - **SYNC IMPLEMENTED**
-5. ✅ `contracts` - **SYNC IMPLEMENTED**
-6. ✅ `journal` - **SYNC IMPLEMENTED**
-7. ✅ `kinkster_profiles` - **SYNC IMPLEMENTED**
-8. ❌ `boundaries` - **DATABASE CONFIGURED, NO SYNC**
-9. ⚠️ `ideas` - **PARTIALLY IMPLEMENTED** (uses service account)
-10. ❌ `rewards` - **DATABASE CONFIGURED, NO SYNC**
-11. ❌ `points` - **DATABASE CONFIGURED, NO SYNC**
-12. ❌ `scenes` - **DATABASE CONFIGURED, NO SYNC**
-13. ❌ `analytics` - **DATABASE CONFIGURED, NO SYNC**
-14. ❌ `resources` - **DATABASE CONFIGURED, NO SYNC**
-15. ❌ `communication` - **DATABASE CONFIGURED, NO SYNC**
+### Supabase Databases (15 Total)
+
+1. ✅ `profiles` - User profiles and authentication (app-only, no Notion sync)
+2. ✅ `bonds` - D/s relationship partnerships (app-only, no Notion sync)
+3. ✅ `tasks` - **SYNC IMPLEMENTED** ✅
+4. ✅ `rules` - **SYNC IMPLEMENTED** ✅
+5. ✅ `journal` (journal_entries) - **SYNC IMPLEMENTED** ✅
+6. ✅ `calendar` (calendar_events) - **SYNC IMPLEMENTED** ✅
+7. ✅ `kinkster_profiles` (kinksters) - **SYNC IMPLEMENTED** ✅ **NEW**
+8. ✅ `image_generations` - **SYNC IMPLEMENTED** ✅
+9. ✅ `contracts` - **SYNC IMPLEMENTED** ✅
+10. ❌ `boundaries` - **DATABASE CONFIGURED, NO SYNC**
+11. ⚠️ `ideas` (app_ideas) - **PARTIALLY IMPLEMENTED** (uses service account)
+12. ❌ `rewards` - **DATABASE CONFIGURED, NO SYNC**
+13. ❌ `points` (points_ledger) - **DATABASE CONFIGURED, NO SYNC**
+14. ❌ `scenes` - **DATABASE CONFIGURED, NO SYNC**
+15. ❌ `analytics` - **DATABASE CONFIGURED, NO SYNC**
+16. ❌ `resources` - **DATABASE CONFIGURED, NO SYNC**
+17. ❌ `communication` (check_ins, messages) - **DATABASE CONFIGURED, NO SYNC**
+
+**Note**: The KINKSTERS database (`kinksters` table) is now fully integrated with:
+- ✅ Notion sync (multi-database support)
+- ✅ Hybrid mode (Flowise + OpenAI Responses API)
+- ✅ Avatar generation and management
+- ✅ Provider configuration per Kinkster
+- ✅ Comprehensive verification and recovery procedures
 
 ---
 

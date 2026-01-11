@@ -31,6 +31,14 @@ export function useAvatarGeneration({
   const [isGenerating, setIsGenerating] = useState(false)
   const supabase = createClient()
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null)
+  const onCompleteRef = useRef(onComplete)
+  const onErrorRef = useRef(onError)
+
+  // Keep refs updated
+  useEffect(() => {
+    onCompleteRef.current = onComplete
+    onErrorRef.current = onError
+  }, [onComplete, onError])
 
   // Subscribe to Realtime updates
   useEffect(() => {
@@ -74,16 +82,38 @@ export function useAvatarGeneration({
         setProgress(progressData)
 
         if (progressData.status === "completed" && progressData.storage_url) {
-          console.log(`[AvatarGeneration] ✅ Completion received, calling onComplete with URL: ${progressData.storage_url.substring(0, 50)}...`)
+          console.log(`[AvatarGeneration] ✅ Completion received, calling onComplete with URL: ${progressData.storage_url}`)
+          console.log(`[AvatarGeneration] onComplete callback exists:`, !!onComplete)
+          
+          // Update progress first
+          setProgress({
+            ...progressData,
+            status: "completed",
+          })
+          
+          // Set generating to false
           setIsGenerating(false)
+          
+          // Call onComplete callback using ref to avoid stale closure
+          if (onCompleteRef.current) {
+            console.log(`[AvatarGeneration] Calling onComplete callback...`)
+            try {
+              onCompleteRef.current(progressData.storage_url)
+              console.log(`[AvatarGeneration] onComplete callback executed successfully`)
+            } catch (error) {
+              console.error(`[AvatarGeneration] Error in onComplete callback:`, error)
+            }
+          } else {
+            console.warn(`[AvatarGeneration] onComplete callback is not defined!`)
+          }
+          
           toast.success("Avatar generated and stored successfully")
-          onComplete?.(progressData.storage_url)
         } else if (progressData.status === "error") {
           console.error(`[AvatarGeneration] ❌ Error received:`, progressData.error || progressData.message)
           setIsGenerating(false)
           const errorMsg = progressData.error || progressData.message || "Avatar generation failed"
           toast.error(errorMsg)
-          onError?.(errorMsg)
+          onErrorRef.current?.(errorMsg)
         } else {
           console.log(`[AvatarGeneration] Progress update: ${progressData.status} - ${progressData.message}`)
         }
@@ -94,7 +124,7 @@ export function useAvatarGeneration({
         } else if (status === "CHANNEL_ERROR") {
           console.error("[AvatarGeneration] Channel error:", err)
           const errorMsg = err?.message || "Failed to subscribe to avatar generation channel"
-          onError?.(errorMsg)
+          onErrorRef.current?.(errorMsg)
         } else if (status === "TIMED_OUT") {
           console.warn("[AvatarGeneration] Subscription timed out")
         } else if (status === "CLOSED") {
@@ -109,7 +139,7 @@ export function useAvatarGeneration({
         channelRef.current = null
       }
     }
-  }, [userId, kinksterId, supabase, onComplete, onError])
+  }, [userId, kinksterId, supabase])
 
   const generateAvatar = useCallback(
     async (characterData: any, props?: GenerationProps) => {
@@ -188,7 +218,7 @@ export function useAvatarGeneration({
             storage_url: data.storage_url,
             storage_path: data.storage_path,
           })
-          onComplete?.(data.storage_url)
+          onCompleteRef.current?.(data.storage_url)
         } else {
           // Status is "processing" - wait for Realtime updates
           setProgress({
@@ -209,11 +239,11 @@ export function useAvatarGeneration({
           error: errorMsg,
         })
         toast.error(errorMsg)
-        onError?.(errorMsg)
+        onErrorRef.current?.(errorMsg)
         throw error
       }
     },
-    [userId, kinksterId, supabase, onComplete, onError]
+    [userId, kinksterId, supabase]
   )
 
   return {

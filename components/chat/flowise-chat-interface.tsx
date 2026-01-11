@@ -151,8 +151,9 @@ export function KinkyChatInterface({
         const { data, error } = await supabase
           .from("kinksters")
           .select("*")
-          .eq("user_id", user.id)
+          .or(`is_system_kinkster.eq.true,user_id.eq.${user.id}`)
           .eq("is_active", true)
+          .order("is_system_kinkster", { ascending: false }) // System kinksters first
           .order("is_primary", { ascending: false })
           .order("created_at", { ascending: false })
 
@@ -807,6 +808,9 @@ export function KinkyChatInterface({
                     <div className="flex-1 min-w-0 text-left">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-semibold truncate">{kinkster.name}</span>
+                        {kinkster.is_system_kinkster && (
+                          <Badge variant="default" className="text-xs">System</Badge>
+                        )}
                         {kinkster.is_primary && (
                           <Badge variant="secondary" className="text-xs">Primary</Badge>
                         )}

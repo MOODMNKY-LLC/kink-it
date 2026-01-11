@@ -35,6 +35,7 @@ import { useCreativeStudio } from "./creative-studio-provider"
 import { useStudioGeneration } from "./hooks/use-studio-generation"
 import { useStudioHistory } from "./hooks/use-studio-history"
 import { MOBILE_DRAWER_SNAP_POINTS } from "./constants"
+import { SafeImage } from "./safe-image"
 import type { StudioGeneration } from "@/types/creative-studio"
 
 // ============================================================================

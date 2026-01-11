@@ -13,6 +13,7 @@ import {
   Loader2,
   X,
   RotateCcw,
+  Bot,
 } from "lucide-react"
 import { useSpeechToText } from "@/hooks/use-speech-to-text"
 import { CommandWindow } from "./command-window"
@@ -308,20 +309,21 @@ export function EnhancedChatInputBar({
       <div className="relative px-3 sm:px-4 py-2 sm:py-3">
         <div
           className={cn(
-            "relative flex items-end gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl",
+            "relative flex items-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl",
             "border border-border/50 bg-card/50 backdrop-blur-sm",
             "shadow-sm shadow-primary/5",
             "transition-all",
+            "min-h-[52px] sm:min-h-[48px]",
             isStreaming && "opacity-50"
           )}
         >
           {/* Command Button (Left) */}
-          <div className="flex items-center pl-2 sm:pl-3 pb-2 shrink-0 gap-1">
+          <div className="flex items-center pl-2 sm:pl-3 shrink-0 gap-1">
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                "h-11 w-11 sm:h-8 sm:w-8 shrink-0 touch-target rounded-lg",
+                "h-9 w-9 sm:h-8 sm:w-8 shrink-0 touch-target rounded-lg",
                 "text-muted-foreground hover:text-foreground hover:bg-primary/10",
                 attachedTools.length > 0 && "text-primary bg-primary/10"
               )}
@@ -330,7 +332,7 @@ export function EnhancedChatInputBar({
               type="button"
               title={attachedTools.length > 0 ? `${attachedTools.length} tool(s) attached` : "Open command menu"}
             >
-              <Sparkles className="h-5 w-5 sm:h-4 sm:w-4" />
+              <Sparkles className="h-4 w-4 sm:h-4 sm:w-4" />
               {attachedTools.length > 0 && (
                 <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center">
                   {attachedTools.length}
@@ -342,7 +344,7 @@ export function EnhancedChatInputBar({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-11 w-11 sm:h-8 sm:w-8 shrink-0 touch-target rounded-lg text-primary bg-primary/10"
+                className="h-9 w-9 sm:h-8 sm:w-8 shrink-0 touch-target rounded-lg text-primary bg-primary/10"
                 onClick={() => onAgentModeChange(false)}
                 disabled={disabled || isStreaming}
                 type="button"
@@ -354,7 +356,7 @@ export function EnhancedChatInputBar({
           </div>
 
           {/* Textarea (Center) */}
-          <div className="flex-1 relative min-w-0">
+          <div className="flex-1 relative min-w-0 flex items-center">
             <Textarea
               ref={textareaRef}
               value={value}
@@ -364,12 +366,13 @@ export function EnhancedChatInputBar({
               onBlur={() => setIsFocused(false)}
               placeholder={placeholder}
               className={cn(
-                "min-h-[44px] sm:min-h-[44px] max-h-[200px] resize-none border-0 bg-transparent",
-                "pr-10 sm:pr-12 py-2.5 sm:py-3",
+                "min-h-[44px] sm:min-h-[40px] max-h-[200px] resize-none border-0 bg-transparent",
+                "pr-10 sm:pr-12 py-2.5 sm:py-2.5",
                 "text-base sm:text-base",
                 "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-0",
                 "focus:ring-0 focus:outline-none focus:border-0",
-                "placeholder:text-muted-foreground"
+                "placeholder:text-muted-foreground",
+                "leading-relaxed"
               )}
               disabled={disabled || isStreaming}
               rows={1}
@@ -397,14 +400,14 @@ export function EnhancedChatInputBar({
           </div>
 
           {/* Action Buttons (Right) */}
-          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 pr-2 sm:pr-2 pb-2">
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 pr-2 sm:pr-3">
             {/* Mic Button */}
             {speechSupported && (
               <Button
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  "h-11 w-11 sm:h-8 sm:w-8 shrink-0 touch-target rounded-xl",
+                  "h-9 w-9 sm:h-8 sm:w-8 shrink-0 touch-target rounded-xl",
                   isListening && "text-destructive hover:text-destructive"
                 )}
                 onClick={handleMicToggle}
@@ -412,9 +415,9 @@ export function EnhancedChatInputBar({
                 type="button"
               >
                 {isListening ? (
-                  <MicOff className="h-5 w-5 sm:h-4 sm:w-4" />
+                  <MicOff className="h-4 w-4 sm:h-4 sm:w-4" />
                 ) : (
-                  <Mic className="h-5 w-5 sm:h-4 sm:w-4" />
+                  <Mic className="h-4 w-4 sm:h-4 sm:w-4" />
                 )}
               </Button>
             )}
@@ -425,7 +428,7 @@ export function EnhancedChatInputBar({
               disabled={!canSend}
               size="icon"
               className={cn(
-                "h-11 w-11 sm:h-8 sm:w-8 shrink-0 rounded-xl touch-target",
+                "h-9 w-9 sm:h-8 sm:w-8 shrink-0 rounded-xl touch-target",
                 "transition-all duration-200",
                 canSend && "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/20 hover:shadow-primary/30",
                 !canSend && "opacity-50"
@@ -433,9 +436,9 @@ export function EnhancedChatInputBar({
               type="button"
             >
               {isStreaming ? (
-                <Loader2 className="h-5 w-5 sm:h-4 sm:w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 sm:h-4 sm:w-4 animate-spin" />
               ) : (
-                <Send className="h-5 w-5 sm:h-4 sm:w-4" />
+                <Send className="h-4 w-4 sm:h-4 sm:w-4" />
               )}
             </Button>
           </div>

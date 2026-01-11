@@ -79,31 +79,7 @@ export function AddToNotionButton({
     setIsLoading(true)
 
     try {
-      // Download image file and convert to base64 for Notion upload
-      let imageFileBase64: string | undefined
-      let imageFileName: string | undefined
-      let imageFileType: string | undefined
-      
-      try {
-        const response = await fetch(imageUrl)
-        if (response.ok) {
-          const blob = await response.blob()
-          const filename = imageUrl.split("/").pop() || "image.png"
-          imageFileName = filename
-          imageFileType = blob.type || "image/png"
-          
-          // Convert blob to base64
-          const arrayBuffer = await blob.arrayBuffer()
-          const uint8Array = new Uint8Array(arrayBuffer)
-          const base64String = btoa(String.fromCharCode(...uint8Array))
-          imageFileBase64 = base64String
-        }
-      } catch (error) {
-        console.warn("Failed to download image for Notion upload:", error)
-        // Continue without file - URL will be used instead
-      }
-
-      // Sync to Notion
+      // Sync to Notion - always use URL property
       const syncData: any = {
         imageUrl,
         prompt,
@@ -120,13 +96,6 @@ export function AddToNotionButton({
 
       if (generationId) {
         syncData.generationId = generationId
-      }
-
-      // Add file data if available
-      if (imageFileBase64 && imageFileName && imageFileType) {
-        syncData.imageFileBase64 = imageFileBase64
-        syncData.imageFileName = imageFileName
-        syncData.imageFileType = imageFileType
       }
 
       const response = await fetch("/api/notion/sync-generation", {

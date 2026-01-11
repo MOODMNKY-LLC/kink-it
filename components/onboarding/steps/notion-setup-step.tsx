@@ -32,6 +32,11 @@ export default function NotionSetupStep({ onNext, onBack, initialData }: NotionS
         headers: { "Content-Type": "application/json" },
       })
 
+      // Check if response exists
+      if (!response) {
+        throw new Error("No response received from server")
+      }
+
       // Try to parse JSON, but handle non-JSON responses
       // Clone response first so we can read it multiple times if needed
       const responseClone = response.clone()
@@ -40,16 +45,33 @@ export default function NotionSetupStep({ onNext, onBack, initialData }: NotionS
       
       try {
         // Try to parse as JSON first
-        data = await response.json()
+        const text = await response.text()
+        if (text) {
+          try {
+            data = JSON.parse(text)
+          } catch (parseError) {
+            console.error("Failed to parse JSON response:", parseError)
+            console.error("Response text:", text.substring(0, 500))
+            throw new Error(`Server returned invalid JSON: ${response.status} ${response.statusText}. Response: ${text.substring(0, 200)}`)
+          }
+        } else {
+          console.warn("Empty response body received")
+          data = {}
+        }
       } catch (parseError) {
-        // If JSON parsing fails, try to get text
-        console.error("Failed to parse JSON response:", parseError)
+        // If text reading fails, try clone
         try {
           const text = await responseClone.text()
-          console.error("Response text:", text)
-          throw new Error(`Server error: ${response.status} ${response.statusText}. Response: ${text.substring(0, 200)}`)
+          console.error("Response text (from clone):", text.substring(0, 500))
+          if (text) {
+            try {
+              data = JSON.parse(text)
+            } catch {
+              throw new Error(`Server error: ${response.status} ${response.statusText}. Response: ${text.substring(0, 200)}`)
+            }
+          }
         } catch (textError) {
-          console.error("Failed to read response text:", textError)
+          console.error("Failed to read response:", textError)
           throw new Error(`Server error: ${response.status} ${response.statusText}`)
         }
       }
@@ -64,16 +86,33 @@ export default function NotionSetupStep({ onNext, onBack, initialData }: NotionS
       }
 
       if (!response.ok) {
-        // Log detailed error for debugging
-        console.error("Template sync error:", {
-          status: response.status,
-          statusText: response.statusText,
-          error: data.error,
-          details: data.details,
-          suggestion: data.suggestion,
-          debug: data.debug,
-          fullData: data,
-        })
+        // Log detailed error for debugging - ensure we have actual data
+        const errorInfo: any = {
+          status: response.status || 'unknown',
+          statusText: response.statusText || 'unknown',
+          contentType: contentType || 'unknown',
+          hasData: !!data,
+          dataType: typeof data,
+          dataKeys: data && typeof data === 'object' ? Object.keys(data) : [],
+        }
+        
+        // Only add properties if they exist
+        if (data && typeof data === 'object' && data !== null) {
+          if (data.error) errorInfo.error = data.error
+          if (data.details) errorInfo.details = data.details
+          if (data.suggestion) errorInfo.suggestion = data.suggestion
+          if (data.debug) errorInfo.debug = data.debug
+          if (Object.keys(data).length > 0) {
+            errorInfo.fullData = data
+            errorInfo.dataStringified = JSON.stringify(data, null, 2)
+          }
+        } else {
+          errorInfo.dataValue = String(data)
+        }
+        
+        // Always log, even if errorInfo seems empty
+        console.error("Template sync error:", JSON.stringify(errorInfo, null, 2))
+        console.error("Template sync error (raw):", errorInfo)
         
         // Create error message with suggestion
         const errorMessage = data.error || `Sync failed (${response.status})`
@@ -98,7 +137,42 @@ export default function NotionSetupStep({ onNext, onBack, initialData }: NotionS
         handleVerify(data.parentPageId, data.databases)
       }, 1000)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to sync template")
+      // Better error handling with detailed logging
+      console.error("Template sync catch block error:", err)
+      
+      let errorMessage = "Failed to sync template"
+      
+      if (err instanceof Error) {
+        errorMessage = err.message
+        // Log additional error properties if they exist
+        if ((err as any).status) {
+          console.error("Error status:", (err as any).status)
+        }
+        if ((err as any).suggestion) {
+          console.error("Error suggestion:", (err as any).suggestion)
+        }
+        if ((err as any).debug) {
+          console.error("Error debug info:", (err as any).debug)
+        }
+      } else if (typeof err === 'string') {
+        errorMessage = err
+      } else if (err && typeof err === 'object') {
+        // Try to extract error message from object
+        const errObj = err as any
+        errorMessage = errObj.error || errObj.message || errObj.toString() || "Failed to sync template"
+        
+        // Log the full error object for debugging
+        console.error("Error object details:", {
+          keys: Object.keys(errObj),
+          error: errObj.error,
+          message: errObj.message,
+          details: errObj.details,
+          suggestion: errObj.suggestion,
+          full: errObj,
+        })
+      }
+      
+      setError(errorMessage)
     } finally {
       setIsSyncing(false)
     }

@@ -4,15 +4,14 @@ import React, { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 import WelcomeStep from "./steps/welcome-step"
 import BondSetupStep from "./steps/bond-setup-step"
-import NotionSetupStep from "./steps/notion-setup-step"
-import NotionVerificationStep from "./steps/notion-verification-step"
-import NotionApiKeyStep from "./steps/notion-api-key-step"
+import NotionIntegrationStep from "./steps/notion-integration-step"
 import WelcomeSplashStep from "./steps/welcome-splash-step"
 import OnboardingProgress from "./onboarding-progress"
 
-const TOTAL_STEPS = 6 // Removed recovery step - moved to account settings
+const TOTAL_STEPS = 4 // Welcome, Bond Setup, Notion Integration, Welcome Splash
 
 interface OnboardingWizardProps {
   initialStep?: number
@@ -25,50 +24,96 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
   const [currentStep, setCurrentStep] = useState(initialStep)
   const [completedSteps, setCompletedSteps] = useState<number[]>([])
   const [wizardData, setWizardData] = useState<Record<string, any>>({})
+  
+  // Log initial state for debugging
+  console.log(`[OnboardingWizard] Initialized with initialStep=${initialStep}, urlParams=`, urlParams)
 
   // Save progress to localStorage and backend
   const saveProgress = async (step: number, data: Record<string, any>) => {
     const newData = { ...wizardData, ...data }
+    console.log(`[OnboardingWizard] saveProgress called: step=${step}, data=`, data)
+    console.log(`[OnboardingWizard] Merged data (newData)=`, newData)
+    console.log(`[OnboardingWizard] Current wizardData=`, wizardData)
+    
     setWizardData(newData)
     localStorage.setItem("onboarding_step", step.toString())
     localStorage.setItem("onboarding_data", JSON.stringify(newData))
 
     // Save to backend
     try {
+      console.log(`[OnboardingWizard] Saving to backend: step=${step}, data=`, newData)
       const response = await fetch("/api/onboarding/progress", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ step, data: newData }),
       })
+      
       if (!response.ok) {
         const errorText = await response.text().catch(() => "Unknown error")
-        console.warn("Failed to save progress to backend:", {
+        console.error("[OnboardingWizard] ❌ Failed to save progress to backend:", {
           status: response.status,
           statusText: response.statusText,
           error: errorText,
         })
+      } else {
+        const responseData = await response.json().catch(() => ({}))
+        console.log(`[OnboardingWizard] ✓ Successfully saved progress: step=${step}`, responseData)
       }
     } catch (error) {
-      // Use console.warn instead of console.error to avoid triggering certificate check
-      console.warn("Error saving progress:", error instanceof Error ? error.message : String(error))
+      console.error("[OnboardingWizard] ❌ Error saving progress:", error instanceof Error ? error.message : String(error))
     }
   }
 
   // Load saved progress from localStorage and handle URL params
   useEffect(() => {
-    // Priority: URL params > localStorage > initialStep
+    console.log(`[OnboardingWizard] useEffect triggered: initialStep=${initialStep}, urlParams=`, urlParams)
+    
+    // Priority: URL params > server-validated initialStep > localStorage
+    // The server validates steps and ensures previous steps are completed
+    // So we should trust the server's initialStep over localStorage
     if (urlParams?.step) {
       const urlStep = parseInt(urlParams.step, 10)
+      console.log(`[OnboardingWizard] URL step found: ${urlStep}`)
       if (urlStep >= 1 && urlStep <= TOTAL_STEPS) {
-        setCurrentStep(urlStep)
-        // Update localStorage to match URL
-        localStorage.setItem("onboarding_step", urlStep.toString())
+        // Only use URL step if it matches or is less than server-validated step
+        // This prevents skipping ahead via URL manipulation
+        if (urlStep <= initialStep) {
+          console.log(`[OnboardingWizard] ✓ Using URL step ${urlStep} (server validated: ${initialStep})`)
+          setCurrentStep(urlStep)
+          localStorage.setItem("onboarding_step", urlStep.toString())
+        } else {
+          // URL step is ahead of server-validated step, use server step instead
+          console.warn(`[OnboardingWizard] ⚠ URL step ${urlStep} is ahead of server-validated step ${initialStep}, using server step`)
+          setCurrentStep(initialStep)
+          localStorage.setItem("onboarding_step", initialStep.toString())
+        }
+      } else {
+        console.warn(`[OnboardingWizard] ⚠ Invalid URL step ${urlStep}, using server step ${initialStep}`)
+        setCurrentStep(initialStep)
+        localStorage.setItem("onboarding_step", initialStep.toString())
       }
     } else {
+      // No URL step, use server-validated initialStep
+      // Only use localStorage if it matches the server step (server already validated)
       const savedStep = localStorage.getItem("onboarding_step")
+      console.log(`[OnboardingWizard] No URL step, checking localStorage: savedStep=${savedStep}, initialStep=${initialStep}`)
       if (savedStep) {
         const step = parseInt(savedStep, 10)
-        setCurrentStep(step)
+        // If localStorage step matches server step, use it
+        // Otherwise, trust the server's validation
+        if (step === initialStep) {
+          console.log(`[OnboardingWizard] ✓ localStorage step ${step} matches server step, using it`)
+          setCurrentStep(step)
+        } else {
+          console.warn(`[OnboardingWizard] ⚠ localStorage step ${step} doesn't match server-validated step ${initialStep}, using server step`)
+          setCurrentStep(initialStep)
+          localStorage.setItem("onboarding_step", initialStep.toString())
+        }
+      } else {
+        // No localStorage, use server-validated step
+        console.log(`[OnboardingWizard] No localStorage, using server-validated step ${initialStep}`)
+        setCurrentStep(initialStep)
+        localStorage.setItem("onboarding_step", initialStep.toString())
       }
     }
     
@@ -113,11 +158,22 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
   }, [urlParams])
 
   const handleNext = async (stepData?: Record<string, any>) => {
+    const newStep = currentStep + 1
+    
+    // Save progress for the NEW step (the step we're moving TO)
+    // This ensures the backend has the correct step number when validation runs
     if (stepData) {
-      await saveProgress(currentStep, stepData)
+      console.log(`[OnboardingWizard] handleNext: Saving step ${newStep} with data:`, stepData)
+      try {
+        await saveProgress(newStep, stepData)
+        console.log(`[OnboardingWizard] handleNext: Save completed, proceeding to step ${newStep}`)
+      } catch (error) {
+        console.error(`[OnboardingWizard] handleNext: Failed to save progress:`, error)
+        toast.error("Failed to save progress. Please try again.")
+        return // Don't navigate if save failed
+      }
     }
 
-    const newStep = currentStep + 1
     setCurrentStep(newStep)
     
     // Add current step to completed steps if not already there
@@ -125,7 +181,11 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
       setCompletedSteps([...completedSteps, currentStep])
     }
     
-    updateUrlStep(newStep)
+    // Use replace instead of push to avoid triggering unnecessary server-side renders
+    // Also add a small delay to ensure database write completes
+    setTimeout(() => {
+      updateUrlStep(newStep)
+    }, 100)
   }
 
   const handleBack = () => {
@@ -154,10 +214,11 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
   }
 
   // Update URL with step parameter
+  // Use replace instead of push to avoid adding to history and triggering unnecessary server-side renders
   const updateUrlStep = (step: number) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set("step", step.toString())
-    router.push(`/onboarding?${params.toString()}`, { scroll: false })
+    router.replace(`/onboarding?${params.toString()}`, { scroll: false })
   }
 
   const handleComplete = async () => {
@@ -195,7 +256,7 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
         )
       case 3:
         return (
-          <NotionSetupStep
+          <NotionIntegrationStep
             onNext={handleNext}
             onBack={handleBack}
             initialData={wizardData}
@@ -203,17 +264,15 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
         )
       case 4:
         return (
-          <NotionVerificationStep
-            onNext={handleNext}
-            onBack={handleBack}
+          <WelcomeSplashStep
+            onComplete={handleComplete}
             initialData={wizardData}
           />
         )
       case 5:
         return (
-          <NotionApiKeyStep
-            onNext={handleNext}
-            onBack={handleBack}
+          <WelcomeSplashStep
+            onComplete={handleComplete}
             initialData={wizardData}
           />
         )

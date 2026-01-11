@@ -161,17 +161,21 @@ export async function POST(request: NextRequest) {
     }
 
     // Update user's bond_id
-    const { error: profileError } = await supabase
+    const { error: profileError, data: updatedProfile } = await supabase
       .from("profiles")
       .update({
         bond_id: bond.id,
         updated_at: new Date().toISOString(),
       })
       .eq("id", user.id)
+      .select("bond_id")
+      .single()
 
     if (profileError) {
-      console.error("Error updating profile bond_id:", profileError)
-      // Non-critical - bond and member are created
+      console.error("[Bond Create] Error updating profile bond_id:", profileError)
+      // Non-critical - bond and member are created, but log for debugging
+    } else {
+      console.log(`[Bond Create] ✓ Successfully updated profile.bond_id: ${updatedProfile?.bond_id}`)
     }
 
     return NextResponse.json({

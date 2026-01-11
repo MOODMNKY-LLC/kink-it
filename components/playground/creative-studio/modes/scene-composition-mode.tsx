@@ -74,6 +74,7 @@ function ScenePresetCard({ scene, isSelected, onSelect }: ScenePresetCardProps) 
           "object-cover transition-all",
           isSelected ? "brightness-100" : "brightness-75 group-hover:brightness-90"
         )}
+        loader={undefined}
         unoptimized
       />
       
@@ -219,6 +220,7 @@ export function SceneCompositionMode() {
                           alt={selectedCharacters[0].name}
                           fill
                           className="object-cover rounded-lg"
+                          loader={undefined}
                           unoptimized
                         />
                       ) : (
@@ -265,6 +267,7 @@ export function SceneCompositionMode() {
                           alt={selectedCharacters[1].name}
                           fill
                           className="object-cover rounded-lg"
+                          loader={undefined}
                           unoptimized
                         />
                       ) : (
@@ -359,6 +362,7 @@ export function SceneCompositionMode() {
                           alt={selectedScenePreset.name}
                           fill
                           className="object-cover"
+                          loader={undefined}
                           unoptimized
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -482,6 +486,7 @@ export function SceneCompositionMode() {
                     alt=""
                     fill
                     className="object-contain"
+                    loader={undefined}
                     unoptimized
                   />
                 </div>

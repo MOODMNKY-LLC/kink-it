@@ -145,6 +145,11 @@ const ChatEventContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<H
         "text-sm sm:text-base text-foreground",
         "leading-relaxed break-words",
         "max-w-[85%] sm:max-w-[75%] md:max-w-[65%]",
+        "max-h-[400px] sm:max-h-[500px]",
+        "overflow-y-auto overflow-x-hidden",
+        "scrollbar-hide",
+        "scroll-smooth",
+        "word-break break-words",
         className
       )}
       {...props}

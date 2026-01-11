@@ -20,26 +20,33 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { createClient } from "@/lib/supabase/client"
 import type { Profile } from "@/types/profile"
 import type { Kinkster } from "@/types/kinkster"
 import { cn } from "@/lib/utils"
 import { 
-  Bot, 
   Users, 
   Loader2, 
   Search,
   MoreHorizontal,
   Info,
   File,
+  RefreshCw,
+  ChevronDown,
 } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { EnhancedChatInputBar } from "./enhanced-chat-input-bar"
 import type { FileAttachment } from "./file-upload-handler"
-import { ChatSettingsPanel } from "./chat-settings-panel"
+import { ComprehensiveAISettingsPanel } from "./comprehensive-ai-settings-panel"
 import { ChatHelpDialog } from "./chat-help-dialog"
+import { KinksterTradingCard } from "@/components/kinksters/kinkster-trading-card"
 import { uploadChatAttachments } from "@/lib/chat/upload-attachment"
+import { MarkdownMessage } from "./markdown-message"
+import { MessageActions } from "./message-actions"
+import { PromptSuggestions } from "./prompt-suggestions"
+import { Marquee } from "@/components/ui/marquee"
 
 interface ChatMessageAttachment {
   url: string
@@ -98,13 +105,21 @@ export function KinkyChatInterface({
   const router = useRouter()
   const channelRef = useRef<any>(null)
 
-  // Get current chatflow ID (only for Kinksters - Kinky Kincade uses OpenAI)
-  const currentChatflowId = useMemo(() => {
+  // Get current Kinkster configuration (provider, chatflow ID, etc.)
+  const selectedKinkster = useMemo(() => {
     if (activeTab === "kinksters" && selectedKinksterId) {
-      return kinksters.find((k) => k.id === selectedKinksterId)?.flowise_chatflow_id
+      return kinksters.find((k) => k.id === selectedKinksterId)
     }
-    return undefined // Kinky Kincade doesn't use Flowise
+    return undefined
   }, [activeTab, selectedKinksterId, kinksters])
+
+  const currentChatflowId = useMemo(() => {
+    return selectedKinkster?.flowise_chatflow_id
+  }, [selectedKinkster])
+
+  const kinksterProvider = useMemo(() => {
+    return selectedKinkster?.provider || "flowise"
+  }, [selectedKinkster])
 
   // Check if user has Notion API key
   const hasNotionKey = useMemo(() => {
@@ -134,12 +149,19 @@ export function KinkyChatInterface({
                     provider: "openai",
                     model: "gpt-4o-mini",
                   }
-                : {
-                    // Kinksters use Flowise
-                    provider: "flowise",
-                    chatflowId: currentChatflowId,
-                    kinksterId: selectedKinksterId || null,
-                  },
+                : kinksterProvider === "openai_responses"
+                  ? {
+                      // Kinksters using OpenAI Responses API
+                      provider: "openai_responses",
+                      kinksterId: selectedKinksterId || null,
+                      model: selectedKinkster?.openai_model || "gpt-5-mini",
+                    }
+                  : {
+                      // Kinksters using Flowise
+                      provider: "flowise",
+                      chatflowId: currentChatflowId,
+                      kinksterId: selectedKinksterId || null,
+                    },
             })
             .select("id")
             .single()
@@ -168,8 +190,9 @@ export function KinkyChatInterface({
         const { data, error } = await supabase
           .from("kinksters")
           .select("*")
-          .eq("user_id", user.id)
+          .or(`is_system_kinkster.eq.true,user_id.eq.${user.id}`)
           .eq("is_active", true)
+          .order("is_system_kinkster", { ascending: false }) // System kinksters first
           .order("is_primary", { ascending: false })
           .order("created_at", { ascending: false })
 
@@ -378,14 +401,23 @@ export function KinkyChatInterface({
       let fullResponse = ""
 
       try {
-        // Route based on active tab:
+        // Route based on active tab and Kinkster provider:
         // - Kinky Kincade (activeTab === "kinky") → OpenAI API
-        // - Kinksters (activeTab === "kinksters") → Flowise API
+        // - Kinksters (activeTab === "kinksters"):
+        //   - provider === "openai_responses" → /api/kinksters/chat (Responses API)
+        //   - provider === "flowise" → /api/flowise/chat (Flowise)
         const isKinkyKincade = activeTab === "kinky"
         const kinksterId = activeTab === "kinksters" && selectedKinksterId ? selectedKinksterId : null
 
-        // Determine API endpoint
-        const apiEndpoint = isKinkyKincade ? "/api/openai/chat" : "/api/flowise/chat"
+        // Determine API endpoint based on provider
+        let apiEndpoint: string
+        if (isKinkyKincade) {
+          apiEndpoint = "/api/openai/chat"
+        } else if (kinksterProvider === "openai_responses") {
+          apiEndpoint = "/api/kinksters/chat"
+        } else {
+          apiEndpoint = "/api/flowise/chat"
+        }
 
         // Build request body based on provider
         const fileUrls = uploadedAttachments.map((att) => att.url)
@@ -401,20 +433,33 @@ export function KinkyChatInterface({
               realtime: realtimeEnabled,
               conversationId,
             }
-          : {
-              // Flowise (Kinksters) request
-              message: userMessage.content,
-              kinksterId,
-              chatId,
-              chatflowId: currentChatflowId,
-              history: messages.map((msg) => ({
-                role: msg.role,
-                content: msg.content,
-              })),
-              fileUrls: fileUrls.length > 0 ? fileUrls : undefined,
-              realtime: realtimeEnabled,
-              conversationId,
-            }
+          : kinksterProvider === "openai_responses"
+            ? {
+                // OpenAI Responses API (Kinksters) request
+                message: userMessage.content,
+                kinksterId,
+                history: messages.map((msg) => ({
+                  role: msg.role,
+                  content: msg.content,
+                })),
+                fileUrls: fileUrls.length > 0 ? fileUrls : undefined,
+                realtime: realtimeEnabled,
+                conversationId,
+              }
+            : {
+                // Flowise (Kinksters) request
+                message: userMessage.content,
+                kinksterId,
+                chatId,
+                chatflowId: currentChatflowId,
+                history: messages.map((msg) => ({
+                  role: msg.role,
+                  content: msg.content,
+                })),
+                fileUrls: fileUrls.length > 0 ? fileUrls : undefined,
+                realtime: realtimeEnabled,
+                conversationId,
+              }
 
         // Stream response from appropriate API
         let response: Response
@@ -751,6 +796,7 @@ export function KinkyChatInterface({
       activeTab,
       selectedKinksterId,
       kinksters,
+      kinksterProvider,
       chatId,
       messages,
       currentChatflowId,
@@ -761,20 +807,18 @@ export function KinkyChatInterface({
 
 
   const getCurrentChatName = () => {
-    if (activeTab === "kinksters" && selectedKinksterId) {
-      const kinkster = kinksters.find((k) => k.id === selectedKinksterId)
-      return kinkster?.name || "Kinkster"
+    if (activeTab === "kinksters" && selectedKinkster) {
+      return selectedKinkster.name || "Kinkster"
     }
     return "Kinky Kincade"
   }
 
   const getCurrentChatAvatar = () => {
-    if (activeTab === "kinksters" && selectedKinksterId) {
-      const kinkster = kinksters.find((k) => k.id === selectedKinksterId)
-      return kinkster?.avatar_url
+    if (activeTab === "kinksters" && selectedKinkster) {
+      return selectedKinkster.avatar_url
     }
     // Default Kinky Kincade avatar
-    return "/images/kinky/kinky-avatar.svg"
+    return "/images/kinky/kinky-avatar.png"
   }
 
   return (
@@ -786,7 +830,10 @@ export function KinkyChatInterface({
               value="kinky" 
               className="gap-1.5 sm:gap-2 h-11 sm:h-10 text-sm sm:text-base px-3 sm:px-4 touch-target"
             >
-              <Bot className="h-4 w-4 sm:h-4 sm:w-4 shrink-0" />
+              <Avatar className="h-4 w-4 sm:h-4 sm:w-4 shrink-0">
+                <AvatarImage src="/images/kinky/kinky-avatar.png" alt="Kinky Kincade" />
+                <AvatarFallback className="bg-muted text-[8px]">KK</AvatarFallback>
+              </Avatar>
               <span className="truncate">Kinky Kincade</span>
             </TabsTrigger>
             <TabsTrigger 
@@ -804,7 +851,7 @@ export function KinkyChatInterface({
             <ChatHeader className="px-3 sm:px-4 py-2 sm:py-3">
               <ChatHeaderStart className="gap-2 min-w-0">
                 <Avatar className="h-8 w-8 sm:h-9 sm:w-9 shrink-0">
-                  <AvatarImage src="/images/kinky/kinky-avatar.svg" alt="Kinky Kincade" />
+                  <AvatarImage src="/images/kinky/kinky-avatar.png" alt="Kinky Kincade" />
                   <AvatarFallback>KK</AvatarFallback>
                 </Avatar>
                 <span className="font-medium text-sm sm:text-base truncate">Kinky Kincade</span>
@@ -813,37 +860,58 @@ export function KinkyChatInterface({
                 <span className="text-xs sm:text-sm font-semibold">KINKY Chat</span>
                 <span className="text-xs sm:text-sm text-muted-foreground hidden md:inline">Chat with Kinky Kincade & your Kinksters</span>
               </ChatHeaderMain>
-              <ChatHeaderEnd className="gap-1">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-9 w-9 sm:h-8 sm:w-8 touch-target shrink-0"
-                  onClick={() => setHelpOpen(true)}
-                  title="Help & Info"
-                >
-                  <Info className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-9 w-9 sm:h-8 sm:w-8 touch-target shrink-0"
-                  onClick={() => setSettingsOpen(true)}
-                  title="Chat Settings"
-                >
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </ChatHeaderEnd>
+               <ChatHeaderEnd className="gap-1">
+                 <Button 
+                   variant="ghost" 
+                   size="icon" 
+                   className="h-9 w-9 sm:h-8 sm:w-8 touch-target shrink-0"
+                   onClick={() => setHelpOpen(true)}
+                   title="Help & Info"
+                 >
+                   <Info className="h-4 w-4" />
+                 </Button>
+                 <Button 
+                   variant="ghost" 
+                   size="icon" 
+                   className="h-9 w-9 sm:h-8 sm:w-8 touch-target shrink-0"
+                   onClick={() => setSettingsOpen(true)}
+                   title="AI Configuration"
+                 >
+                   <MoreHorizontal className="h-4 w-4" />
+                 </Button>
+               </ChatHeaderEnd>
             </ChatHeader>
 
             <ChatMessages>
               {messages.length === 0 && !isStreaming && (
-                <div className="flex items-center justify-center h-full text-center p-4 sm:p-8">
-                  <div className="space-y-3 sm:space-y-2 max-w-sm">
-                    <Bot className="h-16 w-16 sm:h-12 sm:w-12 mx-auto text-muted-foreground" />
-                    <h3 className="text-base sm:text-lg font-semibold">Start chatting with Kinky Kincade</h3>
-                    <p className="text-sm text-muted-foreground px-4">
-                      Your AI assistant is ready to help with tasks, questions, and more.
-                    </p>
+                <div className="flex-1 flex items-center justify-center p-4">
+                  <div className="w-full max-w-3xl space-y-6">
+                    <div className="text-center space-y-2">
+                      <Avatar className="h-16 w-16 sm:h-20 sm:w-20 mx-auto">
+                        <AvatarImage src="/images/kinky/kinky-avatar.png" alt="Kinky Kincade" />
+                        <AvatarFallback className="bg-muted">
+                          <span className="text-lg font-semibold">KK</span>
+                        </AvatarFallback>
+                      </Avatar>
+                      <h3 className="text-lg font-semibold">Start chatting with Kinky Kincade</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Your AI assistant is ready to help with tasks, questions, and more.
+                      </p>
+                    </div>
+                    <PromptSuggestions
+                      onSelectPrompt={(text) => {
+                        setInputValue(text)
+                        // Auto-focus input after selecting prompt
+                        setTimeout(() => {
+                          const textarea = document.querySelector('textarea[placeholder*="Message"]') as HTMLTextAreaElement
+                          if (textarea) {
+                            textarea.focus()
+                            textarea.setSelectionRange(text.length, text.length)
+                          }
+                        }, 100)
+                      }}
+                      profile={profile}
+                    />
                   </div>
                 </div>
               )}
@@ -891,8 +959,8 @@ export function KinkyChatInterface({
                         </ChatEventAddon>
                       )}
                       <ChatEventBody className={cn(
-                        "min-w-0",
-                        message.role === "user" && "items-end text-right"
+                        "min-w-0 flex-1",
+                        message.role === "user" && "items-end"
                       )}>
                         {message.role === "assistant" && (
                           <div className="flex items-baseline gap-1.5 sm:gap-2 flex-wrap">
@@ -906,7 +974,7 @@ export function KinkyChatInterface({
                           </div>
                         )}
                         {message.role === "user" && (
-                          <div className="flex items-baseline gap-1.5 sm:gap-2 flex-wrap justify-end">
+                          <div className="flex items-baseline gap-1.5 sm:gap-2 flex-wrap justify-end w-full">
                             <ChatEventTitle className="text-xs sm:text-sm">You</ChatEventTitle>
                             <ChatEventDescription className="text-xs">
                               {new Intl.DateTimeFormat("en-US", {
@@ -918,7 +986,10 @@ export function KinkyChatInterface({
                         )}
                         {/* Message Attachments (Images Preview) */}
                         {message.attachments && message.attachments.length > 0 && (
-                          <div className="mt-2 mb-1 flex flex-wrap gap-2">
+                          <div className={cn(
+                            "mt-2 mb-1 flex flex-wrap gap-2",
+                            message.role === "user" && "justify-end"
+                          )}>
                             {message.attachments.map((attachment, attIndex) => (
                               <div key={`${message.id}-att-${attIndex}`} className="relative">
                                 {attachment.type === "image" ? (
@@ -946,13 +1017,32 @@ export function KinkyChatInterface({
                             ))}
                           </div>
                         )}
-                        <ChatEventContent className={cn(
-                          "mt-1 sm:mt-0.5 rounded-lg px-3 py-2 inline-block max-w-[85%] sm:max-w-[75%]",
-                          message.role === "user" && "bg-primary/10 border border-primary/20 backdrop-blur-sm text-foreground shadow-sm shadow-primary/10",
-                          message.role === "assistant" && "bg-card/50 border border-border/50 backdrop-blur-sm text-foreground shadow-sm"
+                        <div className={cn(
+                          "group",
+                          message.role === "user" && "flex justify-end w-full"
                         )}>
-                          {message.content}
-                        </ChatEventContent>
+                          <ChatEventContent className={cn(
+                            "mt-1 sm:mt-0.5 rounded-lg px-3 py-2 max-w-[85%] sm:max-w-[75%]",
+                            message.role === "user" && "bg-primary/10 border border-primary/20 backdrop-blur-sm text-foreground shadow-sm shadow-primary/10 text-left",
+                            message.role === "assistant" && "bg-card/50 border border-border/50 backdrop-blur-sm text-foreground shadow-sm"
+                          )}>
+                            {message.role === "assistant" ? (
+                              <MarkdownMessage content={message.content} />
+                            ) : (
+                              <span className="whitespace-pre-wrap break-words text-left">{message.content}</span>
+                            )}
+                          </ChatEventContent>
+                          {/* Message Actions (only for assistant messages) */}
+                          {message.role === "assistant" && (
+                            <MessageActions
+                              messageId={message.id}
+                              content={message.content}
+                              conversationId={conversationId}
+                              userId={profile?.id}
+                              className="mt-1"
+                            />
+                          )}
+                        </div>
                       </ChatEventBody>
                     </ChatEvent>
                   </React.Fragment>
@@ -975,8 +1065,11 @@ export function KinkyChatInterface({
                         <span>Typing...</span>
                       </ChatEventDescription>
                     </div>
-                    <ChatEventContent className="mt-1 sm:mt-0.5 text-foreground">
-                      {currentStreamingMessage}
+                    <ChatEventContent className={cn(
+                      "mt-1 sm:mt-0.5 rounded-lg px-3 py-2 inline-block max-w-[85%] sm:max-w-[75%]",
+                      "bg-card/50 border border-border/50 backdrop-blur-sm text-foreground shadow-sm"
+                    )}>
+                      <MarkdownMessage content={currentStreamingMessage} />
                     </ChatEventContent>
                   </ChatEventBody>
                 </ChatEvent>
@@ -1003,7 +1096,7 @@ export function KinkyChatInterface({
           </Chat>
 
           {/* Settings Panel */}
-          <ChatSettingsPanel
+          <ComprehensiveAISettingsPanel
             open={settingsOpen}
             onOpenChange={setSettingsOpen}
             profile={profile}
@@ -1037,65 +1130,164 @@ export function KinkyChatInterface({
             </div>
           ) : !selectedKinksterId ? (
             <div className="p-4 space-y-2">
-              <h3 className="text-lg font-semibold mb-4">Select a Kinkster to chat with</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Select a Kinkster to chat with</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setIsLoadingKinksters(true)
+                    const fetchKinksters = async () => {
+                      try {
+                        const { data: { user } } = await supabase.auth.getUser()
+                        if (!user) return
+
+                        const { data, error } = await supabase
+                          .from("kinksters")
+                          .select("*")
+                          .or(`is_system_kinkster.eq.true,user_id.eq.${user.id}`)
+                          .eq("is_active", true)
+                          .order("is_system_kinkster", { ascending: false })
+                          .order("is_primary", { ascending: false })
+                          .order("created_at", { ascending: false })
+
+                        if (error) {
+                          console.error("[KinkyChat] Error fetching kinksters:", error)
+                          return
+                        }
+
+                        setKinksters(data || [])
+                      } catch (error) {
+                        console.error("[KinkyChat] Error:", error)
+                      } finally {
+                        setIsLoadingKinksters(false)
+                      }
+                    }
+                    fetchKinksters()
+                  }}
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Refresh
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {kinksters.map((kinkster) => (
-                  <Button
+                  <KinksterTradingCard
                     key={kinkster.id}
-                    variant="outline"
-                    className="h-auto p-4 flex items-start gap-3 justify-start"
+                    kinkster={kinkster}
                     onClick={() => setSelectedKinksterId(kinkster.id)}
-                  >
-                    <Avatar className="h-12 w-12 shrink-0">
-                      <AvatarImage src={kinkster.avatar_url || undefined} alt={kinkster.name} />
-                      <AvatarFallback>{kinkster.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0 text-left">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold truncate">{kinkster.name}</span>
-                        {kinkster.is_primary && (
-                          <Badge variant="secondary" className="text-xs">Primary</Badge>
-                        )}
-                      </div>
-                      {kinkster.bio && (
-                        <p className="text-xs text-muted-foreground line-clamp-2">{kinkster.bio}</p>
-                      )}
-                    </div>
-                  </Button>
+                    selected={selectedKinksterId === kinkster.id}
+                    variant="compact"
+                    showStats={true}
+                    showBio={true}
+                  />
                 ))}
               </div>
             </div>
           ) : (
+            <>
             <Chat className="h-full">
-              <ChatHeader>
+              <ChatHeader className="px-3 sm:px-4 py-2 sm:py-3 border-b border-border/50">
                 <ChatHeaderStart className="gap-2 min-w-0">
-                  <Avatar className="h-8 w-8 sm:h-9 sm:w-9 shrink-0">
+                  <Avatar className="h-8 w-8 sm:h-9 sm:w-9 shrink-0 ring-2 ring-primary/30">
                     <AvatarImage 
                       src={kinksters.find((k) => k.id === selectedKinksterId)?.avatar_url || undefined} 
                       alt={kinksters.find((k) => k.id === selectedKinksterId)?.name || "Kinkster"} 
                     />
-                    <AvatarFallback>
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
                       {kinksters.find((k) => k.id === selectedKinksterId)?.name.substring(0, 2).toUpperCase() || "K"}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="font-medium text-sm sm:text-base truncate">
-                    {kinksters.find((k) => k.id === selectedKinksterId)?.name || "Kinkster"}
-                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium text-sm sm:text-base truncate">
+                        {kinksters.find((k) => k.id === selectedKinksterId)?.name || "Kinkster"}
+                      </span>
+                      {kinksters.find((k) => k.id === selectedKinksterId)?.role && (
+                        <Badge variant="secondary" className="text-xs capitalize shrink-0">
+                          {kinksters.find((k) => k.id === selectedKinksterId)?.role}
+                        </Badge>
+                      )}
+                      {kinksters.find((k) => k.id === selectedKinksterId)?.is_system_kinkster && (
+                        <Badge variant="default" className="text-xs shrink-0">
+                          System
+                        </Badge>
+                      )}
+                    </div>
+                    {kinksters.find((k) => k.id === selectedKinksterId)?.specialty && (
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <Badge 
+                          variant="outline" 
+                          className="text-xs bg-primary/10 border-primary/30 text-primary font-semibold shrink-0"
+                        >
+                          {kinksters.find((k) => k.id === selectedKinksterId)?.specialty}
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
                 </ChatHeaderStart>
-                <ChatHeaderMain className="hidden sm:flex">
-                  <span className="text-xs sm:text-sm font-semibold">Kinkster Character</span>
-                  {kinksters.find((k) => k.id === selectedKinksterId)?.bio && (
-                    <span className="text-xs sm:text-sm text-muted-foreground line-clamp-1 hidden md:inline">
-                      {kinksters.find((k) => k.id === selectedKinksterId)?.bio}
-                    </span>
-                  )}
+                <ChatHeaderMain className="hidden sm:flex flex-1 min-w-0 overflow-hidden">
+                  <div className="flex-1 min-w-0">
+                    {selectedKinkster && (
+                      <Marquee pauseOnHover className="text-xs sm:text-sm text-muted-foreground" repeat={2}>
+                        {selectedKinkster.specialty && (
+                          <span className="font-semibold text-primary mr-4">
+                            {selectedKinkster.specialty}
+                          </span>
+                        )}
+                        {selectedKinkster.bio && (
+                          <span className="mr-4">{selectedKinkster.bio}</span>
+                        )}
+                      </Marquee>
+                    )}
+                  </div>
                 </ChatHeaderMain>
                 <ChatHeaderEnd className="gap-1">
+                  {kinksters.length > 1 && (
+                    <Select
+                      value={selectedKinksterId || ""}
+                      onValueChange={(value) => {
+                        setSelectedKinksterId(value)
+                        setMessages([])
+                        setChatId(null)
+                        setConversationId(null)
+                      }}
+                    >
+                      <SelectTrigger className="h-9 w-[140px] sm:h-8 sm:w-[160px] text-xs shrink-0">
+                        <SelectValue placeholder="Switch Kinkster" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {kinksters.map((kinkster) => (
+                          <SelectItem key={kinkster.id} value={kinkster.id}>
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-4 w-4 shrink-0">
+                                <AvatarImage src={kinkster.avatar_url || undefined} alt={kinkster.name} />
+                                <AvatarFallback className="text-[8px]">
+                                  {kinkster.name.substring(0, 2).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="truncate">{kinkster.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                   <Button 
                     variant="ghost" 
                     size="icon" 
                     className="h-9 w-9 sm:h-8 sm:w-8 touch-target shrink-0"
-                    onClick={() => setSelectedKinksterId(null)}
+                    onClick={() => setHelpOpen(true)}
+                    title="Help & Info"
+                  >
+                    <Info className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-9 w-9 sm:h-8 sm:w-8 touch-target shrink-0"
+                    onClick={() => setSettingsOpen(true)}
+                    title="AI Configuration"
                   >
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
@@ -1104,23 +1296,48 @@ export function KinkyChatInterface({
 
               <ChatMessages>
                 {messages.length === 0 && !isStreaming && (
-                  <div className="flex items-center justify-center h-full text-center p-4 sm:p-8">
-                    <div className="space-y-3 sm:space-y-2 max-w-sm">
-                      <Avatar className="h-20 w-20 sm:h-16 sm:w-16 mx-auto">
-                        <AvatarImage 
-                          src={kinksters.find((k) => k.id === selectedKinksterId)?.avatar_url || undefined} 
-                          alt={kinksters.find((k) => k.id === selectedKinksterId)?.name || "Kinkster"} 
-                        />
-                        <AvatarFallback className="text-lg sm:text-base">
-                          {kinksters.find((k) => k.id === selectedKinksterId)?.name.substring(0, 2).toUpperCase() || "K"}
-                        </AvatarFallback>
-                      </Avatar>
-                      <h3 className="text-base sm:text-lg font-semibold">
-                        Start chatting with {kinksters.find((k) => k.id === selectedKinksterId)?.name}
-                      </h3>
-                      <p className="text-sm text-muted-foreground px-4">
-                        Your Kinkster character is ready to chat.
-                      </p>
+                  <div className="flex-1 flex items-center justify-center p-4">
+                    <div className="w-full max-w-3xl space-y-6">
+                      <div className="text-center space-y-2">
+                        <Avatar className="h-16 w-16 sm:h-20 sm:w-20 mx-auto">
+                          <AvatarImage 
+                            src={selectedKinkster?.avatar_url || undefined} 
+                            alt={selectedKinkster?.name || "Kinkster"} 
+                          />
+                          <AvatarFallback className="bg-muted">
+                            <span className="text-lg font-semibold">
+                              {selectedKinkster?.name.substring(0, 2).toUpperCase() || "K"}
+                            </span>
+                          </AvatarFallback>
+                        </Avatar>
+                        <h3 className="text-lg font-semibold">
+                          Start chatting with {selectedKinkster?.name}
+                        </h3>
+                        {selectedKinkster?.specialty ? (
+                          <p className="text-sm text-muted-foreground">
+                            Specializing in <span className="font-semibold text-primary">{selectedKinkster.specialty}</span>
+                          </p>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">
+                            Your Kinkster character is ready to chat.
+                          </p>
+                        )}
+                      </div>
+                      <PromptSuggestions
+                        onSelectPrompt={(text) => {
+                          setInputValue(text)
+                          // Auto-focus input after selecting prompt
+                          setTimeout(() => {
+                            const textarea = document.querySelector('textarea[placeholder*="Message"]') as HTMLTextAreaElement
+                            if (textarea) {
+                              textarea.focus()
+                              textarea.setSelectionRange(text.length, text.length)
+                            }
+                          }, 100)
+                        }}
+                        profile={profile}
+                        kinkster={selectedKinkster || null}
+                      />
                     </div>
                   </div>
                 )}
@@ -1133,9 +1350,9 @@ export function KinkyChatInterface({
                   return (
                     <React.Fragment key={message.id}>
                       {showDateSeparator && (
-                        <ChatEvent className="items-center gap-1 py-4">
+                        <ChatEvent className="items-center gap-1.5 sm:gap-2 py-3 sm:py-4 px-3 sm:px-4">
                           <Separator className="flex-1" />
-                          <span className="text-muted-foreground text-xs font-semibold min-w-max">
+                          <span className="text-muted-foreground text-xs sm:text-xs font-semibold min-w-max px-2">
                             {new Intl.DateTimeFormat("en-US", {
                               dateStyle: "long",
                             }).format(message.timestamp)}
@@ -1144,20 +1361,20 @@ export function KinkyChatInterface({
                         </ChatEvent>
                       )}
                       <ChatEvent className={cn(
-                        "hover:bg-accent px-3 sm:px-4 py-3 sm:py-2",
+                        "px-3 sm:px-4 py-3 sm:py-2 transition-colors",
                         message.role === "user" 
-                          ? "flex-row-reverse bg-primary/5" 
-                          : "bg-muted/30"
+                          ? "flex-row-reverse hover:bg-primary/5" 
+                          : "hover:bg-muted/20"
                       )}>
                         {message.role === "assistant" && (
                           <ChatEventAddon className="shrink-0">
                             <Avatar className="h-9 w-9 sm:h-8 sm:w-8 rounded-full">
                               <AvatarImage 
-                                src={kinksters.find((k) => k.id === selectedKinksterId)?.avatar_url || undefined} 
-                                alt={kinksters.find((k) => k.id === selectedKinksterId)?.name || "Kinkster"} 
+                                src={selectedKinkster?.avatar_url || undefined} 
+                                alt={selectedKinkster?.name || "Kinkster"} 
                               />
                               <AvatarFallback className="text-xs sm:text-sm">
-                                {kinksters.find((k) => k.id === selectedKinksterId)?.name.substring(0, 2).toUpperCase() || "K"}
+                                {selectedKinkster?.name.substring(0, 2).toUpperCase() || "K"}
                               </AvatarFallback>
                             </Avatar>
                           </ChatEventAddon>
@@ -1173,13 +1390,13 @@ export function KinkyChatInterface({
                           </ChatEventAddon>
                         )}
                         <ChatEventBody className={cn(
-                          "min-w-0",
-                          message.role === "user" && "items-end text-right"
+                          "min-w-0 flex-1",
+                          message.role === "user" && "items-end"
                         )}>
                           {message.role === "assistant" && (
                             <div className="flex items-baseline gap-1.5 sm:gap-2 flex-wrap">
                               <ChatEventTitle className="text-xs sm:text-sm">
-                                {kinksters.find((k) => k.id === selectedKinksterId)?.name || "Kinkster"}
+                                {selectedKinkster?.name || "Kinkster"}
                               </ChatEventTitle>
                               <ChatEventDescription className="text-xs">
                                 {new Intl.DateTimeFormat("en-US", {
@@ -1190,7 +1407,7 @@ export function KinkyChatInterface({
                             </div>
                           )}
                           {message.role === "user" && (
-                            <div className="flex items-baseline gap-1.5 sm:gap-2 flex-wrap justify-end">
+                            <div className="flex items-baseline gap-1.5 sm:gap-2 flex-wrap justify-end w-full">
                               <ChatEventTitle className="text-xs sm:text-sm">You</ChatEventTitle>
                               <ChatEventDescription className="text-xs">
                                 {new Intl.DateTimeFormat("en-US", {
@@ -1200,13 +1417,65 @@ export function KinkyChatInterface({
                               </ChatEventDescription>
                             </div>
                           )}
-                          <ChatEventContent className={cn(
-                            "mt-1 sm:mt-0.5",
-                            message.role === "user" && "bg-primary text-primary-foreground rounded-lg px-3 py-2 inline-block max-w-[85%] sm:max-w-[75%]",
-                            message.role === "assistant" && "text-foreground"
+                          {/* Message Attachments (Images Preview) */}
+                          {message.attachments && message.attachments.length > 0 && (
+                            <div className={cn(
+                              "mt-2 mb-1 flex flex-wrap gap-2",
+                              message.role === "user" && "justify-end"
+                            )}>
+                              {message.attachments.map((attachment, attIndex) => (
+                                <div key={`${message.id}-att-${attIndex}`} className="relative">
+                                  {attachment.type === "image" ? (
+                                    <img
+                                      src={attachment.url}
+                                      alt={attachment.fileName}
+                                      className="max-w-[200px] sm:max-w-[300px] rounded-lg border border-border/50 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                      onClick={() => window.open(attachment.url, "_blank")}
+                                    />
+                                  ) : (
+                                    <a
+                                      href={attachment.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg border border-border/50 hover:bg-muted/80 transition-colors"
+                                    >
+                                      <File className="h-4 w-4" />
+                                      <span className="text-xs truncate max-w-[150px]">{attachment.fileName}</span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {(attachment.fileSize / 1024).toFixed(1)} KB
+                                      </span>
+                                    </a>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          <div className={cn(
+                            "group",
+                            message.role === "user" && "flex justify-end w-full"
                           )}>
-                            {message.content}
-                          </ChatEventContent>
+                            <ChatEventContent className={cn(
+                              "mt-1 sm:mt-0.5 rounded-lg px-3 py-2 max-w-[85%] sm:max-w-[75%]",
+                              message.role === "user" && "bg-primary/10 border border-primary/20 backdrop-blur-sm text-foreground shadow-sm shadow-primary/10 text-left",
+                              message.role === "assistant" && "bg-card/50 border border-border/50 backdrop-blur-sm text-foreground shadow-sm"
+                            )}>
+                              {message.role === "assistant" ? (
+                                <MarkdownMessage content={message.content} />
+                              ) : (
+                                <span className="whitespace-pre-wrap break-words text-left">{message.content}</span>
+                              )}
+                            </ChatEventContent>
+                            {/* Message Actions (only for assistant messages) */}
+                            {message.role === "assistant" && (
+                              <MessageActions
+                                messageId={message.id}
+                                content={message.content}
+                                conversationId={conversationId}
+                                userId={profile?.id}
+                                className="mt-1"
+                              />
+                            )}
+                          </div>
                         </ChatEventBody>
                       </ChatEvent>
                     </React.Fragment>
@@ -1214,7 +1483,7 @@ export function KinkyChatInterface({
                 })}
 
                 {isStreaming && currentStreamingMessage && (
-                  <ChatEvent className="bg-muted/30 px-3 sm:px-4 py-3 sm:py-2">
+                  <ChatEvent className="bg-card/50 border border-border/50 backdrop-blur-sm px-3 sm:px-4 py-3 sm:py-2">
                     <ChatEventAddon className="shrink-0">
                       <Avatar className="h-9 w-9 sm:h-8 sm:w-8 rounded-full">
                         <AvatarImage 
@@ -1236,8 +1505,11 @@ export function KinkyChatInterface({
                           <span>Typing...</span>
                         </ChatEventDescription>
                       </div>
-                      <ChatEventContent className="mt-1 sm:mt-0.5 text-foreground">
-                        {currentStreamingMessage}
+                      <ChatEventContent className={cn(
+                        "mt-1 sm:mt-0.5 rounded-lg px-3 py-2 inline-block max-w-[85%] sm:max-w-[75%]",
+                        "bg-card/50 border border-border/50 backdrop-blur-sm text-foreground shadow-sm"
+                      )}>
+                        <MarkdownMessage content={currentStreamingMessage} />
                       </ChatEventContent>
                     </ChatEventBody>
                   </ChatEvent>
@@ -1257,9 +1529,26 @@ export function KinkyChatInterface({
                 onRealtimeToggle={setRealtimeEnabled}
                 profile={profile}
                 hasNotionKey={hasNotionKey}
-                placeholder={`Message ${kinksters.find((k) => k.id === selectedKinksterId)?.name || "Kinkster"}...`}
+                placeholder={`Message ${selectedKinkster?.name || "Kinkster"}...`}
+                agentMode={agentMode}
+                onAgentModeChange={setAgentMode}
               />
-            </Chat>
+              </Chat>
+
+              {/* Settings Panel */}
+              <ComprehensiveAISettingsPanel
+                open={settingsOpen}
+                onOpenChange={setSettingsOpen}
+                profile={profile}
+                agentName={selectedKinkster?.name || "Kinkster"}
+              />
+
+              {/* Help Dialog */}
+              <ChatHelpDialog
+                open={helpOpen}
+                onOpenChange={setHelpOpen}
+              />
+            </>
           )}
         </TabsContent>
       </Tabs>

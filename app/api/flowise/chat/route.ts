@@ -50,12 +50,12 @@ export async function POST(request: NextRequest) {
       // Use provided chatflowId
       finalChatflowId = chatflowId
     } else if (kinksterId) {
-      // Get Kinkster's chatflowId from database
+      // Get Kinkster's chatflowId from database - allow system kinksters or user's own kinksters
       const { data: kinkster } = await supabase
         .from("kinksters")
         .select("id, flowise_chatflow_id, name")
         .eq("id", kinksterId)
-        .eq("user_id", profile.id)
+        .or(`is_system_kinkster.eq.true,user_id.eq.${profile.id}`)
         .single()
 
       if (!kinkster) {

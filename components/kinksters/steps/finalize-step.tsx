@@ -52,6 +52,24 @@ export default function FinalizeStep({
               <span className="font-semibold">Name: </span>
               <span>{creationData.name || "Not set"}</span>
             </div>
+            {creationData.display_name && creationData.display_name !== creationData.name && (
+              <div>
+                <span className="font-semibold">Display Name: </span>
+                <span>{creationData.display_name}</span>
+              </div>
+            )}
+            {creationData.role && (
+              <div>
+                <span className="font-semibold">Role: </span>
+                <Badge>{creationData.role}</Badge>
+              </div>
+            )}
+            {creationData.pronouns && (
+              <div>
+                <span className="font-semibold">Pronouns: </span>
+                <span>{creationData.pronouns}</span>
+              </div>
+            )}
             {creationData.archetype && (
               <div>
                 <span className="font-semibold">Archetype: </span>
@@ -93,15 +111,135 @@ export default function FinalizeStep({
         </Card>
 
         {/* Appearance */}
-        {creationData.appearance_description && (
+        {(creationData.body_type ||
+          creationData.height ||
+          creationData.build ||
+          creationData.hair_color ||
+          creationData.eye_color ||
+          creationData.skin_tone) && (
           <Card>
             <CardHeader>
               <CardTitle>Appearance</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                {creationData.appearance_description}
-              </p>
+            <CardContent className="space-y-2">
+              {creationData.body_type && (
+                <div>
+                  <span className="font-semibold">Body Type: </span>
+                  <span>{creationData.body_type}</span>
+                </div>
+              )}
+              {creationData.height && (
+                <div>
+                  <span className="font-semibold">Height: </span>
+                  <span>{creationData.height}</span>
+                </div>
+              )}
+              {creationData.build && (
+                <div>
+                  <span className="font-semibold">Build: </span>
+                  <span>{creationData.build}</span>
+                </div>
+              )}
+              {creationData.hair_color && (
+                <div>
+                  <span className="font-semibold">Hair: </span>
+                  <span>
+                    {creationData.hair_color}
+                    {creationData.hair_style && `, ${creationData.hair_style}`}
+                  </span>
+                </div>
+              )}
+              {creationData.eye_color && (
+                <div>
+                  <span className="font-semibold">Eyes: </span>
+                  <span>{creationData.eye_color}</span>
+                </div>
+              )}
+              {creationData.skin_tone && (
+                <div>
+                  <span className="font-semibold">Skin Tone: </span>
+                  <span>{creationData.skin_tone}</span>
+                </div>
+              )}
+              {creationData.age_range && (
+                <div>
+                  <span className="font-semibold">Age Range: </span>
+                  <span>{creationData.age_range}</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Style Preferences */}
+        {(creationData.clothing_style?.length ||
+          creationData.favorite_colors?.length ||
+          creationData.fetish_wear?.length ||
+          creationData.aesthetic) && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Style Preferences</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {creationData.clothing_style && creationData.clothing_style.length > 0 && (
+                <div>
+                  <span className="font-semibold">Clothing Style: </span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {creationData.clothing_style.map((style) => (
+                      <Badge key={style} variant="outline">
+                        {style}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {creationData.favorite_colors && creationData.favorite_colors.length > 0 && (
+                <div>
+                  <span className="font-semibold">Favorite Colors: </span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {creationData.favorite_colors.map((color) => (
+                      <Badge key={color} variant="outline">
+                        {color}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {creationData.aesthetic && (
+                <div>
+                  <span className="font-semibold">Aesthetic: </span>
+                  <Badge>{creationData.aesthetic}</Badge>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Provider Configuration */}
+        {creationData.provider && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Chat Provider</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div>
+                <span className="font-semibold">Provider: </span>
+                <Badge>
+                  {creationData.provider === "flowise" ? "Flowise" : "OpenAI Responses"}
+                </Badge>
+              </div>
+              {creationData.provider === "openai_responses" && creationData.openai_model && (
+                <div>
+                  <span className="font-semibold">Model: </span>
+                  <span>{creationData.openai_model}</span>
+                </div>
+              )}
+              {creationData.provider === "flowise" && creationData.flowise_chatflow_id && (
+                <div>
+                  <span className="font-semibold">Chatflow ID: </span>
+                  <span className="font-mono text-sm">{creationData.flowise_chatflow_id}</span>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
@@ -169,8 +307,14 @@ export default function FinalizeStep({
         )}
       </div>
 
-      <div className="flex justify-between">
-        <Button variant="outline" onClick={onBack} disabled={isSubmitting} size="lg">
+      <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-0 pt-4 sm:pt-6 sticky bottom-0 bg-background safe-area-bottom sm:pb-0 sm:relative z-10 border-t sm:border-t-0 -mx-4 sm:mx-0 px-4 sm:px-0">
+        <Button 
+          variant="outline" 
+          onClick={onBack} 
+          disabled={isSubmitting} 
+          size="lg"
+          className="w-full sm:w-auto h-12 sm:h-11 text-base sm:text-sm font-medium touch-manipulation"
+        >
           <ChevronLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
@@ -178,7 +322,7 @@ export default function FinalizeStep({
           onClick={onFinalize}
           disabled={isSubmitting}
           size="lg"
-          className="min-w-32"
+          className="w-full sm:w-auto min-w-[120px] sm:min-w-32 h-12 sm:h-11 text-base sm:text-sm font-medium touch-manipulation"
         >
           {isSubmitting ? (
             <>
