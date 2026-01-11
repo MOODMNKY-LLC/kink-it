@@ -11,6 +11,14 @@ import { Badge } from "@/components/ui/badge"
 import { Loader2, Users, Plus, Search, Shield, Circle, Triskelion, Sparkles, X } from "lucide-react"
 import { toast } from "sonner"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 interface BondSetupStepProps {
   onNext: (data: Record<string, any>) => void
@@ -76,12 +84,14 @@ export default function BondSetupStep({ onNext, onBack, initialData }: BondSetup
 
       console.log(`[BondSetupStep] ✓ Bond created successfully: ${data.bond.id}`)
       toast.success("Bond created successfully")
-      onNext({
-        bond_id: data.bond.id,
-        bond_name: data.bond.name,
-        bond_type: data.bond.bond_type,
-        bond_mode: "create",
-      })
+      
+      // Store bond ID and show seed data prompt
+      // Use setTimeout to ensure dialog renders after state update
+      setCreatedBondId(data.bond.id)
+      setTimeout(() => {
+        setShowSeedDataPrompt(true)
+        console.log(`[BondSetupStep] Seed data prompt dialog should now be visible`)
+      }, 100)
     } catch (error) {
       console.error("Error creating bond:", error)
       toast.error(error instanceof Error ? error.message : "Failed to create bond")
@@ -204,8 +214,15 @@ export default function BondSetupStep({ onNext, onBack, initialData }: BondSetup
       }
 
       const copiedCount = data.data?.copied?.total || 0
-      console.log(`[BondSetupStep] ✓ Successfully copied ${copiedCount} items to bond ${createdBondId}`)
-      toast.success(`Added ${copiedCount} example items to your bond!`)
+      const alreadyExists = data.data?.already_exists || false
+      
+      if (alreadyExists) {
+        console.log(`[BondSetupStep] ✓ Seed data already exists in bond ${createdBondId}`)
+        toast.success("Example data is already in your bond!")
+      } else {
+        console.log(`[BondSetupStep] ✓ Successfully copied ${copiedCount} items to bond ${createdBondId}`)
+        toast.success(`Added ${copiedCount} example items to your bond!`)
+      }
       
       // Proceed to next step
       onNext({
@@ -437,6 +454,76 @@ export default function BondSetupStep({ onNext, onBack, initialData }: BondSetup
           </div>
         </CardContent>
       </Card>
+
+      {/* Seed Data Prompt Dialog */}
+      <Dialog 
+        open={showSeedDataPrompt} 
+        onOpenChange={(open) => {
+          // Prevent closing dialog while copying
+          if (!open && !copyingSeedData) {
+            setShowSeedDataPrompt(false)
+          }
+        }}
+      >
+        <DialogContent 
+          showCloseButton={!copyingSeedData}
+          className="max-h-[90vh] overflow-y-auto sm:max-h-[85vh]"
+        >
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              Add Example Data?
+            </DialogTitle>
+            <DialogDescription>
+              Would you like to add example data to your bond? This will help you understand how KINK IT works with realistic examples.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Example data includes:
+              </p>
+              <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1 ml-2">
+                <li>Example rules and protocols</li>
+                <li>Sample tasks and rewards</li>
+                <li>Boundary examples</li>
+                <li>Journal entries and calendar events</li>
+                <li>Educational resources</li>
+              </ul>
+              <p className="text-xs text-muted-foreground mt-3">
+                All examples are fully editable and can be deleted anytime. You can also add this data later from Bond Settings.
+              </p>
+            </div>
+          </div>
+          <DialogFooter className="gap-2 flex-col sm:flex-row">
+            <Button
+              variant="outline"
+              onClick={() => handleCopySeedData(false)}
+              disabled={copyingSeedData}
+              className="w-full sm:w-auto"
+            >
+              Skip for Now
+            </Button>
+            <Button
+              onClick={() => handleCopySeedData(true)}
+              disabled={copyingSeedData}
+              className="w-full sm:w-auto"
+            >
+              {copyingSeedData ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Adding Examples...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Yes, Add Examples
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
