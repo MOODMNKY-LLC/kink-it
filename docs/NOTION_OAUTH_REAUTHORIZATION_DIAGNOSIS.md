@@ -19,7 +19,7 @@ Users must go through Notion integration installation/authorization **every time
 
 ### Current Flow (Problematic)
 
-```
+\`\`\`
 User clicks "Continue with Notion"
     ↓
 supabase.auth.signInWithOAuth()
@@ -41,7 +41,7 @@ App tries to get refresh_token from session
 Tokens stored WITHOUT refresh_token
     ↓
 When tokens expire → No refresh possible → Re-authorization required
-```
+\`\`\`
 
 ## ✅ Solution Options
 
@@ -98,7 +98,7 @@ When tokens expire → No refresh possible → Re-authorization required
 
 ### Step 1: Check if Tokens Are Being Stored
 
-```sql
+\`\`\`sql
 -- Check if OAuth tokens exist
 SELECT 
   user_id,
@@ -110,11 +110,11 @@ SELECT
 FROM user_notion_oauth_tokens
 ORDER BY created_at DESC
 LIMIT 10;
-```
+\`\`\`
 
 ### Step 2: Check if Refresh Tokens Are Present
 
-```sql
+\`\`\`sql
 -- Check if refresh tokens are stored (they're encrypted, so we can't see values)
 -- But we can check if the column has data
 SELECT 
@@ -129,11 +129,11 @@ SELECT
 FROM user_notion_oauth_tokens
 ORDER BY created_at DESC
 LIMIT 10;
-```
+\`\`\`
 
 ### Step 3: Test Token Refresh
 
-```typescript
+\`\`\`typescript
 // Test if refresh works
 const token = await getNotionAccessToken(userId)
 if (!token) {
@@ -141,20 +141,20 @@ if (!token) {
 } else {
   console.log("Token retrieved successfully")
 }
-```
+\`\`\`
 
 ### Step 4: Check Session Object
 
 Add logging to see what Supabase exposes:
 
-```typescript
+\`\`\`typescript
 console.log("Session structure:", {
   hasProviderToken: !!session.provider_token,
   hasProviderRefreshToken: !!(session as any).provider_refresh_token,
   sessionKeys: Object.keys(session),
   userMetadata: session.user?.app_metadata,
 })
-```
+\`\`\`
 
 ## 🚀 Recommended Fix
 

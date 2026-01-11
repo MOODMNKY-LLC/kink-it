@@ -40,13 +40,13 @@
 ## 📋 Changes Made
 
 ### Before:
-```typescript
+\`\`\`typescript
 // Used environment variable (WRONG!)
 const notionApiKey = process.env.NOTION_API_KEY
-```
+\`\`\`
 
 ### After:
-```typescript
+\`\`\`typescript
 // Uses authenticated user's API key (CORRECT!)
 const { data: apiKeys } = await supabase
   .from("user_notion_api_keys")
@@ -60,7 +60,7 @@ const { data: notionApiKey } = await supabase.rpc("get_user_notion_api_key", {
   p_key_id: apiKeys.id,
   p_encryption_key: encryptionKey,
 })
-```
+\`\`\`
 
 ---
 
@@ -97,5 +97,3 @@ const { data: notionApiKey } = await supabase.rpc("get_user_notion_api_key", {
 - Database type identification improved for emoji handling
 - Better error messages help users understand issues
 - Validation prevents invalid data from being stored
-
-

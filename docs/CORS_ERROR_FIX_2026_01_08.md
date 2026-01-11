@@ -4,13 +4,13 @@
 
 ### 1. CORS Policy Error (Critical)
 **Error Message:**
-```
+\`\`\`
 Access to XMLHttpRequest at 'https://127.0.0.1:55321/functions/v1/chat-stream' 
 from origin 'https://localhost:3000' has been blocked by CORS policy: 
 Response to preflight request doesn't pass access control check: 
 The value of the 'Access-Control-Allow-Origin' header in the response must not 
 be the wildcard '*' when the request's credentials mode is 'include'.
-```
+\`\`\`
 
 **Root Cause:**
 - Edge Function was using `Access-Control-Allow-Origin: *` (wildcard)
@@ -20,10 +20,10 @@ be the wildcard '*' when the request's credentials mode is 'include'.
 
 ### 2. Edge Function Not Running
 **Error Message:**
-```
+\`\`\`
 Cannot connect to Edge Function at https://127.0.0.1:55321/functions/v1/chat-stream.
 ⚠️ The function is not running locally.
-```
+\`\`\`
 
 **Root Cause:**
 - Edge Function needs to be started locally for development
@@ -55,7 +55,7 @@ Cannot connect to Edge Function at https://127.0.0.1:55321/functions/v1/chat-str
    - ✅ All error responses (400, 405, 500)
 
 **Code:**
-```typescript
+\`\`\`typescript
 // Helper function to get CORS headers
 const getCorsHeaders = (): HeadersInit => {
   const origin = req.headers.get("origin") || req.headers.get("referer")?.split("/").slice(0, 3).join("/") || "*"
@@ -78,7 +78,7 @@ const getCorsHeaders = (): HeadersInit => {
     "Access-Control-Allow-Credentials": "true",
   }
 }
-```
+\`\`\`
 
 ---
 
@@ -86,13 +86,13 @@ const getCorsHeaders = (): HeadersInit => {
 
 ### Step 1: Start Edge Function Locally
 
-```bash
+\`\`\`bash
 # Option 1: Using pnpm script
 pnpm functions:serve
 
 # Option 2: Using Supabase CLI directly
 supabase functions serve chat-stream --no-verify-jwt
-```
+\`\`\`
 
 ### Step 2: Verify Fix
 
@@ -131,7 +131,7 @@ In browser DevTools → Network tab:
 ### 2. Edge Function Development Workflow
 
 **Always start Edge Function locally:**
-```bash
+\`\`\`bash
 # Terminal 1: Start Next.js dev server
 pnpm dev
 
@@ -139,7 +139,7 @@ pnpm dev
 pnpm functions:serve
 # OR
 supabase functions serve chat-stream --no-verify-jwt
-```
+\`\`\`
 
 ### 3. Production Considerations
 
@@ -180,9 +180,9 @@ supabase functions serve chat-stream --no-verify-jwt
 ## 📝 Next Steps
 
 1. **Start Edge Function:**
-   ```bash
+   \`\`\`bash
    pnpm functions:serve
-   ```
+   \`\`\`
 
 2. **Test Chat Functionality:**
    - Navigate to `/chat`

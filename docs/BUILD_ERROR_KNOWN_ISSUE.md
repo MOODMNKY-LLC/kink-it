@@ -2,10 +2,10 @@
 
 ## Error
 
-```
+\`\`\`
 Error: <Html> should not be imported outside of pages/_document.
 Error occurred prerendering page "/404".
-```
+\`\`\`
 
 ## Status
 
@@ -43,12 +43,12 @@ The build error doesn't affect production functionality. You can:
 ### Option 2: Skip Static Generation
 
 Add to `next.config.ts`:
-```typescript
+\`\`\`typescript
 const nextConfig: NextConfig = {
   output: 'standalone', // or remove static export
   // ... rest of config
 }
-```
+\`\`\`
 
 ### Option 3: Wait for Next.js Fix
 

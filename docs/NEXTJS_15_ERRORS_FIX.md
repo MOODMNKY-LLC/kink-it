@@ -23,7 +23,7 @@
 - `app/offline/page.tsx` - Added `"use client"` at the top
 
 **Before:**
-```typescript
+\`\`\`typescript
 // Server Component (no "use client")
 export default function NotFound() {
   return (
@@ -32,10 +32,10 @@ export default function NotFound() {
     />
   )
 }
-```
+\`\`\`
 
 **After:**
-```typescript
+\`\`\`typescript
 "use client" // ✅ Now a Client Component
 
 export default function NotFound() {
@@ -45,7 +45,7 @@ export default function NotFound() {
     />
   )
 }
-```
+\`\`\`
 
 ### 2. Fixed searchParams Async Error ✅
 
@@ -57,7 +57,7 @@ export default function NotFound() {
 - `app/onboarding/page.tsx`
 
 **Before:**
-```typescript
+\`\`\`typescript
 export default async function OnboardingPage({
   searchParams,
 }: {
@@ -65,10 +65,10 @@ export default async function OnboardingPage({
 }) {
   const urlStep = searchParams?.step ? parseInt(searchParams.step, 10) : null // ❌ Error: Must await
 }
-```
+\`\`\`
 
 **After:**
-```typescript
+\`\`\`typescript
 export default async function OnboardingPage({
   searchParams,
 }: {
@@ -77,26 +77,26 @@ export default async function OnboardingPage({
   const params = await searchParams // ✅ Await before accessing
   const urlStep = params?.step ? parseInt(params.step, 10) : null
 }
-```
+\`\`\`
 
 ## Next.js 15 Changes
 
 ### searchParams is Now Async
 In Next.js 15, `searchParams` is a Promise that must be awaited:
 
-```typescript
+\`\`\`typescript
 // ❌ Old way (Next.js 14)
 const step = searchParams.step
 
 // ✅ New way (Next.js 15)
 const params = await searchParams
 const step = params.step
-```
+\`\`\`
 
 ### Function Props in Server Components
 Server Components cannot pass functions to Client Components:
 
-```typescript
+\`\`\`typescript
 // ❌ Server Component passing function
 export default function ServerPage() {
   return <ClientComponent onAction={() => {}} />
@@ -112,7 +112,7 @@ export default function ClientPage() {
 export default function ServerPage() {
   return <ClientComponent href="/action" /> // Pass URL instead
 }
-```
+\`\`\`
 
 ## Files Modified
 
@@ -132,6 +132,3 @@ export default function ServerPage() {
 After these fixes, the errors should be resolved:
 - ✅ No more "Event handlers cannot be passed to Client Component props" error
 - ✅ No more "searchParams should be awaited" error
-
-
-

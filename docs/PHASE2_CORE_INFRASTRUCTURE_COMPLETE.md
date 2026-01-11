@@ -82,12 +82,12 @@ Successfully built the core database infrastructure and API routes needed to rep
 - Respects partner/admin access controls
 
 **Response**:
-```json
+\`\`\`json
 {
   "balance": 385,
   "streak": 7
 }
-```
+\`\`\`
 
 ---
 
@@ -102,7 +102,7 @@ Successfully built the core database infrastructure and API routes needed to rep
 - Respects access controls
 
 **Response**:
-```json
+\`\`\`json
 {
   "history": [
     {
@@ -114,7 +114,7 @@ Successfully built the core database infrastructure and API routes needed to rep
     }
   ]
 }
-```
+\`\`\`
 
 ---
 
@@ -131,7 +131,7 @@ Successfully built the core database infrastructure and API routes needed to rep
 - Respects partner/admin access controls
 
 **POST Request Body**:
-```json
+\`\`\`json
 {
   "reward_type": "points",
   "title": "Extended Cuddle Session",
@@ -141,7 +141,7 @@ Successfully built the core database infrastructure and API routes needed to rep
   "love_language": "Physical Touch",
   "assigned_to": "partner-user-id"
 }
-```
+\`\`\`
 
 ---
 
@@ -157,7 +157,7 @@ Successfully built the core database infrastructure and API routes needed to rep
 - Returns updated reward
 
 **Response**:
-```json
+\`\`\`json
 {
   "reward": {
     "id": "...",
@@ -165,7 +165,7 @@ Successfully built the core database infrastructure and API routes needed to rep
     "redeemed_at": "..."
   }
 }
-```
+\`\`\`
 
 ---
 
@@ -225,9 +225,9 @@ Successfully built the core database infrastructure and API routes needed to rep
 **Returns**: `integer` - Sum of all points in ledger
 
 **Usage**:
-```sql
+\`\`\`sql
 SELECT get_points_balance('user-id-here');
-```
+\`\`\`
 
 ---
 
@@ -240,9 +240,9 @@ SELECT get_points_balance('user-id-here');
 **Logic**: Checks up to 30 days back for consecutive completions
 
 **Usage**:
-```sql
+\`\`\`sql
 SELECT get_current_streak('user-id-here');
-```
+\`\`\`
 
 ---
 
@@ -266,9 +266,9 @@ SELECT get_current_streak('user-id-here');
 **Returns**: Table of rewards with status 'available'
 
 **Usage**:
-```sql
+\`\`\`sql
 SELECT * FROM get_available_rewards('user-id-here');
-```
+\`\`\`
 
 ---
 
@@ -279,9 +279,9 @@ SELECT * FROM get_available_rewards('user-id-here');
 **Returns**: `integer` - Count of rewards with status 'completed'
 
 **Usage**:
-```sql
+\`\`\`sql
 SELECT get_completed_rewards_count('user-id-here');
-```
+\`\`\`
 
 ---
 
@@ -397,13 +397,13 @@ SELECT get_completed_rewards_count('user-id-here');
 
 To apply Phase 2 migrations:
 
-```bash
+\`\`\`bash
 # Apply migrations
 supabase migration up
 
 # Or if using Supabase CLI locally
 supabase db reset
-```
+\`\`\`
 
 **Note**: These migrations will:
 - Create `points_ledger` table
@@ -439,7 +439,3 @@ Phase 3 will focus on:
 
 **Phase 2 Status**: ✅ **COMPLETE**  
 **Ready for**: Phase 3 (Component Updates & Cleanup)
-
-
-
-

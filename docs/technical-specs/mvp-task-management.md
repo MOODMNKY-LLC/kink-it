@@ -43,7 +43,7 @@ Task Management is the core "Protocol Engine" of KINK IT, enabling Dominants to 
 
 ### Tasks Table
 
-```sql
+\`\`\`sql
 CREATE TABLE public.tasks (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   workspace_id uuid NOT NULL, -- For future multi-partner support
@@ -73,11 +73,11 @@ CREATE INDEX idx_tasks_assigned_by ON public.tasks(assigned_by);
 CREATE INDEX idx_tasks_status ON public.tasks(status);
 CREATE INDEX idx_tasks_due_date ON public.tasks(due_date);
 CREATE INDEX idx_tasks_workspace_id ON public.tasks(workspace_id);
-```
+\`\`\`
 
 ### Task Proof Table
 
-```sql
+\`\`\`sql
 CREATE TABLE public.task_proof (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   task_id uuid NOT NULL REFERENCES public.tasks(id) ON DELETE CASCADE,
@@ -89,11 +89,11 @@ CREATE TABLE public.task_proof (
 );
 
 CREATE INDEX idx_task_proof_task_id ON public.task_proof(task_id);
-```
+\`\`\`
 
 ### Task Templates Table
 
-```sql
+\`\`\`sql
 CREATE TABLE public.task_templates (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   workspace_id uuid NOT NULL,
@@ -108,11 +108,11 @@ CREATE TABLE public.task_templates (
 );
 
 CREATE INDEX idx_task_templates_workspace_id ON public.task_templates(workspace_id);
-```
+\`\`\`
 
 ### RLS Policies
 
-```sql
+\`\`\`sql
 -- Enable RLS
 ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.task_proof ENABLE ROW LEVEL SECURITY;
@@ -166,7 +166,7 @@ WITH CHECK (
     AND tasks.assigned_to = auth.uid()
   )
 );
-```
+\`\`\`
 
 ---
 
@@ -177,7 +177,7 @@ WITH CHECK (
 **Endpoint**: `POST /api/tasks`
 
 **Request** (Dominant only):
-```typescript
+\`\`\`typescript
 {
   title: string
   description?: string
@@ -190,7 +190,7 @@ WITH CHECK (
   template_id?: string
   rule_id?: string
 }
-```
+\`\`\`
 
 **Validation**:
 - User must be authenticated and have dynamic_role = 'dominant'
@@ -203,7 +203,7 @@ WITH CHECK (
 **Endpoint**: `PATCH /api/tasks/[id]`
 
 **Request**:
-```typescript
+\`\`\`typescript
 {
   status?: 'in_progress' | 'completed' | 'cancelled'
   completion_notes?: string
@@ -215,7 +215,7 @@ WITH CHECK (
   extension_requested?: boolean
   extension_reason?: string
 }
-```
+\`\`\`
 
 **Authorization**:
 - Submissive can update: status to 'in_progress' or 'completed', add proof
@@ -292,7 +292,7 @@ WITH CHECK (
 
 ### Submission State Enforcement
 
-```typescript
+\`\`\`typescript
 // Before creating/assigning task
 const { data: submissiveProfile } = await supabase
   .from("profiles")
@@ -311,11 +311,11 @@ if (submissiveProfile?.submission_state === 'low_energy') {
   // Show warning to Dominant but allow
   // Suggest fewer tasks or simpler tasks
 }
-```
+\`\`\`
 
 ### Task Filtering by State
 
-```typescript
+\`\`\`typescript
 // When submissive views tasks
 const { data: profile } = await supabase
   .from("profiles")
@@ -335,7 +335,7 @@ if (profile?.submission_state === 'paused') {
   // Show all but prioritize simpler tasks
   query = query.order("priority", { ascending: false })
 }
-```
+\`\`\`
 
 ---
 
@@ -408,8 +408,3 @@ if (profile?.submission_state === 'paused') {
 **Last Updated**: 2026-01-05  
 **Author**: Development Team  
 **Status**: Ready for Implementation
-
-
-
-
-

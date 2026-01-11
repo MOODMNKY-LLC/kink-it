@@ -113,8 +113,3 @@ export function CharacterBackground({
       return null
   }
 }
-
-
-
-
-

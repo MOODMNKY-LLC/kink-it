@@ -75,4 +75,3 @@ VAPID_PRIVATE_KEY=${vapidKeys.privateKey}
   console.error('   npm install web-push --save-dev')
   process.exit(1)
 }
-

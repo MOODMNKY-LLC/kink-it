@@ -78,9 +78,9 @@ The **Notion Wrapper** is a Foreign Data Wrapper that allows you to read data fr
 
 ### How It Works
 
-```
+\`\`\`
 Postgres Query → Notion FDW → Notion API → Returns Data as SQL Results
-```
+\`\`\`
 
 ### Setup Process
 
@@ -91,7 +91,7 @@ Postgres Query → Notion FDW → Notion API → Returns Data as SQL Results
    - Grant permissions to specific databases
 
 2. **Create Foreign Tables**:
-   ```sql
+   \`\`\`sql
    -- Example: Create foreign table for a Notion database
    CREATE FOREIGN TABLE notion_tasks (
      id TEXT,
@@ -103,15 +103,15 @@ Postgres Query → Notion FDW → Notion API → Returns Data as SQL Results
    OPTIONS (
      database_id 'your-notion-database-id'
    );
-   ```
+   \`\`\`
 
 3. **Query Like Normal Tables**:
-   ```sql
+   \`\`\`sql
    -- Query Notion data using SQL
    SELECT * FROM notion_tasks 
    WHERE status = 'In Progress'
    ORDER BY created_time DESC;
-   ```
+   \`\`\`
 
 ---
 
@@ -201,7 +201,7 @@ We can use **both approaches** for different use cases:
 
 #### Use Notion FDW For:
 1. **Analytics & Reporting**:
-   ```sql
+   \`\`\`sql
    -- Join Notion tasks with app data
    SELECT 
      nt.title,
@@ -211,7 +211,7 @@ We can use **both approaches** for different use cases:
    FROM notion_tasks nt
    JOIN profiles u ON nt.assigned_to = u.notion_user_id
    GROUP BY nt.title, nt.status, u.email;
-   ```
+   \`\`\`
 
 2. **Complex Queries**:
    - Cross-database queries
@@ -249,13 +249,13 @@ We can use **both approaches** for different use cases:
 ### Phase 1: Setup & Configuration
 
 1. **Enable Notion Integration**:
-   ```bash
+   \`\`\`bash
    # Via Supabase Dashboard
    # Database → Integrations → Notion → Enable
-   ```
+   \`\`\`
 
 2. **Create Foreign Tables**:
-   ```sql
+   \`\`\`sql
    -- Migration: Create foreign tables for common Notion databases
    CREATE FOREIGN TABLE notion_tasks (
      id TEXT,
@@ -280,11 +280,11 @@ We can use **both approaches** for different use cases:
    OPTIONS (
      database_id 'ideas-database-id'
    );
-   ```
+   \`\`\`
 
 ### Phase 2: Create Helper Functions
 
-```sql
+\`\`\`sql
 -- Function to get user's tasks from Notion
 CREATE OR REPLACE FUNCTION get_notion_tasks_for_user(user_id UUID)
 RETURNS TABLE (
@@ -307,11 +307,11 @@ BEGIN
   ORDER BY nt.due_date ASC;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
-```
+\`\`\`
 
 ### Phase 3: Create Views for Common Queries
 
-```sql
+\`\`\`sql
 -- View: User's active tasks from Notion
 CREATE VIEW user_notion_tasks AS
 SELECT 
@@ -339,12 +339,12 @@ FROM notion_tasks nt
 JOIN profiles p ON nt.assigned_to = p.notion_user_id
 LEFT JOIN image_generations ig ON ig.notion_page_id = nt.id
 GROUP BY nt.id, nt.title, nt.status, p.id, p.dynamic_role;
-```
+\`\`\`
 
 ### Phase 4: Integration Points
 
 1. **API Routes** (Read Operations):
-   ```typescript
+   \`\`\`typescript
    // app/api/notion/tasks/route.ts
    export async function GET(request: Request) {
      const { data, error } = await supabase
@@ -352,19 +352,19 @@ GROUP BY nt.id, nt.title, nt.status, p.id, p.dynamic_role;
      
      return Response.json(data)
    }
-   ```
+   \`\`\`
 
 2. **Dashboard Components**:
-   ```typescript
+   \`\`\`typescript
    // Use SQL queries for analytics
    const { data: tasks } = await supabase
      .from('user_notion_tasks')
      .select('*')
      .eq('user_id', userId)
-   ```
+   \`\`\`
 
 3. **Keep Custom Integration for Writes**:
-   ```typescript
+   \`\`\`typescript
    // Still use API for creating/updating
    await fetch('/api/notion/chat-tools', {
      method: 'POST',
@@ -373,7 +373,7 @@ GROUP BY nt.id, nt.title, nt.status, p.id, p.dynamic_role;
        // ...
      })
    })
-   ```
+   \`\`\`
 
 ---
 
@@ -503,5 +503,3 @@ GROUP BY nt.id, nt.title, nt.status, p.id, p.dynamic_role;
 **Report Generated**: 2025-02-01  
 **Next Review**: After FDW implementation  
 **Status**: Ready for Implementation
-
-

@@ -34,4 +34,18 @@ export interface Profile {
   banner_text?: string | null
   tagline?: string | null
   widget_image_url?: string | null
+  notion_parent_page_id?: string | null
+  notion_kinksters_database_id?: string | null
+  notion_workspace_id?: string | null
+  notion_access_token?: string | null
+  notion_token_expires_at?: string | null
+  notion_connected_at?: string | null
+}
+
+export interface ProfileNotionConfig {
+  notion_parent_page_id?: string | null
+  notion_kinksters_database_id?: string | null
+  notion_workspace_id?: string | null
+  notion_connected: boolean
+  notion_connected_at?: string | null
 }

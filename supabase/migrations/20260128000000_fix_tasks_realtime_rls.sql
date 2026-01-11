@@ -41,4 +41,3 @@ CREATE INDEX IF NOT EXISTS idx_tasks_assigned_to
 CREATE INDEX IF NOT EXISTS idx_tasks_assigned_by 
   ON public.tasks(assigned_by) 
   WHERE assigned_by IS NOT NULL;
-

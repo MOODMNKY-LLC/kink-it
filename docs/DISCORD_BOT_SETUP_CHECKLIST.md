@@ -78,17 +78,17 @@ Use this checklist to ensure you've completed all steps:
 ## Permission Integer Reference
 
 ### Minimum Permissions (Required)
-```
+\`\`\`
 Send Messages + View Channels + Read Message History
 = 3072 (decimal) or 0xC00 (hex)
-```
+\`\`\`
 
 ### Recommended Permissions (Full Functionality)
-```
+\`\`\`
 Send Messages + View Channels + Read Message History + 
 Manage Webhooks + Embed Links + Attach Files
 = 2147485696 (decimal) or 0x80000C00 (hex)
-```
+\`\`\`
 
 ---
 
@@ -128,7 +128,3 @@ Before proceeding, ensure you have:
 ---
 
 **Status**: ⏳ In Progress | ✅ Complete | ❌ Not Started
-
-
-
-

@@ -17,7 +17,7 @@
 
 **File**: `components/chat/enhanced-ai-chat-interface.tsx`
 
-```typescript
+\`\`\`typescript
 const handleAgentModeChange = useCallback((enabled: boolean) => {
   // Guard: Only update if value actually changed
   setConfig((prev) => {
@@ -37,13 +37,13 @@ const handleRealtimeModeChange = useCallback((enabled: boolean) => {
     return enabled
   })
 }, [])
-```
+\`\`\`
 
 ### 2. Added Guards in Switch Handlers
 
 **File**: `components/chat/enhanced-chat-input.tsx`
 
-```typescript
+\`\`\`typescript
 <Switch
   id="agent-mode"
   checked={agentMode}
@@ -55,13 +55,13 @@ const handleRealtimeModeChange = useCallback((enabled: boolean) => {
   }}
   disabled={disabled || isStreaming}
 />
-```
+\`\`\`
 
 ### 3. Enhanced Realtime Subscription Handling
 
 **File**: `hooks/use-chat-stream.ts`
 
-```typescript
+\`\`\`typescript
 .subscribe(async (status) => {
   if (status === "SUBSCRIBED") {
     console.log("✅ Realtime subscription active for conversation:", conversationId)
@@ -75,13 +75,13 @@ const handleRealtimeModeChange = useCallback((enabled: boolean) => {
     console.log("🔌 Realtime channel closed")
   }
 })
-```
+\`\`\`
 
 ### 4. Memoized Computed Values
 
 **File**: `components/chat/enhanced-chat-input.tsx`
 
-```typescript
+\`\`\`typescript
 // Memoize availableTools to prevent recreation on every render
 const availableTools = useMemo(
   () => getAvailableTools(profile, hasNotionKey),
@@ -94,7 +94,7 @@ const enabledToolsCount = useMemo(() => {
     return tool && (tool.requiresNotionKey ? hasNotionKey : true)
   }).length
 }, [selectedTools, availableTools, hasNotionKey])
-```
+\`\`\`
 
 ## How the Guards Work
 
@@ -124,4 +124,3 @@ To prevent similar issues in the future:
 - Use `useMemo` for computed values that are used as props
 - Check if values have changed before updating state
 - Ensure Realtime operations happen after subscription completes
-

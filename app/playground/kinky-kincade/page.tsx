@@ -10,6 +10,3 @@ export default async function KinkyKincadePlaygroundPage() {
     </div>
   )
 }
-
-
-

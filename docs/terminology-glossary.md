@@ -243,6 +243,3 @@
 - [Kink Identity Guide](./user-guides/kink-identity-guide.md)
 - [Safety and Consent Guide](./user-guides/safety-and-consent.md)
 - [Bonds System Guide](./user-guides/bonds-system-guide.md)
-
-
-

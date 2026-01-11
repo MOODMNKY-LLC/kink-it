@@ -182,6 +182,3 @@ export function StyleSelector({ onSelectStyle, selectedStyleId, className, compa
     </Card>
   )
 }
-
-
-

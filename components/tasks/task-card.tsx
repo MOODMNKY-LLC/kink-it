@@ -411,4 +411,3 @@ export function TaskCard({ task, userRole, onAction, bondId, onReassign }: TaskC
     </MagicCard>
   )
 }
-

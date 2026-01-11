@@ -24,7 +24,7 @@ Your use case is **perfect** for the Notion FDW! You're frequently joining Supab
 
 ### Current Approach (Slow)
 
-```typescript
+\`\`\`typescript
 // 1. Query Supabase
 const images = await supabase
   .from('image_generations')
@@ -44,7 +44,7 @@ const results = images.filter(img =>
   img.prompt.includes(searchTerm) || 
   notionData[img.id]?.title.includes(searchTerm)
 )
-```
+\`\`\`
 
 **Problems**:
 - ❌ Multiple API calls (N+1 queries)
@@ -54,7 +54,7 @@ const results = images.filter(img =>
 
 ### FDW Approach (Fast)
 
-```sql
+\`\`\`sql
 -- Single query joining both sources!
 SELECT 
   ig.id,
@@ -79,7 +79,7 @@ WHERE ig.user_id = $1
   )
 ORDER BY relevance DESC, ig.created_at DESC
 LIMIT 50;
-```
+\`\`\`
 
 **Benefits**:
 - ✅ Single query (no N+1)
@@ -100,23 +100,23 @@ LIMIT 50;
 
 **Step 1: Enable Wrappers Extension**
 
-```sql
+\`\`\`sql
 -- Already installed, but verify
 CREATE EXTENSION IF NOT EXISTS wrappers WITH SCHEMA extensions;
-```
+\`\`\`
 
 **Step 2: Create Foreign Data Wrapper**
 
-```sql
+\`\`\`sql
 -- Enable Wasm wrapper
 CREATE FOREIGN DATA WRAPPER IF NOT EXISTS wasm_wrapper
 HANDLER extensions.wasm_fdw_handler
 VALIDATOR extensions.wasm_fdw_validator;
-```
+\`\`\`
 
 **Step 3: Store API Key in Vault (Secure)**
 
-```sql
+\`\`\`sql
 -- Store service account Notion API key in Vault
 INSERT INTO vault.secrets (name, secret)
 VALUES (
@@ -125,11 +125,11 @@ VALUES (
 )
 RETURNING id;
 -- Note the returned ID for next step
-```
+\`\`\`
 
 **Step 4: Create Foreign Server**
 
-```sql
+\`\`\`sql
 -- Create foreign server using Vault key
 CREATE SERVER notion_server
 FOREIGN DATA WRAPPER wasm_wrapper
@@ -140,7 +140,7 @@ OPTIONS (
   fdw_package_checksum '6dea3014f462aafd0c051c37d163fe326e7650c26a7eb5d8017a30634b5a46de',
   api_key_id '<vault_key_id_from_step_3>'
 );
-```
+\`\`\`
 
 ---
 
@@ -148,7 +148,7 @@ OPTIONS (
 
 ### Image Generations Foreign Table
 
-```sql
+\`\`\`sql
 -- Create schema for foreign tables (private, not exposed via API)
 CREATE SCHEMA IF NOT EXISTS notion_fdw;
 
@@ -171,11 +171,11 @@ OPTIONS (
   object 'database', -- Notion object type
   database_id 'your-image-generations-database-id'
 );
-```
+\`\`\`
 
 ### KINKSTER Profiles Foreign Table
 
-```sql
+\`\`\`sql
 CREATE FOREIGN TABLE notion_fdw.kinkster_profiles (
   id TEXT,
   name TEXT,
@@ -193,7 +193,7 @@ OPTIONS (
   object 'database',
   database_id 'your-kinkster-profiles-database-id'
 );
-```
+\`\`\`
 
 ---
 
@@ -201,7 +201,7 @@ OPTIONS (
 
 ### Image Generations View (User-Filtered)
 
-```sql
+\`\`\`sql
 -- Create view that joins Supabase + Notion with user filtering
 CREATE OR REPLACE VIEW public.image_generations_with_notion AS
 SELECT 
@@ -226,11 +226,11 @@ WHERE ig.user_id = auth.uid(); -- RLS: users only see their own data
 
 -- Enable RLS on view (inherits from base table)
 ALTER VIEW public.image_generations_with_notion SET (security_invoker = true);
-```
+\`\`\`
 
 ### KINKSTER Profiles View
 
-```sql
+\`\`\`sql
 CREATE OR REPLACE VIEW public.kinkster_profiles_with_notion AS
 SELECT 
   k.id,
@@ -252,7 +252,7 @@ LEFT JOIN notion_fdw.kinkster_profiles nkp ON k.notion_page_id = nkp.id
 WHERE k.user_id = auth.uid();
 
 ALTER VIEW public.kinkster_profiles_with_notion SET (security_invoker = true);
-```
+\`\`\`
 
 ---
 
@@ -260,7 +260,7 @@ ALTER VIEW public.kinkster_profiles_with_notion SET (security_invoker = true);
 
 ### Unified Image Search Function
 
-```sql
+\`\`\`sql
 CREATE OR REPLACE FUNCTION public.search_image_generations(
   search_query TEXT,
   user_filter UUID DEFAULT auth.uid(),
@@ -307,11 +307,11 @@ $$;
 
 -- Grant execute to authenticated users
 GRANT EXECUTE ON FUNCTION public.search_image_generations TO authenticated;
-```
+\`\`\`
 
 ### KINKSTER Profile Search Function
 
-```sql
+\`\`\`sql
 CREATE OR REPLACE FUNCTION public.search_kinkster_profiles(
   search_query TEXT,
   user_filter UUID DEFAULT auth.uid(),
@@ -355,7 +355,7 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.search_kinkster_profiles TO authenticated;
-```
+\`\`\`
 
 ---
 
@@ -363,7 +363,7 @@ GRANT EXECUTE ON FUNCTION public.search_kinkster_profiles TO authenticated;
 
 ### Image Gallery Search Endpoint
 
-```typescript
+\`\`\`typescript
 // app/api/gallery/search/route.ts
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
@@ -403,11 +403,11 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({ data })
 }
-```
+\`\`\`
 
 ### KINKSTER Browse Endpoint
 
-```typescript
+\`\`\`typescript
 // app/api/kinksters/browse/route.ts
 export async function GET(request: NextRequest) {
   const supabase = createClient()
@@ -434,7 +434,7 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({ data })
 }
-```
+\`\`\`
 
 ---
 
@@ -442,7 +442,7 @@ export async function GET(request: NextRequest) {
 
 ### Create Indexes on Supabase Tables
 
-```sql
+\`\`\`sql
 -- Index for fast user filtering
 CREATE INDEX IF NOT EXISTS idx_image_generations_user_created 
 ON image_generations(user_id, created_at DESC);
@@ -453,11 +453,11 @@ ON kinksters(user_id, created_at DESC);
 -- GIN index for full-text search (if storing search_vector)
 CREATE INDEX IF NOT EXISTS idx_image_generations_search_vector 
 ON image_generations USING GIN(search_vector);
-```
+\`\`\`
 
 ### Materialized View for Frequently Accessed Data
 
-```sql
+\`\`\`sql
 -- Cache frequently accessed joined data
 CREATE MATERIALIZED VIEW public.image_generations_notion_cache AS
 SELECT 
@@ -474,7 +474,7 @@ SELECT cron.schedule(
   '*/5 * * * *', -- Every 5 minutes
   'REFRESH MATERIALIZED VIEW CONCURRENTLY public.image_generations_notion_cache;'
 );
-```
+\`\`\`
 
 ---
 
@@ -482,7 +482,7 @@ SELECT cron.schedule(
 
 ### Robust Search Function with Fallback
 
-```sql
+\`\`\`sql
 CREATE OR REPLACE FUNCTION public.search_image_generations_safe(
   search_query TEXT,
   user_filter UUID DEFAULT auth.uid(),
@@ -538,7 +538,7 @@ BEGIN
   LIMIT limit_count;
 END;
 $$;
-```
+\`\`\`
 
 ---
 
@@ -547,17 +547,17 @@ $$;
 ### Use Case 1: Image Gallery Search
 
 **Before (Slow)**:
-```typescript
+\`\`\`typescript
 // Multiple API calls
 const images = await supabase.from('image_generations').select('*')
 for (const img of images) {
   const notion = await notionClient.pages.retrieve({ page_id: img.notion_page_id })
   // Join manually...
 }
-```
+\`\`\`
 
 **After (Fast)**:
-```typescript
+\`\`\`typescript
 // Single SQL query
 const { data } = await supabase
   .rpc('search_image_generations', {
@@ -566,29 +566,29 @@ const { data } = await supabase
     limit_count: 50
   })
 // Results include both Supabase and Notion data!
-```
+\`\`\`
 
 ### Use Case 2: KINKSTER Profile Browse
 
 **Before**:
-```typescript
+\`\`\`typescript
 const kinksters = await supabase.from('kinksters').select('*')
 // Then fetch Notion details separately...
-```
+\`\`\`
 
 **After**:
-```typescript
+\`\`\`typescript
 const { data } = await supabase
   .rpc('search_kinkster_profiles', {
     search_query: 'dominant',
     user_filter: userId
   })
 // Full data from both sources!
-```
+\`\`\`
 
 ### Use Case 3: Cross-Platform Analytics
 
-```sql
+\`\`\`sql
 -- Analytics query joining Supabase usage with Notion content
 SELECT 
   DATE_TRUNC('day', ig.created_at) as date,
@@ -600,7 +600,7 @@ LEFT JOIN notion_fdw.image_generations nig ON ig.notion_page_id = nig.id
 WHERE ig.created_at > NOW() - INTERVAL '30 days'
 GROUP BY DATE_TRUNC('day', ig.created_at)
 ORDER BY date DESC;
-```
+\`\`\`
 
 ---
 
@@ -608,32 +608,32 @@ ORDER BY date DESC;
 
 ### 1. RLS on Views
 
-```sql
+\`\`\`sql
 -- Ensure views respect RLS
 ALTER VIEW public.image_generations_with_notion SET (security_invoker = true);
-```
+\`\`\`
 
 ### 2. User Filtering in Functions
 
-```sql
+\`\`\`sql
 -- Always filter by user_id
 WHERE ig.user_id = auth.uid() -- or passed parameter
-```
+\`\`\`
 
 ### 3. Private Schema for Foreign Tables
 
-```sql
+\`\`\`sql
 -- Keep foreign tables in private schema
 CREATE SCHEMA notion_fdw; -- Not exposed via API
-```
+\`\`\`
 
 ### 4. Grant Permissions Carefully
 
-```sql
+\`\`\`sql
 -- Only grant execute on functions, not direct access to foreign tables
 GRANT EXECUTE ON FUNCTION public.search_image_generations TO authenticated;
 -- Do NOT grant SELECT on notion_fdw.*
-```
+\`\`\`
 
 ---
 
@@ -738,5 +738,3 @@ The Notion FDW is **perfect** for your use case! It will enable:
 **Status**: Ready for Implementation  
 **Priority**: High (Significant performance gains)  
 **Estimated Effort**: 2-3 weeks for full implementation
-
-

@@ -218,5 +218,3 @@ export function UnifiedWelcome({
     </div>
   )
 }
-
-

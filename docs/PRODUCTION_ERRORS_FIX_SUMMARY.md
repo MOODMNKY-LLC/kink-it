@@ -25,10 +25,10 @@
 ### 2. ✅ Realtime Channel Authorization Errors
 
 **Errors:**
-```
+\`\`\`
 Unauthorized: You do not have permissions to read from this Channel topic: user:83227e77-e805-4031-ad9e-c5798745ca48:notifications
 Unauthorized: You do not have permissions to read from this Channel topic: user:83227e77-e805-4031-ad9e-c5798745ca48:presence
-```
+\`\`\`
 
 **Root Cause:**
 - Missing RLS policy for `user:%:presence` channels
@@ -50,7 +50,7 @@ Unauthorized: You do not have permissions to read from this Channel topic: user:
 ### Key Changes:
 
 1. **Realtime Presence Policies:**
-   ```sql
+   \`\`\`sql
    -- Users can read from their own presence channel
    CREATE POLICY "Users can read their own presence channel"
      ON realtime.messages FOR SELECT
@@ -60,25 +60,25 @@ Unauthorized: You do not have permissions to read from this Channel topic: user:
    CREATE POLICY "Users can write to their own presence channel"
      ON realtime.messages FOR INSERT
      WITH CHECK (topic LIKE 'user:%:presence' AND SPLIT_PART(topic, ':', 2)::uuid = auth.uid());
-   ```
+   \`\`\`
 
 2. **Realtime Notifications Write Policy:**
-   ```sql
+   \`\`\`sql
    -- Users can write to their own notification channel
    CREATE POLICY "Users can write to their own notification channel"
      ON realtime.messages FOR INSERT
      WITH CHECK (topic LIKE 'user:%:notifications' AND SPLIT_PART(topic, ':', 2)::uuid = auth.uid());
-   ```
+   \`\`\`
 
 3. **Fixed Encryption Functions:**
-   ```sql
+   \`\`\`sql
    -- Updated store_user_notion_api_key to use extensions schema
    CREATE OR REPLACE FUNCTION public.store_user_notion_api_key(...)
    SET search_path = public, extensions
    AS $$
      v_encrypted_key := extensions.pgp_sym_encrypt(p_api_key, p_encryption_key);
    $$;
-   ```
+   \`\`\`
 
 ## Application Instructions
 
@@ -91,10 +91,10 @@ Unauthorized: You do not have permissions to read from this Channel topic: user:
 4. Click "Apply Migration"
 
 **Option 2: Via Supabase CLI**
-```bash
+\`\`\`bash
 # From project root
 supabase db push
-```
+\`\`\`
 
 **Option 3: Via Supabase MCP**
 - Use `mcp_supabase_apply_migration` tool with:
@@ -104,14 +104,14 @@ supabase db push
 ### For Local Development:
 
 The migration will be applied automatically when you run:
-```bash
+\`\`\`bash
 supabase db reset --local
-```
+\`\`\`
 
 Or manually:
-```bash
+\`\`\`bash
 supabase migration up
-```
+\`\`\`
 
 ## Verification Steps
 
@@ -135,7 +135,7 @@ supabase migration up
 
 ### 3. Check Migration Status
 
-```sql
+\`\`\`sql
 -- Check if migration was applied
 SELECT * FROM supabase_migrations.schema_migrations 
 WHERE name LIKE '%fix_realtime_presence_and_notion_storage%';
@@ -150,7 +150,7 @@ AND policyname LIKE '%presence%' OR policyname LIKE '%notification%';
 SELECT routine_name, routine_schema 
 FROM information_schema.routines 
 WHERE routine_name IN ('store_user_notion_api_key', 'encrypt_notion_api_key', 'decrypt_notion_api_key');
-```
+\`\`\`
 
 ## Expected Behavior After Fix
 
@@ -201,4 +201,3 @@ This will help identify future issues more quickly.
 - Safe to run multiple times
 - No data loss - only adds policies and updates functions
 - Backward compatible - doesn't break existing functionality
-

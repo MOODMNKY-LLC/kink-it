@@ -215,4 +215,3 @@ export function getNavigationConfig(isAdmin: boolean): NavigationGroup[] {
   // Regular users only see user navigation
   return userNavigation
 }
-

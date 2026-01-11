@@ -11,23 +11,23 @@
 Updated `supabase/config.toml`:
 
 **Before:**
-```toml
+\`\`\`toml
 additional_redirect_urls = [
   "https://127.0.0.1:3000",
   "https://localhost:3000",
   "http://127.0.0.1:3000"
 ]
-```
+\`\`\`
 
 **After:**
-```toml
+\`\`\`toml
 additional_redirect_urls = [
   "https://127.0.0.1:3000/auth/callback",
   "https://localhost:3000/auth/callback",
   "http://127.0.0.1:3000/auth/callback",
   "http://localhost:3000/auth/callback"
 ]
-```
+\`\`\`
 
 ## 🔄 OAuth Flow
 
@@ -55,9 +55,9 @@ additional_redirect_urls = [
 
 **CRITICAL**: Make sure your Notion OAuth app has this redirect URI configured:
 
-```
+\`\`\`
 https://127.0.0.1:55321/auth/v1/callback
-```
+\`\`\`
 
 **To configure:**
 1. Go to https://www.notion.so/my-integrations
@@ -70,17 +70,17 @@ https://127.0.0.1:55321/auth/v1/callback
 
 After updating `config.toml`, restart Supabase:
 
-```bash
+\`\`\`bash
 supabase stop
 supabase start
-```
+\`\`\`
 
 ## ✅ Verification Steps
 
 1. **Check Supabase is running with HTTPS:**
-   ```bash
+   \`\`\`bash
    supabase status
-   ```
+   \`\`\`
    Should show: `API URL: https://127.0.0.1:55321`
 
 2. **Verify Notion OAuth app has correct redirect URI:**
@@ -103,17 +103,17 @@ supabase start
    - Must use `127.0.0.1` (not `localhost`)
 
 2. **Check Supabase TLS is enabled:**
-   ```bash
+   \`\`\`bash
    # In supabase/config.toml, verify:
    [api.tls]
    enabled = true
-   ```
+   \`\`\`
 
 3. **Restart Supabase:**
-   ```bash
+   \`\`\`bash
    supabase stop
    supabase start
-   ```
+   \`\`\`
 
 4. **Check browser console:**
    - Look for any CORS or certificate errors
@@ -129,9 +129,3 @@ supabase start
 
 **Status**: ✅ Config Updated  
 **Next**: Restart Supabase and verify Notion OAuth app settings
-
-
-
-
-
-

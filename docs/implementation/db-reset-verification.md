@@ -74,7 +74,7 @@ All migrations have been successfully applied to the local database:
 
 ## Verification Commands
 
-```bash
+\`\`\`bash
 # Check migration status
 supabase migration list
 
@@ -83,13 +83,8 @@ supabase status
 
 # View database in Studio
 # Open: http://127.0.0.1:55323
-```
+\`\`\`
 
 ---
 
 **Status**: ✅ Local database is ready for development and testing
-
-
-
-
-

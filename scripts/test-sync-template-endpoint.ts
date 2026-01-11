@@ -164,5 +164,3 @@ async function testSyncTemplate(userId?: string, notionApiKey?: string) {
 const userId = process.argv[2]
 const notionApiKey = process.argv[3]
 testSyncTemplate(userId, notionApiKey).catch(console.error)
-
-

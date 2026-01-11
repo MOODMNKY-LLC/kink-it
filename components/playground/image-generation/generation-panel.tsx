@@ -319,4 +319,3 @@ export function GenerationPanel() {
     </div>
   )
 }
-

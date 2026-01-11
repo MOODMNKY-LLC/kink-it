@@ -148,4 +148,3 @@ export function PropsBadges({ props, onRemoveProp, className }: PropsBadgesProps
     </div>
   )
 }
-

@@ -8,9 +8,9 @@ This configuration exposes the Docker daemon on `tcp://localhost:2375` **without
 
 Supabase Analytics requires access to the Docker daemon socket on Windows. You're seeing this warning:
 
-```
+\`\`\`
 WARNING: Analytics on Windows requires Docker daemon exposed on tcp://localhost:2375.
-```
+\`\`\`
 
 ## Solution: Configure Docker Desktop for Windows
 
@@ -37,24 +37,24 @@ Copy the complete configuration from [`DOCKER_ENGINE_CONFIG.json`](./DOCKER_ENGI
 
 If you only want to add the TCP socket, find the `hosts` array in your JSON configuration and change it from:
 
-```json
+\`\`\`json
 {
   "hosts": [
     "npipe://"
   ]
 }
-```
+\`\`\`
 
 To:
 
-```json
+\`\`\`json
 {
   "hosts": [
     "npipe://",
     "tcp://localhost:2375"
   ]
 }
-```
+\`\`\`
 
 **Important Notes:**
 - Keep `"npipe://"` in the array (needed for Docker Desktop UI)
@@ -73,10 +73,10 @@ To:
 
 After Docker restarts, verify the daemon is accessible:
 
-```powershell
+\`\`\`powershell
 # Test Docker daemon connection
 docker -H tcp://localhost:2375 ps
-```
+\`\`\`
 
 If this command works without errors, the configuration is successful.
 
@@ -84,31 +84,31 @@ If this command works without errors, the configuration is successful.
 
 Now restart your Supabase local development stack:
 
-```powershell
+\`\`\`powershell
 # Stop Supabase
 supabase stop
 
 # Start Supabase (warning should be gone)
 supabase start
-```
+\`\`\`
 
 ## Alternative: Disable Analytics (If Not Needed)
 
 If you don't need Analytics functionality, you can disable it in `supabase/config.toml`:
 
-```toml
+\`\`\`toml
 [analytics]
 enabled = false
 port = 55327
 backend = "postgres"
-```
+\`\`\`
 
 Then restart Supabase:
 
-```powershell
+\`\`\`powershell
 supabase stop
 supabase start
-```
+\`\`\`
 
 ## Security Considerations
 
@@ -135,13 +135,13 @@ If you ever need remote Docker access, use:
 
 If port 2375 is already in use:
 
-```powershell
+\`\`\`powershell
 # Check what's using port 2375
 netstat -ano | findstr :2375
 
 # Or use a different port (e.g., 2376)
 # Update config to: "tcp://localhost:2376"
-```
+\`\`\`
 
 ### Docker Desktop Won't Start
 
@@ -187,31 +187,31 @@ If using JSON configuration, ensure:
 
 1. Open Docker Desktop → Settings → Docker Engine
 2. Look for any TLS-related settings like:
-   ```json
+   \`\`\`json
    "tls": true,
    "tlsverify": true
-   ```
+   \`\`\`
 3. Remove these if present (they force HTTPS)
 4. Ensure your config only has:
-   ```json
+   \`\`\`json
    {
      "hosts": ["npipe://", "tcp://localhost:2375"]
    }
-   ```
+   \`\`\`
 
 **Solution 4: Use Different Port**
 
 If port 2375 is causing issues, try a different port:
 
 1. Change config to use port `2377` (or another available port):
-   ```json
+   \`\`\`json
    {
      "hosts": [
        "npipe://",
        "tcp://localhost:2377"
      ]
    }
-   ```
+   \`\`\`
 2. Update Supabase to use the new port (if configurable)
 3. Or disable Analytics if not needed (see Alternative section below)
 
@@ -228,4 +228,3 @@ Older versions of Docker Desktop may handle TCP sockets differently:
 - [Supabase CLI Windows Setup](https://supabase.com/docs/guides/local-development/cli/getting-started?queryGroups=platform&platform=windows#running-supabase-locally)
 - [Docker Desktop Settings Documentation](https://docs.docker.com/desktop/settings/docker-engine/)
 - [Docker Daemon Socket Configuration](https://docs.docker.com/config/daemon/remote-access/)
-

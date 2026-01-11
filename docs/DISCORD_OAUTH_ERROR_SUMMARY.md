@@ -1,10 +1,10 @@
 # Discord OAuth Error - Quick Summary
 
 ## Error Message
-```
+\`\`\`
 GET /auth/discord/callback?error=invalid_scope&error_description=The+requested+scope+is+invalid%2C+unknown%2C+or+malformed.
 AuthApiError: Invalid Refresh Token: Refresh Token Not Found
-```
+\`\`\`
 
 ## What's Happening
 
@@ -45,7 +45,3 @@ Someone (or something) is trying to authenticate with Discord OAuth2, but:
 See `docs/DISCORD_OAUTH_ERROR_FIX.md` for configuration instructions.
 
 **Recommendation**: Keep current setup (Notion OAuth + Discord Bot) ✅
-
-
-
-

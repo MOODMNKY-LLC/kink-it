@@ -86,7 +86,7 @@ This ensures:
 ### Schema Export
 The `getNotionDatabaseSchema()` function exports a complete Notion database schema that matches the props structure:
 
-```typescript
+\`\`\`typescript
 {
   properties: {
     // Physical attributes (Select)
@@ -116,7 +116,7 @@ The `getNotionDatabaseSchema()` function exports a complete Notion database sche
     character_name: { type: "title" },
   }
 }
-```
+\`\`\`
 
 ### Benefits
 - Each generated image can be stored with exact props used
@@ -162,13 +162,13 @@ The `getNotionDatabaseSchema()` function exports a complete Notion database sche
 4. Notion schema can be regenerated
 
 ### Example: Adding New Hair Style
-```typescript
+\`\`\`typescript
 // In props-options.ts
 export const PHYSICAL_HAIR_OPTIONS = [
   // ... existing options
   "new hair style", // Add here
 ] as const
-```
+\`\`\`
 
 The option will automatically:
 - Be available in PropsSelector dropdown
@@ -210,6 +210,3 @@ The option will automatically:
 ## Summary
 
 The props options system is now complete. All props use predefined options with dropdowns/toggles, ensuring consistency, Notion compatibility, and reference image matching. The system is designed to be easily expandable while maintaining strict control over allowed values.
-
-
-

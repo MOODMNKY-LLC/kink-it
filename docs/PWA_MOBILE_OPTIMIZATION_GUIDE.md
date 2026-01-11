@@ -25,7 +25,7 @@ Next.js 15 provides native PWA support without requiring third-party packages li
 
 **File: `app/manifest.ts`**
 
-```typescript
+\`\`\`typescript
 import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
@@ -117,13 +117,13 @@ export default function manifest(): MetadataRoute.Manifest {
     ],
   }
 }
-```
+\`\`\`
 
 ### 1.3 Updating Layout Metadata
 
 **File: `app/layout.tsx`** (additions)
 
-```typescript
+\`\`\`typescript
 export const metadata: Metadata = {
   title: {
     template: "%s – KINK IT",
@@ -153,13 +153,13 @@ export const viewport = {
   userScalable: true,
   viewportFit: "cover", // For safe area insets
 }
-```
+\`\`\`
 
 ### 1.4 Creating Service Worker
 
 **File: `app/sw.ts`**
 
-```typescript
+\`\`\`typescript
 /// <reference lib="webworker" />
 
 declare const self: ServiceWorkerGlobalScope
@@ -305,13 +305,13 @@ async function staleWhileRevalidate(request: Request): Promise<Response> {
 
   return cached || fetchPromise
 }
-```
+\`\`\`
 
 ### 1.5 Service Worker Registration Component
 
 **File: `components/pwa/service-worker-register.tsx`**
 
-```typescript
+\`\`\`typescript
 'use client'
 
 import { useEffect } from 'react'
@@ -359,13 +359,13 @@ export function ServiceWorkerRegister() {
 
   return null
 }
-```
+\`\`\`
 
 ### 1.6 Adding Service Worker to Layout
 
 **File: `app/layout.tsx`** (additions)
 
-```typescript
+\`\`\`typescript
 import { ServiceWorkerRegister } from '@/components/pwa/service-worker-register'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -387,13 +387,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     </html>
   )
 }
-```
+\`\`\`
 
 ### 1.7 Creating Offline Page
 
 **File: `app/offline/page.tsx`**
 
-```typescript
+\`\`\`typescript
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
@@ -410,7 +410,7 @@ export default function OfflinePage() {
     </div>
   )
 }
-```
+\`\`\`
 
 ---
 
@@ -425,7 +425,7 @@ export default function OfflinePage() {
 
 **File: `app/globals.css`** (additions)
 
-```css
+\`\`\`css
 /* Touch-friendly utilities */
 @layer utilities {
   .touch-target {
@@ -468,13 +468,13 @@ export default function OfflinePage() {
     padding-left: env(safe-area-inset-left);
   }
 }
-```
+\`\`\`
 
 ### 2.2 Updating Button Component
 
 **File: `components/ui/button.tsx`** (modifications)
 
-```typescript
+\`\`\`typescript
 // Ensure all button variants have minimum touch target
 const buttonVariants = cva(
   "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed",
@@ -492,13 +492,13 @@ const buttonVariants = cva(
     },
   }
 )
-```
+\`\`\`
 
 ### 2.3 Mobile Navigation Improvements
 
 **File: `components/dashboard/mobile-header/index.tsx`** (modifications)
 
-```typescript
+\`\`\`typescript
 // Ensure all interactive elements meet touch target requirements
 <Button 
   variant="secondary" 
@@ -507,13 +507,13 @@ const buttonVariants = cva(
 >
   {/* ... */}
 </Button>
-```
+\`\`\`
 
 ### 2.4 Viewport and Safe Area Configuration
 
 **File: `app/layout.tsx`** (head section)
 
-```typescript
+\`\`\`typescript
 <head>
   <meta 
     name="viewport" 
@@ -521,13 +521,13 @@ const buttonVariants = cva(
   />
   {/* ... */}
 </head>
-```
+\`\`\`
 
 ### 2.5 Typography Optimization
 
 **File: `app/globals.css`** (additions)
 
-```css
+\`\`\`css
 @layer base {
   body {
     /* Base font size 16px prevents zoom on iOS */
@@ -542,7 +542,7 @@ const buttonVariants = cva(
     }
   }
 }
-```
+\`\`\`
 
 ---
 
@@ -552,7 +552,7 @@ const buttonVariants = cva(
 
 **Using Next.js Image Component**
 
-```typescript
+\`\`\`typescript
 import Image from 'next/image'
 
 // For LCP images (above the fold)
@@ -576,13 +576,13 @@ import Image from 'next/image'
   loading="lazy"
   quality={80}
 />
-```
+\`\`\`
 
 ### 3.2 Font Optimization
 
 **File: `app/layout.tsx`** (modifications)
 
-```typescript
+\`\`\`typescript
 const robotoMono = Roboto_Mono({
   variable: "--font-roboto-mono",
   subsets: ["latin"],
@@ -596,13 +596,13 @@ const rebelGrotesk = localFont({
   display: "swap",
   preload: true,
 })
-```
+\`\`\`
 
 ### 3.3 Code Splitting
 
 **File: `components/dashboard/widget.tsx`** (example)
 
-```typescript
+\`\`\`typescript
 import dynamic from 'next/dynamic'
 
 // Lazy load heavy components
@@ -610,13 +610,13 @@ const HeavyChart = dynamic(() => import('./heavy-chart'), {
   loading: () => <div>Loading chart...</div>,
   ssr: false, // Only load on client if needed
 })
-```
+\`\`\`
 
 ### 3.4 Bundle Analysis
 
 **File: `next.config.ts`** (additions)
 
-```typescript
+\`\`\`typescript
 import bundleAnalyzer from '@next/bundle-analyzer'
 
 const withBundleAnalyzer = bundleAnalyzer({
@@ -630,23 +630,23 @@ const nextConfig: NextConfig = {
 export default process.env.ANALYZE === 'true' 
   ? withBundleAnalyzer(nextConfig)
   : nextConfig
-```
+\`\`\`
 
 **Package.json script:**
 
-```json
+\`\`\`json
 {
   "scripts": {
     "analyze": "ANALYZE=true npm run build"
   }
 }
-```
+\`\`\`
 
 ### 3.5 Core Web Vitals Monitoring
 
 **File: `app/layout.tsx`** (additions)
 
-```typescript
+\`\`\`typescript
 export function reportWebVitals(metric: NextWebVitalsMetric) {
   // Send to analytics
   if (process.env.NEXT_PUBLIC_ANALYTICS_ID) {
@@ -654,7 +654,7 @@ export function reportWebVitals(metric: NextWebVitalsMetric) {
     console.log(metric)
   }
 }
-```
+\`\`\`
 
 ---
 
@@ -664,7 +664,7 @@ export function reportWebVitals(metric: NextWebVitalsMetric) {
 
 **File: `lib/offline/db.ts`**
 
-```typescript
+\`\`\`typescript
 import { openDB, DBSchema, IDBPDatabase } from 'idb'
 
 interface KinkItDB extends DBSchema {
@@ -727,13 +727,13 @@ export async function getDB(): Promise<IDBPDatabase<KinkItDB>> {
 
   return dbInstance
 }
-```
+\`\`\`
 
 ### 4.2 Background Sync Implementation
 
 **File: `lib/offline/sync.ts`**
 
-```typescript
+\`\`\`typescript
 import { getDB } from './db'
 import { createClient } from '@/lib/supabase/client'
 
@@ -785,13 +785,13 @@ export async function processSyncQueue() {
     }
   }
 }
-```
+\`\`\`
 
 ### 4.3 Service Worker Background Sync Handler
 
 **File: `app/sw.ts`** (additions)
 
-```typescript
+\`\`\`typescript
 // Background sync event
 self.addEventListener('sync', (event: any) => {
   if (event.tag.startsWith('sync-')) {
@@ -805,7 +805,7 @@ self.addEventListener('sync', (event: any) => {
     )
   }
 })
-```
+\`\`\`
 
 ---
 
@@ -815,7 +815,7 @@ self.addEventListener('sync', (event: any) => {
 
 **File: `components/pwa/install-prompt.tsx`**
 
-```typescript
+\`\`\`typescript
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -877,13 +877,13 @@ export function InstallPrompt() {
     </Dialog>
   )
 }
-```
+\`\`\`
 
 ### 5.2 Push Notifications Setup
 
 **File: `lib/push/notifications.ts`**
 
-```typescript
+\`\`\`typescript
 export async function requestNotificationPermission(): Promise<boolean> {
   if (!('Notification' in window)) {
     console.log('This browser does not support notifications')
@@ -928,13 +928,13 @@ export async function subscribeToPushNotifications(): Promise<PushSubscription |
     return null
   }
 }
-```
+\`\`\`
 
 ### 5.3 Camera Access for Proof Submissions
 
 **File: `components/tasks/proof-upload.tsx`**
 
-```typescript
+\`\`\`typescript
 'use client'
 
 import { useRef, useState } from 'react'
@@ -980,13 +980,13 @@ export function ProofUpload() {
     </div>
   )
 }
-```
+\`\`\`
 
 ### 5.4 Share API Integration
 
 **File: `lib/share.ts`**
 
-```typescript
+\`\`\`typescript
 export async function shareContent(data: {
   title: string
   text?: string
@@ -1010,7 +1010,7 @@ export async function shareContent(data: {
     }
   }
 }
-```
+\`\`\`
 
 ---
 
@@ -1094,6 +1094,3 @@ export async function shareContent(data: {
 - **Offline**: Start with critical data (tasks, rules) before expanding to all features
 
 This comprehensive guide provides all the necessary steps to transform KINK IT into a fully optimized PWA with excellent mobile experience. Follow the phases sequentially and test thoroughly at each step.
-
-
-

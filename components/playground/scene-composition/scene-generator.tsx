@@ -293,4 +293,3 @@ export function SceneGenerator({ onSceneGenerated, className }: SceneGeneratorPr
     </Card>
   )
 }
-

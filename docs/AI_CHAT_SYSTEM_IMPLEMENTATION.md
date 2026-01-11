@@ -15,13 +15,13 @@ Comprehensive AI chat system implementation using OpenAI Agents SDK, Supabase Ed
 ## 🏗️ Architecture Overview
 
 ### Streaming Flow
-```
+\`\`\`
 Client → Edge Function (SSE) → Agents SDK → OpenAI API
                 ↓
          Stream chunks → Realtime Broadcast → Database
                 ↓
          Client receives via SSE + Realtime subscription
-```
+\`\`\`
 
 ### Components
 1. **Edge Function**: `chat-stream` - Handles streaming with Agents SDK
@@ -34,13 +34,13 @@ Client → Edge Function (SSE) → Agents SDK → OpenAI API
 
 ## 📦 Packages Installed
 
-```json
+\`\`\`json
 {
   "@openai/agents": "^0.3.7",  // Official OpenAI Agents SDK
   "ai": "^6.0.10",              // Vercel AI SDK utilities
   "sse.js": "^2.7.2"            // Server-Sent Events client
 }
-```
+\`\`\`
 
 ---
 
@@ -82,7 +82,7 @@ Client → Edge Function (SSE) → Agents SDK → OpenAI API
 - ✅ Error handling
 
 **Usage**:
-```typescript
+\`\`\`typescript
 POST /functions/v1/chat-stream
 {
   "user_id": "uuid",
@@ -95,7 +95,7 @@ POST /functions/v1/chat-stream
   "temperature": 0.7,
   "stream": true
 }
-```
+\`\`\`
 
 ---
 
@@ -166,7 +166,7 @@ Tool definitions in `lib/ai/tools.ts`:
 
 ## 🚀 Usage Example
 
-```typescript
+\`\`\`typescript
 import { ChatInterface } from "@/components/chat/chat-interface"
 
 <ChatInterface
@@ -176,7 +176,7 @@ import { ChatInterface } from "@/components/chat/chat-interface"
   model="gpt-4o-mini"
   temperature={0.7}
 />
-```
+\`\`\`
 
 ---
 
@@ -200,14 +200,14 @@ import { ChatInterface } from "@/components/chat/chat-interface"
 ## 🧪 Testing
 
 1. **Local Testing**:
-   ```bash
+   \`\`\`bash
    supabase functions serve chat-stream
-   ```
+   \`\`\`
 
 2. **Deploy**:
-   ```bash
+   \`\`\`bash
    supabase functions deploy chat-stream
-   ```
+   \`\`\`
 
 3. **Test Streaming**:
    - Send message
@@ -232,6 +232,3 @@ import { ChatInterface } from "@/components/chat/chat-interface"
 
 **Last Updated**: 2026-01-31  
 **Status**: Ready for Testing
-
-
-

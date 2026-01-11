@@ -183,4 +183,3 @@ export const EYE_COLOR_COLORS: Record<string, string> = {
   "red eyes": "#FF0000",
   "heterochromia (different colored eyes)": "#808080",
 }
-

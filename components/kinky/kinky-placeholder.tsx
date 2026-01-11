@@ -66,6 +66,3 @@ export function KinkyPlaceholder({
     </div>
   )
 }
-
-
-

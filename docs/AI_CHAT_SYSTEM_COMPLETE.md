@@ -73,19 +73,19 @@ The AI chat system has been successfully implemented with comprehensive streamin
 ## 📋 Next Steps (Pending)
 
 1. **Run Database Migrations**
-   ```bash
+   \`\`\`bash
    supabase db push
-   ```
+   \`\`\`
 
 2. **Deploy Edge Function**
-   ```bash
+   \`\`\`bash
    supabase functions deploy chat-stream
-   ```
+   \`\`\`
 
 3. **Set OpenAI API Key Secret**
-   ```bash
+   \`\`\`bash
    supabase secrets set OPENAI_API_KEY=your_key_here
-   ```
+   \`\`\`
 
 4. **Test Streaming**
    - Navigate to `/chat`
@@ -113,7 +113,7 @@ The AI chat system has been successfully implemented with comprehensive streamin
 
 ## 🏗️ Architecture
 
-```
+\`\`\`
 Client (React)
   ↓
 useChatStream Hook
@@ -129,13 +129,13 @@ Realtime Broadcast
 Database (messages table)
   ↓
 Client (via SSE + Realtime subscription)
-```
+\`\`\`
 
 ---
 
 ## 📁 File Structure
 
-```
+\`\`\`
 supabase/
   functions/
     chat-stream/
@@ -170,7 +170,7 @@ docs/
   AI_CHAT_SYSTEM_IMPLEMENTATION.md
   AI_CHAT_SYSTEM_RESEARCH_REPORT.md
   AI_CHAT_SYSTEM_COMPLETE.md
-```
+\`\`\`
 
 ---
 
@@ -181,9 +181,9 @@ docs/
    - `OPENAI_API_KEY` - Set in Edge Function secrets
 
 2. **Supabase Secrets**
-   ```bash
+   \`\`\`bash
    supabase secrets set OPENAI_API_KEY=sk-...
-   ```
+   \`\`\`
 
 3. **Database Migrations**
    - Run migrations to create tables and policies
@@ -192,7 +192,7 @@ docs/
 
 ## 🚀 Usage
 
-```typescript
+\`\`\`typescript
 import { ChatInterface } from "@/components/chat/chat-interface"
 
 <ChatInterface
@@ -202,7 +202,7 @@ import { ChatInterface } from "@/components/chat/chat-interface"
   model="gpt-4o-mini"
   temperature={0.7}
 />
-```
+\`\`\`
 
 ---
 
@@ -221,6 +221,3 @@ import { ChatInterface } from "@/components/chat/chat-interface"
 
 **Status**: Foundation Complete ✅  
 **Next**: Testing & Optimization 🧪
-
-
-

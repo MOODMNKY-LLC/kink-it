@@ -33,7 +33,7 @@
 
 ### For Database ID Storage:
 
-```typescript
+\`\`\`typescript
 // When user syncs their Notion template
 const { data: { user } } = await supabase.auth.getUser()
 const userId = user.id // This is auth.users.id = profiles.id
@@ -65,11 +65,11 @@ await supabase.from('notion_databases').insert({
   user_id: userId, // From authenticated user
   parent_page_id: 'parent-page-id'
 })
-```
+\`\`\`
 
 ### For FDW Setup:
 
-```sql
+\`\`\`sql
 -- FDW uses service account key (NOTION_API_KEY_PROD)
 -- But queries databases by user_id for proper linking
 -- Admin views filter by bond membership
@@ -78,7 +78,7 @@ await supabase.from('notion_databases').insert({
 -- 1. Query notion_databases for all users (or admin's databases)
 -- 2. Create foreign tables using service account key
 -- 3. Admin views filter results by bond membership
-```
+\`\`\`
 
 ---
 
@@ -88,17 +88,17 @@ await supabase.from('notion_databases').insert({
 
 When a user authenticates and connects their Notion API key:
 
-```typescript
+\`\`\`typescript
 // User goes through onboarding/sync flow
 // Their databases are discovered and stored in notion_databases
 // with their authenticated user_id
-```
+\`\`\`
 
 ### Step 2: FDW Initialization (Admin/Service Account)
 
 For FDW, we use the service account key but query databases by `user_id`:
 
-```sql
+\`\`\`sql
 -- The setup function queries notion_databases
 -- It can find databases for:
 -- 1. Admin users (for template databases)
@@ -106,13 +106,13 @@ For FDW, we use the service account key but query databases by `user_id`:
 
 -- Then creates foreign tables using service account key
 SELECT * FROM public.setup_notion_fdw_tables();
-```
+\`\`\`
 
 ### Step 3: Admin Queries
 
 Admin users can query all databases, filtered by bond membership:
 
-```typescript
+\`\`\`typescript
 // Admin search function filters by bond membership
 const { data } = await supabase.rpc('admin_search_image_generations', {
   search_query: 'kinky scene',
@@ -121,7 +121,7 @@ const { data } = await supabase.rpc('admin_search_image_generations', {
 })
 
 // Returns results from bond members only
-```
+\`\`\`
 
 ---
 
@@ -138,7 +138,7 @@ const { data } = await supabase.rpc('admin_search_image_generations', {
 - ✅ Admin views filter by `user_id` and bond membership
 
 ### The Flow:
-```
+\`\`\`
 User Authenticates
   ↓
 User Adds Notion API Key → Stored in user_notion_api_keys
@@ -150,7 +150,7 @@ Databases Stored → notion_databases with user_id = auth.users.id
 FDW Setup → Uses service account key, queries by user_id
   ↓
 Admin Queries → Filtered by bond membership
-```
+\`\`\`
 
 ---
 
@@ -172,7 +172,7 @@ Since you're setting up FDW with the service account key, you have two options:
 
 ### Recommended Approach:
 
-```sql
+\`\`\`sql
 -- For template/parent databases, use admin user or first synced user
 -- Get admin user ID
 SELECT id FROM profiles WHERE system_role = 'admin' LIMIT 1;
@@ -193,7 +193,7 @@ VALUES
 
 -- Then initialize FDW
 SELECT * FROM public.setup_notion_fdw_tables();
-```
+\`\`\`
 
 ---
 
@@ -218,5 +218,3 @@ SELECT * FROM public.setup_notion_fdw_tables();
 - `user_id` in `notion_databases` = authenticated user's ID (`auth.users.id` / `profiles.id`)
 - FDW service account key can access all databases
 - Admin filtering happens in views, not at FDW level
-
-

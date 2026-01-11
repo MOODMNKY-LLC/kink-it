@@ -16,7 +16,7 @@ Users are being forced through Notion OAuth consent **every time they close the 
 ### The Critical Mismatch
 
 **Current Flow (Broken):**
-```
+\`\`\`
 Login Page → supabase.auth.signInWithOAuth() 
   → Supabase OAuth Handler 
   → Notion Authorization 
@@ -25,10 +25,10 @@ Login Page → supabase.auth.signInWithOAuth()
   → ❌ Refresh token NOT reliably exposed
   → ❌ Refresh token NOT stored in database
   → Session expires → Must re-authenticate
-```
+\`\`\`
 
 **Intended Flow (Not Being Used):**
-```
+\`\`\`
 Login Page → Direct Notion OAuth URL
   → Notion Authorization
   → /api/auth/notion/callback (Custom handler)
@@ -36,7 +36,7 @@ Login Page → Direct Notion OAuth URL
   → ✅ Both access_token AND refresh_token captured
   → ✅ Tokens stored in database BEFORE session creation
   → ✅ Session persists with refresh capability
-```
+\`\`\`
 
 ### Why Refresh Tokens Are Lost
 
@@ -50,7 +50,7 @@ Login Page → Direct Notion OAuth URL
 ## Evidence from Codebase
 
 ### 1. Login Page (`app/auth/login/page.tsx`)
-```typescript
+\`\`\`typescript
 // ❌ Uses Supabase OAuth handler - redirects to /auth/callback
 const { error } = await supabase.auth.signInWithOAuth({
   provider: "notion",
@@ -58,17 +58,17 @@ const { error } = await supabase.auth.signInWithOAuth({
     redirectTo: `${window.location.origin}/auth/callback`, // Wrong callback!
   },
 })
-```
+\`\`\`
 
 ### 2. Standard Callback (`app/auth/callback/route.ts`)
-```typescript
+\`\`\`typescript
 // ❌ Relies on Supabase exposing refresh token (which it doesn't reliably do)
 const refreshToken = (session as any).provider_refresh_token || null
 // Comment in code: "Supabase doesn't expose this reliably"
-```
+\`\`\`
 
 ### 3. Custom Callback (`app/api/auth/notion/callback/route.ts`)
-```typescript
+\`\`\`typescript
 // ✅ Correctly exchanges code directly with Notion API
 const tokenResponse = await fetch("https://api.notion.com/v1/oauth/token", {
   // Gets BOTH access_token AND refresh_token
@@ -80,16 +80,16 @@ await storeNotionOAuthTokens(supabaseUser.id, {
   refresh_token, // ✅ Captured!
   // ...
 })
-```
+\`\`\`
 
 ### 4. Token Refresh Logic (`lib/notion-auth.ts`)
-```typescript
+\`\`\`typescript
 // ✅ Has proper refresh logic, but can't work if refresh token was never stored
 export async function getNotionAccessToken(userId: string) {
   // Checks for stored tokens, refreshes if expired
   // Falls back to session tokens (which expire)
 }
-```
+\`\`\`
 
 ---
 
@@ -112,7 +112,7 @@ The ChatGPT conversation identified 6 potential causes:
 
 Change `app/auth/login/page.tsx` to construct direct Notion OAuth URL instead of using Supabase's OAuth handler:
 
-```typescript
+\`\`\`typescript
 const handleNotionLogin = async () => {
   const clientId = process.env.NEXT_PUBLIC_NOTION_CLIENT_ID
   const redirectUri = `${window.location.origin}/api/auth/notion/callback`
@@ -132,7 +132,7 @@ const handleNotionLogin = async () => {
   // Redirect to Notion
   window.location.href = authUrl.toString()
 }
-```
+\`\`\`
 
 ### Fix 2: Verify Session Cookie Persistence
 
@@ -146,7 +146,7 @@ Ensure Supabase session cookies have proper attributes:
 
 Before redirecting to OAuth, check if user has stored tokens:
 
-```typescript
+\`\`\`typescript
 // On app startup
 const hasTokens = await hasNotionOAuthTokens(userId)
 const accessToken = await getNotionAccessToken(userId)
@@ -155,7 +155,7 @@ if (hasTokens && accessToken) {
   // User has valid tokens, no need to re-authenticate
   return
 }
-```
+\`\`\`
 
 ---
 
@@ -173,10 +173,10 @@ if (hasTokens && accessToken) {
 
 **CRITICAL**: Add this to your `.env.local` and Vercel production:
 
-```bash
+\`\`\`bash
 # Notion OAuth Client ID (public - safe to expose in client code)
 NEXT_PUBLIC_NOTION_CLIENT_ID=<same value as SUPABASE_AUTH_EXTERNAL_NOTION_CLIENT_ID>
-```
+\`\`\`
 
 **Why**: The OAuth client ID must be accessible in client-side code to construct the OAuth URL. It's safe to expose (unlike the client secret).
 

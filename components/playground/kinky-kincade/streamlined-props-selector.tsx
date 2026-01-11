@@ -538,6 +538,3 @@ function ClothingMultiSelect({ label, items, options, onToggle }: ClothingMultiS
     </div>
   )
 }
-
-
-

@@ -20,14 +20,14 @@ Supabase is currently running. You need to get the `anon_key` from it.
 5. Copy both keys
 
 **Option B - Using Command Line:**
-```powershell
+\`\`\`powershell
 # Run this in PowerShell to extract keys
 $json = supabase status --output json | ConvertFrom-Json
 Write-Host "`nAnon Key:" -ForegroundColor Yellow
 Write-Host $json.anon_key
 Write-Host "`nService Role Key:" -ForegroundColor Yellow  
 Write-Host $json.service_role_key
-```
+\`\`\`
 
 ### Step 2: Create .env.local File
 
@@ -38,7 +38,7 @@ Write-Host $json.service_role_key
 
 **Your `.env.local` should look like this:**
 
-```bash
+\`\`\`bash
 # ============================================
 # SUPABASE LOCAL DEVELOPMENT (REQUIRED)
 # ============================================
@@ -57,30 +57,30 @@ NOTION_APP_IDEAS_DATABASE_ID=cc491ef5f0a64eac8e05a6ea10dfb735
 # DEVELOPMENT (OPTIONAL)
 # ============================================
 NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=http://localhost:3000/auth/callback
-```
+\`\`\`
 
 ### Step 3: Restart Dev Server
 
-```bash
+\`\`\`bash
 # Stop your current dev server (Ctrl+C)
 # Then restart it:
 pnpm dev
-```
+\`\`\`
 
 ## Verification
 
 After completing these steps, verify everything is working:
 
-```bash
+\`\`\`bash
 # Run the verification script
 node scripts/verify-env.js
-```
+\`\`\`
 
 You should see:
-```
+\`\`\`
 ✅ All environment variables are set correctly!
 ✅ Successfully connected to Supabase!
-```
+\`\`\`
 
 ## What Should Happen Next
 
@@ -147,11 +147,11 @@ After signing up:
 🔒 **Never commit `.env.local` to git!**
 
 The `.gitignore` file already excludes it, but double-check:
-```bash
+\`\`\`bash
 # Verify .env.local is ignored
 git status
 # Should NOT show .env.local as a tracked file
-```
+\`\`\`
 
 ## Need Help?
 
@@ -162,10 +162,3 @@ If you're still having issues after following these steps:
 4. Verify Supabase is running: `supabase status`
 
 Once `.env.local` is set up correctly, everything should work perfectly! 🚀
-
-
-
-
-
-
-

@@ -1,25 +1,75 @@
 // Type definitions for Kinkster Character Creation System
 
-export interface Kinkster {
+export type KinksterSyncStatus = "synced" | "pending" | "conflict" | "error" | "local_only"
+
+export interface KinksterNotionSync {
+  notion_page_id?: string
+  notion_database_id?: string
+  notion_last_synced_at?: string
+  master_notion_page_id?: string
+  sync_status: KinksterSyncStatus
+  sync_error?: string
+  last_local_update?: string
+  last_notion_update?: string
+  is_public: boolean
+}
+
+export interface KinksterAppearance {
+  body_type?: string
+  height?: string
+  build?: string
+  hair_color?: string
+  hair_style?: string
+  eye_color?: string
+  skin_tone?: string
+  facial_hair?: string
+  age_range?: string
+}
+
+export interface KinksterStylePreferences {
+  clothing_style?: string[]
+  favorite_colors?: string[]
+  fetish_wear?: string[]
+  aesthetic?: string
+}
+
+export interface KinksterKinkProfile {
+  top_kinks?: string[]
+  soft_limits?: string[]
+  hard_limits?: string[]
+  experience_level?: string
+  kink_interests?: string[]
+}
+
+export interface Kinkster extends KinksterNotionSync {
   id: string
   user_id: string
+  partnership_id?: string
   name: string
+  display_name?: string
+  role?: "dominant" | "submissive" | "switch"
+  pronouns?: string
   bio?: string
   backstory?: string
   avatar_url?: string
+  avatar_urls?: string[]
+  gallery_urls?: string[]
   avatar_prompt?: string
+  generation_prompt?: string
   avatar_generation_config?: {
     model: string
     size: string
     quality: string
     style?: string
   }
+  // Stats
   dominance: number // 1-20
   submission: number // 1-20
   charisma: number // 1-20
   stamina: number // 1-20
   creativity: number // 1-20
   control: number // 1-20
+  // Appearance (legacy)
   appearance_description?: string
   physical_attributes?: {
     height?: string
@@ -29,16 +79,98 @@ export interface Kinkster {
     skin_tone?: string
     [key: string]: any
   }
+  body_type?: string
+  height?: string
+  build?: string
+  hair_color?: string
+  hair_style?: string
+  eye_color?: string
+  skin_tone?: string
+  facial_hair?: string
+  age_range?: string
+  clothing_style?: string[]
+  favorite_colors?: string[]
+  fetish_wear?: string[]
+  aesthetic?: string
+  top_kinks?: string[]
+  experience_level?: string
+  // Existing kink fields
   kink_interests?: string[]
   hard_limits?: string[]
   soft_limits?: string[]
   personality_traits?: string[]
   role_preferences?: string[]
   archetype?: string
+  // Status
   is_active: boolean
   is_primary: boolean
+  metadata?: Record<string, any>
+  // Timestamps
   created_at: string
   updated_at: string
+}
+
+export interface UserNotionConfig {
+  notion_parent_page_id?: string
+  notion_kinksters_database_id?: string
+  notion_workspace_id?: string
+  notion_connected: boolean
+  notion_connected_at?: string
+}
+
+export interface KinksterNotionPayload {
+  database_id: string
+  kinkster_id: string
+  properties: {
+    Name: string
+    "Display Name": string
+    Role: string
+    Pronouns: string
+    Bio?: string
+    "Body Type"?: string
+    Height?: string
+    Build?: string
+    "Hair Color"?: string
+    "Hair Style"?: string
+    "Eye Color"?: string
+    "Skin Tone"?: string
+    "Facial Hair"?: string
+    "Age Range"?: string
+    Aesthetic?: string
+    "Experience Level": string
+    "Is Primary": boolean
+    "Is Active": boolean
+    "Supabase ID": string
+    "Personality Traits": string[]
+    "Clothing Style": string[]
+    "Favorite Colors": string[]
+    "Fetish Wear": string[]
+    "Top Kinks": string[]
+  }
+  avatar_url?: string
+  gallery_urls: string[]
+}
+
+export interface KinksterPendingSync {
+  id: string
+  name: string
+  sync_status: KinksterSyncStatus
+  last_local_update: string
+  notion_page_id?: string
+}
+
+export interface KinksterStats {
+  total_kinksters: number
+  active_kinksters: number
+  primary_kinkster_id?: string
+  total_avatars: number
+  total_gallery_images: number
+  roles: {
+    dominant: number
+    submissive: number
+    switch: number
+  }
+  synced_to_notion: number
 }
 
 export interface KinksterCreationSession {
@@ -53,8 +185,11 @@ export interface KinksterCreationSession {
 export interface KinksterCreationData {
   // Step 1: Basic Info
   name?: string
+  display_name?: string
+  role?: "dominant" | "submissive" | "switch"
+  pronouns?: string
   archetype?: string
-  
+
   // Step 2: Appearance
   appearance_description?: string
   physical_attributes?: {
@@ -65,7 +200,16 @@ export interface KinksterCreationData {
     skin_tone?: string
     [key: string]: any
   }
-  
+  body_type?: string
+  height?: string
+  build?: string
+  hair_color?: string
+  hair_style?: string
+  eye_color?: string
+  skin_tone?: string
+  facial_hair?: string
+  age_range?: string
+
   // Step 3: Stats
   stats?: {
     dominance: number
@@ -75,21 +219,31 @@ export interface KinksterCreationData {
     creativity: number
     control: number
   }
-  
+
   // Step 4: Kink Preferences
   kink_interests?: string[]
   hard_limits?: string[]
   soft_limits?: string[]
   role_preferences?: string[]
-  
+  top_kinks?: string[]
+  experience_level?: string
+
   // Step 5: Personality & Backstory
   personality_traits?: string[]
   bio?: string
   backstory?: string
-  
-  // Step 6: Avatar Generation
+
+  // Step 6: Style Preferences
+  clothing_style?: string[]
+  favorite_colors?: string[]
+  fetish_wear?: string[]
+  aesthetic?: string
+
+  // Step 7: Avatar Generation
   avatar_prompt?: string
+  generation_prompt?: string
   avatar_url?: string
+  avatar_urls?: string[]
 }
 
 export interface StatDefinition {
@@ -235,6 +389,3 @@ export const ARCHETYPES = [
 export const TOTAL_STAT_POINTS = 60 // Starting points to allocate
 export const MAX_STAT_VALUE = 20
 export const MIN_STAT_VALUE = 1
-
-
-

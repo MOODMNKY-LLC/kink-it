@@ -118,35 +118,35 @@ Comprehensive enhancements to the Notion integration status page, terminal widge
 ## Usage Examples
 
 ### Pagination
-```tsx
+\`\`\`tsx
 // Automatically handled in integration status page
 // Query params: ?db_page=1&db_per_page=10&page_page=1&page_per_page=10
-```
+\`\`\`
 
 ### Blur-Fade
-```tsx
+\`\`\`tsx
 import { BlurFade } from "@/components/ui/blur-fade"
 
 <BlurFade delay={0.2} direction="down">
   <Card>Content</Card>
 </BlurFade>
-```
+\`\`\`
 
 ### Terminal Widget
-```tsx
+\`\`\`tsx
 <TerminalWidget
   userName="User Name"
   timezone="America/New_York"
   profile={profile}
 />
-```
+\`\`\`
 
 ## Testing
 
 Run the comprehensive test suite:
-```bash
+\`\`\`bash
 npm test -- tests/notion-integration.test.ts
-```
+\`\`\`
 
 ## Next Steps
 
@@ -163,5 +163,3 @@ npm test -- tests/notion-integration.test.ts
 - Blur-fade effects are optimized for performance
 - Terminal widget respects user privacy settings
 - All changes are backward compatible
-
-

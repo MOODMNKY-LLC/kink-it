@@ -20,14 +20,14 @@ Your `.env.local` file is **missing required Supabase credentials**. This is why
    - `service_role` key (private, also starts with "eyJh...")
 
 **💻 Method B - PowerShell Command**
-```powershell
+\`\`\`powershell
 # Run this to see your keys:
 $json = supabase status --output json | ConvertFrom-Json
 Write-Host "`n📋 ANON KEY:" -ForegroundColor Cyan
 Write-Host $json.anon_key -ForegroundColor Yellow
 Write-Host "`n🔐 SERVICE ROLE KEY:" -ForegroundColor Cyan
 Write-Host $json.service_role_key -ForegroundColor Yellow
-```
+\`\`\`
 
 ### Step 2: Create .env.local File
 
@@ -39,34 +39,34 @@ Write-Host $json.service_role_key -ForegroundColor Yellow
 6. **Save** the file
 
 **Quick Copy Template:**
-```bash
+\`\`\`bash
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:55321
 NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_ANON_KEY_HERE
 SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY_HERE
 NOTION_API_KEY=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
 NOTION_APP_IDEAS_DATABASE_ID=cc491ef5f0a64eac8e05a6ea10dfb735
 NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=http://localhost:3000/auth/callback
-```
+\`\`\`
 
 ### Step 3: Restart Everything
 
-```bash
+\`\`\`bash
 # Stop dev server (Ctrl+C if running)
 pnpm dev
-```
+\`\`\`
 
 ### Step 4: Verify Setup ✅
 
-```bash
+\`\`\`bash
 # Run verification script
 node scripts/verify-env.js
-```
+\`\`\`
 
 **Expected Output:**
-```
+\`\`\`
 ✅ All environment variables are set correctly!
 ✅ Successfully connected to Supabase!
-```
+\`\`\`
 
 ## Test Your Fix 🧪
 
@@ -110,10 +110,10 @@ Open: http://localhost:3000/auth/sign-up
 5. Ensure dev server was restarted **after** creating `.env.local`
 
 ### "Cannot find module" errors?
-```bash
+\`\`\`bash
 # Reinstall dependencies
 pnpm install
-```
+\`\`\`
 
 ### Keys not working?
 1. Verify you copied the **entire** key (they're very long!)
@@ -121,13 +121,13 @@ pnpm install
 3. Used `anon` key (not `service_role` for NEXT_PUBLIC_SUPABASE_ANON_KEY)
 
 ### Supabase not running?
-```bash
+\`\`\`bash
 # Check status
 supabase status
 
 # If stopped, start it
 supabase start
-```
+\`\`\`
 
 ## What's Next? 🚀
 
@@ -172,10 +172,3 @@ The white screen issue was caused by missing environment variables. By following
 - Check: Browser console (F12) for specific errors
 - Verify: Supabase status with `supabase status`
 - Review: The detailed guides in the docs folder
-
-
-
-
-
-
-

@@ -61,7 +61,7 @@ Phase 1 implementation is complete! The core infrastructure has been updated to 
 - ✅ Maintains backward compatibility with existing API calls
 
 **API Changes:**
-```typescript
+\`\`\`typescript
 // Request body now supports:
 {
   characterData?: CharacterData, // Optional - uses KINKY default if not provided
@@ -70,7 +70,7 @@ Phase 1 implementation is complete! The core infrastructure has been updated to 
   quality?: "standard" | "hd",
   props?: GenerationProps // NEW: Customizable props
 }
-```
+\`\`\`
 
 ### 4. Updated Edge Function ✅
 **File**: `supabase/functions/generate-kinkster-avatar/index.ts`
@@ -148,7 +148,7 @@ All prompts now follow this structure:
 ## 📋 Usage Examples
 
 ### Example 1: Using KINKY Default (No Props)
-```typescript
+\`\`\`typescript
 // API call with minimal data - uses KINKY default
 const response = await fetch("/api/kinksters/avatar/generate", {
   method: "POST",
@@ -158,10 +158,10 @@ const response = await fetch("/api/kinksters/avatar/generate", {
     quality: "hd"
   })
 })
-```
+\`\`\`
 
 ### Example 2: Custom Character with Props
-```typescript
+\`\`\`typescript
 const response = await fetch("/api/kinksters/avatar/generate", {
   method: "POST",
   body: JSON.stringify({
@@ -195,10 +195,10 @@ const response = await fetch("/api/kinksters/avatar/generate", {
     quality: "hd"
   })
 })
-```
+\`\`\`
 
 ### Example 3: KINKY Template with Custom Props
-```typescript
+\`\`\`typescript
 // Start with KINKY default, customize props
 const response = await fetch("/api/kinksters/avatar/generate", {
   method: "POST",
@@ -216,7 +216,7 @@ const response = await fetch("/api/kinksters/avatar/generate", {
     }
   })
 })
-```
+\`\`\`
 
 ---
 
@@ -270,6 +270,3 @@ All changes maintain backward compatibility:
 
 **Status**: Phase 1 Complete - Ready for Phase 2 (UI Components)  
 **Documentation**: See `docs/BARA_STYLE_INTEGRATION_RESEARCH.md` for comprehensive research
-
-
-

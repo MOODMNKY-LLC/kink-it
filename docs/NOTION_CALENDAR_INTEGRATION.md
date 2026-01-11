@@ -91,7 +91,7 @@ KINK IT now integrates with Notion Calendar, allowing users to open calendar eve
 ### For Developers
 
 **Generate Notion Calendar URL:**
-```typescript
+\`\`\`typescript
 import { generateNotionCalendarUrl } from '@/lib/notion-calendar'
 
 const url = generateNotionCalendarUrl({
@@ -102,14 +102,14 @@ const url = generateNotionCalendarUrl({
   title: 'Scene Planning',
   ref: 'kink-it'
 })
-```
+\`\`\`
 
 **Open in Notion Calendar:**
-```typescript
+\`\`\`typescript
 import { openInNotionCalendar } from '@/lib/notion-calendar'
 
 await openInNotionCalendar(url)
-```
+\`\`\`
 
 ## Requirements
 
@@ -220,9 +220,9 @@ await openInNotionCalendar(url)
 
 ### Notion Calendar URL Format
 
-```
+\`\`\`
 cron://accountEmail&iCalUID&startDate=ISO&endDate=ISO&title=Title&ref=app
-```
+\`\`\`
 
 **Parameters:**
 - `accountEmail` (required) - Google account email
@@ -233,9 +233,9 @@ cron://accountEmail&iCalUID&startDate=ISO&endDate=ISO&title=Title&ref=app
 - `ref` (optional) - App referrer identifier
 
 **Example:**
-```
+\`\`\`
 cron://[email protected]&123e4567-e89b-12d3-a456-426614174000@kink-it.app&startDate=2025-02-05T20:30:00.000Z&endDate=2025-02-05T21:00:00.000Z&title=Scene%20Planning&ref=kink-it
-```
+\`\`\`
 
 ## Related Documentation
 
@@ -305,4 +305,3 @@ cron://[email protected]&123e4567-e89b-12d3-a456-426614174000@kink-it.app&startD
 4. ⏳ Test in production environment
 5. ⏳ Gather user feedback
 6. ⏳ Consider Google Calendar API for full sync
-

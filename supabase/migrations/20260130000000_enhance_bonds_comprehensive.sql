@@ -351,4 +351,3 @@ COMMENT ON FUNCTION public.log_bond_activity IS
 
 COMMENT ON FUNCTION public.get_bond_statistics IS 
   'Returns comprehensive statistics about a bond including member counts, task statistics, and activity metrics.';
-

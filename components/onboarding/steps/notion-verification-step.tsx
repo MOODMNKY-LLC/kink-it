@@ -172,7 +172,3 @@ export default function NotionVerificationStep({
     </div>
   )
 }
-
-
-
-

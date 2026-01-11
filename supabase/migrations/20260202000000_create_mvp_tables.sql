@@ -537,4 +537,3 @@ COMMENT ON TABLE public.calendar_events IS
 
 COMMENT ON TABLE public.resources IS 
   'Resource library for educational content, guides, and curated materials. Can be public or bond-specific.';
-

@@ -63,5 +63,3 @@ export function PromptSuggestions({
     </Card>
   )
 }
-
-

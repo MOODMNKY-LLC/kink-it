@@ -23,19 +23,19 @@ Foreign Data Wrapper (FDW) enables:
 
 ### Real-World Use Case
 **Before FDW:**
-```
+\`\`\`
 Admin searches for "kinky scene" across 10 bond members:
 - 10 API calls to Notion (2 seconds each) = 20 seconds
 - 10 API calls to Supabase = 2 seconds
 - Total: ~22 seconds
-```
+\`\`\`
 
 **After FDW:**
-```
+\`\`\`
 Admin searches for "kinky scene" across 10 bond members:
 - 1 SQL query joining Supabase + Notion = 200ms
 - Total: 0.2 seconds (110x faster!)
-```
+\`\`\`
 
 ---
 
@@ -48,11 +48,11 @@ Admin searches for "kinky scene" across 10 bond members:
 **Step 3**: Get the database ID from the URL
 
 **Example URL:**
-```
+\`\`\`
 https://www.notion.so/your-workspace/Image-Generations-37f13e53-37cd-4460-b2fd-62a6c80e2d9e
                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                                                                     This is the database ID
-```
+\`\`\`
 
 **Database ID Format**: `37f13e53-37cd-4460-b2fd-62a6c80e2d9e` (UUID format)
 
@@ -60,10 +60,10 @@ https://www.notion.so/your-workspace/Image-Generations-37f13e53-37cd-4460-b2fd-6
 
 Your codebase already has logic to retrieve database IDs. Check:
 
-```typescript
+\`\`\`typescript
 // app/api/notion/integration-status/route.ts
 // This endpoint lists all accessible databases
-```
+\`\`\`
 
 You can use the Notion API to get database IDs programmatically.
 
@@ -71,12 +71,12 @@ You can use the Notion API to get database IDs programmatically.
 
 If users have already synced their templates, database IDs might already exist:
 
-```sql
+\`\`\`sql
 -- Check existing database IDs
 SELECT database_type, database_id, database_name, user_id
 FROM notion_databases
 ORDER BY database_type, user_id;
-```
+\`\`\`
 
 **Note**: For FDW, we need database IDs with `user_id IS NULL` (template/global databases).
 
@@ -86,7 +86,7 @@ ORDER BY database_type, user_id;
 
 ### Method 1: Manual SQL Insert (Quick Setup)
 
-```sql
+\`\`\`sql
 -- Insert template database IDs
 INSERT INTO notion_databases (database_type, database_id, database_name, user_id)
 VALUES 
@@ -106,26 +106,26 @@ ON CONFLICT DO NOTHING;
 
 -- Verify insertion
 SELECT * FROM notion_databases WHERE user_id IS NULL;
-```
+\`\`\`
 
 ### Method 2: Via API Endpoint (If Available)
 
 If you have an endpoint that syncs template databases, use that:
 
-```bash
+\`\`\`bash
 # Example (adjust endpoint as needed)
 POST /api/notion/sync-template
 {
   "database_type": "image_generations",
   "database_id": "37f13e53-37cd-4460-b2fd-62a6c80e2d9e"
 }
-```
+\`\`\`
 
 ### Method 3: From Notion API Directly
 
 Use your production Notion API key to query databases:
 
-```typescript
+\`\`\`typescript
 // Get all databases from Notion workspace
 const response = await fetch('https://api.notion.com/v1/search', {
   method: 'POST',
@@ -143,7 +143,7 @@ const response = await fetch('https://api.notion.com/v1/search', {
 
 const databases = await response.json();
 // Extract database IDs from results
-```
+\`\`\`
 
 ---
 
@@ -158,7 +158,7 @@ const databases = await response.json();
 4. Repeat for **KINKSTER Profiles** database
 
 **From Notion API:**
-```bash
+\`\`\`bash
 # Use your production API key
 curl -X POST 'https://api.notion.com/v1/search' \
   -H "Authorization: Bearer YOUR_NOTION_API_KEY_HERE" \
@@ -170,23 +170,23 @@ curl -X POST 'https://api.notion.com/v1/search' \
       "value": "database"
     }
   }'
-```
+\`\`\`
 
 ### Step 2: Insert Database IDs
 
-```sql
+\`\`\`sql
 INSERT INTO notion_databases (database_type, database_id, database_name, user_id)
 VALUES 
   ('image_generations', 'your-image-db-id', 'Image Generations', NULL),
   ('kinkster_profiles', 'your-kinkster-db-id', 'KINKSTER Profiles', NULL)
 ON CONFLICT DO NOTHING;
-```
+\`\`\`
 
 ### Step 3: Initialize Foreign Tables
 
-```sql
+\`\`\`sql
 SELECT * FROM public.setup_notion_fdw_tables();
-```
+\`\`\`
 
 This will:
 - Create `notion_fdw.image_generations_all` foreign table
@@ -195,7 +195,7 @@ This will:
 
 ### Step 4: Verify
 
-```sql
+\`\`\`sql
 -- Check foreign tables
 SELECT schemaname, tablename 
 FROM pg_tables 
@@ -206,7 +206,7 @@ SELECT COUNT(*) FROM notion_fdw.image_generations_all;
 
 -- Test admin view
 SELECT * FROM public.admin_image_generations_all LIMIT 5;
-```
+\`\`\`
 
 ---
 
@@ -214,7 +214,7 @@ SELECT * FROM public.admin_image_generations_all LIMIT 5;
 
 ### The Architecture
 
-```
+\`\`\`
 ┌─────────────────┐
 │   Notion API    │  ← Slow (500-2000ms per call)
 └─────────────────┘
@@ -224,11 +224,11 @@ SELECT * FROM public.admin_image_generations_all LIMIT 5;
 ┌─────────────────┐
 │  Your App API   │
 └─────────────────┘
-```
+\`\`\`
 
 **With FDW:**
 
-```
+\`\`\`
 ┌─────────────────┐
 │  Notion FDW     │  ← Fast SQL queries (50-200ms)
 └─────────────────┘
@@ -238,7 +238,7 @@ SELECT * FROM public.admin_image_generations_all LIMIT 5;
 ┌─────────────────┐
 │  Supabase DB    │  ← Unified data access
 └─────────────────┘
-```
+\`\`\`
 
 ### Benefits
 
@@ -251,7 +251,7 @@ SELECT * FROM public.admin_image_generations_all LIMIT 5;
 ### Use Cases
 
 **Admin Image Gallery Search:**
-```typescript
+\`\`\`typescript
 // Before: Multiple API calls
 const results = await Promise.all([
   notionApi.search('kinky scene', user1),
@@ -267,16 +267,16 @@ const { data } = await supabase.rpc('admin_search_image_generations', {
   limit_count: 100
 });
 // Takes 200ms
-```
+\`\`\`
 
 **Admin KINKSTER Browse:**
-```typescript
+\`\`\`typescript
 // Search across all bond members' KINKSTER profiles
 const { data } = await supabase.rpc('admin_search_kinkster_profiles', {
   search_query: 'dominant',
   admin_user_id: userId
 });
-```
+\`\`\`
 
 ---
 
@@ -296,14 +296,14 @@ const { data } = await supabase.rpc('admin_search_kinkster_profiles', {
 
 ### Method 3: From Notion API
 
-```bash
+\`\`\`bash
 # List all databases
 curl -X POST 'https://api.notion.com/v1/search' \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Notion-Version: 2022-06-28" \
   -H "Content-Type: application/json" \
   -d '{"filter": {"property": "object", "value": "database"}}'
-```
+\`\`\`
 
 ---
 
@@ -318,7 +318,7 @@ curl -X POST 'https://api.notion.com/v1/search' \
 
 ### SQL Commands
 
-```sql
+\`\`\`sql
 -- 1. Insert database IDs
 INSERT INTO notion_databases (database_type, database_id, database_name, user_id)
 VALUES ('image_generations', 'YOUR-DB-ID', 'Image Generations', NULL);
@@ -328,7 +328,7 @@ SELECT * FROM public.setup_notion_fdw_tables();
 
 -- 3. Verify
 SELECT * FROM pg_tables WHERE schemaname = 'notion_fdw';
-```
+\`\`\`
 
 ---
 
@@ -345,5 +345,3 @@ SELECT * FROM pg_tables WHERE schemaname = 'notion_fdw';
 **Benefits**: 10-100x faster searches, unified data access, bond-aware filtering
 
 **Next Step**: Get your database IDs from Notion and insert them!
-
-

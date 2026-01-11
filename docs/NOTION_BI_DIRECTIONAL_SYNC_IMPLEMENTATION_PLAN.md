@@ -27,7 +27,7 @@ This document provides a detailed, step-by-step implementation plan for adding b
 - `transformNotionPageToSupabaseFormat(page, databaseType)` - Converts Notion page properties to Supabase record format
 
 **Implementation Pattern:**
-```typescript
+\`\`\`typescript
 async function retrieveAllPagesFromDatabase(
   databaseId: string,
   apiKey: string,
@@ -85,7 +85,7 @@ async function retrieveAllPagesFromDatabase(
 
   return allPages
 }
-```
+\`\`\`
 
 #### 1.2 Matching Service
 **Location:** `lib/notion/matching-service.ts`
@@ -104,7 +104,7 @@ async function retrieveAllPagesFromDatabase(
 3. **Tertiary:** No match found (new record from Notion)
 
 **Implementation Pattern:**
-```typescript
+\`\`\`typescript
 interface MatchResult {
   notionPage: NotionPage
   supabaseRecord: SupabaseRecord | null
@@ -150,7 +150,7 @@ function matchNotionPageToSupabaseRecord(
     confidence: 'low',
   }
 }
-```
+\`\`\`
 
 #### 1.3 Conflict Detection Service
 **Location:** `lib/notion/conflict-detection-service.ts`
@@ -168,7 +168,7 @@ function matchNotionPageToSupabaseRecord(
 - **Missing:** Record exists in one system but not the other
 
 **Implementation Pattern:**
-```typescript
+\`\`\`typescript
 interface Conflict {
   type: 'record' | 'field' | 'missing'
   field?: string
@@ -228,7 +228,7 @@ function detectConflicts(
 
   return conflicts
 }
-```
+\`\`\`
 
 #### 1.4 Conflict Resolution Service
 **Location:** `lib/notion/conflict-resolution-service.ts`
@@ -257,16 +257,16 @@ function detectConflicts(
 **Endpoint:** `POST /api/notion/retrieve-from-database`
 
 **Request Body:**
-```typescript
+\`\`\`typescript
 {
   databaseType: 'tasks' | 'rules' | 'contracts' | 'journal' | 'calendar' | 'kinksters' | 'image_generations' | 'app_ideas'
   conflictResolution?: 'prefer_supabase' | 'prefer_notion' | 'manual'
   autoResolve?: boolean // Auto-resolve non-conflicting records
 }
-```
+\`\`\`
 
 **Response:**
-```typescript
+\`\`\`typescript
 {
   success: boolean
   retrieved: number
@@ -279,7 +279,7 @@ function detectConflicts(
     total: number
   }
 }
-```
+\`\`\`
 
 **Implementation Flow:**
 1. Authenticate user
@@ -300,12 +300,12 @@ function detectConflicts(
 **Purpose:** Syncs Supabase data to Notion when Notion pages are missing.
 
 **Request Body:**
-```typescript
+\`\`\`typescript
 {
   databaseType: string
   recordIds?: string[] // Optional: specific records to sync
 }
-```
+\`\`\`
 
 **Implementation:**
 - Uses existing sync routes but detects missing Notion pages
@@ -342,7 +342,7 @@ function detectConflicts(
 - `number-ticker` - Animated counts
 
 **Component Structure:**
-```tsx
+\`\`\`tsx
 export function DataRecoveryFlow() {
   const [step, setStep] = useState<'detect' | 'select' | 'retrieve' | 'resolve' | 'complete'>('detect')
   const [databases, setDatabases] = useState<Database[]>([])
@@ -363,7 +363,7 @@ export function DataRecoveryFlow() {
 
   // Recovery flow steps...
 }
-```
+\`\`\`
 
 #### 3.2 Conflict Resolution Component
 **Location:** `components/notion/conflict-resolution.tsx`
@@ -378,7 +378,7 @@ export function DataRecoveryFlow() {
 - Guidance tooltips
 
 **Component Structure:**
-```tsx
+\`\`\`tsx
 export function ConflictResolution({
   conflicts,
   onResolve,
@@ -419,7 +419,7 @@ export function ConflictResolution({
     </div>
   )
 }
-```
+\`\`\`
 
 #### 3.3 Recovery Detection Hook
 **Location:** `hooks/use-notion-recovery-detection.ts`
@@ -441,7 +441,7 @@ export function ConflictResolution({
 
 **Purpose:** Track recovery operations for audit and debugging.
 
-```sql
+\`\`\`sql
 CREATE TABLE IF NOT EXISTS notion_recovery_operations (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES profiles(id),
@@ -460,7 +460,7 @@ CREATE TABLE IF NOT EXISTS notion_recovery_operations (
 
 CREATE INDEX idx_recovery_operations_user_id ON notion_recovery_operations(user_id);
 CREATE INDEX idx_recovery_operations_status ON notion_recovery_operations(status);
-```
+\`\`\`
 
 ---
 

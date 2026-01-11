@@ -177,15 +177,15 @@
 
 ### Edge Function Deployment
 The Edge Function needs to be deployed for the props fix to take effect:
-```bash
+\`\`\`bash
 supabase functions deploy generate-kinkster-avatar
-```
+\`\`\`
 
 ### Database Migration
 Run the preset tables migration:
-```bash
+\`\`\`bash
 supabase db reset  # Or apply migration manually
-```
+\`\`\`
 
 ### Navigation Update
 Update navigation config to include Image Studio:

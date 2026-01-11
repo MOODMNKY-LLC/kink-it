@@ -19,6 +19,3 @@ export interface Conversation {
   updatedAt: Date
   isActive: boolean
 }
-
-
-

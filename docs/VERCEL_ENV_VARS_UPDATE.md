@@ -27,7 +27,7 @@ Successfully retrieved KINK IT credentials from Notion Credentials database:
 
 The following environment variables have been updated in `.env.local`:
 
-```bash
+\`\`\`bash
 # ============================================
 # NOTION INTEGRATION (REQUIRED)
 # ============================================
@@ -37,7 +37,7 @@ NOTION_API_KEY=YOUR_KINK_IT_NOTION_API_KEY_HERE
 # DISCORD BOT INTEGRATION (OPTIONAL)
 # ============================================
 DISCORD_BOT_TOKEN=YOUR_DISCORD_BOT_TOKEN_HERE
-```
+\`\`\`
 
 ---
 
@@ -47,7 +47,7 @@ To add these credentials to Vercel production, use one of the following methods:
 
 ### Option 1: Vercel CLI (Interactive)
 
-```bash
+\`\`\`bash
 # Add Notion API Key
 vercel env add NOTION_API_KEY production
 # When prompted, paste the API key from your .env.local file
@@ -55,7 +55,7 @@ vercel env add NOTION_API_KEY production
 # Add Discord Bot Token
 vercel env add DISCORD_BOT_TOKEN production
 # When prompted, paste the bot token from your .env.local file
-```
+\`\`\`
 
 ### Option 2: Vercel Dashboard
 
@@ -76,9 +76,9 @@ vercel env add DISCORD_BOT_TOKEN production
 
 Run the helper script (requires interactive input):
 
-```bash
+\`\`\`bash
 bash scripts/add-env-vars-to-vercel.sh
-```
+\`\`\`
 
 ---
 
@@ -114,13 +114,13 @@ The following Notion and Discord variables are already configured:
 
 After adding to Vercel, verify they're working:
 
-```bash
+\`\`\`bash
 # Pull production env vars to verify
 vercel env pull .env.production
 
 # Check if variables are present
 grep -E "NOTION_API_KEY|DISCORD_BOT_TOKEN" .env.production
-```
+\`\`\`
 
 ---
 
@@ -135,4 +135,3 @@ grep -E "NOTION_API_KEY|DISCORD_BOT_TOKEN" .env.production
 
 **Last Updated:** January 5, 2026  
 **Source:** Notion Credentials Database (KINK IT)
-

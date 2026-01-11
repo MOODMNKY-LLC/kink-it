@@ -65,7 +65,7 @@ After comprehensive research and analysis of the chat functionality, persistent 
 
 ### Architecture Diagram
 
-```
+\`\`\`
 ┌─────────────────────────────────────────────────────────┐
 │                    Chat Component                        │
 │  ┌──────────────────────────────────────────────────┐   │
@@ -86,11 +86,11 @@ After comprehensive research and analysis of the chat functionality, persistent 
 │  │ - Dispatches to reducer           │ - Dispatches │    │
 │  └───────────┘                      └──────────────┘    │
 └─────────────────────────────────────────────────────────┘
-```
+\`\`\`
 
 ### Implementation: useChatReducer Hook
 
-```typescript
+\`\`\`typescript
 // hooks/use-chat-reducer.ts
 
 import { useReducer, useRef, useCallback, useEffect } from 'react'
@@ -283,11 +283,11 @@ export function useChatReducer(conversationId?: string, userId?: string) {
     loadHistory,
   }
 }
-```
+\`\`\`
 
 ### Implementation: Stable SSE Hook
 
-```typescript
+\`\`\`typescript
 // hooks/use-sse-stream.ts
 
 import { useRef, useCallback } from 'react'
@@ -383,11 +383,11 @@ export function useSSEStream() {
 
   return { startStream, stopStream }
 }
-```
+\`\`\`
 
 ### Implementation: Improved ControlledSwitch
 
-```typescript
+\`\`\`typescript
 // components/ui/controlled-switch.tsx
 
 "use client"
@@ -452,7 +452,7 @@ export function ControlledSwitch({
     />
   )
 }
-```
+\`\`\`
 
 ---
 

@@ -384,4 +384,3 @@ export function ResourcesPageClient({ userId, userRole, bondId }: ResourcesPageC
     </div>
   )
 }
-

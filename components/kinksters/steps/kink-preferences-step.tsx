@@ -331,6 +331,3 @@ export default function KinkPreferencesStep({
     </div>
   )
 }
-
-
-

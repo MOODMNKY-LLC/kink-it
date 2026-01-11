@@ -282,38 +282,38 @@ This document outlines a comprehensive Discord server structure for the KINK IT 
 ### Message Templates
 
 #### Task Assignment
-```
+\`\`\`
 🎯 **NEW TASK ASSIGNED**
 Simeon has assigned you: **[Task Name]**
 Priority: [Priority Level]
 Due: [Due Date]
 Points: [Point Value]
-```
+\`\`\`
 
 #### Task Completion
-```
+\`\`\`
 ✅ **TASK COMPLETED**
 Kevin has completed: **[Task Name]**
 Completed at: [Timestamp]
 Points awarded: [Points]
 Current balance: [Balance]
-```
+\`\`\`
 
 #### Submission State Change
-```
+\`\`\`
 🔄 **SUBMISSION STATE UPDATE**
 Kevin has updated submission state to: **[State]**
 Updated at: [Timestamp]
 Note: [Optional message]
-```
+\`\`\`
 
 #### Reward Available
-```
+\`\`\`
 🎁 **NEW REWARD AVAILABLE**
 Reward: **[Reward Name]**
 Cost: [Points] points
 Description: [Description]
-```
+\`\`\`
 
 ## Implementation Steps
 
@@ -372,7 +372,7 @@ Description: [Description]
 - `/api/discord/webhook` - Webhook endpoint for external services
 
 ### Database Schema Additions
-```sql
+\`\`\`sql
 -- Add Discord preferences to profiles
 ALTER TABLE profiles ADD COLUMN discord_notifications_enabled BOOLEAN DEFAULT false;
 ALTER TABLE profiles ADD COLUMN discord_channel_preferences JSONB DEFAULT '{}'::jsonb;
@@ -386,7 +386,7 @@ CREATE TABLE discord_channels (
   category TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
-```
+\`\`\`
 
 ### Event Triggers
 - Task assigned → Send to #task-assignments
@@ -409,7 +409,3 @@ CREATE TABLE discord_channels (
 ## Conclusion
 
 This Discord server structure provides a comprehensive notification and communication hub for KINK IT while maintaining the app's core principles of authority preservation, consent-first design, and role-appropriate access. The structure is scalable, organized, and follows Discord best practices while serving the unique needs of D/s relationship management.
-
-
-
-

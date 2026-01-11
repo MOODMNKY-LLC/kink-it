@@ -95,7 +95,7 @@ Updated routes to use `getNotionAccessToken()` utility:
 
 ## Token Refresh Flow
 
-```
+\`\`\`
 User makes API request
     ↓
 getNotionAccessToken(userId) called
@@ -109,7 +109,7 @@ Update stored tokens
 Return valid access_token
     ↓
 API call proceeds with valid token
-```
+\`\`\`
 
 ---
 
@@ -126,9 +126,9 @@ API call proceeds with valid token
 ## Migration Steps
 
 1. **Apply Migration**:
-   ```bash
+   \`\`\`bash
    supabase migration up
-   ```
+   \`\`\`
 
 2. **Environment Variables** (already configured):
    - `NOTION_API_KEY_ENCRYPTION_KEY` or `SUPABASE_ENCRYPTION_KEY`
@@ -180,4 +180,3 @@ API call proceeds with valid token
 
 - [Notion OAuth Documentation](https://developers.notion.com/docs/authorization)
 - [Supabase Auth Documentation](https://supabase.com/docs/guides/auth)
-

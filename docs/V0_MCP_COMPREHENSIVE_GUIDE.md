@@ -50,7 +50,7 @@ v0 MCP is a Model Context Protocol server that connects Cursor IDE to v0's Platf
 **Scenario**: Need a new widget for displaying scene statistics
 
 **v0 MCP Workflow**:
-```typescript
+\`\`\`typescript
 // Create a v0 chat for component generation
 {
   "tool": "v0_createChat",
@@ -68,7 +68,7 @@ v0 MCP is a Model Context Protocol server that connects Cursor IDE to v0's Platf
     }
   }
 }
-```
+\`\`\`
 
 **Benefits**:
 - Generate multiple variations quickly
@@ -104,7 +104,7 @@ v0 MCP is a Model Context Protocol server that connects Cursor IDE to v0's Platf
 **Scenario**: Need new components that match existing dashboard style
 
 **v0 MCP Strategy**:
-```typescript
+\`\`\`typescript
 // Reference existing components in prompt
 {
   "message": "Create a rewards display component matching the style of:
@@ -114,7 +114,7 @@ v0 MCP is a Model Context Protocol server that connects Cursor IDE to v0's Platf
   - Include Magic UI ShineBorder effect
   - Follow TypeScript patterns from existing components"
 }
-```
+\`\`\`
 
 **Key References to Include**:
 - Existing component files (for structure)
@@ -150,7 +150,7 @@ v0 MCP is a Model Context Protocol server that connects Cursor IDE to v0's Platf
 **Scenario**: Ensure all new components meet accessibility standards
 
 **v0 MCP Prompt Strategy**:
-```typescript
+\`\`\`typescript
 {
   "message": "Create an accessible form component with:
   - Proper ARIA labels
@@ -160,7 +160,7 @@ v0 MCP is a Model Context Protocol server that connects Cursor IDE to v0's Platf
   - Error message associations
   - WCAG 2.1 AA compliance"
 }
-```
+\`\`\`
 
 **Quality Assurance**:
 - Review generated code for accessibility
@@ -174,7 +174,7 @@ v0 MCP is a Model Context Protocol server that connects Cursor IDE to v0's Platf
 
 ### Workflow 1: Component Development Cycle
 
-```
+\`\`\`
 1. Define Requirements
    ↓
 2. Create v0 Chat with Detailed Prompt
@@ -192,11 +192,11 @@ v0 MCP is a Model Context Protocol server that connects Cursor IDE to v0's Platf
 6. Test & Refine
    ↓
 7. Integrate into App
-```
+\`\`\`
 
 ### Workflow 2: Feature Development
 
-```
+\`\`\`
 1. Feature Planning
    - Define user stories
    - Identify required components
@@ -221,7 +221,7 @@ v0 MCP is a Model Context Protocol server that connects Cursor IDE to v0's Platf
    - Accessibility audit
    ↓
 6. Deployment
-```
+\`\`\`
 
 ---
 
@@ -230,7 +230,7 @@ v0 MCP is a Model Context Protocol server that connects Cursor IDE to v0's Platf
 ### Example 1: Generate Task Management Component
 
 **Step 1: Create v0 Chat**
-```typescript
+\`\`\`typescript
 // Use v0 MCP to create chat
 const chat = await v0_createChat({
   message: `Create a task management component for KINK IT app.
@@ -254,16 +254,16 @@ const chat = await v0_createChat({
     modelId: "v0-1.5-md"
   }
 })
-```
+\`\`\`
 
 **Step 2: Iterate on Design**
-```typescript
+\`\`\`typescript
 // Send follow-up message
 await v0_sendChatMessage({
   chatId: chat.id,
   message: "Add drag-and-drop reordering and make the cards use Magic UI BorderBeam effect"
 })
-```
+\`\`\`
 
 **Step 3: Review Generated Code**
 - Check component structure
@@ -272,7 +272,7 @@ await v0_sendChatMessage({
 - Review styling
 
 **Step 4: Adapt to KINK IT**
-```typescript
+\`\`\`typescript
 // Modify generated component
 // 1. Add Supabase data fetching
 import { createClient } from '@/lib/supabase/server'
@@ -292,14 +292,14 @@ className="bg-background text-foreground border-border"
 
 // 4. Add Magic UI effects
 import { BorderBeam } from '@/components/ui/border-beam'
-```
+\`\`\`
 
 ---
 
 ### Example 2: Generate Scene Log Form
 
 **v0 MCP Prompt**:
-```typescript
+\`\`\`typescript
 {
   message: `Create a comprehensive scene logging form for KINK IT.
   
@@ -330,7 +330,7 @@ import { BorderBeam } from '@/components/ui/border-beam'
   - Server action for form submission
   - Supabase integration ready`
 }
-```
+\`\`\`
 
 **Integration Steps**:
 1. Review generated form structure
@@ -345,7 +345,7 @@ import { BorderBeam } from '@/components/ui/border-beam'
 ### Example 3: Generate Communication Log Interface
 
 **v0 MCP Prompt**:
-```typescript
+\`\`\`typescript
 {
   message: `Create a communication log interface for KINK IT.
   
@@ -374,7 +374,7 @@ import { BorderBeam } from '@/components/ui/border-beam'
   - Server components for initial load
   - Client components for interactivity`
 }
-```
+\`\`\`
 
 ---
 
@@ -384,7 +384,7 @@ import { BorderBeam } from '@/components/ui/border-beam'
 
 When generating components, always reference these theme variables:
 
-```css
+\`\`\`css
 /* From app/globals.css */
 --background: oklch(0.05 0 0);
 --foreground: oklch(0.99 0 0);
@@ -392,12 +392,12 @@ When generating components, always reference these theme variables:
 --accent: oklch(0.70 0.20 30);
 --muted: oklch(0.15 0.01 240);
 --border: oklch(0.20 0.01 240);
-```
+\`\`\`
 
 ### Component Patterns
 
 **Card Pattern**:
-```typescript
+\`\`\`typescript
 // Reference: components/dashboard/card/index.tsx
 <Card className="bg-background border-border">
   <CardHeader>
@@ -407,10 +407,10 @@ When generating components, always reference these theme variables:
     {/* Content */}
   </CardContent>
 </Card>
-```
+\`\`\`
 
 **Form Pattern**:
-```typescript
+\`\`\`typescript
 // Use React Hook Form + Zod
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -419,10 +419,10 @@ import { z } from 'zod'
 const schema = z.object({
   // fields
 })
-```
+\`\`\`
 
 **Data Fetching Pattern**:
-```typescript
+\`\`\`typescript
 // Server Component
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUser } from '@/lib/auth/get-user'
@@ -435,7 +435,7 @@ export default async function Component() {
     .select('*')
     .eq('user_id', user.id)
 }
-```
+\`\`\`
 
 ---
 
@@ -477,12 +477,12 @@ When using v0 MCP generated code:
 - Preferences management UI
 
 **v0 MCP Prompt Template**:
-```
+\`\`\`
 Create a [component name] for KINK IT user profiles.
 Include: [specific features]
 Match: components/account/profile-form.tsx patterns
 Theme: Dark with orange-red accents
-```
+\`\`\`
 
 ### 2. Task Management
 
@@ -537,7 +537,7 @@ Theme: Dark with orange-red accents
 
 Create a script that uses v0 MCP to generate component stubs:
 
-```typescript
+\`\`\`typescript
 // scripts/generate-component.ts
 import { v0_createChat } from '@vercel/v0'
 
@@ -560,7 +560,7 @@ async function generateComponent(name: string, description: string) {
   
   return chat
 }
-```
+\`\`\`
 
 ### Integration with Development Workflow
 
@@ -586,7 +586,7 @@ async function generateComponent(name: string, description: string) {
 - Integration points
 
 **Example Good Prompt**:
-```
+\`\`\`
 Create a task card component for KINK IT dashboard.
 
 Requirements:
@@ -603,7 +603,7 @@ Reference:
 - components/dashboard/card/index.tsx for structure
 - app/globals.css for theme variables
 - components/ui/badge.tsx for status display
-```
+\`\`\`
 
 ### 2. Iterative Refinement
 
@@ -628,7 +628,7 @@ Reference:
 ### 4. Component Library Management
 
 **Organization**:
-```
+\`\`\`
 components/
   ├── dashboard/        # Dashboard-specific components
   ├── account/          # Account management
@@ -636,7 +636,7 @@ components/
   ├── tasks/            # Task management (generated with v0)
   ├── communication/    # Communication logs (generated with v0)
   └── ui/               # Base UI components (shadcn + Magic UI)
-```
+\`\`\`
 
 ---
 
@@ -644,26 +644,26 @@ components/
 
 ### Step 1: Verify v0 MCP Setup
 
-```bash
+\`\`\`bash
 # Check .env.local has V0_API_KEY
 Get-Content .env.local | Select-String "V0_API_KEY"
 
 # Verify MCP config
 Get-Content .cursor/mcp.json | Select-String "v0"
-```
+\`\`\`
 
 ### Step 2: Test v0 MCP Connection
 
 Ask Cursor AI:
-```
+\`\`\`
 "Create a v0 chat for testing component generation"
-```
+\`\`\`
 
 ### Step 3: Generate Your First Component
 
-```
+\`\`\`
 "Use v0 MCP to create a simple card component matching KINK IT's design system"
-```
+\`\`\`
 
 ### Step 4: Review & Integrate
 
@@ -743,8 +743,3 @@ v0 MCP is a **powerful accelerator** for KINK IT development when used strategic
 **Last Updated**: January 5, 2026  
 **Status**: Ready for Implementation  
 **Next Steps**: Start with a simple component generation test
-
-
-
-
-

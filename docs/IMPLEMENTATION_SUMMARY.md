@@ -41,9 +41,9 @@
 **Status**: Requires manual installation due to interactive prompts
 
 **Command**:
-```bash
+\`\`\`bash
 pnpm dlx ai-elements@latest
-```
+\`\`\`
 
 **When prompted**:
 - For `button.tsx`: Choose **"N" (No)** - Keep existing shadcn/ui button
@@ -69,7 +69,7 @@ pnpm dlx ai-elements@latest
 
 **2.1 Terminal Notifications Component**
 Create `components/dashboard/notifications/terminal-notifications.tsx`:
-```tsx
+\`\`\`tsx
 import { Terminal, AnimatedSpan } from "@/components/ui/terminal"
 import type { Notification } from "@/types/dashboard"
 
@@ -87,11 +87,11 @@ export function TerminalNotifications({ notifications }: { notifications: Notifi
     </Terminal>
   )
 }
-```
+\`\`\`
 
 **2.2 Terminal Chat Component**
 Create `components/chat/terminal-chat.tsx`:
-```tsx
+\`\`\`tsx
 import { Terminal, TypingAnimation } from "@/components/ui/terminal"
 import type { ChatMessage } from "@/components/chat/types"
 
@@ -110,7 +110,7 @@ export function TerminalChat({ messages }: { messages: ChatMessage[] }) {
     </Terminal>
   )
 }
-```
+\`\`\`
 
 ### Phase 3: AI Elements Integration
 
@@ -187,5 +187,3 @@ The foundation is complete. Next steps:
 
 **Status**: Phase 1 Complete ✅  
 **Next**: Phase 2 - Component Integration 🚧
-
-

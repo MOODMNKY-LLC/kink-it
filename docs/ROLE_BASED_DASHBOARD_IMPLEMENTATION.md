@@ -85,7 +85,7 @@ Uses `getAdminStats()` function to fetch:
 ## MagicUI Components Usage
 
 ### Bento Grid
-```tsx
+\`\`\`tsx
 <BentoGrid>
   <BentoCard
     name="User Management"
@@ -96,29 +96,29 @@ Uses `getAdminStats()` function to fetch:
     background={<div className="absolute inset-0 bg-gradient-to-br..." />}
   />
 </BentoGrid>
-```
+\`\`\`
 
 ### Number Ticker
-```tsx
+\`\`\`tsx
 <NumberTicker value={stats.totalUsers} />
-```
+\`\`\`
 
 ### Border Beam
-```tsx
+\`\`\`tsx
 <BorderBeam
   size={150}
   duration={12}
   colorFrom="#9E7AFF"
   colorTo="#FE8BBB"
 />
-```
+\`\`\`
 
 ### Magic Card
-```tsx
+\`\`\`tsx
 <MagicCard gradientFrom="#9E7AFF" gradientTo="#FE8BBB">
   {/* Content */}
 </MagicCard>
-```
+\`\`\`
 
 ---
 
@@ -127,7 +127,7 @@ Uses `getAdminStats()` function to fetch:
 ### `getAdminStats()` (`lib/analytics/get-admin-stats.ts`)
 
 Returns:
-```typescript
+\`\`\`typescript
 {
   totalUsers: number
   activeUsers: number
@@ -142,7 +142,7 @@ Returns:
     timestamp: string
   }>
 }
-```
+\`\`\`
 
 ---
 
@@ -218,6 +218,3 @@ Returns:
 **Implementation Status**: ✅ Complete  
 **Testing Status**: ⏳ Pending  
 **Documentation Status**: ✅ Complete
-
-
-

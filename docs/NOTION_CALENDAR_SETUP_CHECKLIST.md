@@ -64,7 +64,7 @@
 **Status:** Migration file created, needs to be applied
 
 **Action Required:**
-```bash
+\`\`\`bash
 # Apply migration to production database
 # Via Supabase Dashboard:
 # 1. Go to Database > Migrations
@@ -72,7 +72,7 @@
 
 # OR via Supabase CLI:
 supabase db push
-```
+\`\`\`
 
 **What it does:**
 - Adds `google_account_email` column to `profiles` table
@@ -81,7 +81,7 @@ supabase db push
 - Backfills existing events with `ical_uid`
 
 **Verification:**
-```sql
+\`\`\`sql
 -- Check columns exist
 SELECT column_name FROM information_schema.columns 
 WHERE table_name = 'calendar_events' AND column_name = 'ical_uid';
@@ -93,7 +93,7 @@ WHERE table_name = 'profiles' AND column_name = 'google_account_email';
 SELECT trigger_name FROM information_schema.triggers 
 WHERE event_object_table = 'calendar_events' 
 AND trigger_name = 'trigger_set_calendar_event_ical_uid';
-```
+\`\`\`
 
 ### 2. User Requirements ⏳
 **Status:** Users need to complete setup
@@ -151,7 +151,7 @@ AND trigger_name = 'trigger_set_calendar_event_ical_uid';
 ## 📋 Deployment Steps
 
 ### Step 1: Apply Database Migration
-```bash
+\`\`\`bash
 # Option A: Via Supabase Dashboard
 1. Go to Supabase Dashboard > Database > Migrations
 2. Click "New Migration"
@@ -161,10 +161,10 @@ AND trigger_name = 'trigger_set_calendar_event_ical_uid';
 # Option B: Via Supabase CLI
 cd /path/to/kink-it
 supabase db push
-```
+\`\`\`
 
 ### Step 2: Verify Migration
-```sql
+\`\`\`sql
 -- Run in Supabase SQL Editor
 SELECT 
   column_name, 
@@ -172,10 +172,10 @@ SELECT
 FROM information_schema.columns 
 WHERE table_name IN ('profiles', 'calendar_events')
 AND column_name IN ('google_account_email', 'ical_uid');
-```
+\`\`\`
 
 ### Step 3: Deploy Code Changes
-```bash
+\`\`\`bash
 # Code changes are already in place:
 # - lib/notion-calendar.ts ✅
 # - app/api/profile/google-email/route.ts ✅
@@ -185,7 +185,7 @@ AND column_name IN ('google_account_email', 'ical_uid');
 # Just push to production:
 git push origin main
 # Vercel will auto-deploy
-```
+\`\`\`
 
 ### Step 4: Test in Production
 1. Create a test calendar event
@@ -279,4 +279,3 @@ A: Not with current implementation. Would require Google Calendar API integratio
 
 **Q: Do users need to authenticate with Google?**  
 A: No. Users manually enter their Google account email. No OAuth required.
-

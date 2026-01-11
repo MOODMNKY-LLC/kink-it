@@ -255,4 +255,3 @@ COMMENT ON TABLE public.task_proof IS
 
 COMMENT ON TABLE public.task_templates IS 
   'Reusable task templates for common routines and protocols.';
-

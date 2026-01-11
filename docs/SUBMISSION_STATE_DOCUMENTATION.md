@@ -136,13 +136,13 @@ All state changes are logged with:
 **Purpose**: Fetch current submission state
 
 **Response**:
-```json
+\`\`\`json
 {
   "state": "active" | "low_energy" | "paused",
   "updated_at": "2026-02-03T12:00:00Z",
   "can_change": true | false
 }
-```
+\`\`\`
 
 **Authorization**: Authenticated users only
 
@@ -152,22 +152,22 @@ All state changes are logged with:
 **Purpose**: Update submission state
 
 **Request Body**:
-```json
+\`\`\`json
 {
   "state": "active" | "low_energy" | "paused",
   "reason": "Optional reason for state change"
 }
-```
+\`\`\`
 
 **Response**:
-```json
+\`\`\`json
 {
   "success": true,
   "previous_state": "active",
   "new_state": "paused",
   "updated_at": "2026-02-03T12:00:00Z"
 }
-```
+\`\`\`
 
 **Authorization**: 
 - Only submissives can update their own state
@@ -207,7 +207,7 @@ All state changes are logged with:
 ## Technical Implementation
 
 ### Database Schema
-```sql
+\`\`\`sql
 -- Profile column
 ALTER TABLE profiles ADD COLUMN submission_state submission_state;
 
@@ -221,20 +221,20 @@ CREATE TABLE submission_state_logs (
   reason text,
   created_at timestamptz NOT NULL DEFAULT now()
 );
-```
+\`\`\`
 
 ### TypeScript Types
-```typescript
+\`\`\`typescript
 type SubmissionState = "active" | "low_energy" | "paused"
-```
+\`\`\`
 
 ### React Hook
-```typescript
+\`\`\`typescript
 const { state, updatedAt, isLoading, error } = useSubmissionState({
   userId: string,
   partnerId?: string | null
 })
-```
+\`\`\`
 
 ---
 

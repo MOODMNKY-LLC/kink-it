@@ -152,7 +152,7 @@ For #submissive-only:
 
 Copy and paste this into #announcements:
 
-```
+\`\`\`
 🎉 **KINK IT Discord Server Setup Complete!**
 
 Welcome to your KINK IT notification and communication hub. This server is designed to support your D/s dynamic with automated notifications and optional communication channels.
@@ -171,13 +171,13 @@ Welcome to your KINK IT notification and communication hub. This server is desig
 All notification channels are read-only and receive automated messages from the KINK IT application. You can customize which channels you receive notifications for in your app settings.
 
 For detailed setup instructions, see: `docs/DISCORD_SERVER_LAYOUT_PLAN.md`
-```
+\`\`\`
 
 ### #server-info Channel Description
 
 Copy and paste this into #server-info:
 
-```
+\`\`\`
 # KINK IT Discord Server Structure
 
 This server is organized into 5 main categories:
@@ -203,13 +203,13 @@ Educational content, guides, and app ideas.
 Historical notifications and system logs.
 
 **Note**: All notification channels are read-only. Messages are posted automatically by the KINK IT bot when events occur in the application.
-```
+\`\`\`
 
 ### #rules Channel Content
 
 Copy and paste this into #rules:
 
-```
+\`\`\`
 # KINK IT Discord Server Rules
 
 ## Core Principles
@@ -235,7 +235,7 @@ This server may contain NSFW content related to D/s dynamics. All members must b
 ## Support
 
 For technical issues or questions, contact your server administrator or refer to the KINK IT app documentation.
-```
+\`\`\`
 
 ## Step 6: Configure Webhooks (Optional)
 
@@ -291,7 +291,3 @@ See `docs/DISCORD_SERVER_LAYOUT_PLAN.md` for detailed integration instructions.
 3. ⏳ Test notification flow
 4. ⏳ Set up user preferences
 5. ⏳ Deploy to production
-
-
-
-

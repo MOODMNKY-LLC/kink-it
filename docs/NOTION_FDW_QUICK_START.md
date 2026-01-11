@@ -8,10 +8,10 @@
 
 ### Step 1: Apply Migration
 
-```bash
+\`\`\`bash
 # Apply the migration that sets up FDW structure
 supabase migration up
-```
+\`\`\`
 
 This creates:
 - ✅ Foreign data wrapper
@@ -23,29 +23,29 @@ This creates:
 
 Call the setup API endpoint (uses your `NOTION_API_KEY_PROD` from env):
 
-```bash
+\`\`\`bash
 # Via API (requires admin authentication)
 curl -X POST http://localhost:3000/api/admin/notion/setup-fdw \
   -H "Authorization: Bearer <your_access_token>"
-```
+\`\`\`
 
 Or manually via SQL (if you have direct DB access):
 
-```sql
+\`\`\`sql
 -- Get your API key from .env.local and run:
 SELECT public.create_notion_fdw_server('your_notion_api_key_here');
-```
+\`\`\`
 
 ### Step 3: Initialize Foreign Tables
 
-```sql
+\`\`\`sql
 -- This reads database IDs from notion_databases table
 SELECT * FROM public.setup_notion_fdw_tables();
-```
+\`\`\`
 
 ### Step 4: Test
 
-```sql
+\`\`\`sql
 -- Test foreign table
 SELECT * FROM notion_fdw.image_generations_all LIMIT 1;
 
@@ -54,7 +54,7 @@ SELECT * FROM public.admin_image_generations_all LIMIT 1;
 
 -- Test admin search
 SELECT * FROM public.admin_search_image_generations('kinky', auth.uid(), 10);
-```
+\`\`\`
 
 ---
 
@@ -86,7 +86,7 @@ SELECT * FROM public.admin_search_image_generations('kinky', auth.uid(), 10);
 
 ### Admin Image Search
 
-```typescript
+\`\`\`typescript
 // app/api/admin/gallery/search/route.ts
 const { data } = await supabase
   .rpc('admin_search_image_generations', {
@@ -94,17 +94,17 @@ const { data } = await supabase
     admin_user_id: userId,
     limit_count: 100
   })
-```
+\`\`\`
 
 ### Admin KINKSTER Browse
 
-```typescript
+\`\`\`typescript
 const { data } = await supabase
   .rpc('admin_search_kinkster_profiles', {
     search_query: 'dominant',
     admin_user_id: userId
   })
-```
+\`\`\`
 
 ---
 
@@ -112,35 +112,33 @@ const { data } = await supabase
 
 ### Foreign Server Not Created
 
-```sql
+\`\`\`sql
 -- Check if server exists
 SELECT * FROM pg_foreign_server WHERE srvname = 'notion_service_account_server';
 
 -- Create manually if needed
 SELECT public.create_notion_fdw_server('your_api_key');
-```
+\`\`\`
 
 ### Foreign Tables Not Found
 
-```sql
+\`\`\`sql
 -- Check database IDs
 SELECT * FROM notion_databases WHERE database_type IN ('image_generations', 'kinkster_profiles');
 
 -- Re-run setup
 SELECT * FROM public.setup_notion_fdw_tables();
-```
+\`\`\`
 
 ### Permission Denied
 
 Ensure you're authenticated as admin:
-```sql
+\`\`\`sql
 SELECT public.is_admin(auth.uid()); -- Should return true
-```
+\`\`\`
 
 ---
 
 **Status**: Ready to Deploy  
 **Migration**: `20260201000003_setup_notion_fdw_with_env_key.sql`  
 **Setup Endpoint**: `/api/admin/notion/setup-fdw`
-
-

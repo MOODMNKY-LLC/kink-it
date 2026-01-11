@@ -76,24 +76,24 @@ Tests for performance requirements:
 ### Prerequisites
 
 1. Set up test environment variables:
-   ```bash
+   \`\`\`bash
    TEST_NOTION_API_KEY=your_test_notion_api_key
    NEXT_PUBLIC_APP_URL=http://localhost:3000
-   ```
+   \`\`\`
 
 2. Ensure test database is set up with test user
 
 ### Run All Tests
 
-```bash
+\`\`\`bash
 npm test -- tests/notion-integration.test.ts
-```
+\`\`\`
 
 ### Run Specific Test Category
 
-```bash
+\`\`\`bash
 npm test -- tests/notion-integration.test.ts -t "API Key Management"
-```
+\`\`\`
 
 ## Test Data Requirements
 
@@ -127,5 +127,3 @@ Update tests when:
 - API endpoints change
 - Error handling logic changes
 - Performance requirements change
-
-

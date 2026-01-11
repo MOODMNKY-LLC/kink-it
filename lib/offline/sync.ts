@@ -117,6 +117,3 @@ if (typeof window !== 'undefined') {
     })
   }
 }
-
-
-

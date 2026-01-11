@@ -14,6 +14,3 @@ if (Test-Path $envFile) {
 
 # Run Docker container
 docker run -i --rm -e DISCORD_TOKEN=$env:DISCORD_TOKEN mcp/mcp-discord $args
-
-
-

@@ -163,4 +163,3 @@ Replaced the Discord bot installation step in onboarding with a Notion API key i
 ## Conclusion
 
 The onboarding flow now prioritizes Notion API key setup over Discord bot installation, making it more focused on core functionality. The disconnect functionality gives users control over their OAuth connections while maintaining the security and flexibility of manual API keys.
-

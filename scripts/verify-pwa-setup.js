@@ -193,4 +193,3 @@ if (percentage === 100) {
 }
 
 console.log('')
-

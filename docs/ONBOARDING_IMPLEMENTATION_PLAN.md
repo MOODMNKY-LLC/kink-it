@@ -180,7 +180,7 @@ This document outlines the comprehensive implementation plan for the KINK IT use
 
 ### Migration: Add Onboarding Fields
 
-```sql
+\`\`\`sql
 -- Add onboarding tracking fields to profiles table
 ALTER TABLE public.profiles
 ADD COLUMN IF NOT EXISTS notion_parent_page_id text,
@@ -218,7 +218,7 @@ WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "notion_databases_update_own"
 ON public.notion_databases FOR UPDATE
 USING (auth.uid() = user_id);
-```
+\`\`\`
 
 ---
 
@@ -229,35 +229,35 @@ USING (auth.uid() = user_id);
 **Purpose**: Duplicate Notion template for user
 
 **Request**:
-```json
+\`\`\`json
 {
   "templateId": "optional-template-id",
   "parentPageId": "optional-parent-page-id"
 }
-```
+\`\`\`
 
 **Response**:
-```json
+\`\`\`json
 {
   "success": true,
   "pageId": "created-page-id",
   "parentPageId": "parent-page-id"
 }
-```
+\`\`\`
 
 ### 2. Notion Template Verification
 **Endpoint**: `POST /api/onboarding/notion/verify-template`
 **Purpose**: Verify template exists and discover databases
 
 **Request**:
-```json
+\`\`\`json
 {
   "parentPageId": "parent-page-id"
 }
-```
+\`\`\`
 
 **Response**:
-```json
+\`\`\`json
 {
   "success": true,
   "parentPageId": "parent-page-id",
@@ -269,47 +269,47 @@ USING (auth.uid() = user_id);
     }
   ]
 }
-```
+\`\`\`
 
 ### 3. Update Onboarding Progress
 **Endpoint**: `PATCH /api/onboarding/progress`
 **Purpose**: Update user's onboarding progress
 
 **Request**:
-```json
+\`\`\`json
 {
   "step": 3,
   "data": {
     "notion_parent_page_id": "page-id"
   }
 }
-```
+\`\`\`
 
 **Response**:
-```json
+\`\`\`json
 {
   "success": true,
   "step": 3,
   "completed": false
 }
-```
+\`\`\`
 
 ### 4. Complete Onboarding
 **Endpoint**: `POST /api/onboarding/complete`
 **Purpose**: Mark onboarding as complete
 
 **Request**:
-```json
+\`\`\`json
 {}
-```
+\`\`\`
 
 **Response**:
-```json
+\`\`\`json
 {
   "success": true,
   "redirectTo": "/"
 }
-```
+\`\`\`
 
 ### 5. Discord Guild Install
 **Endpoint**: `GET /api/auth/discord/guild-install`
@@ -497,7 +497,3 @@ USING (auth.uid() = user_id);
 **Last Updated**: 2026-01-27  
 **Status**: Ready for Implementation  
 **Next Steps**: Begin Phase 1 implementation
-
-
-
-

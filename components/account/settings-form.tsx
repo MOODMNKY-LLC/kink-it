@@ -224,8 +224,3 @@ export function SettingsForm({ profile }: SettingsFormProps) {
     </form>
   )
 }
-
-
-
-
-

@@ -9,9 +9,9 @@
 
 When creating a bond and adding the founder as the first member, the RLS policy caused infinite recursion:
 
-```
+\`\`\`
 Error: infinite recursion detected in policy for relation "bond_members"
-```
+\`\`\`
 
 **Root Cause**: The INSERT policy for `bond_members` was checking the `bond_members` table itself to verify if a user has `can_invite` permission. When inserting the first member (the founder), this check queried `bond_members`, which triggered the same policy check, creating infinite recursion.
 
@@ -29,7 +29,7 @@ Error: infinite recursion detected in policy for relation "bond_members"
 
 ### Policy Structure
 
-```sql
+\`\`\`sql
 CREATE POLICY "Bond creators and authorized members can add members"
 ON public.bond_members FOR INSERT
 TO authenticated
@@ -67,7 +67,7 @@ WITH CHECK (
     WHERE id = (SELECT auth.uid()) AND system_role = 'admin'
   )
 );
-```
+\`\`\`
 
 ---
 
@@ -106,6 +106,3 @@ After applying the migration:
 - [Bonds System Implementation](./BONDS_SYSTEM_IMPLEMENTATION.md)
 - [Bonds Debug Fix](./BONDS_DEBUG_FIX.md)
 - [RLS Policies Guide](./developer/rls-policies.md)
-
-
-

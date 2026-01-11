@@ -76,20 +76,20 @@ This document provides a complete overview of the Discord bot setup process for 
 
 Add to `.env.local`:
 
-```bash
+\`\`\`bash
 DISCORD_APPLICATION_ID=YOUR_APPLICATION_ID
 DISCORD_CLIENT_ID=YOUR_CLIENT_ID
 DISCORD_PUBLIC_KEY=YOUR_PUBLIC_KEY
 DISCORD_BOT_TOKEN=YOUR_BOT_TOKEN
 DISCORD_CLIENT_SECRET=YOUR_CLIENT_SECRET
-```
+\`\`\`
 
 ### Step 5: Configure Discord MCP (Optional, 2 minutes)
 
 1. Export `DISCORD_TOKEN` from `DISCORD_BOT_TOKEN`:
-   ```powershell
+   \`\`\`powershell
    $env:DISCORD_TOKEN = $env:DISCORD_BOT_TOKEN
-   ```
+   \`\`\`
 2. Restart Cursor IDE
 3. Test Discord MCP connectivity
 
@@ -212,7 +212,3 @@ Once `DISCORD_TOKEN` is exported, test MCP connectivity.
 ---
 
 **Ready to proceed?** Follow `docs/DISCORD_BOT_SETUP_GUIDE.md` for detailed step-by-step instructions!
-
-
-
-

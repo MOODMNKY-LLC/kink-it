@@ -161,5 +161,3 @@ export function generateContextualPrompt(
   const template = templates.find((t) => t.id === templateId)
   return template?.prompt || null
 }
-
-

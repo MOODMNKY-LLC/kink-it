@@ -36,26 +36,26 @@ All environment files have been properly organized according to Supabase best pr
 
 The `supabase/config.toml` file references these environment variables using `env()` syntax:
 
-```toml
+\`\`\`toml
 [auth.external.notion]
 enabled = true
 client_id = "env(SUPABASE_AUTH_EXTERNAL_NOTION_CLIENT_ID)"
 secret = "env(SUPABASE_AUTH_EXTERNAL_NOTION_SECRET)"
-```
+\`\`\`
 
 **These are now properly configured in `.env.local`:**
 
-```bash
+\`\`\`bash
 # Notion OAuth (for Supabase Auth)
 SUPABASE_AUTH_EXTERNAL_NOTION_CLIENT_ID=YOUR_NOTION_OAUTH_CLIENT_ID_HERE
 SUPABASE_AUTH_EXTERNAL_NOTION_SECRET=YOUR_NOTION_OAUTH_CLIENT_SECRET_HERE
-```
+\`\`\`
 
 ---
 
 ## 📁 File Structure
 
-```
+\`\`\`
 kink-it/
 ├── .env.local          ✅ Root directory (correct)
 ├── .env                ✅ Root directory (correct)
@@ -66,7 +66,7 @@ kink-it/
 │   └── functions/      ✅ Edge functions
 │   └── .gitignore      ✅ Excludes .env.local and .env.*.local
 └── .gitignore          ✅ Excludes all .env* files
-```
+\`\`\`
 
 ---
 
@@ -89,17 +89,17 @@ kink-it/
 
 After creating `.env.local`, start Supabase to pick up the environment variables:
 
-```powershell
+\`\`\`powershell
 supabase start
-```
+\`\`\`
 
 ### 2. Verify Configuration
 
 Check that Supabase can read the environment variables:
 
-```powershell
+\`\`\`powershell
 supabase status
-```
+\`\`\`
 
 ### 3. Test Notion OAuth
 
@@ -123,12 +123,12 @@ According to Supabase best practices:
 
 The `supabase/config.toml` file uses `env()` syntax to reference environment variables:
 
-```toml
+\`\`\`toml
 # Example from config.toml
 [auth.external.notion]
 client_id = "env(SUPABASE_AUTH_EXTERNAL_NOTION_CLIENT_ID)"
 secret = "env(SUPABASE_AUTH_EXTERNAL_NOTION_SECRET)"
-```
+\`\`\`
 
 When Supabase starts, it:
 1. Reads environment variables from the system environment
@@ -150,20 +150,20 @@ When Supabase starts, it:
 Both `.gitignore` files properly exclude environment files:
 
 **Root `.gitignore`:**
-```gitignore
+\`\`\`gitignore
 .env
 .env*.local
 .env.development.local
 .env.test.local
 .env.production.local
-```
+\`\`\`
 
 **`supabase/.gitignore`:**
-```gitignore
+\`\`\`gitignore
 .env.keys
 .env.local
 .env.*.local
-```
+\`\`\`
 
 ### Best Practices
 
@@ -191,4 +191,3 @@ Both `.gitignore` files properly exclude environment files:
 
 **Generated**: January 4, 2026  
 **Project**: KINK IT v0.1.0
-

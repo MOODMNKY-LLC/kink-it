@@ -32,11 +32,11 @@ This report analyzes the features mentioned in the Notion API key onboarding ste
 - ⚠️ **Note:** Not mentioned in onboarding copy
 
 **Evidence:**
-```typescript
+\`\`\`typescript
 // app/api/notion/sync-idea/route.ts
 // Line 8-9: Uses process.env.NOTION_API_KEY and hardcoded database ID
 // This is a service account sync, not user-specific
-```
+\`\`\`
 
 **Verdict:** ⚠️ **PARTIALLY FUNCTIONAL** - Ideas sync exists but uses service account, not user's API key. Not user-specific workspace integration.
 
@@ -60,14 +60,14 @@ This report analyzes the features mentioned in the Notion API key onboarding ste
 - ✅ Auto-sync: New events automatically sync if Notion integration is active
 
 **Evidence:**
-```typescript
+\`\`\`typescript
 // app/api/notion/sync-calendar-event/route.ts
 // Creates Notion page in Calendar database with:
 // - Title, Date, Event Type, Description, All Day, Reminder
 // components/calendar/calendar-page-client.tsx
 // Line 171: handleSyncToNotion() function
 // Line 286: Auto-syncs new events if isNotionSynced is true
-```
+\`\`\`
 
 **Verdict:** ✅ **FULLY FUNCTIONAL** - Users can sync calendar events to Notion Calendar database.
 
@@ -88,12 +88,12 @@ This report analyzes the features mentioned in the Notion API key onboarding ste
 - ✅ Multi-select sanitization: Handles Notion API limitations (removes commas)
 
 **Evidence:**
-```typescript
+\`\`\`typescript
 // app/api/notion/sync-generation/route.ts
 // Syncs image generations with:
 // - Image URL, Generation Props, Prompt, Model, Settings
 // - Properly sanitizes multi-select values for Notion API
-```
+\`\`\`
 
 **Verdict:** ✅ **FULLY FUNCTIONAL** - Image generations sync to Notion Image Generations database.
 
@@ -115,11 +115,11 @@ This report analyzes the features mentioned in the Notion API key onboarding ste
 - ⚠️ **Note:** Currently one-way sync (KINK IT → Notion). Bidirectional sync requires webhook implementation.
 
 **Evidence:**
-```typescript
+\`\`\`typescript
 // app/api/notion/sync-task/route.ts
 // Creates Notion page in Tasks database with:
 // - Title, Priority, Status, Description, Due Date, Points, Proof Required, Proof Type, Completion Notes
-```
+\`\`\`
 
 **Verdict:** ✅ **FULLY FUNCTIONAL** - Users can sync tasks to Notion Tasks database. One-way sync implemented; bidirectional sync requires webhooks.
 
@@ -141,11 +141,11 @@ This report analyzes the features mentioned in the Notion API key onboarding ste
 - ✅ Maps rule properties: Title, Category, Status, Description, Priority, Effective From/Until dates
 
 **Evidence:**
-```typescript
+\`\`\`typescript
 // app/api/notion/sync-rule/route.ts
 // Creates Notion page in Rules database with:
 // - Title, Category, Status, Description, Priority, Effective From, Effective Until
-```
+\`\`\`
 
 **Verdict:** ✅ **FULLY FUNCTIONAL** - Users can sync rules to Notion Rules database.
 
@@ -168,11 +168,11 @@ This report analyzes the features mentioned in the Notion API key onboarding ste
 - ✅ Searches by Title + Version to avoid duplicates
 
 **Evidence:**
-```typescript
+\`\`\`typescript
 // app/api/notion/sync-contract/route.ts
 // Creates Notion page in Contracts database with:
 // - Title, Status, Version, Content, Effective From, Effective Until
-```
+\`\`\`
 
 **Verdict:** ✅ **FULLY FUNCTIONAL** - Users can sync contracts to Notion Contracts database.
 
@@ -195,11 +195,11 @@ This report analyzes the features mentioned in the Notion API key onboarding ste
 - ✅ Supports all entry types: personal, shared, gratitude, scene_log
 
 **Evidence:**
-```typescript
+\`\`\`typescript
 // app/api/notion/sync-journal/route.ts
 // Creates Notion page in Journal database with:
 // - Title, Entry Type, Content, Tags (multi-select)
-```
+\`\`\`
 
 **Verdict:** ✅ **FULLY FUNCTIONAL** - Users can sync journal entries to Notion Journal database.
 
@@ -227,11 +227,11 @@ This report analyzes the features mentioned in the Notion API key onboarding ste
   - Metadata: Archetype, Is Primary
 
 **Evidence:**
-```typescript
+\`\`\`typescript
 // app/api/notion/sync-kinkster/route.ts
 // Creates Notion page in KINKSTER Profiles database with:
 // - All character stats, preferences, personality traits, appearance, etc.
-```
+\`\`\`
 
 **Verdict:** ✅ **FULLY FUNCTIONAL** - Users can sync KINKSTER character profiles to Notion KINKSTER Profiles database with comprehensive data mapping.
 
@@ -260,14 +260,14 @@ This report analyzes the features mentioned in the Notion API key onboarding ste
 - ✅ Automatic Detection: Tools are enabled when user has Notion API key and agentMode is on
 
 **Evidence:**
-```typescript
+\`\`\`typescript
 // components/chat/enhanced-ai-chat-interface.tsx
 // Lines 208-216: Gets enabled tools and includes Notion tools when agentMode is enabled
 // supabase/functions/chat-stream/index.ts
 // Lines 242-308: Creates Notion tools when user has API key
 // lib/notion/chat-tools.ts
 // Provides createNotionChatTools() function
-```
+\`\`\`
 
 **Verdict:** ✅ **FULLY FUNCTIONAL** - Kinky Kincade (via Enhanced AI Chat Interface) can access Notion workspace, search content, query databases, and create items when agentMode is enabled. Integration is complete and functional.
 

@@ -181,7 +181,7 @@ Comprehensive overhaul of the chat input components to accommodate all tools and
 
 ## 🚀 Usage Example
 
-```tsx
+\`\`\`tsx
 <EnhancedChatInput
   onSubmit={handleSubmit}
   disabled={isStreaming}
@@ -195,7 +195,7 @@ Comprehensive overhaul of the chat input components to accommodate all tools and
   realtimeMode={realtimeMode}
   onRealtimeModeChange={setRealtimeMode}
 />
-```
+\`\`\`
 
 ## ✨ Key Features Summary
 
@@ -222,5 +222,3 @@ Comprehensive overhaul of the chat input components to accommodate all tools and
 **Status**: ✅ Frontend Implementation Complete
 **Date**: 2025-02-01
 **Author**: CODE MNKY
-
-

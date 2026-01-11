@@ -30,7 +30,7 @@ This document provides a comprehensive analysis of all mock data usage in the KI
 - Displays 3 stat cards: Tasks Completed, Current Points, Rewards Earned
 
 **Mock Data Structure**:
-```typescript
+\`\`\`typescript
 {
   label: "TASKS COMPLETED",
   value: "24/28",
@@ -39,7 +39,7 @@ This document provides a comprehensive analysis of all mock data usage in the KI
   icon: "gear",
   direction: "up"
 }
-```
+\`\`\`
 
 **Real Data Sources**:
 - **Tasks Completed**: Query `tasks` table (exists ✅)
@@ -59,13 +59,13 @@ This document provides a comprehensive analysis of all mock data usage in the KI
 - Shows "spendings", "sales", "coffee" metrics (not relevant to app)
 
 **Mock Data Structure**:
-```typescript
+\`\`\`typescript
 {
   week: [{ date: "06/07", spendings: 45, sales: 75, coffee: 30 }],
   month: [...],
   year: [...]
 }
-```
+\`\`\`
 
 **Real Data Sources**:
 - Should show task completion trends, points earned, or submission state changes
@@ -85,7 +85,7 @@ This document provides a comprehensive analysis of all mock data usage in the KI
 - Shows partner profiles with points and streaks
 
 **Mock Data Structure**:
-```typescript
+\`\`\`typescript
 {
   id: 1,
   name: "KEVIN WIESNER",
@@ -96,7 +96,7 @@ This document provides a comprehensive analysis of all mock data usage in the KI
   featured: true,
   subtitle: "Submissive • Exceptional Service"
 }
-```
+\`\`\`
 
 **Real Data Sources**:
 - Query `profiles` table for partner info (exists ✅)
@@ -116,14 +116,14 @@ This document provides a comprehensive analysis of all mock data usage in the KI
 - Shows: Active Contract, Boundaries Set, Check-Ins
 
 **Mock Data Structure**:
-```typescript
+\`\`\`typescript
 {
   title: "ACTIVE CONTRACT",
   value: "v2.1",
   status: "[CURRENT]",
   variant: "success"
 }
-```
+\`\`\`
 
 **Real Data Sources**:
 - **Active Contract**: Query `contracts` table (doesn't exist ❌) - Module 6
@@ -145,7 +145,7 @@ This document provides a comprehensive analysis of all mock data usage in the KI
 - Date/time already dynamic ✅
 
 **Mock Data Structure**:
-```typescript
+\`\`\`typescript
 {
   location: "San Francisco, CA",
   timezone: "UTC-7",
@@ -155,7 +155,7 @@ This document provides a comprehensive analysis of all mock data usage in the KI
   dynamicGreeting: "Good morning, Kevin",
   moodStatus: "Green"
 }
-```
+\`\`\`
 
 **Real Data Sources**:
 - **Date/Time**: Already dynamic ✅
@@ -178,7 +178,7 @@ This document provides a comprehensive analysis of all mock data usage in the KI
 - Also used in `components/dashboard/mobile-header/index.tsx`
 
 **Mock Data Structure**:
-```typescript
+\`\`\`typescript
 {
   id: "notif-1",
   title: "NEW TASK ASSIGNED",
@@ -188,7 +188,7 @@ This document provides a comprehensive analysis of all mock data usage in the KI
   read: false,
   priority: "high"
 }
-```
+\`\`\`
 
 **Real Data Sources**:
 - **Option 1**: Create `notifications` table
@@ -210,12 +210,12 @@ This document provides a comprehensive analysis of all mock data usage in the KI
 - Multiple components: `chat-preview.tsx`, `chat-expanded.tsx`, `chat-header.tsx`, `use-chat-state.ts`
 
 **Mock Data Structure**:
-```typescript
+\`\`\`typescript
 {
   currentUser: { id, name, username, avatar, isOnline },
   conversations: [{ id, participants, unreadCount, lastMessage, messages }]
 }
-```
+\`\`\`
 
 **Real Data Sources**:
 - Query `messages` table (doesn't exist ❌) - Module 7: Communication Hub
@@ -240,10 +240,10 @@ This document provides a comprehensive analysis of all mock data usage in the KI
 - Hardcoded `currentStreak = 7`
 
 **Hardcoded Data**:
-```typescript
+\`\`\`typescript
 const rewards = [{ id: 1, name: "Extended Cuddle Session", ... }]
 const currentPoints = 385
-```
+\`\`\`
 
 **Real Data Sources**:
 - Query `rewards` table (doesn't exist ❌)
@@ -298,7 +298,7 @@ const currentPoints = 385
 **Migration**: `supabase/migrations/YYYYMMDDHHMMSS_create_points_ledger.sql`
 
 **Schema**:
-```sql
+\`\`\`sql
 CREATE TABLE IF NOT EXISTS public.points_ledger (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   workspace_id uuid NOT NULL, -- Currently user_id, future multi-partner
@@ -337,7 +337,7 @@ WITH CHECK (
     WHERE id = auth.uid() AND dynamic_role = 'dominant'
   )
 );
-```
+\`\`\`
 
 **Functions Needed**:
 - `get_points_balance(user_id)` - Calculate current balance
@@ -356,7 +356,7 @@ WITH CHECK (
 **Migration**: `supabase/migrations/YYYYMMDDHHMMSS_create_rewards.sql`
 
 **Schema**:
-```sql
+\`\`\`sql
 CREATE TYPE reward_type AS ENUM ('verbal', 'points', 'relational', 'achievement');
 
 CREATE TABLE IF NOT EXISTS public.rewards (
@@ -404,7 +404,7 @@ WITH CHECK (
     WHERE id = auth.uid() AND dynamic_role = 'dominant'
   )
 );
-```
+\`\`\`
 
 **API Routes**:
 - `GET /api/rewards?user_id=...&status=...` - Get rewards
@@ -421,7 +421,7 @@ WITH CHECK (
 **Migration**: `supabase/migrations/YYYYMMDDHHMMSS_create_notifications.sql`
 
 **Schema**:
-```sql
+\`\`\`sql
 CREATE TYPE notification_type AS ENUM ('info', 'warning', 'success', 'error');
 CREATE TYPE notification_priority AS ENUM ('low', 'medium', 'high');
 
@@ -454,7 +454,7 @@ USING (auth.uid() = user_id);
 CREATE POLICY "notifications_insert_system"
 ON public.notifications FOR INSERT
 WITH CHECK (true); -- System-generated notifications
-```
+\`\`\`
 
 **Option B: Event-Based (Recommended)**
 
@@ -485,7 +485,7 @@ Generate notifications on-the-fly from events:
 **File**: `app/page.tsx`
 
 **Changes**:
-```typescript
+\`\`\`typescript
 // Remove mock data import
 // import mockDataJson from "@/mock.json"
 
@@ -537,7 +537,7 @@ const dashboardStats = [
     direction: "up" as const
   }
 ]
-```
+\`\`\`
 
 **New API Route**: `app/api/points/balance/route.ts`
 
@@ -556,7 +556,7 @@ const dashboardStats = [
 **New Server Component**: `app/api/analytics/task-completion/route.ts`
 
 **Data Transformation**:
-```typescript
+\`\`\`typescript
 // Group tasks by date, count completions
 const weekData = tasks
   .filter(t => isWithinInterval(new Date(t.completed_at), { start: weekStart, end: weekEnd }))
@@ -574,7 +574,7 @@ const chartData = {
     points: // Calculate points earned
   }))
 }
-```
+\`\`\`
 
 ---
 
@@ -724,7 +724,7 @@ const chartData = {
 **Current File**: `app/page.tsx` (lines 86-97)
 
 **Current Code**:
-```typescript
+\`\`\`typescript
 {mockData.dashboardStats.map((stat, index) => (
   <DashboardStat
     key={index}
@@ -737,10 +737,10 @@ const chartData = {
     direction={stat.direction}
   />
 ))}
-```
+\`\`\`
 
 **New Implementation**:
-```typescript
+\`\`\`typescript
 // Server Component - fetch data
 const stats = await getDashboardStats(profile.id, profile.partner_id)
 
@@ -757,7 +757,7 @@ const stats = await getDashboardStats(profile.id, profile.partner_id)
     direction={stat.direction}
   />
 ))}
-```
+\`\`\`
 
 **New Function**: `lib/analytics/get-dashboard-stats.ts`
 
@@ -775,14 +775,14 @@ const stats = await getDashboardStats(profile.id, profile.partner_id)
 **Current File**: `components/dashboard/chart/index.tsx`
 
 **Current Code**:
-```typescript
+\`\`\`typescript
 import mockDataJson from "@/mock.json";
 const mockData = mockDataJson as MockData;
 // Uses mockData.chartData.week/month/year
-```
+\`\`\`
 
 **New Implementation**:
-```typescript
+\`\`\`typescript
 interface DashboardChartProps {
   chartData: {
     week: ChartDataPoint[]
@@ -794,12 +794,12 @@ interface DashboardChartProps {
 export default function DashboardChart({ chartData }: DashboardChartProps) {
   // Component logic stays the same, just receives real data
 }
-```
+\`\`\`
 
 **New Server Component**: `app/api/analytics/task-completion-trends/route.ts`
 
 **Data Aggregation**:
-```sql
+\`\`\`sql
 -- Week data
 SELECT 
   DATE(completed_at) as date,
@@ -814,7 +814,7 @@ ORDER BY date ASC;
 
 -- Month data (group by week)
 -- Year data (group by month)
-```
+\`\`\`
 
 ---
 
@@ -823,13 +823,13 @@ ORDER BY date ASC;
 **Current File**: `app/page.tsx` (line 106) → `components/dashboard/rebels-ranking/index.tsx`
 
 **New Implementation**:
-```typescript
+\`\`\`typescript
 // Server Component
 const partnerRanking = await getPartnerRanking(profile.id, profile.partner_id)
 
 // Render
 <RebelsRanking rebels={partnerRanking} />
-```
+\`\`\`
 
 **New Function**: `lib/analytics/get-partner-ranking.ts`
 
@@ -845,7 +845,7 @@ const partnerRanking = await getPartnerRanking(profile.id, profile.partner_id)
 **Current File**: `app/page.tsx` (line 107) → `components/dashboard/security-status/index.tsx`
 
 **New Implementation** (Temporary - Until Modules Built):
-```typescript
+\`\`\`typescript
 const securityStatus: SecurityStatus[] = [
   {
     title: "ACTIVE CONTRACT",
@@ -866,17 +866,17 @@ const securityStatus: SecurityStatus[] = [
     variant: "warning"
   }
 ]
-```
+\`\`\`
 
 **Future Implementation** (When Modules Built):
-```typescript
+\`\`\`typescript
 // Query contracts table
 const activeContract = await getActiveContract(profile.id)
 // Query boundaries
 const boundariesSet = await getBoundariesCount(profile.id)
 // Query check-ins
 const checkInsStatus = await getCheckInsStatus(profile.id)
-```
+\`\`\`
 
 ---
 
@@ -885,7 +885,7 @@ const checkInsStatus = await getCheckInsStatus(profile.id)
 **Current File**: `components/dashboard/widget/index.tsx`
 
 **New Implementation**:
-```typescript
+\`\`\`typescript
 interface WidgetProps {
   userName: string
   timezone?: string
@@ -918,7 +918,7 @@ function getGreeting(date: Date, name: string): string {
   if (hour < 17) return `Good afternoon, ${name}`
   return `Good evening, ${name}`
 }
-```
+\`\`\`
 
 **Changes**:
 - Remove `widgetData` prop
@@ -933,7 +933,7 @@ function getGreeting(date: Date, name: string): string {
 **Current File**: `components/dashboard/notifications/index.tsx`
 
 **New Implementation**:
-```typescript
+\`\`\`typescript
 // Server Component fetches initial notifications
 const initialNotifications = await getNotifications(userId)
 
@@ -946,18 +946,18 @@ export default function Notifications({ initialNotifications }: Props) {
   
   // Component logic stays the same
 }
-```
+\`\`\`
 
 **New Hook**: `hooks/use-notifications.ts`
 
 **Realtime Subscription**:
-```typescript
+\`\`\`typescript
 const channel = supabase.channel(`notifications:${userId}`)
   .on('broadcast', { event: 'new_notification' }, (payload) => {
     // Add new notification
   })
   .subscribe()
-```
+\`\`\`
 
 **New API Route**: `app/api/notifications/route.ts`
 
@@ -968,7 +968,7 @@ const channel = supabase.channel(`notifications:${userId}`)
 **Current Files**: Multiple chat components using `mockChatData`
 
 **New Implementation** (When Module 7 Built):
-```typescript
+\`\`\`typescript
 // Replace mockChatData with real data
 const { conversations } = useChatConversations(userId, partnerId)
 
@@ -995,7 +995,7 @@ export function useChatConversations(userId: string, partnerId: string | null) {
   
   return { conversations }
 }
-```
+\`\`\`
 
 **Temporary Solution** (Until Module 7 Built):
 - Disable chat component or show "Coming Soon"
@@ -1008,7 +1008,7 @@ export function useChatConversations(userId: string, partnerId: string | null) {
 **Current File**: `app/rewards/page.tsx`
 
 **New Implementation**:
-```typescript
+\`\`\`typescript
 export default async function RewardsPage() {
   await requireAuth()
   const profile = await getUserProfile()
@@ -1027,7 +1027,7 @@ export default async function RewardsPage() {
     </DashboardPageLayout>
   )
 }
-```
+\`\`\`
 
 **New Functions**:
 - `lib/rewards/get-available-rewards.ts`
@@ -1086,7 +1086,7 @@ export default async function RewardsPage() {
 
 #### 1. `get_points_balance(user_id uuid)`
 
-```sql
+\`\`\`sql
 CREATE OR REPLACE FUNCTION get_points_balance(p_user_id uuid)
 RETURNS integer
 LANGUAGE plpgsql
@@ -1102,11 +1102,11 @@ BEGIN
   RETURN balance;
 END;
 $$;
-```
+\`\`\`
 
 #### 2. `get_current_streak(user_id uuid)`
 
-```sql
+\`\`\`sql
 CREATE OR REPLACE FUNCTION get_current_streak(p_user_id uuid)
 RETURNS integer
 LANGUAGE plpgsql
@@ -1130,11 +1130,11 @@ BEGIN
   RETURN streak_days;
 END;
 $$;
-```
+\`\`\`
 
 #### 3. `award_points_for_task(task_id uuid)` (Trigger Function)
 
-```sql
+\`\`\`sql
 CREATE OR REPLACE FUNCTION award_points_for_task()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -1169,7 +1169,7 @@ CREATE TRIGGER tasks_award_points_trigger
   FOR EACH ROW
   WHEN (OLD.status IS DISTINCT FROM NEW.status)
   EXECUTE FUNCTION award_points_for_task();
-```
+\`\`\`
 
 ---
 
@@ -1180,7 +1180,7 @@ CREATE TRIGGER tasks_award_points_trigger
 #### 1. Points API
 
 **File**: `app/api/points/balance/route.ts`
-```typescript
+\`\`\`typescript
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const userId = searchParams.get('user_id')
@@ -1191,19 +1191,19 @@ export async function GET(req: Request) {
   
   return NextResponse.json({ balance, streak })
 }
-```
+\`\`\`
 
 **File**: `app/api/points/history/route.ts`
-```typescript
+\`\`\`typescript
 export async function GET(req: Request) {
   // Return paginated points history
 }
-```
+\`\`\`
 
 #### 2. Rewards API
 
 **File**: `app/api/rewards/route.ts`
-```typescript
+\`\`\`typescript
 export async function GET(req: Request) {
   // Get rewards for user
 }
@@ -1211,20 +1211,20 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   // Create reward (dominant only)
 }
-```
+\`\`\`
 
 **File**: `app/api/rewards/[id]/redeem/route.ts`
-```typescript
+\`\`\`typescript
 export async function PATCH(req: Request) {
   // Redeem reward (submissive)
   // Deduct points, update reward status
 }
-```
+\`\`\`
 
 #### 3. Notifications API
 
 **File**: `app/api/notifications/route.ts`
-```typescript
+\`\`\`typescript
 export async function GET(req: Request) {
   // Get notifications (or generate from events)
 }
@@ -1236,27 +1236,27 @@ export async function PATCH(req: Request) {
 export async function DELETE(req: Request) {
   // Delete notification
 }
-```
+\`\`\`
 
 ### Phase 3 Routes
 
 #### 4. Analytics API
 
 **File**: `app/api/analytics/dashboard-stats/route.ts`
-```typescript
+\`\`\`typescript
 export async function GET(req: Request) {
   // Aggregate dashboard stats
   // Tasks completed, points balance, rewards earned
 }
-```
+\`\`\`
 
 **File**: `app/api/analytics/task-completion-trends/route.ts`
-```typescript
+\`\`\`typescript
 export async function GET(req: Request) {
   // Return task completion data for charts
   // Grouped by week/month/year
 }
-```
+\`\`\`
 
 ---
 
@@ -1467,7 +1467,3 @@ export async function GET(req: Request) {
 **Document Status**: Comprehensive Plan Complete  
 **Last Updated**: 2026-01-05  
 **Next Review**: After Phase 1 completion
-
-
-
-

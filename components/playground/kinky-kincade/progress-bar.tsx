@@ -79,6 +79,3 @@ export function ProgressBar({ progress, onCancel, isConverting = false }: Progre
     </div>
   )
 }
-
-
-

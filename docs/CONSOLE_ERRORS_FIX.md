@@ -5,9 +5,9 @@
 ### 1. Notifications API 404 Error
 
 **Error:**
-```
+\`\`\`
 GET https://localhost:3000/api/notifications 404 (Not Found)
-```
+\`\`\`
 
 **Root Cause:**
 - You're accessing the app via `localhost:3000` instead of `127.0.0.1:3000`
@@ -16,15 +16,15 @@ GET https://localhost:3000/api/notifications 404 (Not Found)
 
 **Fix:**
 1. **Change URL from `localhost` to `127.0.0.1`:**
-   ```
+   \`\`\`
    ❌ https://localhost:3000/chat
    ✅ https://127.0.0.1:3000/chat
-   ```
+   \`\`\`
 
 2. **Verify `.env.local` uses `127.0.0.1`:**
-   ```bash
+   \`\`\`bash
    NEXT_PUBLIC_SUPABASE_URL=https://127.0.0.1:55321
-   ```
+   \`\`\`
 
 3. **Check if API route is accessible:**
    - Navigate to: `https://127.0.0.1:3000/api/notifications`
@@ -33,11 +33,11 @@ GET https://localhost:3000/api/notifications 404 (Not Found)
 ### 2. Realtime Connection Issues
 
 **Errors:**
-```
+\`\`\`
 [OnlineStatus] Channel closed
 [OnlineStatus] Channel not subscribed, cannot track presence. State: closed
 [OnlineStatus] Channel subscription timed out - will retry
-```
+\`\`\`
 
 **Root Cause:**
 - WebSocket certificate not accepted
@@ -56,11 +56,11 @@ GET https://localhost:3000/api/notifications 404 (Not Found)
 ### 3. Image Optimization Warnings
 
 **Warnings:**
-```
+\`\`\`
 Image with src "/images/kinky/kinky-avatar.svg" was detected as the Largest Contentful Paint (LCP)
 Image with src "..." has "fill" but is missing "sizes" prop
 Image has either width or height modified, but not the other
-```
+\`\`\`
 
 **Status:** ⚠️ Non-critical - These are Next.js optimization suggestions
 
@@ -72,9 +72,9 @@ Image has either width or height modified, but not the other
 ### 4. Favicon 404 Error
 
 **Error:**
-```
+\`\`\`
 GET https://localhost:3000/favicon.ico?favicon.34212efc.ico 404 (Not Found)
-```
+\`\`\`
 
 **Fix:**
 - Favicon exists at `app/favicon.ico`
@@ -84,19 +84,19 @@ GET https://localhost:3000/favicon.ico?favicon.34212efc.ico 404 (Not Found)
 ## ✅ Quick Fix Checklist
 
 1. **Change browser URL:**
-   ```
+   \`\`\`
    ❌ https://localhost:3000/chat
    ✅ https://127.0.0.1:3000/chat
-   ```
+   \`\`\`
 
 2. **Accept certificates:**
    - `https://127.0.0.1:55321` (Supabase API)
    - `wss://127.0.0.1:55321/realtime/v1/websocket` (WebSocket)
 
 3. **Verify `.env.local`:**
-   ```bash
+   \`\`\`bash
    NEXT_PUBLIC_SUPABASE_URL=https://127.0.0.1:55321
-   ```
+   \`\`\`
 
 4. **Clear browser cache** (if issues persist)
 

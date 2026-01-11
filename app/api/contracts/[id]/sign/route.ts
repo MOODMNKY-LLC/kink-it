@@ -75,4 +75,3 @@ export async function POST(
 
   return NextResponse.json({ signature }, { status: 201 })
 }
-

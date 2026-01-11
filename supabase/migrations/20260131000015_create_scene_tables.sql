@@ -229,5 +229,3 @@ CREATE TRIGGER update_character_poses_updated_at
   BEFORE UPDATE ON public.character_poses
   FOR EACH ROW
   EXECUTE FUNCTION update_character_poses_updated_at();
-
-

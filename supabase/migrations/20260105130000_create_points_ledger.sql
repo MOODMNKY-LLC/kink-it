@@ -166,4 +166,3 @@ CREATE TRIGGER tasks_award_points_trigger
 -- Grant execute permissions on functions
 GRANT EXECUTE ON FUNCTION public.get_points_balance(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_current_streak(uuid) TO authenticated;
-

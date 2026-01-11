@@ -129,7 +129,7 @@
 ### Database Schema
 
 **image_generations Table:**
-```sql
+\`\`\`sql
 - id (uuid, PK)
 - user_id (uuid, FK to profiles)
 - generation_type (text: avatar, scene, composition, pose, other)
@@ -140,39 +140,39 @@
 - storage_path (text)
 - image_url (text)
 - created_at, updated_at (timestamptz)
-```
+\`\`\`
 
 **image_tags Table:**
-```sql
+\`\`\`sql
 - id (uuid, PK)
 - user_id (uuid, FK, nullable for system tags)
 - name (text)
 - category (text, optional)
 - color (text, optional)
-```
+\`\`\`
 
 **image_generation_tags Junction:**
-```sql
+\`\`\`sql
 - image_generation_id (uuid, FK)
 - tag_id (uuid, FK)
 - created_at (timestamptz)
 - PRIMARY KEY (image_generation_id, tag_id)
-```
+\`\`\`
 
 **image_generation_entities Table:**
-```sql
+\`\`\`sql
 - image_generation_id (uuid, FK)
 - entity_type (text: kinkster, scene, scene_composition, character_pose)
 - entity_id (uuid)
 - created_at (timestamptz)
 - PRIMARY KEY (image_generation_id, entity_type, entity_id)
-```
+\`\`\`
 
 **kinksters Table Addition:**
-```sql
+\`\`\`sql
 - reference_image_url (text)
 - reference_image_storage_path (text)
-```
+\`\`\`
 
 ### API Enhancements
 
@@ -277,7 +277,7 @@ Consider adding redirects from old routes to new ones for better UX.
 ### Using Character References
 
 **In API Call:**
-```typescript
+\`\`\`typescript
 const formData = new FormData()
 formData.append("mode", "text-to-image")
 formData.append("prompt", "A character in a gym")
@@ -285,11 +285,11 @@ formData.append("characterIds", "char-id-1,char-id-2") // Comma-separated
 formData.append("model", "gemini-3-pro")
 
 // API automatically fetches reference images and includes them
-```
+\`\`\`
 
 ### Saving Generation with Tags
 
-```typescript
+\`\`\`typescript
 await saveImageGeneration({
   userId: user.id,
   generationType: "scene",
@@ -302,11 +302,11 @@ await saveImageGeneration({
     { entityType: "kinkster", entityId: "char-id-1" }
   ]
 })
-```
+\`\`\`
 
 ### Syncing to Notion
 
-```typescript
+\`\`\`typescript
 // Option 1: By generation ID
 await fetch("/api/notion/sync-generation", {
   method: "POST",
@@ -323,7 +323,7 @@ await fetch("/api/notion/sync-generation", {
     tags: ["character", "favorite"]
   })
 })
-```
+\`\`\`
 
 ---
 
@@ -386,5 +386,3 @@ Additional enhancements:
 - ✅ Generation storage utilities
 
 The playground is now mobile-optimized, better organized, and ready for advanced features like tagging, character consistency, and Notion sync!
-
-

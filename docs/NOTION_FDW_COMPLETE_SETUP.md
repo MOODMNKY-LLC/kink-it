@@ -41,7 +41,7 @@
 
 ### Real-World Example
 
-```typescript
+\`\`\`typescript
 // Admin wants to find all "kinky scene" images from bond members
 
 // BEFORE (Slow):
@@ -57,7 +57,7 @@ const { data } = await supabase.rpc('admin_search_image_generations', {
   limit_count: 100
 })
 // Total: 0.2 seconds 🚀
-```
+\`\`\`
 
 ---
 
@@ -69,7 +69,7 @@ const { data } = await supabase.rpc('admin_search_image_generations', {
 3. Initialize foreign tables → ✅ Done
 
 ### Step 2: Usage (Ongoing)
-```typescript
+\`\`\`typescript
 // Fast admin search
 const results = await supabase.rpc('admin_search_image_generations', {
   search_query: 'kinky scene',
@@ -78,7 +78,7 @@ const results = await supabase.rpc('admin_search_image_generations', {
 })
 
 // Returns results from ALL bond members in 200ms!
-```
+\`\`\`
 
 ---
 
@@ -101,16 +101,16 @@ I ran the automated script (`scripts/get-notion-database-ids.ts`) which:
 2. Copy ID from URL: `notion.so/.../{DATABASE_ID}`
 
 **From Notion API:**
-```bash
+\`\`\`bash
 pnpm tsx scripts/get-notion-database-ids.ts
-```
+\`\`\`
 
 ---
 
 ## 🚀 How to Use
 
 ### Admin Image Search
-```typescript
+\`\`\`typescript
 // In your admin API endpoint
 const { data, error } = await supabase.rpc('admin_search_image_generations', {
   search_query: 'kinky scene',
@@ -119,22 +119,22 @@ const { data, error } = await supabase.rpc('admin_search_image_generations', {
 })
 
 // Returns images from ALL bond members with Notion metadata!
-```
+\`\`\`
 
 ### Direct Foreign Table Query
-```sql
+\`\`\`sql
 -- Query Notion data directly via SQL
 SELECT * FROM notion_fdw.image_generations_all 
 WHERE title ILIKE '%kinky%' 
 LIMIT 10;
-```
+\`\`\`
 
 ### Admin View Query
-```sql
+\`\`\`sql
 -- Bond-filtered view (requires admin role)
 SELECT * FROM public.admin_image_generations_all 
 LIMIT 10;
-```
+\`\`\`
 
 ---
 
@@ -151,7 +151,7 @@ LIMIT 10;
 ## 📋 Verification
 
 ### Check Setup Status
-```sql
+\`\`\`sql
 SELECT 
   'Foreign Server' as component,
   CASE WHEN EXISTS (SELECT 1 FROM pg_foreign_server WHERE srvname = 'notion_service_account_server') 
@@ -166,16 +166,16 @@ SELECT
   'Admin Functions',
   CASE WHEN EXISTS (SELECT 1 FROM information_schema.routines WHERE routine_schema = 'public' AND routine_name LIKE '%admin%search%')
     THEN '✅ Ready' ELSE '❌ Missing' END;
-```
+\`\`\`
 
 ### Test Query
-```sql
+\`\`\`sql
 -- Test foreign table
 SELECT COUNT(*) FROM notion_fdw.image_generations_all;
 
 -- Test admin search (requires admin role)
 SELECT * FROM public.admin_search_image_generations('test', auth.uid(), 10);
-```
+\`\`\`
 
 ---
 
@@ -196,5 +196,3 @@ SELECT * FROM public.admin_search_image_generations('test', auth.uid(), 10);
 **Setup Completed**: ✅  
 **Ready for Production**: ✅  
 **Documentation**: Complete
-
-

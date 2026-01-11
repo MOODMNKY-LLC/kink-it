@@ -83,4 +83,3 @@ export function SubmissionStateSection({
 
   return null
 }
-

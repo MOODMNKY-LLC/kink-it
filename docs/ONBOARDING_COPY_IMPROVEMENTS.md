@@ -184,4 +184,3 @@ The improved copy now makes this flow clear to users.
 ## Conclusion
 
 The onboarding flow now follows UX best practices with clear, value-focused copy that explains WHY each step matters. The step label issue is fixed, and users will have a much clearer understanding of what they're setting up and why.
-

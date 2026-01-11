@@ -43,7 +43,7 @@ All three edge functions have been tested and issues identified:
 ### Frontend Validation (use-chat-stream.ts)
 Added validation to prevent calling edge function with invalid userId:
 
-```typescript
+\`\`\`typescript
 // Validate userId before proceeding
 if (!userId || userId.trim() === "") {
   const errorMsg = "User ID is required. Please ensure you are logged in."
@@ -52,7 +52,7 @@ if (!userId || userId.trim() === "") {
   onError?.(new Error(errorMsg))
   return
 }
-```
+\`\`\`
 
 ## 🐛 Common Errors & Solutions
 
@@ -99,13 +99,13 @@ if (!userId || userId.trim() === "") {
    - Verify conversation creation
 
 2. **Monitor Function Logs:**
-   ```bash
+   \`\`\`bash
    # Watch edge function logs
    docker logs supabase_edge_runtime_KINK-IT -f
    
    # Watch database logs
    docker logs supabase_db_KINK-IT 2>&1 | grep -i error
-   ```
+   \`\`\`
 
 3. **Verify Environment Variables:**
    - Ensure `OPENAI_API_KEY` is set in `.env.local`
@@ -119,4 +119,3 @@ if (!userId || userId.trim() === "") {
 - Functions automatically get `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` from Supabase
 - `OPENAI_API_KEY` must be set in `.env.local` and available to edge functions
 - Local dev uses HTTPS with self-signed certificates (accept warnings)
-

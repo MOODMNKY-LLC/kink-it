@@ -47,11 +47,11 @@ Template sync was failing because:
 - Provides actionable suggestions
 
 **Example Error**:
-```
+\`\`\`
 Found 15 pages, but none match the expected template structure.
 Found pages with databases: "My KINK IT Setup" (8 databases), "Tasks & Rules" (6 databases).
 If one of these is your template, you can enter its page ID manually below.
-```
+\`\`\`
 
 ### 4. Comprehensive Logging
 
@@ -98,11 +98,11 @@ If one of these is your template, you can enter its page ID manually below.
 
 **File**: `supabase/migrations/20260202000004_add_get_duplicated_template_id_function.sql`
 
-```sql
+\`\`\`sql
 CREATE OR REPLACE FUNCTION public.get_user_notion_duplicated_template_id(
   p_user_id uuid
 ) RETURNS text
-```
+\`\`\`
 
 Retrieves the template page ID that Notion provided during OAuth.
 
@@ -124,16 +124,16 @@ Retrieves the template page ID that Notion provided during OAuth.
 ### Error Messages
 
 **Before**:
-```
+\`\`\`
 Template not found. Please ensure you duplicated the template...
-```
+\`\`\`
 
 **After**:
-```
+\`\`\`
 Found 15 pages, but none match the expected template structure.
 Found pages with databases: "My KINK IT Setup" (8 databases)...
 If one of these is your template, you can enter its page ID manually below.
-```
+\`\`\`
 
 ---
 
@@ -179,4 +179,3 @@ Consider adding:
 2. **Template Detection**: Use ML/pattern matching to identify templates
 3. **Database Schema Matching**: Match by database structure, not just count
 4. **Recent Pages**: Prioritize recently accessed pages
-

@@ -24,7 +24,7 @@ This approach is **perfect for automated testing** because it:
 
 All tests are passing:
 
-```
+\`\`\`
 ✅ User ID lookup (Kevin & Simeon)
 ✅ Admin API GET profile (submission state)
 ✅ Admin API PATCH profile (submission state)
@@ -33,7 +33,7 @@ All tests are passing:
 ✅ Admin API PATCH task/[id]
 ✅ Admin API POST task (Dominant only)
 ✅ Admin API DELETE task (cleanup)
-```
+\`\`\`
 
 ---
 
@@ -48,7 +48,7 @@ All tests are passing:
 3. **Direct Database Operations**: Tests database operations directly, bypassing API routes
 
 ### Example Test
-```typescript
+\`\`\`typescript
 // GET submission state
 const { data: profile, error } = await adminClient
   .from('profiles')
@@ -63,7 +63,7 @@ const { data, error } = await adminClient
   .eq('id', kevinUserId)
   .select('submission_state, updated_at')
   .single()
-```
+\`\`\`
 
 ---
 
@@ -93,23 +93,23 @@ To test the actual API routes (`/api/submission-state`, `/api/tasks`, etc.), use
 
 ## Running Tests
 
-```bash
+\`\`\`bash
 # Make sure seed data exists
 pnpm seed
 
 # Run tests
 pnpm test:api
-```
+\`\`\`
 
 ---
 
 ## Environment Variables Required
 
-```env
+\`\`\`env
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:55321
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
-```
+\`\`\`
 
 ---
 
@@ -131,7 +131,3 @@ If API route testing is needed:
 3. Consider using Supabase's test client utilities if available
 
 For now, **Admin API testing provides excellent coverage** of database operations and is the recommended approach for automated testing.
-
-
-
-

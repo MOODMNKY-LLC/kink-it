@@ -32,27 +32,27 @@ Since Supabase MCP queries are currently unavailable (connection refused), compl
 ### Step 1: Create Foreign Server
 
 **Option A: Via SQL Editor**
-```sql
+\`\`\`sql
 -- Use the function with your API key
 SELECT public.create_notion_fdw_server('YOUR_NOTION_API_KEY_HERE');
-```
+\`\`\`
 
 **Option B: Via API Endpoint**
-```bash
+\`\`\`bash
 curl -X POST http://localhost:3000/api/admin/notion/setup-fdw \
   -H "Authorization: Bearer <your_admin_token>"
-```
+\`\`\`
 
 ### Step 2: Initialize Foreign Tables
 
-```sql
+\`\`\`sql
 -- This reads database IDs from notion_databases table
 SELECT * FROM public.setup_notion_fdw_tables();
-```
+\`\`\`
 
 ### Step 3: Verify Setup
 
-```sql
+\`\`\`sql
 -- Check foreign server
 SELECT srvname, srvoptions 
 FROM pg_foreign_server 
@@ -68,7 +68,7 @@ SELECT COUNT(*) FROM notion_fdw.image_generations_all;
 
 -- Test admin view (requires admin role)
 SELECT * FROM public.admin_image_generations_all LIMIT 1;
-```
+\`\`\`
 
 ---
 
@@ -91,32 +91,32 @@ SELECT * FROM public.admin_image_generations_all LIMIT 1;
 ### If Foreign Server Creation Fails
 
 1. **Check Wrappers Extension**:
-   ```sql
+   \`\`\`sql
    SELECT * FROM pg_extension WHERE extname = 'wrappers';
-   ```
+   \`\`\`
 
 2. **Verify API Key Format**:
    - Should start with `secret_` or `ntn_`
    - Should be valid Notion Internal Integration token
 
 3. **Check Server Exists**:
-   ```sql
+   \`\`\`sql
    SELECT * FROM pg_foreign_server WHERE srvname = 'notion_service_account_server';
-   ```
+   \`\`\`
 
 ### If Foreign Tables Don't Initialize
 
 1. **Check Database IDs**:
-   ```sql
+   \`\`\`sql
    SELECT * FROM notion_databases 
    WHERE database_type IN ('image_generations', 'kinkster_profiles')
      AND user_id IS NULL;
-   ```
+   \`\`\`
 
 2. **Re-run Setup**:
-   ```sql
+   \`\`\`sql
    SELECT * FROM public.setup_notion_fdw_tables();
-   ```
+   \`\`\`
 
 3. **Check Error Messages**:
    The `setup_notion_fdw_tables()` function returns status for each table creation attempt.
@@ -146,5 +146,3 @@ Once the foreign server and tables are created:
 ---
 
 **Next Action**: Create foreign server and initialize tables using the steps above.
-
-

@@ -98,5 +98,3 @@ export default function WelcomeStep({ onNext, onBack, initialData }: WelcomeStep
     </div>
   )
 }
-
-

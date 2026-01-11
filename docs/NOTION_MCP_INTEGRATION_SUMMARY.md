@@ -26,7 +26,7 @@ Integrated Notion MCP capabilities into the chat system, enabling natural langua
 
 ## Example Queries
 
-```
+\`\`\`
 "What's on my task list today?"
 → Queries Tasks database, filters by today's date
 
@@ -38,7 +38,7 @@ Integrated Notion MCP capabilities into the chat system, enabling natural langua
 
 "Show me KINKSTER profile for Kinky Kincade"
 → Searches and fetches KINKSTER page with Supabase URL
-```
+\`\`\`
 
 ---
 
@@ -83,5 +83,3 @@ Integrated Notion MCP capabilities into the chat system, enabling natural langua
 ## Usage
 
 Simply chat naturally - no special syntax needed! The AI automatically uses Notion tools when appropriate.
-
-

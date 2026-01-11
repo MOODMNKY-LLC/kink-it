@@ -113,4 +113,3 @@ export function getResponsiveImageUrls(imageUrl: string): {
     full: imageUrl, // Original URL for full-size display
   }
 }
-

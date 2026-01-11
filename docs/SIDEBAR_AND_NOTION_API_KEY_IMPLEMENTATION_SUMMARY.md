@@ -128,11 +128,11 @@ All three phases have been successfully implemented and are ready for testing.
 ### Required Environment Variables
 
 Add to `.env.local`:
-```bash
+\`\`\`bash
 NOTION_API_KEY_ENCRYPTION_KEY=your-secure-encryption-key-here
 # OR use existing:
 SUPABASE_ENCRYPTION_KEY=your-secure-encryption-key-here
-```
+\`\`\`
 
 ### Testing Checklist
 
@@ -215,6 +215,3 @@ SUPABASE_ENCRYPTION_KEY=your-secure-encryption-key-here
 ✅ Migration `20260131000000_create_user_notion_api_keys.sql` has been applied successfully.
 
 **Note**: Ensure `NOTION_API_KEY_ENCRYPTION_KEY` is set in environment variables before using the API key management feature.
-
-
-

@@ -165,4 +165,3 @@ export function useSemanticSearch({ userId, conversationId }: UseSemanticSearchO
     error,
   }
 }
-

@@ -78,5 +78,3 @@
 **After**: Endpoint uses user's API key → finds template → syncs databases → shows in UI
 
 **UI**: Added "Sync Now" button and better feedback for users who haven't synced yet.
-
-

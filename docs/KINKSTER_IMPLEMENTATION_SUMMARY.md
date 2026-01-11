@@ -154,6 +154,3 @@ Each archetype has default stat allocations.
 - Only one primary character per user (enforced by database trigger)
 - Avatar generation requires OpenAI API key
 - Images are currently stored as OpenAI URLs (should be migrated to Supabase Storage)
-
-
-

@@ -87,13 +87,13 @@ Added sync button with status badge to the sidebar sync component with color-cod
 
 ## 📝 Usage
 
-```tsx
+\`\`\`tsx
 <NotionSyncStatusBadge 
   showButton={true}  // Show sync button
   showBadge={true}  // Show status badge
   className="..."    // Optional custom styling
 />
-```
+\`\`\`
 
 ---
 
@@ -138,5 +138,3 @@ Component is displayed in:
 - `components/dashboard/sidebar/index.tsx` (SidebarFooter)
 - Used in sidebar footer section
 - Visible when user profile exists
-
-

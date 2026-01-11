@@ -4,10 +4,10 @@
 
 After running `supabase functions serve chat-stream --no-verify-jwt`, you still get:
 
-```
+\`\`\`
 Cannot connect to Edge Function at https://127.0.0.1:55321/functions/v1/chat-stream
 ⚠️ The function is not running locally.
-```
+\`\`\`
 
 ## 🎯 Root Cause
 
@@ -37,11 +37,11 @@ The Edge Function **IS running**, but your **browser is blocking the SSE connect
 **In your terminal where you ran `supabase functions serve`:**
 
 You should see output like:
-```
+\`\`\`
 Functions URL: http://127.0.0.1:54321/functions/v1
 Functions:
   - chat-stream
-```
+\`\`\`
 
 **Note:** The function serve command shows HTTP port 54321, but it proxies through Supabase API on HTTPS port 55321.
 
@@ -57,17 +57,17 @@ After accepting the certificate:
 
 ### Check Function is Running
 
-```bash
+\`\`\`bash
 # Check if process is running
 ps aux | grep "supabase functions serve" | grep -v grep
 
 # Should show:
 # moodmnky  <PID>  ... supabase functions serve --no-verify-jwt
-```
+\`\`\`
 
 ### Test Function Directly
 
-```bash
+\`\`\`bash
 # Test with curl (bypasses browser certificate check)
 curl -k https://127.0.0.1:55321/functions/v1/chat-stream \
   -X POST \
@@ -79,7 +79,7 @@ curl -k https://127.0.0.1:55321/functions/v1/chat-stream \
 # Should return an error (not a connection error):
 # {"error":"user_id and messages are required"}
 # This means the function IS accessible!
-```
+\`\`\`
 
 ### Check Browser Console
 
@@ -100,23 +100,23 @@ After accepting the certificate, check your browser console:
 
 **1. Verify Function is Actually Running**
 
-```bash
+\`\`\`bash
 # Check process
 ps aux | grep "supabase functions serve"
 
 # Restart if needed
 # Stop: Ctrl+C in the terminal running the function
 # Start: supabase functions serve chat-stream --no-verify-jwt
-```
+\`\`\`
 
 **2. Check Supabase Status**
 
-```bash
+\`\`\`bash
 supabase status
 
 # Should show:
 # Edge Functions │ https://127.0.0.1:55321/functions/v1
-```
+\`\`\`
 
 **3. Clear Browser Cache**
 
@@ -138,14 +138,14 @@ Test in incognito mode to rule out browser extensions or cached certificates:
 
 The Edge Function should have CORS headers. Check `supabase/functions/chat-stream/index.ts`:
 
-```typescript
+\`\`\`typescript
 // Should include:
 headers: {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey",
 }
-```
+\`\`\`
 
 ## 📋 Quick Checklist
 
@@ -162,21 +162,21 @@ If you continue having issues, you could temporarily disable TLS for Supabase:
 **⚠️ Warning:** This breaks Notion OAuth (requires HTTPS)
 
 1. Edit `supabase/config.toml`:
-   ```toml
+   \`\`\`toml
    [api.tls]
    enabled = false  # Change from true to false
-   ```
+   \`\`\`
 
 2. Restart Supabase:
-   ```bash
+   \`\`\`bash
    supabase stop
    supabase start
-   ```
+   \`\`\`
 
 3. Update `.env.local`:
-   ```env
+   \`\`\`env
    NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:55321
-   ```
+   \`\`\`
 
 **But this will break OAuth!** Only use if you're not testing OAuth flows.
 

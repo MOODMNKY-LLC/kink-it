@@ -119,4 +119,3 @@ export function getAgent(name: AgentName): Agent {
 export function getAllAgents(): Record<string, Agent> {
   return agentRegistry
 }
-

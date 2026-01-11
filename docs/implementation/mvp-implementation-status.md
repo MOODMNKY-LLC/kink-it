@@ -78,13 +78,13 @@
 
 ### Immediate (Today)
 1. **Apply Database Migration**
-   ```bash
+   \`\`\`bash
    # Option 1: Reset database (will lose data)
    supabase db reset
    
    # Option 2: Apply migration only (if migration system is set up)
    supabase migration up
-   ```
+   \`\`\`
 
 2. **Test Submission State Feature**
    - Test API endpoints (GET, PATCH)
@@ -136,8 +136,3 @@ The submission state migration has been created but **not yet applied**. Before 
 ---
 
 **Status**: Ready for database migration and testing
-
-
-
-
-

@@ -30,7 +30,7 @@ The integration-status endpoint checks connection status by:
 ## 🔄 The Sync Process Flow
 
 ### Expected Flow:
-```
+\`\`\`
 1. User authenticates
    ↓
 2. User adds Notion API key
@@ -46,10 +46,10 @@ The integration-status endpoint checks connection status by:
    - User has API key? ✅
    - Databases synced? ✅
    → Shows "Connected" + "X databases synced"
-```
+\`\`\`
 
 ### Current Flow:
-```
+\`\`\`
 1. User authenticates ✅
    ↓
 2. User adds Notion API key ❌ (Not happening)
@@ -59,7 +59,7 @@ The integration-status endpoint checks connection status by:
 4. Integration status shows:
    - Connection: ✅ (Can reach Notion API)
    - Databases: ❌ (None synced)
-```
+\`\`\`
 
 ---
 
@@ -72,7 +72,7 @@ The integration-status page shows "connection" because:
   2. Databases synced
 
 **The check should be:**
-```typescript
+\`\`\`typescript
 // Check if authenticated user has API key
 const { data: apiKeys } = await supabase
   .from("user_notion_api_keys")
@@ -88,7 +88,7 @@ const { data: databases } = await supabase
 
 // Connection status = has API key AND can connect
 // Sync status = has databases stored
-```
+\`\`\`
 
 ---
 
@@ -132,18 +132,18 @@ Ensure users:
 To test if this is the issue, try:
 
 1. **Add a test API key**:
-   ```bash
+   \`\`\`bash
    POST /api/notion/api-keys
    {
      "key_name": "Test",
      "api_key": "your-notion-api-key"
    }
-   ```
+   \`\`\`
 
 2. **Sync template**:
-   ```bash
+   \`\`\`bash
    POST /api/onboarding/notion/sync-template
-   ```
+   \`\`\`
 
 3. **Check status again**:
    - Should now show databases synced
@@ -162,5 +162,3 @@ To test if this is the issue, try:
 **Fix**: 
 - Update integration-status to check authenticated user's API keys and databases
 - Ensure onboarding flow prompts users to add API key and sync
-
-

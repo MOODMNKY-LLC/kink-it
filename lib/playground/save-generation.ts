@@ -123,5 +123,3 @@ export async function saveImageGeneration(params: SaveGenerationParams) {
 
   return generation
 }
-
-

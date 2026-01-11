@@ -30,7 +30,7 @@ Updated admin assignment logic in two places:
 - This ensures seeded users don't get admin, but first real authenticated user does
 
 **Logic**:
-```sql
+\`\`\`sql
 -- Check if any admin already exists
 select count(*) into admin_count from public.profiles where system_role = 'admin';
 
@@ -43,7 +43,7 @@ is_notion_user := (
 
 -- Only assign admin if no admin exists AND user is OAuth-authenticated
 is_admin := (admin_count = 0 AND is_notion_user);
-```
+\`\`\`
 
 #### 2. Fallback Logic (`lib/auth/get-user.ts`)
 
@@ -54,13 +54,13 @@ is_admin := (admin_count = 0 AND is_notion_user);
 - Ensures consistency between trigger and fallback
 
 **Before**:
-```typescript
+\`\`\`typescript
 const isFirstUser = (userCount === 0); // Checked all profiles
 system_role: isFirstUser ? "admin" : "user"
-```
+\`\`\`
 
 **After**:
-```typescript
+\`\`\`typescript
 // Check for existing admins
 const { count: adminCount } = await supabase
   .from("profiles")
@@ -77,7 +77,7 @@ const hasOAuthMetadata = !!(
 // Only assign admin if no admin exists AND user is OAuth-authenticated
 const isFirstAuthenticatedUser = (adminCount === 0 && hasOAuthMetadata)
 system_role: isFirstAuthenticatedUser ? "admin" : "user"
-```
+\`\`\`
 
 ### Result
 - ✅ Seeded users will NOT get admin role
@@ -163,13 +163,13 @@ Once you've verified everything works correctly, these files can be safely delet
 
 To apply the admin fix:
 
-```bash
+\`\`\`bash
 # Apply migration
 supabase migration up
 
 # Or if using Supabase CLI locally
 supabase db reset
-```
+\`\`\`
 
 **Migration**: `20260105150000_fix_admin_assignment.sql`
 
@@ -207,7 +207,3 @@ supabase db reset
 
 **Phase 3 Status**: ✅ **COMPLETE**  
 **Ready for**: Testing & Module 7 (Communication Hub)
-
-
-
-

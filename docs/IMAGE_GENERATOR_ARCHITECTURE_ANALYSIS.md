@@ -20,7 +20,7 @@ The KINK-IT image generation system is a sophisticated, multi-component architec
 
 ### Core Components
 
-```
+\`\`\`
 Image Generation System
 ├── Entry Points
 │   ├── /playground (Standalone Generator)
@@ -46,11 +46,11 @@ Image Generation System
 └── Backend
     ├── Edge Function (generate-kinkster-avatar)
     └── API Routes (fallback/sync generation)
-```
+\`\`\`
 
 ### Component Hierarchy
 
-```
+\`\`\`
 Playground Page (/playground)
 └── GenerationPanel
     ├── PropsSelector
@@ -73,7 +73,7 @@ KINKSTER Creation Wizard
     ├── Generate Button
     ├── Progress Indicator
     └── Avatar Preview
-```
+\`\`\`
 
 ## 🔄 User Workflow
 
@@ -158,7 +158,7 @@ KINKSTER Creation Wizard
 
 ### Props Selection Flow
 
-```
+\`\`\`
 User Interaction
     ↓
 PropsSelector Component
@@ -172,11 +172,11 @@ PromptPreview Component
 Synthesized Prompt (string)
     ↓ (display)
 UI Display
-```
+\`\`\`
 
 ### Generation Flow
 
-```
+\`\`\`
 User Clicks Generate
     ↓
 generateAvatar Hook Function
@@ -194,11 +194,11 @@ Realtime Channel Subscription
 Component State Update
     ↓
 UI Re-render with Image
-```
+\`\`\`
 
 ### State Management
 
-```
+\`\`\`
 Component Level State:
 - props: GenerationProps (controlled by PropsSelector)
 - avatarUrl: string (set on completion)
@@ -214,7 +214,7 @@ Backend State:
 - Edge Function: Background task state
 - Supabase Storage: Generated images
 - Database: saved_prompts table
-```
+\`\`\`
 
 ## 🔌 Integration Points
 
@@ -301,7 +301,7 @@ Potential improvements based on architecture:
 
 ## 📐 Visual Component Hierarchy (Actual Implementation)
 
-```
+\`\`\`
 Application Root
 ├── /playground (Standalone Generator)
 │   └── PlaygroundPage
@@ -335,13 +335,13 @@ Application Root
             ├── Generate Button
             ├── Progress Indicator
             └── Avatar Preview
-```
+\`\`\`
 
 ## 🔄 Complete Data Flow (Step-by-Step)
 
 ### Phase 1: Props Selection
 
-```
+\`\`\`
 User Interaction
     ↓
 PropsSelector Component
@@ -368,11 +368,11 @@ PromptPreview Component
     └─ Updates synthesizedPrompt state
     ↓
 UI Display (read-only prompt)
-```
+\`\`\`
 
 ### Phase 2: Image Generation
 
-```
+\`\`\`
 User Clicks "Generate Avatar"
     ↓
 handleGenerate Function
@@ -445,13 +445,13 @@ Component Re-render
     ├─ Progress indicator updates
     ├─ Progress bar animates
     └─ On completion: avatarUrl state updated, image displayed
-```
+\`\`\`
 
 ## 🎯 User Workflow Patterns (Actual Implementation)
 
 ### Pattern 1: Standalone Playground Workflow
 
-```
+\`\`\`
 1. Navigate to /playground/image-generation
    └─ GenerationPanel loads with KINKY_DEFAULT_PROPS
 
@@ -500,11 +500,11 @@ Component Re-render
     ├─ Image displays in panel
     ├─ "Generate Another" button appears
     └─ "Reset" button available
-```
+\`\`\`
 
 ### Pattern 2: KINKSTER Creation Wizard Workflow
 
-```
+\`\`\`
 1. Navigate to /kinksters/create
    └─ KinksterCreationWizard starts
 
@@ -536,7 +536,7 @@ Component Re-render
 
 9. Proceed to Review Step
    └─ Avatar included in final KINKSTER data
-```
+\`\`\`
 
 ## 🔌 Integration Points (Actual Implementation)
 
@@ -570,7 +570,7 @@ Component Re-render
 
 ### PropsSelector Component Structure
 
-```typescript
+\`\`\`typescript
 PropsSelector
 ├─ Card Container
 ├─ CardHeader
@@ -613,11 +613,11 @@ PropsSelector
 │       └─ Environment Select (if environment)
 └─ State Management
     └─ Props state passed to parent via onPropsChange
-```
+\`\`\`
 
 ### PromptPreview Component Structure
 
-```typescript
+\`\`\`typescript
 PromptPreview
 ├─ Card Container
 ├─ CardHeader
@@ -643,11 +643,11 @@ PromptPreview
     ├─ Name Input
     ├─ Prompt Preview
     └─ Save/Cancel Buttons
-```
+\`\`\`
 
 ### GenerationPanel Component Structure
 
-```typescript
+\`\`\`typescript
 GenerationPanel
 ├─ Mode Selection Card
 │   ├─ Single Image Button
@@ -675,13 +675,13 @@ GenerationPanel
         ├─ Image Component (Next.js Image)
         ├─ Generate Another Button
         └─ Reset Button
-```
+\`\`\`
 
 ## 📊 State Management Flow
 
 ### Component-Level State
 
-```typescript
+\`\`\`typescript
 // GenerationPanel
 const [mode, setMode] = useState<"single" | "batch" | "template">("single")
 const [characterData, setCharacterData] = useState<CharacterData>(...)
@@ -701,11 +701,11 @@ const [showSaveDialog, setShowSaveDialog] = useState(false)
 // Hook State (use-avatar-generation)
 const [progress, setProgress] = useState<AvatarGenerationProgress | null>(null)
 const [isGenerating, setIsGenerating] = useState(false)
-```
+\`\`\`
 
 ### State Synchronization
 
-```
+\`\`\`
 PropsSelector
     ↓ (onPropsChange)
 Parent Component (props state)
@@ -717,7 +717,7 @@ buildAvatarPrompt(characterData)
 synthesizedPrompt state updated
     ↓
 UI displays updated prompt
-```
+\`\`\`
 
 ## 🔍 Key Implementation Details
 
@@ -733,7 +733,7 @@ UI displays updated prompt
 
 ### Realtime Subscription Pattern
 
-```typescript
+\`\`\`typescript
 // Channel naming
 const topic = kinksterId
   ? `kinkster:${kinksterId}:avatar`
@@ -752,11 +752,11 @@ channel.on("broadcast", { event: "avatar_generation_progress" }, (payload) => {
   const progressData = payload.payload as AvatarGenerationProgress
   // Handle progress updates
 })
-```
+\`\`\`
 
 ### URL Transformation Logic
 
-```typescript
+\`\`\`typescript
 // Edge Function (downloadAndStoreImage)
 if (supabaseUrl.includes("kong:8000")) {
   // Local dev: Transform to public URL
@@ -771,7 +771,7 @@ if (storageUrl.includes("kong:8000")) {
   // Transform internal URL to public
   transformedUrl = `${NEXT_PUBLIC_SUPABASE_URL}${urlPath}`
 }
-```
+\`\`\`
 
 ## 🎯 Comparison: v0 Architecture vs Actual Implementation
 
@@ -796,4 +796,3 @@ The v0 chat provided excellent architectural insights, but our actual implementa
 5. **Integrated**: Uses Supabase throughout (Storage, Realtime, Database)
 
 The v0 architecture is more generic and flexible, while ours is more specialized and controlled—perfect for ensuring consistency and brand alignment.
-

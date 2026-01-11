@@ -36,22 +36,22 @@
 5. Verify the migration succeeded
 
 **Option B: Via Supabase CLI**
-```bash
+\`\`\`bash
 # If you have Supabase CLI configured for production
 supabase db push --db-url <production-database-url>
-```
+\`\`\`
 
 **Option C: Via Migration File**
-```bash
+\`\`\`bash
 # Apply specific migration
 supabase migration up --db-url <production-database-url>
-```
+\`\`\`
 
 ### Step 2: Verify Migration Success
 
 Run this query in Supabase SQL Editor to verify columns were added:
 
-```sql
+\`\`\`sql
 -- Check if enum type exists
 SELECT typname FROM pg_type WHERE typname = 'notion_sync_status';
 
@@ -68,7 +68,7 @@ FROM pg_indexes
 WHERE schemaname = 'public' 
 AND tablename = 'tasks' 
 AND indexname LIKE '%notion%';
-```
+\`\`\`
 
 ### Step 3: Test Sync Status Functionality
 
@@ -137,4 +137,3 @@ The implementation is successful when:
 3. ✅ Direct links to Notion pages work
 4. ✅ Status persists across page reloads
 5. ✅ No performance degradation
-

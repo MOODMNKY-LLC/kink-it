@@ -438,7 +438,7 @@ This guide covers testing for:
 
 ## 📝 Test Results Template
 
-```
+\`\`\`
 Test Date: ___________
 Tester: ___________
 Browser: ___________
@@ -481,7 +481,7 @@ Issues Found:
 1. ___________
 2. ___________
 3. ___________
-```
+\`\`\`
 
 ---
 

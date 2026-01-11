@@ -65,7 +65,7 @@ Users can select quality when clicking the "Vectorize" button:
 
 ## API Usage
 
-```typescript
+\`\`\`typescript
 const formData = new FormData()
 formData.append("imageUrl", imageUrl)
 formData.append("quality", "high") // "low" | "medium" | "high"
@@ -74,13 +74,13 @@ const response = await fetch("/api/image/vectorize", {
   method: "POST",
   body: formData,
 })
-```
+\`\`\`
 
 ## Technical Details
 
 The quality settings are applied via the `@imgly/vectorizer` library's `Config` object:
 
-```typescript
+\`\`\`typescript
 // High Quality (Maximum) Configuration
 const config = {
   options: {
@@ -102,7 +102,7 @@ const config = {
 }
 
 const svgBlob = await imageToSvg(image, config)
-```
+\`\`\`
 
 ## Performance Considerations
 
@@ -122,4 +122,3 @@ Processing time increases with:
 - Use **Medium** for most production use cases (default)
 - Use **High** for final assets where maximum quality is required
 - Consider image complexity - simple graphics may not benefit from High quality
-

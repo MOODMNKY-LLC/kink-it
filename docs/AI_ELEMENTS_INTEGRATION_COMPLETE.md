@@ -97,7 +97,7 @@ The parser detects the following patterns:
 
 ### Parsing Flow
 
-```
+\`\`\`
 Message Content (string)
     ↓
 parseMessageContent()
@@ -109,11 +109,11 @@ Extract Structured Parts
 Build Parts Array (ordered by position)
     ↓
 Return ParsedMessage { parts[], hasStructuredContent }
-```
+\`\`\`
 
 ### Rendering Flow
 
-```
+\`\`\`
 ParsedMessage.parts[]
     ↓
 MessageRenderer Component
@@ -123,7 +123,7 @@ Group Consecutive Parts by Type
 Map Each Group to AI Elements Component
     ↓
 Render in MessageContent
-```
+\`\`\`
 
 ---
 
@@ -133,13 +133,13 @@ The system works automatically - no changes needed to how messages are sent or r
 
 ### Example
 
-```typescript
+\`\`\`typescript
 // In enhanced-ai-chat-interface.tsx
 const renderMessageContent = (content: string, isStreaming = false) => {
   const parsed = parseMessageContent(content)
   return <MessageRenderer parts={parsed.parts} isStreaming={isStreaming} />
 }
-```
+\`\`\`
 
 ---
 
@@ -201,5 +201,3 @@ The implementation has been tested with:
 - `lib/chat/message-parser.ts` - Content parser
 - `components/chat/message-renderer.tsx` - Component renderer
 - `components/ai-elements/*` - AI Elements component library
-
-

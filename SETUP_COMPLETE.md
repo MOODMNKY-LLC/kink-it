@@ -37,12 +37,12 @@ Your project is now **fully initialized and ready for development**!
 ## 🔧 Supabase Local Instance
 
 ### Connection Details
-```bash
+\`\`\`bash
 Project URL: http://127.0.0.1:55321
 Database URL: postgresql://postgres:postgres@127.0.0.1:55432/postgres
 Studio (UI): http://127.0.0.1:55323
 Mailpit (Email): http://127.0.0.1:55324
-```
+\`\`\`
 
 ### Database Tables
 - ✅ `app_ideas` - Feature tracking and idea management
@@ -59,16 +59,16 @@ Mailpit (Email): http://127.0.0.1:55324
 
 ### 1. Verify Environment Variables
 Open `.env.local` and confirm these are set:
-```bash
+\`\`\`bash
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:55321
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
-```
+\`\`\`
 
 ### 2. Start Next.js Development Server
-```bash
+\`\`\`bash
 pnpm dev
-```
+\`\`\`
 
 Your app will be available at: **http://localhost:3000**
 
@@ -82,29 +82,29 @@ View your database tables, run queries, and manage data.
 ## 📋 Available Commands
 
 ### Development
-```bash
+\`\`\`bash
 pnpm dev          # Start Next.js dev server (port 3000)
 pnpm build        # Build for production
 pnpm start        # Start production server
 pnpm lint         # Run ESLint
-```
+\`\`\`
 
 ### Supabase
-```bash
+\`\`\`bash
 supabase status   # Check Supabase status
 supabase stop     # Stop Supabase containers
 supabase start    # Start Supabase containers
 supabase db reset # Reset database (careful!)
-```
+\`\`\`
 
 ### Database
-```bash
+\`\`\`bash
 # Connect to local database
 psql "postgresql://postgres:postgres@127.0.0.1:55432/postgres"
 
 # Run a migration
 psql "postgresql://postgres:postgres@127.0.0.1:55432/postgres" -f scripts/your_migration.sql
-```
+\`\`\`
 
 ---
 
@@ -124,7 +124,7 @@ psql "postgresql://postgres:postgres@127.0.0.1:55432/postgres" -f scripts/your_m
 
 ## 📊 Project Structure
 
-```
+\`\`\`
 kink-it/
 ├── app/                    # Next.js 15 App Router
 │   ├── api/               # API routes (Notion sync)
@@ -151,7 +151,7 @@ kink-it/
 ├── .npmrc                # pnpm configuration
 ├── package.json          # Dependencies
 └── pnpm-lock.yaml        # Lockfile
-```
+\`\`\`
 
 ---
 
@@ -184,14 +184,14 @@ kink-it/
 
 ### Port Conflicts
 If you get port errors, check Windows reserved ports:
-```powershell
+\`\`\`powershell
 netsh interface ipv4 show excludedportrange protocol=tcp
-```
+\`\`\`
 
 All Supabase ports are now in 55xxx range to avoid conflicts.
 
 ### Supabase Not Starting
-```bash
+\`\`\`bash
 # Stop all containers
 supabase stop
 
@@ -200,23 +200,23 @@ docker ps
 
 # Restart Supabase
 supabase start
-```
+\`\`\`
 
 ### Database Connection Issues
 Verify connection string in .env.local matches:
-```
+\`\`\`
 postgresql://postgres:postgres@127.0.0.1:55432/postgres
-```
+\`\`\`
 
 ### Missing Dependencies
-```bash
+\`\`\`bash
 # Reinstall
 pnpm install
 
 # Clear cache and reinstall
 rm -rf node_modules pnpm-lock.yaml
 pnpm install
-```
+\`\`\`
 
 ---
 
@@ -248,10 +248,3 @@ pnpm install
 **🚀 Your KINK IT project is fully initialized and ready for development!**
 
 Run `pnpm dev` and start building! 🎉
-
-
-
-
-
-
-

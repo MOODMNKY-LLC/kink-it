@@ -8,4 +8,3 @@ ADD COLUMN IF NOT EXISTS widget_image_url text;
 -- Add comments for documentation
 COMMENT ON COLUMN public.profiles.banner_text IS 'Customizable scrolling banner text for the widget component';
 COMMENT ON COLUMN public.profiles.widget_image_url IS 'URL to custom background image for widget component (replaces default GIF)';
-

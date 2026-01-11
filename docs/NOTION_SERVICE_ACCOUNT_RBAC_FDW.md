@@ -109,14 +109,14 @@ Admins need to:
 
 **Option A: Environment Variable (Recommended)**
 
-```bash
+\`\`\`bash
 # .env.local
 NOTION_SERVICE_ACCOUNT_API_KEY=secret_your_service_account_key_here
-```
+\`\`\`
 
 **Option B: Supabase Vault (More Secure)**
 
-```sql
+\`\`\`sql
 -- Store in Vault for FDW
 INSERT INTO vault.secrets (name, secret)
 VALUES (
@@ -125,7 +125,7 @@ VALUES (
 )
 RETURNING id;
 -- Note the ID for FDW server configuration
-```
+\`\`\`
 
 ---
 
@@ -133,25 +133,25 @@ RETURNING id;
 
 ### Step 1: Enable Wrappers Extension
 
-```sql
+\`\`\`sql
 -- Verify wrappers extension is installed
 CREATE EXTENSION IF NOT EXISTS wrappers WITH SCHEMA extensions;
-```
+\`\`\`
 
 ### Step 2: Create Foreign Data Wrapper
 
-```sql
+\`\`\`sql
 -- Enable Wasm wrapper
 CREATE FOREIGN DATA WRAPPER IF NOT EXISTS wasm_wrapper
 HANDLER extensions.wasm_fdw_handler
 VALIDATOR extensions.wasm_fdw_validator;
-```
+\`\`\`
 
 ### Step 3: Create Foreign Server with Service Account Key
 
 **Using Environment Variable (via Edge Function/API)**:
 
-```sql
+\`\`\`sql
 -- Note: This would be done via your API/Edge Function that has access to env vars
 -- The FDW server creation happens server-side
 
@@ -165,11 +165,11 @@ OPTIONS (
   fdw_package_checksum '6dea3014f462aafd0c051c37d163fe326e7650c26a7eb5d8017a30634b5a46de',
   api_key 'secret_your_service_account_key_here' -- From env var
 );
-```
+\`\`\`
 
 **Using Vault (More Secure)**:
 
-```sql
+\`\`\`sql
 -- First, store key in Vault (done via API/Edge Function)
 -- Then create server with Vault key ID
 CREATE SERVER notion_service_account_server
@@ -181,11 +181,11 @@ OPTIONS (
   fdw_package_checksum '6dea3014f462aafd0c051c37d163fe326e7650c26a7eb5d8017a30634b5a46de',
   api_key_id '<vault_key_id>' -- From Vault INSERT above
 );
-```
+\`\`\`
 
 ### Step 4: Create Foreign Tables
 
-```sql
+\`\`\`sql
 -- Create private schema for foreign tables
 CREATE SCHEMA IF NOT EXISTS notion_fdw;
 
@@ -227,7 +227,7 @@ OPTIONS (
   object 'database',
   database_id 'your-kinkster-profiles-database-id'
 );
-```
+\`\`\`
 
 ---
 
@@ -235,7 +235,7 @@ OPTIONS (
 
 ### Helper Function: Check if User is Admin
 
-```sql
+\`\`\`sql
 CREATE OR REPLACE FUNCTION public.is_admin(user_id UUID)
 RETURNS BOOLEAN
 LANGUAGE plpgsql
@@ -253,11 +253,11 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.is_admin TO authenticated;
-```
+\`\`\`
 
 ### Helper Function: Get Bond Members
 
-```sql
+\`\`\`sql
 -- Based on your actual bond_members table structure
 -- Returns all user IDs that are in bonds where the admin is a member
 
@@ -291,11 +291,11 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.get_bond_member_ids TO authenticated;
-```
+\`\`\`
 
 ### Helper Function: Map Notion User ID to Supabase User ID
 
-```sql
+\`\`\`sql
 -- If Notion user IDs don't directly map to Supabase user IDs,
 -- you may need a mapping table or function
 
@@ -322,7 +322,7 @@ BEGIN
   RETURN supabase_user_id;
 END;
 $$;
-```
+\`\`\`
 
 ---
 
@@ -330,7 +330,7 @@ $$;
 
 ### Admin Image Generations View (All Bond Members)
 
-```sql
+\`\`\`sql
 CREATE OR REPLACE VIEW public.admin_image_generations_all AS
 SELECT 
   ig.id,
@@ -365,11 +365,11 @@ GRANT SELECT ON public.admin_image_generations_all TO authenticated;
 
 -- RLS policy ensures only admins can access
 ALTER VIEW public.admin_image_generations_all SET (security_invoker = true);
-```
+\`\`\`
 
 ### Admin KINKSTER Profiles View
 
-```sql
+\`\`\`sql
 CREATE OR REPLACE VIEW public.admin_kinkster_profiles_all AS
 SELECT 
   k.id,
@@ -398,7 +398,7 @@ WHERE
 
 GRANT SELECT ON public.admin_kinkster_profiles_all TO authenticated;
 ALTER VIEW public.admin_kinkster_profiles_all SET (security_invoker = true);
-```
+\`\`\`
 
 ---
 
@@ -406,7 +406,7 @@ ALTER VIEW public.admin_kinkster_profiles_all SET (security_invoker = true);
 
 ### Admin Image Search (All Bond Members)
 
-```sql
+\`\`\`sql
 CREATE OR REPLACE FUNCTION public.admin_search_image_generations(
   search_query TEXT,
   admin_user_id UUID DEFAULT auth.uid(),
@@ -468,11 +468,11 @@ $$;
 
 -- Grant execute only to authenticated (admin check inside function)
 GRANT EXECUTE ON FUNCTION public.admin_search_image_generations TO authenticated;
-```
+\`\`\`
 
 ### Admin KINKSTER Search
 
-```sql
+\`\`\`sql
 CREATE OR REPLACE FUNCTION public.admin_search_kinkster_profiles(
   search_query TEXT,
   admin_user_id UUID DEFAULT auth.uid(),
@@ -522,7 +522,7 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.admin_search_kinkster_profiles TO authenticated;
-```
+\`\`\`
 
 ---
 
@@ -530,7 +530,7 @@ GRANT EXECUTE ON FUNCTION public.admin_search_kinkster_profiles TO authenticated
 
 ### Admin Image Gallery Search Endpoint
 
-```typescript
+\`\`\`typescript
 // app/api/admin/gallery/search/route.ts
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
@@ -579,7 +579,7 @@ export async function GET(request: NextRequest) {
     search_query: query
   })
 }
-```
+\`\`\`
 
 ---
 
@@ -587,19 +587,19 @@ export async function GET(request: NextRequest) {
 
 ### 1. RLS on Admin Views
 
-```sql
+\`\`\`sql
 -- Ensure admin views respect RLS
 ALTER VIEW public.admin_image_generations_all SET (security_invoker = true);
 ALTER VIEW public.admin_kinkster_profiles_all SET (security_invoker = true);
-```
+\`\`\`
 
 ### 2. Function Security
 
-```sql
+\`\`\`sql
 -- All admin functions use SECURITY DEFINER
 -- They check admin role internally
 -- They filter by bond membership
-```
+\`\`\`
 
 ### 3. Service Account Key Security
 
@@ -610,7 +610,7 @@ ALTER VIEW public.admin_kinkster_profiles_all SET (security_invoker = true);
 
 ### 4. Access Logging
 
-```sql
+\`\`\`sql
 -- Create audit log for admin FDW queries
 CREATE TABLE IF NOT EXISTS public.admin_fdw_access_log (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -646,7 +646,7 @@ BEGIN
   );
 END;
 $$;
-```
+\`\`\`
 
 ---
 
@@ -688,7 +688,7 @@ $$;
 
 ### Admin Search All Bond Members' Images
 
-```typescript
+\`\`\`typescript
 // Admin can search across all bond members
 const { data } = await supabase
   .rpc('admin_search_image_generations', {
@@ -698,11 +698,11 @@ const { data } = await supabase
   })
 
 // Returns images from all bond members with Notion metadata!
-```
+\`\`\`
 
 ### Admin Browse All KINKSTER Profiles
 
-```typescript
+\`\`\`typescript
 const { data } = await supabase
   .rpc('admin_search_kinkster_profiles', {
     search_query: 'dominant',
@@ -710,7 +710,7 @@ const { data } = await supabase
   })
 
 // Returns KINKSTER profiles from all bond members!
-```
+\`\`\`
 
 ---
 
@@ -754,4 +754,3 @@ This implementation gives **admins immediate, fast access** to all bond members'
 **Status**: Ready for Implementation  
 **Priority**: High (Significant admin productivity gains)  
 **Estimated Effort**: 3-4 weeks for full implementation
-

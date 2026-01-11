@@ -111,7 +111,7 @@
 ## 🔧 Technical Details
 
 ### Component Structure
-```
+\`\`\`
 KinkyTerminal
 ├── Terminal (base component)
 │   ├── Header (with Kinky avatar)
@@ -125,7 +125,7 @@ KinkyTerminal
 │       │   └── Actions (mark-read, rm, clear-all)
 │       └── Calendar Tab
 │           └── Calendar Component
-```
+\`\`\`
 
 ### Dependencies
 - `@/components/ui/terminal` - Base terminal component
@@ -194,4 +194,3 @@ KinkyTerminal
 - `docs/KINKY_TERMINAL_IMPLEMENTATION_PLAN.md` - Full implementation plan
 - `docs/KINKY_KINCADE_CHARACTER_PROFILE.md` - Kinky character details
 - `docs/COMPREHENSIVE_CHAT_AND_NOTIFICATIONS_IMPLEMENTATION.md` - Notification system docs
-

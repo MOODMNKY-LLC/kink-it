@@ -23,7 +23,7 @@ But we just added it back in commit `fd842f5` - "fix: completely filter error ou
 After commit `2a485d3`, the working configuration was:
 
 **vercel.json:**
-```json
+\`\`\`json
 {
   "buildCommand": "next build",
   "framework": "nextjs",
@@ -32,14 +32,14 @@ After commit `2a485d3`, the working configuration was:
   "devCommand": "next dev",
   "regions": ["iad1"]
 }
-```
+\`\`\`
 
 **package.json:**
-```json
+\`\`\`json
 {
   "build": "next build"
 }
-```
+\`\`\`
 
 **Key Points:**
 - ✅ NO `ignoreCommand` (it was causing problems)

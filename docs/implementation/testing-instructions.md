@@ -18,23 +18,23 @@
 ### Option 1: Manual (Recommended)
 
 **Terminal 1 - Start Dev Server**:
-```bash
+\`\`\`bash
 pnpm dev
-```
+\`\`\`
 
 Wait for server to start (look for "Ready" message), then:
 
 **Terminal 2 - Run Tests**:
-```bash
+\`\`\`bash
 pnpm test:api
-```
+\`\`\`
 
 ### Option 2: Automated (If server is already running)
 
 Just run:
-```bash
+\`\`\`bash
 pnpm test:api
-```
+\`\`\`
 
 The script will check if the server is running and provide clear instructions if it's not.
 
@@ -43,7 +43,7 @@ The script will check if the server is running and provide clear instructions if
 ## Expected Test Output
 
 ### Successful Run:
-```
+\`\`\`
 🧪 Testing API Endpoints...
 
 🔍 Checking if dev server is running...
@@ -81,17 +81,17 @@ The script will check if the server is running and provide clear instructions if
    ✅ DELETE /api/tasks/[id] (cleanup)
 
 ✅ All tests passed!
-```
+\`\`\`
 
 ### If Server Not Running:
-```
+\`\`\`
 ❌ Dev server is not running!
 
 📋 Please start the dev server first:
    pnpm dev
 
    Then run this test script in another terminal.
-```
+\`\`\`
 
 ---
 
@@ -159,8 +159,3 @@ After successful testing:
 ---
 
 **Status**: Ready for testing
-
-
-
-
-

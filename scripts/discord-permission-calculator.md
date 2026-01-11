@@ -16,19 +16,19 @@
 ### Permission Combinations
 
 #### Minimum Required (Notifications Only)
-```
+\`\`\`
 View Channels (1024) + Send Messages (2048) + Read Message History (65536)
 = 68608 (decimal)
 = 0x10C00 (hex)
-```
+\`\`\`
 
 #### Recommended (Full Functionality)
-```
+\`\`\`
 View Channels (1024) + Send Messages (2048) + Read Message History (65536) + 
 Manage Webhooks (536870912) + Embed Links (16384) + Attach Files (32768)
 = 536951424 (decimal)
 = 0x20010C00 (hex)
-```
+\`\`\`
 
 ## Online Calculator
 
@@ -38,7 +38,7 @@ You can also use Discord's OAuth2 URL Generator in the Developer Portal, which a
 
 To calculate manually, add the decimal values:
 
-```javascript
+\`\`\`javascript
 const permissions = {
   VIEW_CHANNELS: 1024,
   SEND_MESSAGES: 2048,
@@ -60,18 +60,14 @@ const recommended = minimum +
                    permissions.EMBED_LINKS + 
                    permissions.ATTACH_FILES
 // = 536951424
-```
+\`\`\`
 
 ## Verify in OAuth2 URL
 
 Your OAuth2 URL should include the permission integer:
 
-```
+\`\`\`
 https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=536951424&scope=bot
-```
+\`\`\`
 
 Replace `536951424` with your calculated permission integer.
-
-
-
-

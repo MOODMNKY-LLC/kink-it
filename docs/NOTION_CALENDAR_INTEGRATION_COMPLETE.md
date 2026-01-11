@@ -26,7 +26,7 @@ Successfully implemented comprehensive Notion Calendar integration for KINK IT, 
 - ✅ Created index on `ical_uid` for performance
 
 **Verification:**
-```sql
+\`\`\`sql
 -- Columns exist
 SELECT column_name FROM information_schema.columns 
 WHERE table_name = 'profiles' AND column_name = 'google_account_email';
@@ -41,7 +41,7 @@ SELECT trigger_name FROM information_schema.triggers
 WHERE event_object_table = 'calendar_events' 
 AND trigger_name = 'trigger_set_calendar_event_ical_uid';
 -- ✅ trigger_set_calendar_event_ical_uid
-```
+\`\`\`
 
 ### 2. Utility Library ✅
 
@@ -54,9 +54,9 @@ AND trigger_name = 'trigger_set_calendar_event_ical_uid';
 - `isValidGoogleEmail()` - Email validation
 
 **URL Format:**
-```
+\`\`\`
 cron://{accountEmail}&{iCalUID}&startDate={ISO}&endDate={ISO}&title={Title}&ref=kink-it
-```
+\`\`\`
 
 ### 3. API Routes ✅
 
@@ -127,7 +127,7 @@ cron://{accountEmail}&{iCalUID}&startDate={ISO}&endDate={ISO}&title={Title}&ref=
 
 ### Data Flow
 
-```
+\`\`\`
 KINK IT Calendar Event
   ↓ (auto-generate)
 ical_uid (RFC5545 format)
@@ -135,7 +135,7 @@ ical_uid (RFC5545 format)
 Notion Calendar App (cron:// URL)
   OR
 Notion Calendar Events Database (API sync)
-```
+\`\`\`
 
 ### Integration Points
 
@@ -242,4 +242,3 @@ The Notion Calendar integration is **complete and production-ready**. All databa
 **Implementation Date:** February 2, 2025  
 **Status:** ✅ Complete  
 **Next Review:** After user testing
-

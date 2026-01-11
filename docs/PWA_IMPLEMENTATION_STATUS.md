@@ -127,6 +127,3 @@
 2. **Test Locally**: Build and serve in production mode to test service worker
 3. **Deploy**: Deploy to production to enable full PWA features
 4. **Test Installation**: Test on iOS and Android devices
-
-
-

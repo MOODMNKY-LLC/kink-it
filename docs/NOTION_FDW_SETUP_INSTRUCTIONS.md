@@ -27,7 +27,7 @@
 
 ### Option B: Via SQL Editor
 
-```sql
+\`\`\`sql
 -- Store API key in Vault
 INSERT INTO vault.secrets (name, secret)
 VALUES ('notion_service_account_api_key', 'your_notion_api_key_here')
@@ -36,7 +36,7 @@ DO UPDATE SET secret = EXCLUDED.secret
 RETURNING id;
 
 -- Note the returned ID for use in foreign server
-```
+\`\`\`
 
 ---
 
@@ -46,13 +46,13 @@ The migration file `supabase/migrations/20260201000002_setup_notion_fdw_admin.sq
 
 ### Apply Migration
 
-```bash
+\`\`\`bash
 # Apply the migration
 supabase migration up
 
 # Or apply specific migration
 supabase db push
-```
+\`\`\`
 
 ### What the Migration Does
 
@@ -73,10 +73,10 @@ supabase db push
 
 After storing the key in Vault, update the migration file with the Vault key ID:
 
-```sql
+\`\`\`sql
 -- In migration file, update this line:
 api_key_id '<vault_key_id_from_step_1>'
-```
+\`\`\`
 
 ### If Using Direct API Key (Less Secure)
 
@@ -90,15 +90,15 @@ The migration will attempt to use the API key directly if Vault key is not found
 
 After the migration runs, initialize the foreign tables:
 
-```sql
+\`\`\`sql
 -- This function reads database IDs from notion_databases table
 -- and creates foreign tables accordingly
 SELECT public.setup_notion_fdw_tables();
-```
+\`\`\`
 
 ### Verify Foreign Tables Created
 
-```sql
+\`\`\`sql
 -- Check if foreign tables exist
 SELECT 
   schemaname,
@@ -110,7 +110,7 @@ WHERE schemaname = 'notion_fdw';
 -- Should show:
 -- notion_fdw.image_generations_all
 -- notion_fdw.kinkster_profiles_all
-```
+\`\`\`
 
 ---
 
@@ -118,29 +118,29 @@ WHERE schemaname = 'notion_fdw';
 
 ### Test Image Generations Foreign Table
 
-```sql
+\`\`\`sql
 -- Test query (should return data if FDW is working)
 SELECT * 
 FROM notion_fdw.image_generations_all 
 LIMIT 5;
-```
+\`\`\`
 
 ### Test Admin View
 
-```sql
+\`\`\`sql
 -- Test admin view (requires admin authentication)
 SELECT * 
 FROM public.admin_image_generations_all 
 LIMIT 5;
-```
+\`\`\`
 
 ### Test Admin Search Function
 
-```sql
+\`\`\`sql
 -- Test admin search (requires admin role)
 SELECT * 
 FROM public.admin_search_image_generations('kinky', auth.uid(), 10);
-```
+\`\`\`
 
 ---
 
@@ -150,7 +150,7 @@ The `setup_notion_fdw_tables()` function reads database IDs from `notion_databas
 
 ### Check Database IDs
 
-```sql
+\`\`\`sql
 -- Verify database IDs exist
 SELECT 
   database_type,
@@ -160,25 +160,25 @@ SELECT
 FROM notion_databases
 WHERE database_type IN ('image_generations', 'kinkster_profiles')
   AND user_id IS NULL; -- Template/global databases
-```
+\`\`\`
 
 ### If Database IDs Missing
 
 If database IDs are not found, you may need to:
 
 1. **Run Notion integration sync**:
-   ```bash
+   \`\`\`bash
    # This should populate notion_databases table
    # Via your onboarding flow or API endpoint
-   ```
+   \`\`\`
 
 2. **Manually insert database IDs**:
-   ```sql
+   \`\`\`sql
    INSERT INTO notion_databases (database_type, database_id, database_name, user_id)
    VALUES 
      ('image_generations', 'your-database-id-here', 'Image Generations', NULL),
      ('kinkster_profiles', 'your-database-id-here', 'KINKSTER Profiles', NULL);
-   ```
+   \`\`\`
 
 ---
 
@@ -186,30 +186,30 @@ If database IDs are not found, you may need to:
 
 ### Error: Foreign Server Already Exists
 
-```sql
+\`\`\`sql
 -- Drop and recreate
 DROP SERVER IF EXISTS notion_service_account_server CASCADE;
 -- Then re-run migration
-```
+\`\`\`
 
 ### Error: Foreign Tables Not Found
 
-```sql
+\`\`\`sql
 -- Check if setup function was called
 SELECT public.setup_notion_fdw_tables();
 
 -- Check database IDs
 SELECT * FROM notion_databases WHERE database_type IN ('image_generations', 'kinkster_profiles');
-```
+\`\`\`
 
 ### Error: Permission Denied
 
 Ensure you're using service role key for admin operations:
 
-```bash
+\`\`\`bash
 # Check service role key is set
 echo $SUPABASE_SERVICE_ROLE_KEY
-```
+\`\`\`
 
 ### Error: API Key Invalid
 
@@ -249,7 +249,7 @@ After setup is complete:
 
 ### Admin Image Search
 
-```typescript
+\`\`\`typescript
 // app/api/admin/gallery/search/route.ts
 const { data } = await supabase
   .rpc('admin_search_image_generations', {
@@ -257,22 +257,20 @@ const { data } = await supabase
     admin_user_id: userId,
     limit_count: 100
   })
-```
+\`\`\`
 
 ### Admin KINKSTER Browse
 
-```typescript
+\`\`\`typescript
 const { data } = await supabase
   .rpc('admin_search_kinkster_profiles', {
     search_query: 'dominant',
     admin_user_id: userId
   })
-```
+\`\`\`
 
 ---
 
 **Status**: Ready for Setup  
 **Migration File**: `supabase/migrations/20260201000002_setup_notion_fdw_admin.sql`  
 **Estimated Setup Time**: 15-30 minutes
-
-

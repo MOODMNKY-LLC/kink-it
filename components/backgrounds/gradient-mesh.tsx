@@ -48,6 +48,3 @@ export function GradientMesh({ className, intensity = "medium" }: GradientMeshPr
     </div>
   )
 }
-
-
-

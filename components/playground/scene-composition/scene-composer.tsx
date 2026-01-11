@@ -546,4 +546,3 @@ export function SceneComposer({ className }: SceneComposerProps) {
     </div>
   )
 }
-

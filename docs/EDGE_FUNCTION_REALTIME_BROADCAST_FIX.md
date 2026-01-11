@@ -3,9 +3,9 @@
 ## Problem
 
 Edge Functions were failing to broadcast Realtime messages with error:
-```
+\`\`\`
 Failed to broadcast progress: supabase.realtime.send is not a function
-```
+\`\`\`
 
 ## Root Cause
 
@@ -18,7 +18,7 @@ Edge Functions run in a Deno runtime environment and cannot use the client libra
 Use the **Realtime REST API** endpoint `/realtime/v1/api/broadcast` to send broadcast messages from Edge Functions.
 
 ### Before (Doesn't Work in Edge Functions)
-```typescript
+\`\`\`typescript
 // ❌ This doesn't work - realtime.send() is not available
 await supabase.realtime.send(
   topic,
@@ -26,10 +26,10 @@ await supabase.realtime.send(
   payload,
   false
 )
-```
+\`\`\`
 
 ### After (Works in Edge Functions)
-```typescript
+\`\`\`typescript
 // ✅ Use REST API endpoint instead
 const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? ""
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
@@ -51,7 +51,7 @@ await fetch(`${supabaseUrl}/realtime/v1/api/broadcast`, {
     ],
   }),
 })
-```
+\`\`\`
 
 ## Implementation Details
 
@@ -71,7 +71,7 @@ Updated `chat-stream/index.ts`:
 ## REST API Format
 
 The Realtime REST API expects:
-```json
+\`\`\`json
 {
   "messages": [
     {
@@ -81,7 +81,7 @@ The Realtime REST API expects:
     }
   ]
 }
-```
+\`\`\`
 
 **Headers Required:**
 - `Content-Type: application/json`
@@ -100,7 +100,7 @@ The Realtime REST API expects:
 ### Option 1: Database Triggers (For Database Changes)
 If broadcasting based on database changes, use `realtime.broadcast_changes()` in a database trigger:
 
-```sql
+\`\`\`sql
 CREATE OR REPLACE FUNCTION notify_avatar_generation()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -116,7 +116,7 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-```
+\`\`\`
 
 ### Option 2: Channel.send() (Requires Subscription)
 You could create a channel and use `channel.send()`, but this requires:
@@ -146,6 +146,3 @@ After this fix, check the Edge Function logs. You should see:
 
 - [Supabase Realtime Broadcast REST API](https://supabase.com/docs/guides/realtime/broadcast#broadcast-using-the-rest-api)
 - [Realtime Authorization](https://supabase.com/docs/guides/realtime/authorization)
-
-
-

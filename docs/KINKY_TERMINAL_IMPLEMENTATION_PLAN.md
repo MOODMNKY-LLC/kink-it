@@ -88,12 +88,12 @@ Transform the dashboard terminal into a unified "Kinky Terminal" component featu
 
 ### Gradient Color Palette
 
-```css
+\`\`\`css
 /* Terminal Gradient Colors */
 --gradient-from: oklch(0.70 0.20 30);   /* Orange-red accent */
 --gradient-via: oklch(0.70 0.20 220);   /* Cyan-blue primary */
 --gradient-to: oklch(0.7 0.18 155);     /* Green-teal success */
-```
+\`\`\`
 
 ### Implementation Strategy
 
@@ -228,7 +228,7 @@ Transform the dashboard terminal into a unified "Kinky Terminal" component featu
 
 ## 📦 Dependencies to Install
 
-```bash
+\`\`\`bash
 # shadcn components
 npx shadcn@latest add calendar
 npx shadcn@latest add tabs
@@ -236,7 +236,7 @@ npx shadcn@latest add tabs
 # Magic UI components (if not already installed)
 npx shadcn@latest add "https://magicui.design/r/animated-gradient-text.json"
 npx shadcn@latest add "https://magicui.design/r/aurora-text.json"
-```
+\`\`\`
 
 ---
 
@@ -338,4 +338,3 @@ npx shadcn@latest add "https://magicui.design/r/aurora-text.json"
 - [ ] Database migrations created for sidebar components
 - [ ] All components responsive and accessible
 - [ ] Gradient theme consistent across app
-

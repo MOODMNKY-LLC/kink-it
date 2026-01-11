@@ -27,7 +27,7 @@ The PWA manifest requires the following icon sizes:
 
 ### Using PWA Asset Generator (Recommended)
 
-```bash
+\`\`\`bash
 npm install -g pwa-asset-generator
 
 # Generate all icons from source image
@@ -36,7 +36,7 @@ pwa-asset-generator images/app-icon/kink-it-icon.png public/icons \
   --favicon \
   --opaque false \
   --padding "20%"
-```
+\`\`\`
 
 ### Manual Generation
 
@@ -56,7 +56,7 @@ Maskable icons must have:
 
 Place all icons in `public/icons/`:
 
-```
+\`\`\`
 public/icons/
   ├── icon-72x72.png
   ├── icon-96x96.png
@@ -68,7 +68,7 @@ public/icons/
   ├── icon-512x512.png
   ├── icon-maskable-192x192.png
   └── icon-maskable-512x512.png
-```
+\`\`\`
 
 ## Testing
 
@@ -83,6 +83,3 @@ After generating icons:
 ## Current Status
 
 ⚠️ **Icons need to be generated** - The manifest references icon files that need to be created from the source image at `public/images/app-icon/kink-it-icon.png`.
-
-
-

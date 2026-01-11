@@ -53,7 +53,7 @@ Comprehensive implementation of:
 
 ### Realtime Channel Pattern
 
-```typescript
+\`\`\`typescript
 const topic = `user:${userId}:notifications`
 const channel = supabase.channel(topic, {
   config: {
@@ -61,7 +61,7 @@ const channel = supabase.channel(topic, {
     private: true,
   },
 })
-```
+\`\`\`
 
 ---
 
@@ -228,13 +228,13 @@ const channel = supabase.channel(topic, {
 - Falls back to `OPENAI_API_KEY` if Gateway fails
 
 **Configuration**:
-```typescript
+\`\`\`typescript
 // Primary: Vercel AI Gateway (Gemini)
 const primaryModel = "google/gemini-3-pro-image-preview"
 
 // Fallback: OpenAI DALL-E 3
 const fallbackModel = "openai/dall-e-3"
-```
+\`\`\`
 
 ---
 
@@ -242,7 +242,7 @@ const fallbackModel = "openai/dall-e-3"
 
 ### File Structure
 
-```
+\`\`\`
 components/
 ├── chat/
 │   ├── enhanced-ai-chat-interface.tsx    # Main enhanced chat
@@ -280,7 +280,7 @@ app/
 supabase/
 └── migrations/
     └── 20260131000013_create_notifications_table.sql
-```
+\`\`\`
 
 ---
 
@@ -288,15 +288,15 @@ supabase/
 
 ### Terminal Notifications
 
-```tsx
+\`\`\`tsx
 import TerminalNotificationsRealtime from "@/components/dashboard/notifications/terminal-notifications-realtime"
 
 <TerminalNotificationsRealtime userId={userId} />
-```
+\`\`\`
 
 ### Enhanced Chat
 
-```tsx
+\`\`\`tsx
 import { EnhancedAIChatInterface } from "@/components/chat/enhanced-ai-chat-interface"
 
 <EnhancedAIChatInterface
@@ -304,15 +304,15 @@ import { EnhancedAIChatInterface } from "@/components/chat/enhanced-ai-chat-inte
   profile={profile}
   kinksterId={optionalKinksterId}
 />
-```
+\`\`\`
 
 ### KINKSTER Chat
 
-```tsx
+\`\`\`tsx
 import { KinksterChatSelector } from "@/components/chat/kinkster-chat-selector"
 
 <KinksterChatSelector onKinksterSelect={(id) => router.push(`/chat?kinkster=${id}`)} />
-```
+\`\`\`
 
 ---
 
@@ -411,5 +411,3 @@ import { KinksterChatSelector } from "@/components/chat/kinkster-chat-selector"
 - No breaking changes introduced
 - OpenAI used exclusively for chat (as requested)
 - Vercel Gateway used for image generation (primary) with OpenAI fallback
-
-

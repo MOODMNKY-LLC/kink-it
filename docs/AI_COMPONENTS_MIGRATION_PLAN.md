@@ -42,13 +42,13 @@ This document outlines the comprehensive plan for:
   - `Reasoning`, `Tool`, `CodeBlock`, `Sources`, `Suggestions`, `Attachment`, etc.
 
 **Installation:**
-```bash
+\`\`\`bash
 # Install all components
 pnpm dlx ai-elements@latest
 
 # Or via shadcn CLI
 pnpm dlx shadcn@latest add https://registry.ai-sdk.dev/all.json
-```
+\`\`\`
 
 **Requirements:**
 - React 19 (no `forwardRef` usage)
@@ -103,7 +103,7 @@ pnpm dlx shadcn@latest add https://registry.ai-sdk.dev/all.json
 
 ### Phase 1: Install Dependencies
 
-```bash
+\`\`\`bash
 # Install Terminal component
 pnpm dlx shadcn@latest add https://magicui.design/r/terminal.json
 
@@ -112,7 +112,7 @@ pnpm dlx ai-elements@latest
 
 # Install OpenAI provider for Vercel AI SDK
 pnpm add @ai-sdk/openai @ai-sdk/react
-```
+\`\`\`
 
 ### Phase 2: Terminal Component Integration
 
@@ -194,7 +194,7 @@ pnpm add @ai-sdk/openai @ai-sdk/react
 ## File Structure Changes
 
 ### New Files
-```
+\`\`\`
 components/
   ui/
     terminal.tsx                    # Terminal component from Magic UI
@@ -210,37 +210,37 @@ components/
       terminal-notifications.tsx    # Terminal-based notifications
   chat/
     terminal-chat.tsx               # Terminal-based chat display
-```
+\`\`\`
 
 ### Modified Files
-```
+\`\`\`
 app/api/generate-image/route.ts     # Migrate to Vercel AI SDK
 components/chat/chat-interface.tsx  # Integrate AI Elements
 components/dashboard/notifications/index.tsx  # Add Terminal option
 hooks/use-chat-stream.tsx           # Update for AI Elements
 package.json                        # Add new dependencies
-```
+\`\`\`
 
 ---
 
 ## Dependencies
 
 ### New Dependencies
-```json
+\`\`\`json
 {
   "@ai-sdk/openai": "^1.0.0",
   "@ai-sdk/react": "^1.0.0"
 }
-```
+\`\`\`
 
 ### Existing Dependencies (Already Installed)
-```json
+\`\`\`json
 {
   "ai": "^6.0.10",
   "openai": "^6.15.0",
   "@openai/agents": "^0.3.7"
 }
-```
+\`\`\`
 
 ---
 
@@ -350,5 +350,3 @@ package.json                        # Add new dependencies
 - [Vercel AI SDK Image Generation](https://ai-sdk.dev/docs/ai-sdk-core/image-generation)
 - [OpenAI Agents SDK](https://github.com/openai/openai-agents)
 - [Model Context Protocol](https://modelcontextprotocol.io/)
-
-

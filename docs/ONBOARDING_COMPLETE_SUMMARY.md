@@ -107,7 +107,7 @@ All databases include:
 
 Add to `.env.local`:
 
-```bash
+\`\`\`bash
 # Notion API (required for template verification)
 NOTION_API_KEY=your_notion_api_key
 
@@ -117,19 +117,19 @@ NEXT_PUBLIC_NOTION_TEMPLATE_URL=https://www.notion.so/2dfcd2a6542281bcba14ffa209
 # Discord OAuth (for guild install - optional)
 DISCORD_CLIENT_ID=your_discord_client_id
 DISCORD_CLIENT_SECRET=your_discord_client_secret
-```
+\`\`\`
 
 ### Database Migration
 
 Run the migration:
-```bash
+\`\`\`bash
 supabase migration up
-```
+\`\`\`
 
 Or apply manually:
-```bash
+\`\`\`bash
 psql -h localhost -p 54322 -U postgres -d postgres -f supabase/migrations/20260127000000_add_onboarding_fields.sql
-```
+\`\`\`
 
 ---
 
@@ -350,7 +350,3 @@ The verification API:
 **Status**: ✅ Complete  
 **Ready for Production**: After testing  
 **Last Updated**: 2026-01-27
-
-
-
-

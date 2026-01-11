@@ -108,6 +108,3 @@ export default function BasicInfoStep({ onNext, initialData }: BasicInfoStepProp
     </div>
   )
 }
-
-
-

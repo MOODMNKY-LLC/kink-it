@@ -2,11 +2,11 @@
 
 ## 🔴 Error
 
-```
+\`\`\`
 AuthRetryableFetchError: Failed to fetch
 TypeError: Failed to fetch
 Error fetching bond memberships: {}
-```
+\`\`\`
 
 ## 🎯 Root Cause
 
@@ -28,21 +28,21 @@ Error fetching bond memberships: {}
 
 Check your `.env.local` file:
 
-```bash
+\`\`\`bash
 # ✅ CORRECT
 NEXT_PUBLIC_SUPABASE_URL=https://127.0.0.1:55321
 
 # ❌ WRONG
 NEXT_PUBLIC_SUPABASE_URL=https://localhost:55321
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:55321  # Missing 's' in https
-```
+\`\`\`
 
 ### Step 3: Accept Certificate for Supabase
 
 1. **Navigate to Supabase API directly:**
-   ```
+   \`\`\`
    https://127.0.0.1:55321
-   ```
+   \`\`\`
 
 2. **Accept the certificate:**
    - Click **"Advanced"**
@@ -55,11 +55,11 @@ NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:55321  # Missing 's' in https
 
 After changing `.env.local`:
 
-```bash
+\`\`\`bash
 # Stop dev server (Ctrl+C)
 # Then restart:
 pnpm dev
-```
+\`\`\`
 
 **Important:** Environment variables are loaded at startup, so you must restart!
 
@@ -77,9 +77,9 @@ Sometimes browsers cache failed requests:
 
 I've added logging to `lib/supabase/client.ts`. Check your browser console:
 
-```
+\`\`\`
 [Supabase Client] Initializing with URL: https://127.0.0.1:55321
-```
+\`\`\`
 
 If you see `localhost` instead of `127.0.0.1`, your `.env.local` is wrong.
 
@@ -87,7 +87,7 @@ If you see `localhost` instead of `127.0.0.1`, your `.env.local` is wrong.
 
 Open browser console and run:
 
-```javascript
+\`\`\`javascript
 // Test Supabase connection
 const response = await fetch('https://127.0.0.1:55321/rest/v1/', {
   headers: {
@@ -96,7 +96,7 @@ const response = await fetch('https://127.0.0.1:55321/rest/v1/', {
   }
 })
 console.log('Supabase connection test:', response.status)
-```
+\`\`\`
 
 **Expected:** Status 200 or 400 (not network error)
 

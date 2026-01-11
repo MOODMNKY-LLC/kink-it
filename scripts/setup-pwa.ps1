@@ -92,6 +92,3 @@ Write-Host "📚 Documentation:" -ForegroundColor Cyan
 Write-Host "- README_PWA_SETUP.md - Quick start guide" -ForegroundColor Gray
 Write-Host "- docs/PWA_IMPLEMENTATION_COMPLETE.md - Full implementation details" -ForegroundColor Gray
 Write-Host ""
-
-
-

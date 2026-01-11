@@ -77,7 +77,3 @@ export default async function PartnersPage() {
     </DashboardPageLayout>
   )
 }
-
-
-
-

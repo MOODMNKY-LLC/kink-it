@@ -8,17 +8,17 @@
 
 ### Step 1: Check Supabase is Running
 
-```bash
+\`\`\`bash
 supabase status
-```
+\`\`\`
 
 **Expected:** Should show "Development Tools" and "APIs" sections with URLs.
 
 ### Step 2: Test API Connectivity (Terminal)
 
-```bash
+\`\`\`bash
 curl -k https://127.0.0.1:55321/rest/v1/
-```
+\`\`\`
 
 **Expected:** HTTP 200 or 400 (not connection error)
 
@@ -33,9 +33,9 @@ curl -k https://127.0.0.1:55321/rest/v1/
 ### Step 4: Check Environment Variables
 
 Open browser console and check for:
-```
+\`\`\`
 [Supabase Client] Initializing with URL: https://127.0.0.1:55321
-```
+\`\`\`
 
 **If you see `localhost` instead:** Your `.env.local` might not be loaded or dev server needs restart.
 
@@ -115,10 +115,10 @@ This will test:
 ### Browser Console
 
 Check for these logs:
-```
+\`\`\`
 [Supabase Client] Initializing with URL: https://127.0.0.1:55321
 [Supabase Client] Make sure certificate is accepted for: https://127.0.0.1:55321
-```
+\`\`\`
 
 **If you see warnings about `localhost`:** Your env vars aren't loaded correctly.
 

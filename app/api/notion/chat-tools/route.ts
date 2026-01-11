@@ -491,5 +491,3 @@ function formatCreateResult(result: any, type: string): string {
 
   return `✅ Successfully created ${type}: **${title}**\n\nView in Notion: ${result.url || ""}`
 }
-
-

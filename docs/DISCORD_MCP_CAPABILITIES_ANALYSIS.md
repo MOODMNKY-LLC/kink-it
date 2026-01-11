@@ -95,7 +95,7 @@ The Discord MCP server provides **one-way text messaging** capabilities to Disco
 
 ### Recommended Pattern
 
-```
+\`\`\`
 ┌─────────────────┐
 │  KINK IT App    │
 │  (Next.js)      │
@@ -121,13 +121,13 @@ The Discord MCP server provides **one-way text messaging** capabilities to Disco
 │  Discord API    │
 │  Channel        │
 └─────────────────┘
-```
+\`\`\`
 
 ### Alternative: n8n Integration
 
-```
+\`\`\`
 Supabase Event → n8n Workflow → Discord MCP → Discord Channel
-```
+\`\`\`
 
 ## Use Cases for KINK IT
 
@@ -185,7 +185,7 @@ Supabase Event → n8n Workflow → Discord MCP → Discord Channel
 
 ### Basic Implementation
 
-```typescript
+\`\`\`typescript
 // app/api/discord/send/route.ts
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
@@ -209,15 +209,15 @@ export async function POST(request: Request) {
     return new NextResponse("Internal Error", { status: 500 })
   }
 }
-```
+\`\`\`
 
 ### Database Schema Addition
 
-```sql
+\`\`\`sql
 -- Add Discord channel preferences to profiles or dynamics table
 ALTER TABLE profiles ADD COLUMN discord_channel_id TEXT;
 ALTER TABLE profiles ADD COLUMN discord_notifications_enabled BOOLEAN DEFAULT false;
-```
+\`\`\`
 
 ## Security Considerations
 
@@ -255,7 +255,3 @@ ALTER TABLE profiles ADD COLUMN discord_notifications_enabled BOOLEAN DEFAULT fa
 ## Conclusion
 
 The Discord MCP server provides a solid foundation for one-way notifications to Discord channels. While it has limitations (no rich formatting, no file uploads, no read capabilities), it perfectly matches the PRD's requirement for Discord as a "delivery channel" for notifications and reminders. The implementation should focus on reliable text-based notifications with proper error handling and user preferences.
-
-
-
-

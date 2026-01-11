@@ -24,26 +24,26 @@ The integration-status endpoint successfully connects to Notion API, but:
 
 The endpoint needs to properly check:
 1. **Does authenticated user have API key?**
-   ```typescript
+   \`\`\`typescript
    const { data: apiKeys } = await supabase
      .from("user_notion_api_keys")
      .select("*")
      .eq("user_id", user.id) // ← Must check authenticated user
      .eq("is_active", true)
-   ```
+   \`\`\`
 
 2. **Does authenticated user have synced databases?**
-   ```typescript
+   \`\`\`typescript
    const { data: databases } = await supabase
      .from("notion_databases")
      .select("*")
      .eq("user_id", user.id) // ← Must check authenticated user
-   ```
+   \`\`\`
 
 3. **Connection status should be**:
-   ```typescript
+   \`\`\`typescript
    connected: apiKeys && apiKeys.length > 0 && canConnectToNotion
-   ```
+   \`\`\`
 
 ---
 
@@ -53,7 +53,7 @@ The endpoint needs to properly check:
 
 Check `/app/api/notion/integration-status/route.ts`:
 
-```typescript
+\`\`\`typescript
 // Should check authenticated user's API key
 const { data: apiKeys } = await supabase
   .from("user_notion_api_keys")
@@ -64,28 +64,28 @@ const { data: apiKeys } = await supabase
 
 // Connection status should depend on user having API key
 const connected = !!apiKeys && canConnectToNotion
-```
+\`\`\`
 
 ### Step 2: Test with Authenticated User
 
 1. **Create a test user** (if in local dev):
-   ```bash
+   \`\`\`bash
    # Sign up/login through your app
-   ```
+   \`\`\`
 
 2. **Add Notion API key**:
-   ```bash
+   \`\`\`bash
    POST /api/notion/api-keys
    {
      "key_name": "My Workspace",
      "api_key": "your-notion-api-key"
    }
-   ```
+   \`\`\`
 
 3. **Sync template**:
-   ```bash
+   \`\`\`bash
    POST /api/onboarding/notion/sync-template
-   ```
+   \`\`\`
 
 4. **Check status**:
    - Should now show databases synced
@@ -94,7 +94,7 @@ const connected = !!apiKeys && canConnectToNotion
 
 If the endpoint is not checking authenticated user's data:
 
-```typescript
+\`\`\`typescript
 // In integration-status route
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
@@ -129,7 +129,7 @@ export async function GET(request: NextRequest) {
     // ... rest of response
   })
 }
-```
+\`\`\`
 
 ---
 
@@ -151,5 +151,3 @@ export async function GET(request: NextRequest) {
 2. Ensure it checks authenticated user's data
 3. Test with a real authenticated user
 4. Verify onboarding flow works correctly
-
-

@@ -9,10 +9,10 @@
 
 When creating a bond, the following error occurs:
 
-```
+\`\`\`
 Error: new row violates row-level security policy for table "bond_settings"
 Code: 42501
-```
+\`\`\`
 
 **Root Cause**: The trigger function `create_bond_settings()` runs with `SECURITY INVOKER` (user permissions), but there's no INSERT policy on `bond_settings` table. RLS blocks the INSERT operation.
 
@@ -34,7 +34,7 @@ Make the trigger function `SECURITY DEFINER` so it runs with elevated privileges
 
 If the migration can't be applied via CLI due to conflicts, execute this SQL directly in Supabase Dashboard SQL Editor:
 
-```sql
+\`\`\`sql
 -- Fix bond_settings trigger RLS issue
 -- The trigger function needs SECURITY DEFINER to bypass RLS when auto-creating settings
 
@@ -57,7 +57,7 @@ $$;
 -- Add comment explaining why SECURITY DEFINER is needed
 COMMENT ON FUNCTION public.create_bond_settings() IS 
   'Trigger function to auto-create bond_settings when a bond is created. Uses SECURITY DEFINER to bypass RLS since this is a system operation.';
-```
+\`\`\`
 
 ---
 
@@ -89,6 +89,3 @@ After applying the fix, test bond creation:
 ---
 
 **Status**: Ready to apply. Execute SQL manually if CLI migration fails.
-
-
-

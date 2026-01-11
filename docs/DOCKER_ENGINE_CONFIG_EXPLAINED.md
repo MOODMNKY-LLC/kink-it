@@ -4,7 +4,7 @@
 
 Here's your complete Docker Engine JSON configuration ready to paste into Docker Desktop Settings → Docker Engine:
 
-```json
+\`\`\`json
 {
   "hosts": [
     "npipe://",
@@ -25,7 +25,7 @@ Here's your complete Docker Engine JSON configuration ready to paste into Docker
   "max-concurrent-uploads": 5,
   "experimental": false
 }
-```
+\`\`\`
 
 ## 🔧 Configuration Options Explained
 
@@ -91,46 +91,46 @@ Here's your complete Docker Engine JSON configuration ready to paste into Docker
 
 ### Network Configuration
 
-```json
+\`\`\`json
 {
   "dns": ["8.8.8.8", "8.8.4.4"],
   "dns-opts": ["timeout:2"],
   "dns-search": ["example.com"]
 }
-```
+\`\`\`
 
 **Purpose**: Custom DNS servers and search domains
 **When to use**: If you have DNS resolution issues or need custom DNS
 
 ### Storage & Performance
 
-```json
+\`\`\`json
 {
   "storage-driver": "overlay2",
   "storage-opts": [
     "overlay2.size=20G"
   ]
 }
-```
+\`\`\`
 
 **Purpose**: Configure storage driver and options
 **When to use**: Usually not needed on Windows (Docker Desktop handles this)
 
 ### Registry Configuration
 
-```json
+\`\`\`json
 {
   "insecure-registries": ["registry.example.com:5000"],
   "registry-mirrors": ["https://mirror.example.com"]
 }
-```
+\`\`\`
 
 **Purpose**: Configure private registries or mirrors
 **When to use**: If using private Docker registries or mirrors
 
 ### Security
 
-```json
+\`\`\`json
 {
   "tls": true,
   "tlsverify": true,
@@ -138,14 +138,14 @@ Here's your complete Docker Engine JSON configuration ready to paste into Docker
   "tlscert": "/path/to/cert.pem",
   "tlskey": "/path/to/key.pem"
 }
-```
+\`\`\`
 
 **Purpose**: Enable TLS for Docker daemon
 **When to use**: For remote access or production (not needed for localhost)
 
 ### Resource Limits
 
-```json
+\`\`\`json
 {
   "default-ulimits": {
     "nofile": {
@@ -155,31 +155,31 @@ Here's your complete Docker Engine JSON configuration ready to paste into Docker
     }
   }
 }
-```
+\`\`\`
 
 **Purpose**: Set default resource limits for containers
 **When to use**: If you need to adjust file descriptor limits
 
 ### IPv6 Configuration
 
-```json
+\`\`\`json
 {
   "ipv6": true,
   "fixed-cidr-v6": "2001:db8:1::/64"
 }
-```
+\`\`\`
 
 **Purpose**: Enable IPv6 support
 **When to use**: If your application requires IPv6
 
 ### Debugging
 
-```json
+\`\`\`json
 {
   "debug": true,
   "log-level": "debug"
 }
-```
+\`\`\`
 
 **Purpose**: Enable verbose logging
 **When to use**: When troubleshooting Docker issues (disable after debugging)
@@ -202,15 +202,15 @@ Here's your complete Docker Engine JSON configuration ready to paste into Docker
    - Wait for Docker to restart (~30-60 seconds)
 
 5. **Verify**
-   ```powershell
+   \`\`\`powershell
    docker -H tcp://localhost:2375 ps
-   ```
+   \`\`\`
 
 6. **Restart Supabase**
-   ```powershell
+   \`\`\`powershell
    supabase stop
    supabase start
-   ```
+   \`\`\`
 
 ## ⚠️ Important Notes
 
@@ -242,9 +242,9 @@ Here's your complete Docker Engine JSON configuration ready to paste into Docker
 - Re-add configuration carefully
 
 ### Port 2375 Already in Use
-```powershell
+\`\`\`powershell
 netstat -ano | findstr :2375
-```
+\`\`\`
 - Kill the process using the port
 - Or change to a different port (e.g., `tcp://localhost:2376`)
 
@@ -254,9 +254,3 @@ netstat -ano | findstr :2375
 - [Docker Desktop Settings](https://docs.docker.com/desktop/settings/)
 - [Docker Logging Drivers](https://docs.docker.com/config/containers/logging/configure/)
 - [BuildKit Garbage Collection](https://docs.docker.com/build/building/cache/garbage-collection/)
-
-
-
-
-
-

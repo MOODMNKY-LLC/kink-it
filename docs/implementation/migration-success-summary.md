@@ -75,7 +75,7 @@ See `docs/implementation/realtime-local-development-limitation.md` for details.
 
 To verify the database structure:
 
-```bash
+\`\`\`bash
 # Check tables
 supabase db dump --schema public | grep "CREATE TABLE"
 
@@ -84,14 +84,9 @@ supabase db dump --schema public | grep "CREATE TYPE"
 
 # Check RLS policies
 supabase db dump --schema public | grep "CREATE POLICY"
-```
+\`\`\`
 
 ---
 
 **Status**: Ready for local development and testing  
 **Realtime**: Will be enabled in production deployment
-
-
-
-
-

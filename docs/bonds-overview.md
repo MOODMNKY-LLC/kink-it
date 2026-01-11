@@ -80,6 +80,3 @@ Great for evolving relationships that don't fit traditional structures.
 - [Bonds System User Guide](./user-guides/bonds-system-guide.md)
 - [Bonds API Reference](./api/bonds-api.md)
 - [Bonds Implementation Guide](./developer/bonds-implementation.md)
-
-
-

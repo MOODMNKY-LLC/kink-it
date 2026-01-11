@@ -26,11 +26,11 @@ Successfully integrated:
 - Maintains all existing functionality (mark as read, delete, clear all)
 
 **Usage**:
-```tsx
+\`\`\`tsx
 import TerminalNotifications from "@/components/dashboard/notifications/terminal-notifications"
 
 <TerminalNotifications initialNotifications={notifications} />
-```
+\`\`\`
 
 **Props**:
 - `initialNotifications: Notification[]` - Array of notifications
@@ -51,7 +51,7 @@ import TerminalNotifications from "@/components/dashboard/notifications/terminal
 - Streaming message support
 
 **Usage**:
-```tsx
+\`\`\`tsx
 import { AIChatInterface } from "@/components/chat/ai-chat-interface"
 
 <AIChatInterface
@@ -62,7 +62,7 @@ import { AIChatInterface } from "@/components/chat/ai-chat-interface"
   model="gpt-4o-mini"
   temperature={0.7}
 />
-```
+\`\`\`
 
 **Props**:
 - `conversationId?: string` - Optional conversation ID
@@ -80,23 +80,23 @@ import { AIChatInterface } from "@/components/chat/ai-chat-interface"
 ### Data Format Bridge
 
 **Current System**:
-```typescript
+\`\`\`typescript
 interface ChatMessage {
   role: "user" | "assistant" | "system"
   content: string
   id?: string
   isStreaming?: boolean
 }
-```
+\`\`\`
 
 **AI Elements Format**:
-```typescript
+\`\`\`typescript
 interface UIMessage {
   id: string
   role: "user" | "assistant" | "system"
   content: string
 }
-```
+\`\`\`
 
 **Bridge**: `AIChatInterface` converts `ChatMessage[]` to `UIMessage[]` format using `useMemo`.
 
@@ -189,5 +189,3 @@ interface UIMessage {
 - Users can choose which interface to use
 - All existing functionality is preserved
 - No breaking changes introduced
-
-

@@ -32,7 +32,7 @@ The `notion_databases` table requires:
 
 **To Complete Setup:**
 
-```sql
+\`\`\`sql
 -- Get a valid user ID first
 SELECT id FROM profiles LIMIT 1;
 
@@ -49,7 +49,7 @@ VALUES
 
 -- Then initialize foreign tables
 SELECT * FROM public.setup_notion_fdw_tables();
-```
+\`\`\`
 
 ---
 
@@ -62,7 +62,7 @@ SELECT * FROM public.setup_notion_fdw_tables();
 
 ### Real Example
 
-```typescript
+\`\`\`typescript
 // Admin wants "kinky scene" images from 10 bond members
 
 // BEFORE: 25 seconds 😞
@@ -76,7 +76,7 @@ const { data } = await supabase.rpc('admin_search_image_generations', {
   admin_user_id: userId,
   limit_count: 100
 })
-```
+\`\`\`
 
 ---
 
@@ -100,9 +100,9 @@ This automatically:
 - Open database → Copy ID from URL: `notion.so/.../{DATABASE_ID}`
 
 **From Notion API:**
-```bash
+\`\`\`bash
 pnpm tsx scripts/get-notion-database-ids.ts
-```
+\`\`\`
 
 ---
 
@@ -126,27 +126,27 @@ pnpm tsx scripts/get-notion-database-ids.ts
 ## 🚀 Next Steps
 
 ### Step 1: Get Valid User ID
-```sql
+\`\`\`sql
 SELECT id, email FROM profiles LIMIT 1;
-```
+\`\`\`
 
 ### Step 2: Insert Database IDs
-```sql
+\`\`\`sql
 INSERT INTO notion_databases (database_type, database_id, database_name, user_id, parent_page_id)
 VALUES 
   ('image_generations', '2e0cd2a6-5422-8187-a13b-d8234760fcdc', '🎨 Image Generations', 'USER-ID-HERE', '2e0cd2a6-5422-8187-a13b-d8234760fcdc');
-```
+\`\`\`
 
 ### Step 3: Initialize Foreign Tables
-```sql
+\`\`\`sql
 SELECT * FROM public.setup_notion_fdw_tables();
-```
+\`\`\`
 
 ### Step 4: Verify
-```sql
+\`\`\`sql
 SELECT * FROM pg_tables WHERE schemaname = 'notion_fdw';
 SELECT COUNT(*) FROM notion_fdw.image_generations_all;
-```
+\`\`\`
 
 ---
 
@@ -168,5 +168,3 @@ SELECT COUNT(*) FROM notion_fdw.image_generations_all;
 **Setup Progress**: 80% Complete  
 **Blocking**: Need valid user_id for database insertion  
 **Estimated Time**: 2 minutes once user_id is available
-
-

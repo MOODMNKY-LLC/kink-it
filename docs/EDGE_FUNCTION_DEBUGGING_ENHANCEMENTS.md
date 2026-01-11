@@ -42,7 +42,7 @@ Added comprehensive logging at critical points:
 ## Code Changes
 
 ### Removed Deprecated Fields
-```typescript
+\`\`\`typescript
 // Before
 if (props.kink_accessories.other && props.kink_accessories.other.length > 0) {
   kinkParts.push(`with ${props.kink_accessories.other.join(", ")}`)
@@ -54,10 +54,10 @@ if (props.background.description) {
 // After
 // Removed 'other' - no custom kink accessories allowed
 // Removed 'description' - no custom descriptions allowed
-```
+\`\`\`
 
 ### Enhanced Logging
-```typescript
+\`\`\`typescript
 console.log("Building prompt from character data:", JSON.stringify(finalCharacterData))
 prompt = buildAvatarPrompt(finalCharacterData)
 console.log("Prompt built successfully, length:", prompt.length)
@@ -71,7 +71,7 @@ console.log("Response body serialized, length:", responseBody.length)
 console.log("Response created successfully")
 console.log("Response status:", httpResponse.status)
 console.log("Response headers:", Object.fromEntries(httpResponse.headers.entries()))
-```
+\`\`\`
 
 ## Debugging Workflow
 
@@ -105,6 +105,3 @@ If any of these logs are missing, the function is failing at that point.
 ## Files Modified
 
 - `supabase/functions/generate-kinkster-avatar/index.ts`
-
-
-

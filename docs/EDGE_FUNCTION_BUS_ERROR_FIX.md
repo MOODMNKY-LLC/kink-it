@@ -4,10 +4,10 @@
 
 Edge Function `chat-stream` was crashing with "Bus error (core dumped)" when trying to serve:
 
-```
+\`\`\`
 2026-01-06T04:42:16.430650264Z Bus error (core dumped)
 error running container: exit 135
-```
+\`\`\`
 
 ## Root Cause
 
@@ -21,16 +21,16 @@ Bus errors in Deno Edge Functions typically occur when:
 Changed from **static import** to **dynamic import** for the OpenAI Agents SDK:
 
 ### Before (Static Import - Causes Bus Error)
-```typescript
+\`\`\`typescript
 import { Agent, run } from "npm:@openai/agents@0.3.7"
 
 Deno.serve(async (req: Request) => {
   // ... code uses Agent and run
 })
-```
+\`\`\`
 
 ### After (Dynamic Import - Prevents Bus Error)
-```typescript
+\`\`\`typescript
 // No static import at top level
 
 Deno.serve(async (req: Request) => {
@@ -50,7 +50,7 @@ Deno.serve(async (req: Request) => {
   // Now use Agent and run safely
   const agent = new Agent({ ... })
 })
-```
+\`\`\`
 
 ## Why This Works
 
@@ -75,9 +75,9 @@ The function still uses `Deno.env.set("OPENAI_API_KEY", openaiApiKey)` which is 
 
 After this fix, try serving the function again:
 
-```bash
+\`\`\`bash
 supabase functions serve chat-stream --no-verify-jwt
-```
+\`\`\`
 
 The function should now start without bus errors.
 
@@ -87,6 +87,3 @@ The function should now start without bus errors.
   - Removed static import of `@openai/agents`
   - Added dynamic import inside the request handler
   - Added error handling for import failures
-
-
-

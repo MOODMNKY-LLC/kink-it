@@ -62,9 +62,9 @@ The following variables were already configured in production:
 
 To verify all variables are set:
 
-```powershell
+\`\`\`powershell
 vercel env ls production
-```
+\`\`\`
 
 ## Troubleshooting
 
@@ -81,4 +81,3 @@ If Notion API key still doesn't work in production:
 - ✅ `NOTION_API_KEY_ENCRYPTION_KEY` should be a strong, random string (32+ characters)
 - ✅ Never commit encryption keys to git
 - ✅ Use different encryption keys for dev/staging/prod if needed (but this breaks key portability)
-

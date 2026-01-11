@@ -5,7 +5,7 @@
 Your v0 MCP server configuration has been updated to follow the [official v0 documentation](https://v0.app/docs/api/platform/adapters/mcp-server) best practices.
 
 ### Before (Incorrect)
-```json
+\`\`\`json
 "v0": {
   "command": "npx",
   "args": [
@@ -15,7 +15,7 @@ Your v0 MCP server configuration has been updated to follow the [official v0 doc
     "Authorization: Bearer v1:xZT4G4F84FvmF7l4yx2f2H0M:oLY7lUqaBTIhTaoHS61aSjKb"
   ]
 }
-```
+\`\`\`
 ❌ **Issues:**
 - API key hardcoded in config file
 - Security risk (exposed in version control)
@@ -23,7 +23,7 @@ Your v0 MCP server configuration has been updated to follow the [official v0 doc
 - Difficult to rotate keys
 
 ### After (Correct)
-```json
+\`\`\`json
 "v0": {
   "command": "npx",
   "args": [
@@ -33,7 +33,7 @@ Your v0 MCP server configuration has been updated to follow the [official v0 doc
     "Authorization: Bearer ${V0_API_KEY}"
   ]
 }
-```
+\`\`\`
 ✅ **Benefits:**
 - Uses environment variable substitution
 - Follows official v0 documentation
@@ -48,15 +48,15 @@ Your v0 MCP server configuration has been updated to follow the [official v0 doc
 Changed v0 MCP server to use `${V0_API_KEY}` environment variable reference.
 
 ### 2. **Added to `.env.local`** ✅
-```bash
+\`\`\`bash
 # v0 API Key for MCP server and SDK
 V0_API_KEY=v1:xZT4G4F84FvmF7l4yx2f2H0M:oLY7lUqaBTIhTaoHS61aSjKb
-```
+\`\`\`
 
 ### 3. **Set Environment Variable** ✅
-```powershell
+\`\`\`powershell
 $env:V0_API_KEY = "v1:xZT4G4F84FvmF7l4yx2f2H0M:oLY7lUqaBTIhTaoHS61aSjKb"
-```
+\`\`\`
 
 ---
 
@@ -75,24 +75,24 @@ The v0 MCP server allows your IDE (Cursor) to:
 Once Cursor restarts, you can use v0 through your AI assistant:
 
 #### Create v0 Chats
-```
+\`\`\`
 "Create a v0 chat for building a React dashboard component"
-```
+\`\`\`
 
 #### Access Chat Information
-```
+\`\`\`
 "Show me the details of v0 chat ID abc123"
-```
+\`\`\`
 
 #### Find Chats
-```
+\`\`\`
 "Find my v0 chats related to React components"
-```
+\`\`\`
 
 #### Send Messages
-```
+\`\`\`
 "Send a message to chat abc123 asking to add dark mode support"
-```
+\`\`\`
 
 ---
 
@@ -109,7 +109,7 @@ When Cursor loads, it:
 
 ### MCP Server Architecture
 
-```
+\`\`\`
 Cursor IDE
     ↓
 .cursor/mcp.json (reads config)
@@ -119,14 +119,14 @@ ${V0_API_KEY} → Resolves from .env.local
 npx mcp-remote https://mcp.v0.dev
     ↓
 v0 Platform API
-```
+\`\`\`
 
 ---
 
 ## 📚 v0 MCP Capabilities
 
 ### Create Chats
-```typescript
+\`\`\`typescript
 // Example: AI assistant can create v0 chats
 {
   "tool": "v0_create_chat",
@@ -134,10 +134,10 @@ v0 Platform API
     "prompt": "Build a modern React dashboard with charts"
   }
 }
-```
+\`\`\`
 
 ### Access Existing Chats
-```typescript
+\`\`\`typescript
 // Example: Get chat details
 {
   "tool": "v0_get_chat",
@@ -145,10 +145,10 @@ v0 Platform API
     "chatId": "abc123"
   }
 }
-```
+\`\`\`
 
 ### Search Chats
-```typescript
+\`\`\`typescript
 // Example: Find relevant chats
 {
   "tool": "v0_find_chats",
@@ -156,10 +156,10 @@ v0 Platform API
     "query": "React components"
   }
 }
-```
+\`\`\`
 
 ### Send Messages
-```typescript
+\`\`\`typescript
 // Example: Continue conversation
 {
   "tool": "v0_send_message",
@@ -168,7 +168,7 @@ v0 Platform API
     "message": "Add dark mode support"
   }
 }
-```
+\`\`\`
 
 ---
 
@@ -207,11 +207,11 @@ After restart, check that v0 MCP is loaded:
 
 ### 3. **Test v0 Integration**
 Try these commands with your AI assistant:
-```
+\`\`\`
 "Create a v0 chat for a React component library"
 "Show me my recent v0 chats"
 "Find v0 chats about Next.js"
-```
+\`\`\`
 
 ---
 
@@ -219,10 +219,10 @@ Try these commands with your AI assistant:
 
 ### Issue: "V0_API_KEY not found"
 **Solution**: Ensure `.env.local` has the V0_API_KEY entry
-```bash
+\`\`\`bash
 # Check if it exists
 Get-Content .env.local | Select-String "V0_API_KEY"
-```
+\`\`\`
 
 ### Issue: "Command not found: npx"
 **Solution**: Install Node.js and npm
@@ -245,9 +245,9 @@ Get-Content .env.local | Select-String "V0_API_KEY"
 1. Go to v0 account settings
 2. Generate new API key
 3. Update `.env.local`:
-   ```bash
+   \`\`\`bash
    V0_API_KEY=your_new_key_here
-   ```
+   \`\`\`
 4. Restart Cursor
 
 ---
@@ -290,10 +290,3 @@ Reference the official v0 documentation for more details:
 **Last Updated**: 2026-01-05  
 **Configuration**: ✅ Complete  
 **Reference**: [v0 MCP Documentation](https://v0.app/docs/api/platform/adapters/mcp-server)
-
-
-
-
-
-
-

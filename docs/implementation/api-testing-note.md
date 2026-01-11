@@ -62,13 +62,13 @@ Test with HTTP dev server (`pnpm dev:http`) which might have different cookie ha
 
 ### Using curl
 
-```bash
+\`\`\`bash
 # First, login and get cookies (manual process)
 # Then use cookies in curl:
 
 curl -k -X GET https://127.0.0.1:3000/api/submission-state \
   -H "Cookie: sb-<project-ref>-auth-token=<token>"
-```
+\`\`\`
 
 ---
 
@@ -81,8 +81,3 @@ curl -k -X GET https://127.0.0.1:3000/api/submission-state \
 ---
 
 **Status**: Test script partially working - server check works, API calls need cookie fix
-
-
-
-
-

@@ -54,7 +54,7 @@ Webpack's static generation logic:
 ### What We Have Now
 
 **`app/not-found.tsx`**:
-```typescript
+\`\`\`typescript
 "use client"
 
 import React from "react";
@@ -67,10 +67,10 @@ export const revalidate = 0
 export default function NotFound() {
   return <NotFoundClient />;
 }
-```
+\`\`\`
 
 **`app/not-found-client.tsx`**:
-```typescript
+\`\`\`typescript
 "use client"
 
 import React from "react";
@@ -103,12 +103,12 @@ export function NotFoundClient() {
     </DashboardPageLayout>
   );
 }
-```
+\`\`\`
 
 ### What the Successful Deployment Had
 
 **`app/not-found.tsx`** (from successful deployment):
-```typescript
+\`\`\`typescript
 "use client"
 
 import React from "react";
@@ -140,7 +140,7 @@ export default function NotFound() {
     </DashboardPageLayout>
   );
 }
-```
+\`\`\`
 
 ### Differences
 
@@ -181,20 +181,20 @@ export default function NotFound() {
 ### Potential Fixes (Not Currently Available)
 
 1. **Turbopack Configuration** (doesn't exist):
-   ```typescript
+   \`\`\`typescript
    // This doesn't exist, but would be ideal:
    turbopack: {
      skipStaticGeneration: ['/404', '/500', '/_not-found']
    }
-   ```
+   \`\`\`
 
 2. **Next.js Configuration** (doesn't exist):
-   ```typescript
+   \`\`\`typescript
    // This doesn't exist either:
    experimental: {
      skipErrorPageStaticGeneration: true
    }
-   ```
+   \`\`\`
 
 3. **Upstream Fix**: Needs to be fixed in Turbopack's route analysis logic
 
@@ -217,9 +217,9 @@ This is why the successful deployment worked - it disabled Turbopack.
 ### Disable Turbopack in Build Script
 
 **`scripts/build-with-error-handling.js`**:
-```javascript
+\`\`\`javascript
 buildEnv.TURBOPACK = '' // Disable Turbopack to avoid error page static generation bug
-```
+\`\`\`
 
 This forces Next.js to use Webpack, which doesn't have the bug.
 

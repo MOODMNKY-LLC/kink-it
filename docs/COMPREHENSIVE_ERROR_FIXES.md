@@ -31,7 +31,7 @@ Created a wrapper component that isolates Radix Switch's initialization behavior
 
 ### Key Features
 
-```typescript
+\`\`\`typescript
 // Internal state that syncs with props
 const [internalChecked, setInternalChecked] = useState(checkedProp)
 
@@ -53,7 +53,7 @@ const handleCheckedChange = (checked: boolean) => {
     isUserInteractionRef.current = false
   }, 100)
 }
-```
+\`\`\`
 
 ### Benefits
 
@@ -71,11 +71,11 @@ Fixed the "tried to push 'presence' before joining" error by ensuring channel is
 ### Changes
 
 1. **State Check Before Tracking**:
-   ```typescript
+   \`\`\`typescript
    if (channel.state === "SUBSCRIBED") {
      await channel.track({ ... })
    }
-   ```
+   \`\`\`
 
 2. **Retry Logic**:
    - If tracking fails, wait 500ms and retry
@@ -95,20 +95,20 @@ Fixed the "tried to push 'presence' before joining" error by ensuring channel is
 ## Usage
 
 ### Before (Causing Infinite Loops)
-```typescript
+\`\`\`typescript
 <Switch
   checked={agentMode}
   onCheckedChange={onAgentModeChange}
 />
-```
+\`\`\`
 
 ### After (Using ControlledSwitch)
-```typescript
+\`\`\`typescript
 <ControlledSwitch
   checked={agentMode}
   onCheckedChange={onAgentModeChange}
 />
-```
+\`\`\`
 
 That's it! Just replace `Switch` with `ControlledSwitch` - same API, no infinite loops.
 

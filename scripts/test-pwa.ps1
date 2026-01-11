@@ -84,6 +84,3 @@ Write-Host "   - Push notifications (requires VAPID keys)" -ForegroundColor Whit
 Write-Host "   - Camera access (proof upload)" -ForegroundColor White
 Write-Host "   - Share API" -ForegroundColor White
 Write-Host ""
-
-
-

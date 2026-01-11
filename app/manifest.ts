@@ -75,6 +75,3 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ['lifestyle', 'productivity'],
   }
 }
-
-
-

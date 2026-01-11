@@ -93,7 +93,7 @@ The complete user onboarding system for KINK IT has been successfully implemente
 
 ### Complete User Journey
 
-```
+\`\`\`
 1. User authenticates with Notion OAuth
    ↓
 2. Auth callback checks onboarding_completed
@@ -127,7 +127,7 @@ The complete user onboarding system for KINK IT has been successfully implemente
 9. Redirect to Dashboard
    - Onboarding marked complete
    - User enters main app
-```
+\`\`\`
 
 ---
 
@@ -135,7 +135,7 @@ The complete user onboarding system for KINK IT has been successfully implemente
 
 ### Environment Variables Required
 
-```bash
+\`\`\`bash
 # Notion API (required)
 NOTION_API_KEY=your_notion_api_key
 
@@ -145,18 +145,18 @@ NEXT_PUBLIC_NOTION_TEMPLATE_URL=https://www.notion.so/2dfcd2a6542281bcba14ffa209
 # Discord OAuth (optional - for guild install)
 DISCORD_CLIENT_ID=your_discord_client_id
 DISCORD_CLIENT_SECRET=your_discord_client_secret
-```
+\`\`\`
 
 ### Database Migration
 
-```bash
+\`\`\`bash
 # Apply migration
 supabase migration up
 
 # Or manually
 psql -h localhost -p 54322 -U postgres -d postgres \
   -f supabase/migrations/20260127000000_add_onboarding_fields.sql
-```
+\`\`\`
 
 ---
 
@@ -419,7 +419,3 @@ The onboarding system is **complete and ready for testing**. After setting envir
 **Ready for Testing**: Yes  
 **Ready for Production**: After testing  
 **Last Updated**: 2026-01-27
-
-
-
-

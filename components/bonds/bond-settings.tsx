@@ -408,6 +408,3 @@ export function BondSettings({ bondId, profile }: BondSettingsProps) {
     </div>
   )
 }
-
-
-

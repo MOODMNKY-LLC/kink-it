@@ -62,7 +62,7 @@ The Notion template search and sync function was failing with "Template not foun
 5. Add validation to ensure `workspace_id` and `bot_id` are present before storing
 
 **Code Changes**:
-```typescript
+\`\`\`typescript
 // Extract workspace_id from bot owner or use bot ID as fallback
 const workspaceId = notionUser.bot?.owner?.workspace_id || 
                   notionUser.bot?.workspace?.id ||
@@ -76,7 +76,7 @@ const botId = notionUser.bot?.id || notionUser.id || ""
 if (!workspaceId || !botId) {
   console.warn("Could not extract workspace_id or bot_id from Notion user response")
 }
-```
+\`\`\`
 
 ### Fix 2: Enhanced Error Handling and Logging
 
@@ -105,7 +105,7 @@ if (!workspaceId || !botId) {
 3. Only fail if neither stored token nor session token is available
 
 **Code Changes**:
-```typescript
+\`\`\`typescript
 let notionApiKey = await getNotionAccessToken(user.id)
 
 // If no token from utility, try session token as fallback
@@ -116,7 +116,7 @@ if (!notionApiKey) {
     notionApiKey = session.provider_token
   }
 }
-```
+\`\`\`
 
 ---
 
@@ -187,4 +187,3 @@ if (!notionApiKey) {
 - `docs/NOTION_TOKEN_REFRESH_IMPLEMENTATION.md` - Token refresh system overview
 - `docs/NOTION_AUTH_FLOW.md` - Complete OAuth authentication flow
 - `supabase/migrations/20260202000003_create_user_notion_oauth_tokens.sql` - Database schema
-

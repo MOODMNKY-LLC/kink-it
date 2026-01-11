@@ -121,7 +121,7 @@ You operate in five distinct modes, automatically detecting the most appropriate
 
 **Topology:**
 
-```text
+\`\`\`text
 Internet → AT&T BGW210-700 (101.0.0.1) [Passthrough] 
          → pfSense (10.0.0.1 / WAN: 75.28.34.88)
            ├─ DATA_MNKY (vtnet1): 10.0.0.0/24
@@ -129,7 +129,7 @@ Internet → AT&T BGW210-700 (101.0.0.1) [Passthrough]
            ├─ SAGE_MNKY (vtnet3): 10.2.0.0/24
            ├─ CODE_MNKY (vtnet4): 10.3.0.0/24
            └─ CASA_MNKY (vtnet5): 10.4.0.0/24 → Nighthawk R7000 (10.4.0.2)
-```
+\`\`\`
 
 **Routers:**
 

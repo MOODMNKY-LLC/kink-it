@@ -52,7 +52,7 @@ Implemented a comprehensive bond discovery and request-to-join system that works
 
 ### `bond_join_requests` Table
 
-```sql
+\`\`\`sql
 CREATE TABLE public.bond_join_requests (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   bond_id uuid NOT NULL REFERENCES public.bonds(id) ON DELETE CASCADE,
@@ -76,17 +76,17 @@ CREATE TABLE public.bond_join_requests (
 CREATE UNIQUE INDEX idx_bond_join_requests_unique_pending 
 ON public.bond_join_requests(bond_id, user_id) 
 WHERE status = 'pending';
-```
+\`\`\`
 
 ### `join_request_status` Enum
 
-```sql
+\`\`\`sql
 CREATE TYPE join_request_status AS ENUM (
   'pending',    -- Request submitted, awaiting review
   'approved',   -- Request approved, user can join
   'rejected'    -- Request rejected
 );
-```
+\`\`\`
 
 ---
 
@@ -102,7 +102,7 @@ Browse discoverable bonds.
 - `status` (optional): Filter by bond status
 
 **Response:**
-```json
+\`\`\`json
 {
   "success": true,
   "bonds": [
@@ -120,22 +120,22 @@ Browse discoverable bonds.
   ],
   "total": 10
 }
-```
+\`\`\`
 
 ### `POST /api/bonds/request`
 
 Create a join request.
 
 **Body:**
-```json
+\`\`\`json
 {
   "bond_id": "uuid",
   "message": "Optional message"
 }
-```
+\`\`\`
 
 **Response:**
-```json
+\`\`\`json
 {
   "success": true,
   "request": {
@@ -145,7 +145,7 @@ Create a join request.
     "created_at": "2026-02-03T..."
   }
 }
-```
+\`\`\`
 
 ### `GET /api/bonds/requests`
 
@@ -156,7 +156,7 @@ Get join requests for bonds the user manages.
 - `status` (optional): Filter by status (pending, approved, rejected)
 
 **Response:**
-```json
+\`\`\`json
 {
   "success": true,
   "requests": [
@@ -183,26 +183,26 @@ Get join requests for bonds the user manages.
   ],
   "total": 5
 }
-```
+\`\`\`
 
 ### `POST /api/bonds/requests/[id]/approve`
 
 Approve a join request.
 
 **Body:**
-```json
+\`\`\`json
 {
   "review_notes": "Optional notes"
 }
-```
+\`\`\`
 
 **Response:**
-```json
+\`\`\`json
 {
   "success": true,
   "message": "Join request approved successfully"
 }
-```
+\`\`\`
 
 **Side Effects:**
 - Adds user as member to bond
@@ -215,19 +215,19 @@ Approve a join request.
 Reject a join request.
 
 **Body:**
-```json
+\`\`\`json
 {
   "review_notes": "Optional notes"
 }
-```
+\`\`\`
 
 **Response:**
-```json
+\`\`\`json
 {
   "success": true,
   "message": "Join request rejected successfully"
 }
-```
+\`\`\`
 
 **Side Effects:**
 - Creates notification for requester with rejection reason
@@ -277,9 +277,9 @@ Reject a join request.
 - MagicCard styling for visual appeal
 
 **Usage:**
-```tsx
+\`\`\`tsx
 <BondDiscovery profile={profile} />
-```
+\`\`\`
 
 ### Admin Dashboard Integration
 
@@ -302,7 +302,7 @@ Reject a join request.
 **Recipients:** Bond creators and managers
 
 **Notification:**
-```json
+\`\`\`json
 {
   "title": "New Bond Join Request",
   "message": "{Requester Name} has requested to join \"{Bond Name}\"",
@@ -313,14 +313,14 @@ Reject a join request.
   "action_url": "/admin/bonds?tab=requests&request={request_id}",
   "action_label": "Review Request"
 }
-```
+\`\`\`
 
 ### When Request is Approved
 
 **Recipients:** Requester
 
 **Notification:**
-```json
+\`\`\`json
 {
   "title": "Bond Join Request Approved",
   "message": "Your request to join \"{Bond Name}\" has been approved!",
@@ -331,14 +331,14 @@ Reject a join request.
   "action_url": "/bonds/{bond_id}",
   "action_label": "View Bond"
 }
-```
+\`\`\`
 
 ### When Request is Rejected
 
 **Recipients:** Requester
 
 **Notification:**
-```json
+\`\`\`json
 {
   "title": "Bond Join Request Rejected",
   "message": "Your request to join \"{Bond Name}\" has been rejected.{Review Notes}",
@@ -347,7 +347,7 @@ Reject a join request.
   "related_type": "bond_join_request",
   "related_id": "{request_id}"
 }
-```
+\`\`\`
 
 ---
 

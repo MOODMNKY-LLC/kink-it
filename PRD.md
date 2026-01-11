@@ -850,7 +850,7 @@
 ### Architecture Patterns
 
 **Data Flow**:
-```
+\`\`\`
 Client (Next.js) 
   → Next.js API Routes 
     → Supabase (Source of Truth)
@@ -858,7 +858,7 @@ Client (Next.js)
       → Edge Functions (Notion Sync, etc.)
       → n8n (Orchestration)
         → Discord, Notion, etc.
-```
+\`\`\`
 
 **Key Principles**:
 - Supabase = Source of truth
@@ -874,7 +874,7 @@ Client (Next.js)
 ### Core Entities
 
 #### Users & Profiles
-```
+\`\`\`
 profiles
   - id (uuid, PK, FK → auth.users)
   - email (text)
@@ -891,10 +891,10 @@ profiles
   - notifications_enabled (boolean)
   - theme_preference (text)
   - created_at, updated_at
-```
+\`\`\`
 
 #### Tasks
-```
+\`\`\`
 tasks
   - id (uuid, PK)
   - workspace_id (uuid, FK)
@@ -913,10 +913,10 @@ tasks
   - completed_at (timestamptz)
   - approved_at (timestamptz)
   - created_at, updated_at
-```
+\`\`\`
 
 #### Rules & Protocols
-```
+\`\`\`
 rules
   - id (uuid, PK)
   - workspace_id (uuid, FK)
@@ -929,10 +929,10 @@ rules
   - linked_task_id (uuid, FK → tasks)
   - created_by (uuid, FK → profiles)
   - created_at, updated_at, deactivated_at
-```
+\`\`\`
 
 #### Contracts & Consent
-```
+\`\`\`
 contracts
   - id (uuid, PK)
   - workspace_id (uuid, FK)
@@ -942,10 +942,10 @@ contracts
   - status (enum: draft, active, expired, superseded)
   - created_by (uuid, FK → profiles)
   - created_at, signed_at, expires_at
-```
+\`\`\`
 
 #### Rewards & Points
-```
+\`\`\`
 rewards
   - id (uuid, PK)
   - workspace_id (uuid, FK)
@@ -968,7 +968,7 @@ points_ledger
   - source_type (enum: task, reward, manual)
   - source_id (uuid)
   - created_at
-```
+\`\`\`
 
 ### Relationships
 
@@ -982,7 +982,7 @@ points_ledger
 
 ### Enums
 
-```sql
+\`\`\`sql
 -- User roles
 CREATE TYPE user_role AS ENUM ('admin', 'user');
 
@@ -1003,7 +1003,7 @@ CREATE TYPE reward_type AS ENUM ('verbal', 'points', 'relational', 'achievement'
 
 -- Boundary ratings
 CREATE TYPE boundary_rating AS ENUM ('yes', 'maybe', 'no', 'hard_no');
-```
+\`\`\`
 
 ---
 
@@ -1537,4 +1537,3 @@ These principles must be checked against every feature and PR:
 **Document Status**: Living Document  
 **Next Review**: After Phase 1 MVP completion  
 **Maintained By**: Development Team + Product Owners (Simeon & Kevin)
-

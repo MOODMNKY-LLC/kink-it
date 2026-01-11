@@ -266,4 +266,3 @@ COMMENT ON COLUMN public.bonds.bond_type IS
 
 COMMENT ON COLUMN public.bond_members.role_in_bond IS 
   'User''s role within this specific bond: founder, dominant, submissive, switch, or member';
-

@@ -6,7 +6,7 @@
 
 Open your `.env.local` file and update it with these values:
 
-```bash
+\`\`\`bash
 # ============================================
 # SUPABASE CONFIGURATION (LOCAL DEVELOPMENT)
 # ============================================
@@ -41,7 +41,7 @@ NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=http://localhost:3000/auth/callback
 # ============================================
 
 POSTGRES_URL=postgresql://postgres:postgres@127.0.0.1:55432/postgres
-```
+\`\`\`
 
 ## 🔧 Supabase Development Tools
 
@@ -63,19 +63,19 @@ POSTGRES_URL=postgresql://postgres:postgres@127.0.0.1:55432/postgres
 4. **Local Development Only**: These credentials are for local development only. They are NOT your production Supabase credentials.
 
 3. **Database Migrations**: You have a `supabase/migrations/` directory. Run migrations with:
-   ```bash
+   \`\`\`bash
    supabase db push
-   ```
+   \`\`\`
 
 4. **Stopping Supabase**: When you're done developing:
-   ```bash
+   \`\`\`bash
    supabase stop
-   ```
+   \`\`\`
 
 5. **Restarting Supabase**: Next time you develop:
-   ```bash
+   \`\`\`bash
    supabase start
-   ```
+   \`\`\`
 
 ## ⚠️ Port Changes Made
 
@@ -101,6 +101,3 @@ The following ports were changed from defaults to avoid Windows conflicts:
 ---
 
 **Status**: ✅ Supabase Local Development Environment Ready
-
-
-

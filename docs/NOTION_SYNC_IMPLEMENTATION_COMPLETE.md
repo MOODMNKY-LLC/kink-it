@@ -197,4 +197,3 @@ Multi-select properties (tags, interests, limits, traits) are sanitized:
 ## Conclusion
 
 All features mentioned in the Notion API key onboarding are now fully implemented and functional. The app provides comprehensive Notion integration that matches the promises made to users during onboarding.
-

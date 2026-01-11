@@ -99,7 +99,7 @@ All 8 sync routes now track status:
 
 ## 📝 Usage Example
 
-```tsx
+\`\`\`tsx
 import { AddToNotionButtonGeneric } from "@/components/playground/shared/add-to-notion-button-generic"
 
 <AddToNotionButtonGeneric
@@ -110,7 +110,7 @@ import { AddToNotionButtonGeneric } from "@/components/playground/shared/add-to-
   size="sm"
   showStatusBadge={true}
 />
-```
+\`\`\`
 
 The button automatically:
 - Shows sync status badge
@@ -159,4 +159,3 @@ The button automatically:
 **Migration Applied:** ⏳ Production Database (pending user action)
 
 **All components updated and ready for production!** 🚀
-

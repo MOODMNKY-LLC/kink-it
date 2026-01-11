@@ -522,4 +522,3 @@ export function PoseVariation({ className }: PoseVariationProps) {
     </div>
   )
 }
-

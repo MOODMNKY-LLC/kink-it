@@ -18,9 +18,9 @@ The successful deployment (`dpl_Fbrr75u9DJ4rVg7o1nzB1D4H1ZiG`) revealed the **ro
 ### Successful Deployment (dpl_Fbrr75u9DJ4rVg7o1nzB1D4H1ZiG)
 
 **Build Script**:
-```javascript
+\`\`\`javascript
 "build": "node -e \"process.env.TURBOPACK=''; process.env.npm_config_ignore_scripts='true'; require('child_process').execSync('next build', {stdio: 'inherit'})\""
-```
+\`\`\`
 
 **Key Points**:
 - ✅ Explicitly disabled Turbopack: `process.env.TURBOPACK=''`
@@ -32,9 +32,9 @@ The successful deployment (`dpl_Fbrr75u9DJ4rVg7o1nzB1D4H1ZiG`) revealed the **ro
 ### Failed Deployments (Recent Attempts)
 
 **Build Script**:
-```javascript
+\`\`\`javascript
 "build": "node scripts/build-with-error-handling.js"
-```
+\`\`\`
 
 **Key Points**:
 - ❌ Did NOT disable Turbopack
@@ -69,11 +69,11 @@ The error page static generation bug (`Error: <Html> should not be imported outs
 
 Updated `scripts/build-with-error-handling.js` to disable Turbopack:
 
-```javascript
+\`\`\`javascript
 const buildEnv = { ...process.env }
 delete buildEnv.NODE_TLS_REJECT_UNAUTHORIZED
 buildEnv.TURBOPACK = '' // Disable Turbopack to avoid error page static generation bug
-```
+\`\`\`
 
 This matches the successful deployment's approach.
 

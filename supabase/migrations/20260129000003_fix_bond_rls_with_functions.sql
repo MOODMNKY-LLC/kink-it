@@ -170,6 +170,3 @@ WITH CHECK (
   OR public.can_manage_bond(id, (SELECT auth.uid()))
   OR public.is_admin((SELECT auth.uid()))
 );
-
-
-

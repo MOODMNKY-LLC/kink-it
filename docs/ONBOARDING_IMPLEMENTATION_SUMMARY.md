@@ -130,7 +130,7 @@
 
 ### Environment Variables
 
-```bash
+\`\`\`bash
 # Notion API
 NOTION_API_KEY=your_notion_api_key
 
@@ -140,7 +140,7 @@ DISCORD_CLIENT_SECRET=your_discord_client_secret
 
 # Public Notion Template URL (for duplication)
 NEXT_PUBLIC_NOTION_TEMPLATE_URL=https://notion.so/template/your-template-id
-```
+\`\`\`
 
 ### Discord Bot Setup
 
@@ -174,7 +174,3 @@ NEXT_PUBLIC_NOTION_TEMPLATE_URL=https://notion.so/template/your-template-id
 
 **Last Updated**: 2026-01-27  
 **Status**: Ready for Phase 2 (Notion Template Creation)
-
-
-
-

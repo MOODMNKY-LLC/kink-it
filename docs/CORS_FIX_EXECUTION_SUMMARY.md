@@ -108,20 +108,20 @@
 ## 🔍 Debug Information
 
 ### Edge Function Logs
-```bash
+\`\`\`bash
 tail -f /tmp/edge-function-final.log
-```
+\`\`\`
 
 ### Test CORS Headers
-```bash
+\`\`\`bash
 curl -X OPTIONS https://127.0.0.1:55321/functions/v1/chat-stream \
   -k -H "Origin: https://127.0.0.1:3000" -v
-```
+\`\`\`
 
 ### Check Function Status
-```bash
+\`\`\`bash
 ps aux | grep "supabase functions serve"
-```
+\`\`\`
 
 ---
 

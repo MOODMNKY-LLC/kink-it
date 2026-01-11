@@ -347,6 +347,3 @@ export function CreateTaskForm({
     </MagicCard>
   )
 }
-
-
-

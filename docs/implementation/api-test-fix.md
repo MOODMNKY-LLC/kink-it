@@ -8,10 +8,10 @@
 ## Problem
 
 The `pnpm test:api` command failed with:
-```
+\`\`\`
 ❌ Test failed: TypeError: fetch failed
 [cause]: SocketError: other side closed
-```
+\`\`\`
 
 **Root Causes**:
 1. Dev server wasn't running on port 3000
@@ -28,32 +28,32 @@ Changed from `http://127.0.0.1:3000` to `https://127.0.0.1:3000` to match the HT
 ### 2. Added HTTPS Agent
 Created an HTTPS agent that ignores self-signed certificates:
 
-```typescript
+\`\`\`typescript
 const https = require('https')
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false,
 })
-```
+\`\`\`
 
 ### 3. Added Server Check
 Added a function to check if the dev server is running before attempting tests:
 
-```typescript
+\`\`\`typescript
 async function checkServerRunning(): Promise<boolean> {
   // Checks if server responds to HEAD request
   // Returns false if connection refused or socket error
 }
-```
+\`\`\`
 
 ### 4. Updated All Fetch Calls
 All fetch calls now use the HTTPS agent:
 
-```typescript
+\`\`\`typescript
 await fetch(`${BASE_URL}/api/endpoint`, {
   // ... other options
   agent: httpsAgent,
 })
-```
+\`\`\`
 
 ### 5. Fixed API Body Format
 Changed `submission_state` to `state` in PATCH requests to match API expectations.
@@ -66,33 +66,33 @@ Changed `submission_state` to `state` in PATCH requests to match API expectation
 
 **Start the dev server first**:
 
-```bash
+\`\`\`bash
 # Terminal 1
 pnpm dev
-```
+\`\`\`
 
 **Then run tests**:
 
-```bash
+\`\`\`bash
 # Terminal 2
 pnpm test:api
-```
+\`\`\`
 
 ### Expected Behavior
 
 If server is not running:
-```
+\`\`\`
 ❌ Dev server is not running!
 📋 Please start the dev server first:
    pnpm dev
    Then run this test script in another terminal.
-```
+\`\`\`
 
 If server is running:
-```
+\`\`\`
 ✅ Dev server is running
 🧪 Testing API Endpoints...
-```
+\`\`\`
 
 ---
 
@@ -118,8 +118,3 @@ After these changes, the test script will:
 ---
 
 **Status**: ✅ Fixed and ready for testing
-
-
-
-
-

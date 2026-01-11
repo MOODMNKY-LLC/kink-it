@@ -160,4 +160,3 @@ if ($added -gt 0 -or $updated -gt 0) {
     Write-Host "✅ Environment variables updated!`n" -ForegroundColor Green
     Write-Host "🚀 Ready to redeploy!`n" -ForegroundColor Cyan
 }
-

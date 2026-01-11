@@ -36,15 +36,15 @@
 
 ### Migration Error (Fixed)
 **Error**: Syntax error in `20260131000001_create_kinksters_system.sql`
-```
+\`\`\`
 ERROR: syntax error at or near "WHERE" (SQLSTATE 42601)
 CONSTRAINT unique_user_primary UNIQUE (user_id, is_primary) WHERE is_primary = true
-```
+\`\`\`
 
 **Fix Applied**: Changed to:
-```sql
+\`\`\`sql
 CONSTRAINT unique_user_primary UNIQUE (user_id) WHERE is_primary = true
-```
+\`\`\`
 
 **Status**: Fixed, migration retrying
 
@@ -85,6 +85,3 @@ Once migrations complete:
 **Status**: Deployment 90% Complete  
 **Blockers**: None  
 **Next Action**: Complete migrations and secret setup
-
-
-

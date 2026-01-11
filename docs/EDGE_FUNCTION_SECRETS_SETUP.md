@@ -14,11 +14,11 @@ Supabase Edge Functions require secrets to be explicitly configured in `supabase
 
 Added the `[edge_runtime.secrets]` section:
 
-```toml
+\`\`\`toml
 [edge_runtime.secrets]
 # OpenAI API key for image generation (DALL-E 3)
 openai_api_key = "env(OPENAI_API_KEY)"
-```
+\`\`\`
 
 ### 2. Updated Project ID ✅
 
@@ -34,15 +34,15 @@ Changed `project_id` from `"kink-it"` to `"KINK-IT"` in `supabase/config.toml`.
 
 Before running `supabase start`, ensure these are set:
 
-```bash
+\`\`\`bash
 export OPENAI_API_KEY="sk-..."
-```
+\`\`\`
 
 Or in your `.env.local` file (if using a script to load it):
 
-```bash
+\`\`\`bash
 OPENAI_API_KEY=sk-...
-```
+\`\`\`
 
 ## Auto-Provided Secrets
 
@@ -54,10 +54,10 @@ Supabase automatically provides these to Edge Functions (no configuration needed
 
 **Important**: After updating `supabase/config.toml`, you must restart your Supabase local instance:
 
-```bash
+\`\`\`bash
 supabase stop
 supabase start
-```
+\`\`\`
 
 This ensures the secrets are loaded and available to Edge Functions.
 
@@ -71,6 +71,3 @@ To verify secrets are loaded, check the Edge Function logs. You should see:
 - `supabase/config.toml`:
   - Changed `project_id` from `"kink-it"` to `"KINK-IT"`
   - Added `[edge_runtime.secrets]` section with `openai_api_key` configuration
-
-
-

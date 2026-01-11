@@ -183,6 +183,3 @@ self.addEventListener('notificationclick', (event: any) => {
     clients.openWindow(event.notification.data?.url || '/')
   )
 })
-
-
-

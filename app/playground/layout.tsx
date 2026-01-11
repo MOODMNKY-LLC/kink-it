@@ -19,4 +19,3 @@ export default function PlaygroundLayout({ children }: PlaygroundLayoutProps) {
     </DashboardPageLayout>
   )
 }
-

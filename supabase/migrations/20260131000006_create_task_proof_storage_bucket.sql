@@ -103,4 +103,3 @@ USING (
 );
 
 -- File organization structure: {user_id}/tasks/{task_id}/proof_{timestamp}.{ext}
-

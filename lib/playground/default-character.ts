@@ -48,5 +48,3 @@ export function isKinkyKincade(character: Kinkster | null | undefined): boolean 
   if (!character) return false
   return character.id === KINKY_KINCADE_ID || character.name === "Kinky Kincade"
 }
-
-

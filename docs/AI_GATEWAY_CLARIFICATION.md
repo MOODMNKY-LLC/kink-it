@@ -33,7 +33,7 @@
 
 If you want to route DALL-E 3 through AI Gateway for consistency, we can update the implementation to use:
 
-```typescript
+\`\`\`typescript
 // Option 1: Use gateway provider with model string
 import { gateway } from 'ai'
 
@@ -50,7 +50,7 @@ const openai = createOpenAI({
   baseURL: process.env.AI_GATEWAY_URL, // If you have gateway URL
   apiKey: process.env.AI_GATEWAY_API_KEY,
 })
-```
+\`\`\`
 
 **Recommendation**: Keep current implementation (direct OpenAI) unless you need Gateway features like rate limiting or analytics for DALL-E 3.
 
@@ -90,5 +90,3 @@ This way you get the best of both worlds without conflicts!
 
 **Q: Should I overwrite remaining components?**
 **A:** No - install AI Elements to `components/ai-elements/` (default) and keep your existing `components/ui/` components. Only overwrite if AI Elements has a specific enhancement you need.
-
-

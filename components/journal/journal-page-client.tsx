@@ -286,4 +286,3 @@ export function JournalPageClient({ userId, bondId }: JournalPageClientProps) {
     </div>
   )
 }
-

@@ -109,7 +109,7 @@ Updated navigation structure to include:
 
 ## Documentation Structure
 
-```
+\`\`\`
 docs/
 ├── user-guides/
 │   ├── bonds-system-guide.md
@@ -125,7 +125,7 @@ docs/
 ├── terminology-glossary.md
 ├── introduction.md
 └── docs.json (updated)
-```
+\`\`\`
 
 ---
 
@@ -222,6 +222,3 @@ All documentation follows:
 - [Bonds System Implementation](./BONDS_SYSTEM_IMPLEMENTATION.md)
 - [Onboarding Final Report](./ONBOARDING_FINAL_REPORT.md)
 - [Notion Template Guide](./NOTION_TEMPLATE_GUIDE.md)
-
-
-

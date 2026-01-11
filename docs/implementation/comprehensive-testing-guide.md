@@ -33,13 +33,13 @@
 
 **Prerequisites**: Dev server must be running
 
-```bash
+\`\`\`bash
 # Terminal 1: Start dev server
 pnpm dev
 
 # Terminal 2: Run API tests
 pnpm test:api
-```
+\`\`\`
 
 **What Gets Tested**:
 - ✅ Authentication (both users)
@@ -274,8 +274,3 @@ pnpm test:api
 ---
 
 **Status**: Ready for comprehensive testing
-
-
-
-
-

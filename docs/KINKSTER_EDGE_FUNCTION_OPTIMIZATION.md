@@ -15,9 +15,9 @@ Comprehensive optimization of the KINKSTER avatar generation system using Supaba
 ## 🏗️ Architecture
 
 ### Previous Implementation (Next.js API Routes)
-```
+\`\`\`
 Client → Next.js API Route → OpenAI API → Download → Upload → Response
-```
+\`\`\`
 **Issues:**
 - API keys exposed in Next.js environment
 - Synchronous processing blocks response
@@ -25,13 +25,13 @@ Client → Next.js API Route → OpenAI API → Download → Upload → Response
 - Limited scalability
 
 ### New Implementation (Edge Functions + Background Tasks)
-```
+\`\`\`
 Client → Edge Function → OpenAI API → Immediate Response (202)
                 ↓
          Background Task → Download → Upload → Realtime Broadcast → Database Update
                 ↓
          Client receives progress via Realtime subscription
-```
+\`\`\`
 
 ---
 
@@ -52,17 +52,17 @@ Client → Edge Function → OpenAI API → Immediate Response (202)
 - `POST /generate-kinkster-avatar` - Generate and store avatar
 
 **Request Payload**:
-```typescript
+\`\`\`typescript
 {
   user_id: string
   kinkster_id?: string
   character_data: CharacterData
   custom_prompt?: string
 }
-```
+\`\`\`
 
 **Response**:
-```typescript
+\`\`\`typescript
 {
   image_url: string, // Temporary OpenAI URL
   prompt: string,
@@ -70,7 +70,7 @@ Client → Edge Function → OpenAI API → Immediate Response (202)
   status: "processing" | "completed",
   kinkster_id?: string
 }
-```
+\`\`\`
 
 ### 2. Database Functions
 
@@ -110,14 +110,14 @@ Client → Edge Function → OpenAI API → Immediate Response (202)
 - ✅ Progress state management
 
 **Usage**:
-```typescript
+\`\`\`typescript
 const { generateAvatar, progress, isGenerating } = useAvatarGeneration({
   userId: "user-id",
   kinksterId: "kinkster-id", // optional
   onComplete: (storageUrl) => { /* handle completion */ },
   onError: (error) => { /* handle error */ },
 })
-```
+\`\`\`
 
 ---
 
@@ -150,21 +150,21 @@ const { generateAvatar, progress, isGenerating } = useAvatarGeneration({
 
 ### 1. Set Edge Function Secret
 
-```bash
+\`\`\`bash
 # Set OpenAI API key as Edge Function secret
 supabase secrets set OPENAI_API_KEY=your-openai-api-key
-```
+\`\`\`
 
 ### 2. Deploy Edge Function
 
-```bash
+\`\`\`bash
 # Deploy the function
 supabase functions deploy generate-kinkster-avatar
-```
+\`\`\`
 
 ### 3. Run Migrations
 
-```bash
+\`\`\`bash
 # Run database migrations
 supabase migration up
 
@@ -172,16 +172,16 @@ supabase migration up
 # - 20260131000002_create_kinkster_storage_bucket.sql
 # - 20260131000003_create_avatar_management_functions.sql
 # - 20260131000004_add_avatar_realtime_policies.sql
-```
+\`\`\`
 
 ### 4. Configure Edge Runtime (Local Development)
 
 **File**: `supabase/config.toml`
 
-```toml
+\`\`\`toml
 [edge_runtime]
 policy = "per_worker"  # Allows background tasks to complete
-```
+\`\`\`
 
 ---
 
@@ -190,15 +190,15 @@ policy = "per_worker"  # Allows background tasks to complete
 ### Client Code Changes
 
 **Before**:
-```typescript
+\`\`\`typescript
 const response = await fetch("/api/kinksters/avatar/generate", {
   method: "POST",
   body: JSON.stringify({ characterData, customPrompt }),
 })
-```
+\`\`\`
 
 **After**:
-```typescript
+\`\`\`typescript
 const { generateAvatar, progress, isGenerating } = useAvatarGeneration({
   userId,
   kinksterId,
@@ -208,7 +208,7 @@ const { generateAvatar, progress, isGenerating } = useAvatarGeneration({
 })
 
 await generateAvatar(characterData, customPrompt)
-```
+\`\`\`
 
 ### Component Updates
 
@@ -225,14 +225,14 @@ The `AvatarGenerationStep` component has been updated to:
 ### Local Testing
 
 1. **Start Supabase**:
-   ```bash
+   \`\`\`bash
    supabase start
-   ```
+   \`\`\`
 
 2. **Serve Edge Function**:
-   ```bash
+   \`\`\`bash
    supabase functions serve generate-kinkster-avatar
-   ```
+   \`\`\`
 
 3. **Test Generation**:
    - Navigate to character creation
@@ -243,14 +243,14 @@ The `AvatarGenerationStep` component has been updated to:
 ### Production Testing
 
 1. **Deploy Function**:
-   ```bash
+   \`\`\`bash
    supabase functions deploy generate-kinkster-avatar
-   ```
+   \`\`\`
 
 2. **Set Secrets**:
-   ```bash
+   \`\`\`bash
    supabase secrets set OPENAI_API_KEY=your-key --project-ref your-project-ref
-   ```
+   \`\`\`
 
 3. **Test End-to-End**:
    - Create character
@@ -265,22 +265,22 @@ The `AvatarGenerationStep` component has been updated to:
 
 ### Edge Function Logs
 
-```bash
+\`\`\`bash
 # View function logs
 supabase functions logs generate-kinkster-avatar
-```
+\`\`\`
 
 ### Database Monitoring
 
 Query avatar statistics:
-```sql
+\`\`\`sql
 SELECT * FROM get_user_avatar_stats('user-id');
-```
+\`\`\`
 
 Check generation status:
-```sql
+\`\`\`sql
 SELECT * FROM get_avatar_generation_status('kinkster-id');
-```
+\`\`\`
 
 ---
 
@@ -333,6 +333,3 @@ SELECT * FROM get_avatar_generation_status('kinkster-id');
 
 **Last Updated**: 2026-01-31  
 **Status**: Ready for Deployment
-
-
-

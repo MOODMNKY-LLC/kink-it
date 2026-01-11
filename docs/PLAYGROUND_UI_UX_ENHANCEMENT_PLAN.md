@@ -112,11 +112,11 @@ Comprehensive UI/UX overhaul of the playground and sidebar components based on d
 **Goal**: Add fields for widget customization
 
 **Migration**:
-```sql
+\`\`\`sql
 ALTER TABLE public.profiles
 ADD COLUMN IF NOT EXISTS banner_text text,
 ADD COLUMN IF NOT EXISTS widget_image_url text;
-```
+\`\`\`
 
 **Files to Create**:
 - `supabase/migrations/[timestamp]_add_widget_customization_fields.sql`
@@ -150,5 +150,3 @@ ADD COLUMN IF NOT EXISTS widget_image_url text;
 - Widget image replacement should support user uploads to Supabase Storage
 - All changes should maintain existing functionality
 - Mobile-first approach: ensure all enhancements work on mobile devices
-
-

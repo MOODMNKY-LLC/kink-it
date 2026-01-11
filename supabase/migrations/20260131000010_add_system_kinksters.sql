@@ -111,4 +111,3 @@ ON CONFLICT (id) DO UPDATE SET
 -- Add comment to table
 COMMENT ON COLUMN public.kinksters.is_system_kinkster IS 'Indicates if this is a system KINKSTER (AI persona) accessible to all users';
 COMMENT ON COLUMN public.kinksters.user_id IS 'User who owns this KINKSTER. NULL for system KINKSTERS.';
-

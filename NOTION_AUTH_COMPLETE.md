@@ -17,15 +17,15 @@ Retrieved from Notion credentials database:
 
 ### 2. **Environment Variables Updated** ✅
 Added to `.env.local`:
-```bash
+\`\`\`bash
 # Notion OAuth credentials for Supabase Auth
 SUPABASE_AUTH_EXTERNAL_NOTION_CLIENT_ID=YOUR_NOTION_OAUTH_CLIENT_ID_HERE
 SUPABASE_AUTH_EXTERNAL_NOTION_SECRET=YOUR_NOTION_OAUTH_CLIENT_SECRET_HERE
-```
+\`\`\`
 
 ### 3. **Supabase Config Updated** ✅
 Added to `supabase/config.toml`:
-```toml
+\`\`\`toml
 [auth.external.notion]
 enabled = true
 client_id = "env(SUPABASE_AUTH_EXTERNAL_NOTION_CLIENT_ID)"
@@ -34,7 +34,7 @@ redirect_uri = ""
 url = ""
 skip_nonce_check = false
 email_optional = false
-```
+\`\`\`
 
 ### 4. **Supabase Restarted** ✅
 - Stopped Supabase successfully
@@ -55,7 +55,7 @@ Open **http://127.0.0.1:55323** in your browser:
 ### 2. Test Auth Endpoint
 You can test the Notion OAuth flow programmatically:
 
-```typescript
+\`\`\`typescript
 import { createClient } from '@/lib/supabase/client'
 
 const supabase = createClient()
@@ -73,15 +73,15 @@ if (error) {
 } else {
   console.log('Notion auth initiated:', data)
 }
-```
+\`\`\`
 
 ### 3. Check Environment Variables
 Verify the variables are loaded:
-```bash
+\`\`\`bash
 # In PowerShell
 cd C:\DEV-MNKY\MOOD_MNKY\kink-it
 Get-Content .env.local | Select-String "NOTION"
-```
+\`\`\`
 
 ---
 
@@ -89,7 +89,7 @@ Get-Content .env.local | Select-String "NOTION"
 
 ### Sign In with Notion Button
 
-```typescript
+\`\`\`typescript
 // components/auth/notion-sign-in.tsx
 'use client'
 
@@ -122,11 +122,11 @@ export function NotionSignIn() {
     </Button>
   )
 }
-```
+\`\`\`
 
 ### Auth Callback Handler
 
-```typescript
+\`\`\`typescript
 // app/auth/callback/route.ts
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
@@ -143,11 +143,11 @@ export async function GET(request: Request) {
   // Redirect to home or dashboard
   return NextResponse.redirect(new URL('/', requestUrl.origin))
 }
-```
+\`\`\`
 
 ### Get User's Notion Access Token
 
-```typescript
+\`\`\`typescript
 // After successful authentication
 const { data: { session } } = await supabase.auth.getSession()
 
@@ -166,7 +166,7 @@ if (session?.provider_token) {
   const notionUser = await response.json()
   console.log('Notion user:', notionUser)
 }
-```
+\`\`\`
 
 ---
 
@@ -248,15 +248,15 @@ if (session?.provider_token) {
 
 ### Issue: "Notion provider not found"
 **Solution**: Restart Supabase
-```bash
+\`\`\`bash
 supabase stop && supabase start
-```
+\`\`\`
 
 ### Issue: "Invalid OAuth credentials"
 **Solution**: Verify environment variables
-```bash
+\`\`\`bash
 Get-Content .env.local | Select-String "NOTION"
-```
+\`\`\`
 
 ### Issue: "Redirect URI mismatch"
 **Solution**: Add local redirect URI to Notion app:
@@ -266,10 +266,10 @@ Get-Content .env.local | Select-String "NOTION"
 
 ### Issue: "Token expired"
 **Solution**: Supabase handles token refresh automatically. Check:
-```typescript
+\`\`\`typescript
 const { data: { session }, error } = await supabase.auth.getSession()
 if (error) console.error('Session error:', error)
-```
+\`\`\`
 
 ---
 
@@ -323,6 +323,3 @@ if (error) console.error('Session error:', error)
 **Last Updated**: 2026-01-05  
 **Supabase Status**: ✅ Running  
 **Configuration**: ✅ Complete
-
-
-

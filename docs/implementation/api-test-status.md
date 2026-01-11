@@ -25,12 +25,12 @@ The test script successfully:
 4. Establishes HTTPS connection
 
 However, when making API requests, the server immediately closes the socket connection:
-```
+\`\`\`
 SocketError: other side closed
 code: 'UND_ERR_SOCKET'
 bytesWritten: 1426 (request sent)
 bytesRead: 0 (no response received)
-```
+\`\`\`
 
 ---
 
@@ -38,10 +38,10 @@ bytesRead: 0 (no response received)
 
 ### Current Format
 
-```typescript
+\`\`\`typescript
 // Cookie name: sb-localhost-auth-token (fallback for localhost)
 // Cookie value: base64-<base64url-encoded-session-json>
-```
+\`\`\`
 
 The cookie value includes:
 - `base64-` prefix (Supabase SSR v0.3.0+)
@@ -90,20 +90,20 @@ Test the API endpoints manually using:
 
 Create a simple test endpoint that doesn't require auth to verify connection works:
 
-```typescript
+\`\`\`typescript
 // app/api/test/route.ts
 export async function GET() {
   return NextResponse.json({ message: 'Test endpoint works' })
 }
-```
+\`\`\`
 
 ### Option 3: Use Supabase Admin API
 
 For testing, use the Supabase Admin API with service role key instead of cookies:
 
-```typescript
+\`\`\`typescript
 const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-```
+\`\`\`
 
 ---
 
@@ -129,7 +129,3 @@ const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 1. **Manual Testing**: Test endpoints in browser and inspect actual cookies
 2. **Debug Server**: Check server logs for errors when requests arrive
 3. **Alternative Approach**: Consider using Supabase Admin API for testing instead of cookies
-
-
-
-

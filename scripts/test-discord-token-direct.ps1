@@ -45,6 +45,3 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "❌ Docker test failed" -ForegroundColor Red
     Write-Host "   Exit code: $LASTEXITCODE" -ForegroundColor Gray
 }
-
-
-

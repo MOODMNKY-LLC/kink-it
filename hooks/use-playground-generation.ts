@@ -132,4 +132,3 @@ function getProgressMessage(progress: number): string {
   if (progress < 100) return "Finalizing..."
   return "Complete!"
 }
-

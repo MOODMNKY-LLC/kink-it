@@ -151,4 +151,3 @@ WITH CHECK (
     WHERE id = (SELECT auth.uid()) AND system_role = 'admin'
   )
 );
-

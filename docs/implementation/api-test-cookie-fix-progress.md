@@ -19,12 +19,12 @@
 The API calls are failing with `SocketError: other side closed`. The connection is established but immediately closed by the server.
 
 **Error Details**:
-```
+\`\`\`
 SocketError: other side closed
 code: 'UND_ERR_SOCKET'
 bytesWritten: 1435 (request is being sent)
 bytesRead: 0 (no response received)
-```
+\`\`\`
 
 ---
 
@@ -34,7 +34,7 @@ bytesRead: 0 (no response received)
 
 We're creating cookies manually from the Supabase session:
 
-```typescript
+\`\`\`typescript
 function createSupabaseCookies(session: { access_token: string; refresh_token: string }): string {
   const sessionPayload = JSON.stringify({
     access_token: session.access_token,
@@ -53,7 +53,7 @@ function createSupabaseCookies(session: { access_token: string; refresh_token: s
   const cookieName = `sb-${PROJECT_REF}-auth-token`
   return `${cookieName}=${encodeURIComponent(encoded)}`
 }
-```
+\`\`\`
 
 ### Cookie Format
 
@@ -108,13 +108,13 @@ function createSupabaseCookies(session: { access_token: string; refresh_token: s
 - ⚠️ API calls failing (connection closed)
 
 **To Run**:
-```bash
+\`\`\`bash
 # Terminal 1: Start dev server
 pnpm dev
 
 # Terminal 2: Run tests
 pnpm test:api
-```
+\`\`\`
 
 ---
 
@@ -129,8 +129,3 @@ pnpm test:api
 ---
 
 **Next Action**: Debug server-side to see why connection is being closed
-
-
-
-
-

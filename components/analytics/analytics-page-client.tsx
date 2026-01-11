@@ -250,4 +250,3 @@ export function AnalyticsPageClient({ userId, bondId }: AnalyticsPageClientProps
     </div>
   )
 }
-

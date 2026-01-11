@@ -51,21 +51,21 @@
 ## Verification Queries
 
 ### Check Foreign Server
-```sql
+\`\`\`sql
 SELECT srvname, srvoptions 
 FROM pg_foreign_server 
 WHERE srvname = 'notion_service_account_server';
-```
+\`\`\`
 
 ### Check Foreign Tables
-```sql
+\`\`\`sql
 SELECT schemaname, tablename 
 FROM pg_tables 
 WHERE schemaname = 'notion_fdw';
-```
+\`\`\`
 
 ### Test Foreign Table Query
-```sql
+\`\`\`sql
 -- Test Image Generations foreign table
 SELECT COUNT(*) 
 FROM notion_fdw.image_generations_all;
@@ -73,18 +73,18 @@ FROM notion_fdw.image_generations_all;
 -- Test KINKSTER Profiles foreign table
 SELECT COUNT(*) 
 FROM notion_fdw.kinkster_profiles_all;
-```
+\`\`\`
 
 ### Check Admin Views
-```sql
+\`\`\`sql
 SELECT table_name 
 FROM information_schema.tables 
 WHERE table_schema = 'public' 
   AND table_name LIKE 'admin_%';
-```
+\`\`\`
 
 ### Test Admin Functions
-```sql
+\`\`\`sql
 -- Test admin check
 SELECT public.is_admin('your-user-id-here');
 
@@ -94,7 +94,7 @@ SELECT public.get_bond_member_ids('your-admin-id-here');
 -- Test admin search (requires admin role)
 SELECT * 
 FROM public.admin_search_image_generations('test', 'your-admin-id', 10);
-```
+\`\`\`
 
 ---
 
@@ -102,12 +102,12 @@ FROM public.admin_search_image_generations('test', 'your-admin-id', 10);
 
 The FDW setup reads database IDs from the `notion_databases` table:
 
-```sql
+\`\`\`sql
 SELECT database_type, database_id, database_name 
 FROM notion_databases 
 WHERE user_id IS NULL 
 ORDER BY database_type;
-```
+\`\`\`
 
 **Required Database Types:**
 - `image_generations` - Image Generations database
@@ -137,24 +137,24 @@ ORDER BY database_type;
 ## Next Steps
 
 1. **Test Foreign Tables**
-   ```sql
+   \`\`\`sql
    SELECT * FROM notion_fdw.image_generations_all LIMIT 5;
-   ```
+   \`\`\`
 
 2. **Test Admin Views** (requires admin authentication)
-   ```sql
+   \`\`\`sql
    SELECT * FROM public.admin_image_generations_all LIMIT 5;
-   ```
+   \`\`\`
 
 3. **Test Admin Search**
-   ```sql
+   \`\`\`sql
    SELECT * 
    FROM public.admin_search_image_generations(
      'kinky scene', 
      auth.uid(), 
      10
    );
-   ```
+   \`\`\`
 
 4. **Update API Endpoints**
    - Update admin gallery search to use FDW functions
@@ -173,40 +173,40 @@ ORDER BY database_type;
 ### Foreign Tables Return No Data
 
 **Check Database IDs:**
-```sql
+\`\`\`sql
 SELECT * FROM notion_databases 
 WHERE database_type IN ('image_generations', 'kinkster_profiles');
-```
+\`\`\`
 
 **Re-run Setup:**
-```sql
+\`\`\`sql
 SELECT * FROM public.setup_notion_fdw_tables();
-```
+\`\`\`
 
 ### Admin Views Return No Data
 
 **Check Admin Role:**
-```sql
+\`\`\`sql
 SELECT public.is_admin(auth.uid());
-```
+\`\`\`
 
 **Check Bond Members:**
-```sql
+\`\`\`sql
 SELECT public.get_bond_member_ids(auth.uid());
-```
+\`\`\`
 
 ### Foreign Server Connection Error
 
 **Verify Server:**
-```sql
+\`\`\`sql
 SELECT * FROM pg_foreign_server 
 WHERE srvname = 'notion_service_account_server';
-```
+\`\`\`
 
 **Recreate Server:**
-```sql
+\`\`\`sql
 SELECT public.create_notion_fdw_server('your-api-key-here');
-```
+\`\`\`
 
 ---
 
@@ -223,5 +223,3 @@ SELECT public.create_notion_fdw_server('your-api-key-here');
 **Setup Status**: ✅ Complete  
 **Ready for Production**: ✅ Yes  
 **Documentation**: ✅ Complete
-
-

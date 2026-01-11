@@ -28,4 +28,3 @@ create unique index if not exists idx_push_subscriptions_user_endpoint
 -- Create index for endpoint lookups (using btree for text extraction)
 create index if not exists idx_push_subscriptions_endpoint 
   on public.push_subscriptions (((subscription->>'endpoint')));
-

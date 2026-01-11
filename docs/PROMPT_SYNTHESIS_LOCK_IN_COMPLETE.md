@@ -135,11 +135,11 @@ Users can no longer edit prompts directly. Instead, they adjust props, and the s
 5. Maintain DALL-E 3 format requirements
 
 ### Prompt Structure
-```
+\`\`\`
 [Bara Art Style] + [Character Portrait] + [Physical Description] + 
 [Clothing/Accessories] + [Background] + [Lighting/Composition] + 
 [Quality/Theme] + [Bara Style Emphasis]
-```
+\`\`\`
 
 ## Testing Checklist
 
@@ -181,6 +181,3 @@ Users can no longer edit prompts directly. Instead, they adjust props, and the s
 ## Summary
 
 The prompt synthesis lock-in system is now complete. Users can no longer edit prompts directly - they must use props to customize image generation. All prompts are automatically synthesized and optimized, ensuring consistent quality and brand style (Bara) across all generations.
-
-
-

@@ -25,6 +25,3 @@ export default async function AdminBondsPage() {
     </DashboardPageLayout>
   )
 }
-
-
-

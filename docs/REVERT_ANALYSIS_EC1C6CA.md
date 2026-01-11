@@ -187,7 +187,7 @@
 ## Detailed File Changes Summary
 
 ### Code Files Changed (14 files)
-```
+\`\`\`
 app/api/check-ins/route.ts                         (+136 lines)
 app/api/messages/[id]/read/route.ts                (+47 lines)
 app/api/messages/route.ts                          (+104 lines)
@@ -202,36 +202,36 @@ hooks/use-check-ins.ts                             (+184 lines)
 hooks/use-messages.ts                               (+196 lines)
 hooks/use-sse-stream.ts                            (modified)
 hooks/use-tasks.ts                                 (modified, improved)
-```
+\`\`\`
 
 ### Infrastructure Files Changed (4 files)
-```
+\`\`\`
 next.config.ts                                     (+3 lines - output: 'standalone')
 package.json                                       (modified - build script)
 scripts/build-with-error-handling.js               (+121 lines - NEW FILE)
 vercel.json                                        (+5 lines - NEW FILE)
 scripts/set-vercel-env-vars.sh                     (+98 lines - NEW FILE)
-```
+\`\`\`
 
 ### Database Files Changed (1 file)
-```
+\`\`\`
 supabase/migrations/20260108000000_create_communication_hub.sql (+258 lines - NEW FILE)
-```
+\`\`\`
 
 ### Type Files Changed (1 file)
-```
+\`\`\`
 types/communication.ts                             (+59 lines - NEW FILE)
-```
+\`\`\`
 
 ### Documentation Files Changed (30+ files)
-```
+\`\`\`
 docs/BUILD_ERROR_KNOWN_ISSUE.md                   (+76 lines)
 docs/BUILD_SCRIPT_ANALYSIS.md                     (+62 lines)
 docs/BUILD_SUCCESS_WORKFLOW.md                    (+88 lines)
 docs/COMMUNICATION_HUB_IMPLEMENTATION_COMPLETE.md  (+184 lines)
 docs/COMPREHENSIVE_ROADMAP_2026.md                (+501 lines)
 ... (27 more documentation files)
-```
+\`\`\`
 
 ---
 

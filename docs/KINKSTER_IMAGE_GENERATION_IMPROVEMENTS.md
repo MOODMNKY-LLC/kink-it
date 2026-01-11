@@ -143,7 +143,7 @@ This document analyzes the current image generation system and proposes comprehe
 
 **Enhancements**:
 1. **Archetype-Based Style Guidance**
-   ```typescript
+   \`\`\`typescript
    const archetypeStyles = {
      "The Guide": "wise, mentor-like, approachable, knowledgeable",
      "The Dominant": "authoritative, commanding, confident, powerful",
@@ -151,39 +151,39 @@ This document analyzes the current image generation system and proposes comprehe
      "The Switch": "versatile, adaptable, balanced, dynamic",
      // ... more archetypes
    }
-   ```
+   \`\`\`
 
 2. **Stat-Influenced Visual Characteristics**
-   ```typescript
+   \`\`\`typescript
    // High dominance → stronger presence, more imposing
    // High charisma → more engaging, magnetic
    // High creativity → more unique, artistic
    // High control → more composed, structured
-   ```
+   \`\`\`
 
 3. **Personality Trait Visual Translation**
-   ```typescript
+   \`\`\`typescript
    const traitVisuals = {
      "playful": "bright expression, dynamic pose, energetic",
      "authoritative": "confident stance, commanding presence",
      "creative": "artistic elements, unique style",
      // ... more traits
    }
-   ```
+   \`\`\`
 
 4. **Role-Appropriate Presentation**
-   ```typescript
+   \`\`\`typescript
    // Dominant role → more commanding, in control
    // Submissive role → more deferential, serving
    // Switch role → balanced, adaptable
-   ```
+   \`\`\`
 
 ### Improvement 2: Design System Integration
 
 **Proposed**: `KINKSTER_DESIGN_SYSTEM` configuration
 
 **Elements**:
-```typescript
+\`\`\`typescript
 export const KINKSTER_DESIGN_SYSTEM = {
   artStyle: "digital art, character portrait, professional illustration",
   colorPalette: "warm tones, sophisticated colors, mature aesthetic",
@@ -193,7 +193,7 @@ export const KINKSTER_DESIGN_SYSTEM = {
   theme: "mature, sophisticated, artistic, tasteful, elegant",
   kinkContext: "respectful, consensual, tasteful representation",
 }
-```
+\`\`\`
 
 **Integration**: All prompts automatically include design system elements.
 
@@ -202,7 +202,7 @@ export const KINKSTER_DESIGN_SYSTEM = {
 **Proposed**: `generateKinksterAvatar()` function with context
 
 **Context Parameters**:
-```typescript
+\`\`\`typescript
 interface KinksterGenerationContext {
   creationStage: "initial" | "refinement" | "final"
   userRole: "dominant" | "submissive" | "switch"
@@ -213,7 +213,7 @@ interface KinksterGenerationContext {
   submissionState?: "active" | "paused" | "none"
   previousGenerations?: string[] // For consistency
 }
-```
+\`\`\`
 
 **Context Usage**:
 - **Initial Stage**: Broader exploration, multiple options
@@ -228,7 +228,7 @@ interface KinksterGenerationContext {
 **Proposed**: Pre-configured style presets per archetype
 
 **Implementation**:
-```typescript
+\`\`\`typescript
 export const ARCHETYPE_STYLE_PRESETS = {
   "The Guide": {
     styleTags: ["wise mentor", "approachable", "knowledgeable", "supportive"],
@@ -247,14 +247,14 @@ export const ARCHETYPE_STYLE_PRESETS = {
   },
   // ... more archetypes
 }
-```
+\`\`\`
 
 ### Improvement 5: Stat-Influenced Visual Characteristics
 
 **Proposed**: Visual representation based on stat values
 
 **Implementation**:
-```typescript
+\`\`\`typescript
 function getStatVisualInfluence(stats: KinksterStats): string {
   const influences: string[] = []
   
@@ -273,7 +273,7 @@ function getStatVisualInfluence(stats: KinksterStats): string {
   
   return influences.join(", ")
 }
-```
+\`\`\`
 
 ### Improvement 6: Progressive Refinement System
 
@@ -318,7 +318,7 @@ function getStatVisualInfluence(stats: KinksterStats): string {
 - `lib/kinksters/image-generation.ts` → New specialized module
 
 **New Functions**:
-```typescript
+\`\`\`typescript
 // lib/kinksters/image-generation.ts
 export function buildKinksterAvatarPrompt(
   kinkster: Kinkster,
@@ -329,7 +329,7 @@ export function getArchetypeStyleGuidance(archetype: string): string
 export function getStatVisualInfluence(stats: KinksterStats): string
 export function getPersonalityVisualTraits(traits: string[]): string
 export function getRoleAppropriatePresentation(role: string[]): string
-```
+\`\`\`
 
 ### Phase 2: Design System Integration
 
@@ -391,7 +391,7 @@ export function getRoleAppropriatePresentation(role: string[]): string
 
 ### buildKinksterAvatarPrompt()
 
-```typescript
+\`\`\`typescript
 function buildKinksterAvatarPrompt(
   kinkster: Kinkster,
   context?: KinksterGenerationContext
@@ -443,11 +443,11 @@ function buildKinksterAvatarPrompt(
     contextAdjustments,
   ].filter(Boolean).join(", ")
 }
-```
+\`\`\`
 
 ### getArchetypeStyleGuidance()
 
-```typescript
+\`\`\`typescript
 function getArchetypeStyleGuidance(archetype: string): string {
   const preset = ARCHETYPE_STYLE_PRESETS[archetype]
   if (!preset) return "distinctive character"
@@ -458,11 +458,11 @@ function getArchetypeStyleGuidance(archetype: string): string {
     preset.expressionGuidance,
   ].join(", ")
 }
-```
+\`\`\`
 
 ### getStatVisualInfluence()
 
-```typescript
+\`\`\`typescript
 function getStatVisualInfluence(stats: KinksterStats): string {
   const influences: string[] = []
   
@@ -503,7 +503,7 @@ function getStatVisualInfluence(stats: KinksterStats): string {
   
   return influences.length > 0 ? influences.join(", ") : ""
 }
-```
+\`\`\`
 
 ---
 
@@ -511,7 +511,7 @@ function getStatVisualInfluence(stats: KinksterStats): string {
 
 ### KINKSTER Design System
 
-```typescript
+\`\`\`typescript
 export const KINKSTER_DESIGN_SYSTEM = {
   // Art Style
   artStyle: "digital art, character portrait, professional illustration, fantasy art style, detailed",
@@ -537,7 +537,7 @@ export const KINKSTER_DESIGN_SYSTEM = {
   // Consistency
   consistency: "maintains character identity, consistent visual style, recognizable features",
 }
-```
+\`\`\`
 
 ---
 
@@ -580,7 +580,7 @@ export const KINKSTER_DESIGN_SYSTEM = {
 ### 1. Generation Parameter Storage
 
 Store with each avatar:
-```typescript
+\`\`\`typescript
 interface AvatarGenerationParams {
   kinksterId: string
   prompt: string
@@ -591,7 +591,7 @@ interface AvatarGenerationParams {
   previousAvatarUrl?: string
   timestamp: string
 }
-```
+\`\`\`
 
 ### 2. Consistency Checking
 
@@ -648,6 +648,3 @@ All prompts include:
 **Status**: Analysis Complete ✅  
 **Next**: Implementation  
 **Last Updated**: 2026-01-31
-
-
-

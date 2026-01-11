@@ -101,8 +101,3 @@ export async function PATCH(req: Request) {
     updated_at: new Date().toISOString(),
   })
 }
-
-
-
-
-

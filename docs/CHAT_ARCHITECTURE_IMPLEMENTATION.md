@@ -62,7 +62,7 @@ Successfully refactored the chat system to use a robust, error-free architecture
 - Much simpler and cleaner code
 
 **API** (unchanged for compatibility):
-```typescript
+\`\`\`typescript
 {
   messages: ChatMessage[]
   isStreaming: boolean
@@ -71,7 +71,7 @@ Successfully refactored the chat system to use a robust, error-free architecture
   sendMessage: (content: string, options?) => Promise<void>
   cancelStream: () => void
 }
-```
+\`\`\`
 
 ---
 
@@ -106,7 +106,7 @@ Successfully refactored the chat system to use a robust, error-free architecture
 
 **After**: Single reducer handles all state transitions predictably
 
-```typescript
+\`\`\`typescript
 // Before: Multiple state updates, potential conflicts
 setMessages([...messages, newMessage])
 setIsStreaming(true)
@@ -115,7 +115,7 @@ setCurrentStreamingMessage(content)
 // After: Single dispatch, predictable
 dispatch({ type: 'ADD_MESSAGE', payload: newMessage })
 dispatch({ type: 'UPDATE_STREAMING', payload: content })
-```
+\`\`\`
 
 ### 2. Stable Dependencies
 
@@ -123,7 +123,7 @@ dispatch({ type: 'UPDATE_STREAMING', payload: content })
 
 **After**: All dependencies are stable (refs, memoized callbacks)
 
-```typescript
+\`\`\`typescript
 // Before: Unstable
 const supabase = createClient() // New instance each render
 useEffect(() => { ... }, [supabase, onError]) // Re-runs constantly
@@ -131,7 +131,7 @@ useEffect(() => { ... }, [supabase, onError]) // Re-runs constantly
 // After: Stable
 const supabaseRef = useRef(createClient()) // Same instance
 useEffect(() => { ... }, []) // Runs once
-```
+\`\`\`
 
 ### 3. Separation of Concerns
 
@@ -213,24 +213,24 @@ All existing components should continue to work:
 ### New Patterns to Follow
 
 1. **Always use refs for Supabase clients**:
-   ```typescript
+   \`\`\`typescript
    const supabaseRef = useRef(createClient())
-   ```
+   \`\`\`
 
 2. **Memoize callbacks passed to hooks**:
-   ```typescript
+   \`\`\`typescript
    const handleComplete = useCallback((message) => { ... }, [])
-   ```
+   \`\`\`
 
 3. **Use reducer for complex state**:
-   ```typescript
+   \`\`\`typescript
    const [state, dispatch] = useReducer(reducer, initialState)
-   ```
+   \`\`\`
 
 4. **Separate connection management**:
-   ```typescript
+   \`\`\`typescript
    const { startStream, stopStream } = useSSEStream()
-   ```
+   \`\`\`
 
 ---
 

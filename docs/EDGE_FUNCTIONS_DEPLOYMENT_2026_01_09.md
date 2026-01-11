@@ -39,9 +39,9 @@
 ## ✅ Verification
 
 ### Function Status Check
-```bash
+\`\`\`bash
 supabase functions list --project-ref rbloeqwxivfzxmfropek
-```
+\`\`\`
 
 **Expected**: All functions should show STATUS: ACTIVE with updated version numbers
 

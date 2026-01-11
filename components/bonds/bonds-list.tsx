@@ -144,4 +144,3 @@ export function BondsList({ profile }: BondsListProps) {
     </div>
   )
 }
-

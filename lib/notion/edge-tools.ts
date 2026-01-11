@@ -179,5 +179,3 @@ export async function executeNotionToolFromEdge(
     throw new Error(`Notion tool error: ${error instanceof Error ? error.message : "Unknown error"}`)
   }
 }
-
-

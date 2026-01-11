@@ -106,15 +106,15 @@ Deployment initiated:
 
 ### 1. Check Deployment Status
 
-```bash
+\`\`\`bash
 vercel inspect kink-9e4f0p9f2-mood-mnkys-projects.vercel.app --logs
-```
+\`\`\`
 
 ### 2. Verify Environment Variables
 
-```bash
+\`\`\`bash
 vercel env ls production
-```
+\`\`\`
 
 ### 3. Test Notion API Key Upload
 
@@ -190,4 +190,3 @@ If you need to rotate the encryption key:
 The Notion API key issue was caused by missing `NOTION_API_KEY_ENCRYPTION_KEY` in production. This key is essential for the encryption/decryption workflow that stores user-provided Notion API keys securely.
 
 All missing environment variables have been added to Vercel production, and a new deployment has been triggered. The production instance should now have full functionality matching development.
-

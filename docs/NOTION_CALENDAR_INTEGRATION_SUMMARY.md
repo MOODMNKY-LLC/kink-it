@@ -67,7 +67,7 @@ Features:
 
 ### Technical Flow
 
-```
+\`\`\`
 User clicks "Open in Notion Calendar"
   ↓
 Check if google_account_email is set
@@ -80,7 +80,7 @@ Generate cron:// URL:
 window.location.href = cronUrl
   ↓
 Notion Calendar opens with event
-```
+\`\`\`
 
 ## Integration Details
 
@@ -88,14 +88,14 @@ Notion Calendar opens with event
 
 Based on [Notion Calendar API documentation](https://www.notion.com/help/notion-calendar-integrations):
 
-```
+\`\`\`
 cron://accountEmail&iCalUID&startDate=ISO&endDate=ISO&title=Title&ref=app
-```
+\`\`\`
 
 **Example:**
-```
+\`\`\`
 cron://[email protected]&123e4567-e89b-12d3-a456-426614174000@kink-it.app&startDate=2025-02-05T20:30:00.000Z&endDate=2025-02-05T21:00:00.000Z&title=Scene%20Planning&ref=kink-it
-```
+\`\`\`
 
 ### iCalUID Format
 
@@ -177,20 +177,20 @@ RFC5545-compliant format: `{event_id}@kink-it.app`
 ## Deployment Steps
 
 1. **Apply Migration:**
-   ```bash
+   \`\`\`bash
    # Via Supabase Dashboard
    # Or via CLI: supabase db push
-   ```
+   \`\`\`
 
 2. **Verify Migration:**
-   ```sql
+   \`\`\`sql
    -- Check columns exist
    SELECT column_name FROM information_schema.columns 
    WHERE table_name = 'calendar_events' AND column_name = 'ical_uid';
    
    SELECT column_name FROM information_schema.columns 
    WHERE table_name = 'profiles' AND column_name = 'google_account_email';
-   ```
+   \`\`\`
 
 3. **Test in Production:**
    - Create test event
@@ -232,4 +232,3 @@ RFC5545-compliant format: `{event_id}@kink-it.app`
 - [Notion Calendar Integrations Documentation](https://www.notion.com/help/notion-calendar-integrations)
 - [RFC5545 iCalendar Specification](https://datatracker.ietf.org/doc/html/rfc5545)
 - [KINK IT Calendar Module](../PRD.md#module-9-calendar--scheduling)
-

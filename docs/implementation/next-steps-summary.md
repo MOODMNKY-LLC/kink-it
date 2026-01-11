@@ -36,13 +36,13 @@
 ### Immediate Actions
 
 1. **Add Service Role Key to `.env.local`**
-   ```bash
+   \`\`\`bash
    # Get the key from: supabase status
    SUPABASE_SERVICE_ROLE_KEY=sb_secret_N7UND0UgjKTVK-Uodkm0Hg_xSvEMPvz
-   ```
+   \`\`\`
 
 2. **Test Seed Script**
-   ```bash
+   \`\`\`bash
    # Option 1: Reset database and seed (SQL method)
    supabase db reset
    
@@ -51,7 +51,7 @@
    
    # Option 3: Reset and seed in one command
    pnpm seed:reset
-   ```
+   \`\`\`
 
 3. **Verify Seed Data**
    - Check Supabase Studio: http://127.0.0.1:55323
@@ -119,7 +119,7 @@
 
 ## 🔧 Development Commands
 
-```bash
+\`\`\`bash
 # Database
 supabase db reset          # Reset database and run migrations + seed.sql
 supabase migration list    # List applied migrations
@@ -136,7 +136,7 @@ pnpm dev:turbo            # Start with Turbopack
 
 # Building
 pnpm build                # Build for production
-```
+\`\`\`
 
 ---
 
@@ -158,9 +158,9 @@ When ready to deploy:
    - `supabase/migrations/20260105080000_create_tasks.sql`
 
 2. ⏳ Push migrations to production:
-   ```bash
+   \`\`\`bash
    supabase db push
-   ```
+   \`\`\`
 
 3. ⏳ Test Realtime subscriptions in production
 
@@ -171,8 +171,3 @@ When ready to deploy:
 ---
 
 **Status**: ✅ Ready for comprehensive testing with seed data
-
-
-
-
-

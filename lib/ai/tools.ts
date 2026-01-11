@@ -89,6 +89,3 @@ export function getTool(name: ToolName) {
 export function getAllTools() {
   return Object.values(toolRegistry)
 }
-
-
-

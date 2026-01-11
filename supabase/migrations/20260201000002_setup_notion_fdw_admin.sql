@@ -479,4 +479,3 @@ GRANT EXECUTE ON FUNCTION public.log_admin_fdw_access TO authenticated;
 COMMENT ON SCHEMA notion_fdw IS 'Private schema for Notion Foreign Data Wrapper tables. Not exposed via API.';
 -- Note: Foreign table and view comments are added dynamically when objects are created
 -- via setup_notion_fdw_tables() and create_admin_views() functions
-

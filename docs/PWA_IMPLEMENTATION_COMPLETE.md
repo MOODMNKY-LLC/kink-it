@@ -128,49 +128,49 @@ All phases of PWA and mobile optimization have been implemented for the KINK IT 
 
 ### 1. Generate PWA Icons (REQUIRED)
 
-```bash
+\`\`\`bash
 # Install sharp if not already installed
 pnpm add -D sharp
 
 # Generate all PWA icons
 pnpm run generate:pwa-icons
-```
+\`\`\`
 
 This will create all required icon sizes in `public/icons/` from `public/images/app-icon/kink-it-icon.png`.
 
 ### 2. Run Database Migration
 
-```bash
+\`\`\`bash
 # Apply push_subscriptions table migration
 supabase migration up
-```
+\`\`\`
 
 Or apply manually using the migration file:
 `supabase/migrations/20250106000000_create_push_subscriptions.sql`
 
 ### 3. Generate VAPID Keys for Push Notifications
 
-```bash
+\`\`\`bash
 # Install web-push if needed
 npm install -g web-push
 
 # Generate VAPID keys
 web-push generate-vapid-keys
-```
+\`\`\`
 
 Add to `.env.local`:
-```
+\`\`\`
 NEXT_PUBLIC_VAPID_PUBLIC_KEY=your-public-key
 VAPID_PRIVATE_KEY=your-private-key
-```
+\`\`\`
 
 ### 4. Test PWA Installation
 
 1. Build the app in production mode:
-   ```bash
+   \`\`\`bash
    pnpm run build
    pnpm start
-   ```
+   \`\`\`
 
 2. Test on Android Chrome:
    - Open app in Chrome
@@ -245,7 +245,7 @@ VAPID_PRIVATE_KEY=your-private-key
 
 ### Environment Variables Needed:
 
-```env
+\`\`\`env
 # Push Notifications (generate with web-push)
 NEXT_PUBLIC_VAPID_PUBLIC_KEY=your-public-key
 VAPID_PRIVATE_KEY=your-private-key
@@ -254,7 +254,7 @@ VAPID_PRIVATE_KEY=your-private-key
 NOTION_API_KEY=...
 DISCORD_BOT_TOKEN=...
 # etc.
-```
+\`\`\`
 
 ### Next.js Configuration:
 
@@ -304,6 +304,3 @@ For issues or questions:
 
 **Implementation Date**: January 2025
 **Status**: ✅ Complete - Ready for Testing
-
-
-

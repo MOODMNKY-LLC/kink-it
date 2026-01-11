@@ -417,4 +417,3 @@ export function parseMessageContent(content: string): ParsedMessage {
     hasStructuredContent: true,
   }
 }
-

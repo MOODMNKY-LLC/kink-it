@@ -74,4 +74,3 @@ export async function PUT(req: NextRequest) {
 
   return NextResponse.json({ google_account_email: profile?.google_account_email })
 }
-

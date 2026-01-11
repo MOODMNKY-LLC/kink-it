@@ -188,6 +188,3 @@ This document outlines the plan to lock in prompt control for image generation, 
 - All new generations will use props-based synthesis
 - No breaking changes to API (custom_prompt parameter will be ignored)
 - Backward compatible (old prompts still work, just not editable)
-
-
-

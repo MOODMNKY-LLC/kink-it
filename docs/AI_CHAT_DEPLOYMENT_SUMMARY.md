@@ -35,10 +35,10 @@
 **Problem**: `UNIQUE (user_id, is_primary) WHERE is_primary = true` syntax error
 
 **Solution**: Changed to unique index:
-```sql
+\`\`\`sql
 CREATE UNIQUE INDEX idx_kinksters_unique_primary 
 ON public.kinksters(user_id) WHERE is_primary = true;
-```
+\`\`\`
 
 **Status**: ✅ Fixed and applied
 
@@ -73,9 +73,9 @@ ON public.kinksters(user_id) WHERE is_primary = true;
 ## 📋 Manual Steps Required
 
 ### Set OpenAI API Key Secret
-```bash
+\`\`\`bash
 supabase secrets set OPENAI_API_KEY=your_key_here
-```
+\`\`\`
 
 Or via Supabase Dashboard:
 1. Go to Project Settings → Edge Functions → Secrets
@@ -125,6 +125,3 @@ Once migrations complete:
 **Status**: 95% Complete  
 **Blockers**: None (migrations will complete after retry)  
 **Ready for**: Testing
-
-
-

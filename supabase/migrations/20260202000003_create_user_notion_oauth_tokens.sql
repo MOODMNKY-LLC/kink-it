@@ -298,4 +298,3 @@ COMMENT ON COLUMN public.user_notion_oauth_tokens.expires_at IS 'When the access
 COMMENT ON COLUMN public.user_notion_oauth_tokens.bot_id IS 'Notion bot ID from OAuth response. Used as identifier for this authorization.';
 COMMENT ON COLUMN public.user_notion_oauth_tokens.workspace_id IS 'Notion workspace ID where authorization took place.';
 COMMENT ON COLUMN public.user_notion_oauth_tokens.duplicated_template_id IS 'ID of template page duplicated during OAuth flow, if provided.';
-

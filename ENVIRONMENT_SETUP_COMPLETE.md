@@ -87,12 +87,12 @@ All Notion credentials retrieved from your Notion credentials database:
 
 ## File Structure
 
-```
+\`\`\`
 C:\DEV-MNKY\MOOD_MNKY\kink-it\
 ├── .env.local           (Local Development - Git Ignored)
 ├── .env                 (Production Template - Git Ignored)
 └── .env.example         (Version Control Template)
-```
+\`\`\`
 
 ---
 
@@ -121,15 +121,15 @@ C:\DEV-MNKY\MOOD_MNKY\kink-it\
 ### For Local Development
 
 1. **Verify Supabase is Running**
-   ```powershell
+   \`\`\`powershell
    supabase status
-   ```
+   \`\`\`
    All services should show as "healthy"
 
 2. **Start Development Server**
-   ```powershell
+   \`\`\`powershell
    pnpm dev
-   ```
+   \`\`\`
    This will pick up the new `.env.local` variables
 
 3. **Test Authentication**
@@ -202,9 +202,9 @@ C:\DEV-MNKY\MOOD_MNKY\kink-it\
 ### If Authentication Doesn't Work
 
 1. **Check Supabase Status**
-   ```powershell
+   \`\`\`powershell
    supabase status
-   ```
+   \`\`\`
    Ensure all services are running
 
 2. **Verify Environment Variables**
@@ -276,6 +276,3 @@ All environment variables are now properly configured and organized! The project
 ---
 
 *For questions or issues, refer to the troubleshooting section above or check the Next Steps section.*
-
-
-

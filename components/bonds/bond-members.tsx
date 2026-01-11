@@ -424,6 +424,3 @@ export function BondMembers({ bondId, profile }: BondMembersProps) {
     </div>
   )
 }
-
-
-

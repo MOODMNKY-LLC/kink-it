@@ -7,33 +7,33 @@ This guide provides a clear, step-by-step action plan for completing PWA setup a
 ## 🎯 Quick Start (5 Minutes)
 
 ### Step 1: Install Dependencies
-```bash
+\`\`\`bash
 pnpm install
-```
+\`\`\`
 
 ### Step 2: Generate Icons
-```bash
+\`\`\`bash
 pnpm run generate:pwa-icons
-```
+\`\`\`
 
 ### Step 3: Generate VAPID Keys
-```bash
+\`\`\`bash
 pnpm run generate:vapid-keys
-```
+\`\`\`
 
 ### Step 4: Add Keys to .env.local
 Copy the generated VAPID keys to your `.env.local` file.
 
 ### Step 5: Run Migration
-```bash
+\`\`\`bash
 supabase migration up
-```
+\`\`\`
 
 ### Step 6: Build & Test
-```bash
+\`\`\`bash
 pnpm run build
 pnpm start
-```
+\`\`\`
 
 ---
 
@@ -42,18 +42,18 @@ pnpm start
 ### 1. Verify Setup
 
 Run the verification script to check all components:
-```bash
+\`\`\`bash
 pnpm run setup:pwa
-```
+\`\`\`
 
 Or use the automated setup script:
-```bash
+\`\`\`bash
 # Windows PowerShell
 .\scripts\setup-pwa.ps1
 
 # Unix/Linux/Mac
 ./scripts/setup-pwa.sh
-```
+\`\`\`
 
 ### 2. Generate PWA Icons
 
@@ -61,9 +61,9 @@ Or use the automated setup script:
 - Source icon exists at: `public/images/app-icon/kink-it-icon.png`
 
 **Command:**
-```bash
+\`\`\`bash
 pnpm run generate:pwa-icons
-```
+\`\`\`
 
 **Expected Output:**
 - Icons created in `public/icons/` directory
@@ -77,21 +77,21 @@ pnpm run generate:pwa-icons
 ### 3. Generate VAPID Keys
 
 **Option A: Using Script (Recommended)**
-```bash
+\`\`\`bash
 pnpm run generate:vapid-keys
-```
+\`\`\`
 
 **Option B: Using web-push CLI**
-```bash
+\`\`\`bash
 npm install -g web-push
 web-push generate-vapid-keys
-```
+\`\`\`
 
 **Expected Output:**
-```
+\`\`\`
 NEXT_PUBLIC_VAPID_PUBLIC_KEY=your-public-key
 VAPID_PRIVATE_KEY=your-private-key
-```
+\`\`\`
 
 **Action Required:**
 - Copy keys to `.env.local` file
@@ -100,9 +100,9 @@ VAPID_PRIVATE_KEY=your-private-key
 ### 4. Run Database Migration
 
 **Option A: Using Supabase CLI**
-```bash
+\`\`\`bash
 supabase migration up
-```
+\`\`\`
 
 **Option B: Manual SQL**
 1. Open Supabase Studio
@@ -115,21 +115,21 @@ supabase migration up
 - Indexes created
 
 **Verification:**
-```sql
+\`\`\`sql
 SELECT * FROM push_subscriptions LIMIT 1;
-```
+\`\`\`
 
 ### 5. Build Production Version
 
 **Build:**
-```bash
+\`\`\`bash
 pnpm run build
-```
+\`\`\`
 
 **Start Production Server:**
-```bash
+\`\`\`bash
 pnpm start
-```
+\`\`\`
 
 **Important Notes:**
 - Service worker only registers in production mode
@@ -184,9 +184,9 @@ pnpm start
 5. Verify notification received
 
 **Verification:**
-```sql
+\`\`\`sql
 SELECT * FROM push_subscriptions WHERE user_id = 'your-user-id';
-```
+\`\`\`
 
 ### 9. Run Lighthouse Audit
 
@@ -212,25 +212,25 @@ Follow the comprehensive testing checklist:
 ## 🔧 Troubleshooting
 
 ### Icons Not Generating
-```bash
+\`\`\`bash
 # Install sharp
 pnpm add -D sharp
 
 # Try again
 pnpm run generate:pwa-icons
-```
+\`\`\`
 
 ### VAPID Keys Not Generating
-```bash
+\`\`\`bash
 # Install web-push globally
 npm install -g web-push
 
 # Or use script (installs locally)
 pnpm run generate:vapid-keys
-```
+\`\`\`
 
 ### Migration Fails
-```bash
+\`\`\`bash
 # Check Supabase status
 supabase status
 
@@ -239,10 +239,10 @@ supabase db reset
 
 # Apply migrations
 supabase migration up
-```
+\`\`\`
 
 ### Service Worker Not Registering
-```bash
+\`\`\`bash
 # Ensure production build
 pnpm run build
 
@@ -250,7 +250,7 @@ pnpm run build
 pnpm start
 
 # Check browser console for errors
-```
+\`\`\`
 
 ### Push Notifications Not Working
 1. Verify VAPID keys in `.env.local`
@@ -315,6 +315,3 @@ Setup is complete when:
 
 **Last Updated**: January 2025
 **Status**: Ready for Execution
-
-
-

@@ -143,4 +143,3 @@ COMMENT ON COLUMN public.messages.embedding IS 'Vector embedding for semantic se
 -- Add comment explaining the search functions
 COMMENT ON FUNCTION public.search_messages_by_similarity IS 'Search messages by semantic similarity using cosine similarity. Returns messages similar to the query embedding.';
 COMMENT ON FUNCTION public.search_conversations_by_similarity IS 'Search conversations by finding conversations with messages similar to the query embedding.';
-

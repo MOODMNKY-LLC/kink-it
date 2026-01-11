@@ -16,32 +16,32 @@ These variables are already configured in Vercel production:
 These variables need to be added to Vercel production:
 
 ### Required for Notion OAuth Authentication
-```bash
+\`\`\`bash
 SUPABASE_AUTH_EXTERNAL_NOTION_CLIENT_ID=<value from .env.local>
 SUPABASE_AUTH_EXTERNAL_NOTION_SECRET=<value from .env.local>
-```
+\`\`\`
 
 ### Required for Onboarding
-```bash
+\`\`\`bash
 NEXT_PUBLIC_NOTION_TEMPLATE_URL=https://www.notion.so/mood-mnky/KINK-IT-User-Template-2dfcd2a6542281bcba14ffa2099160d8
-```
+\`\`\`
 
 ### Required for Discord OAuth Integration
-```bash
+\`\`\`bash
 DISCORD_CLIENT_ID=<value from .env.local>
 DISCORD_CLIENT_SECRET=<value from .env.local>
-```
+\`\`\`
 
 ### Required for Discord Webhooks
-```bash
+\`\`\`bash
 DISCORD_WEBHOOK_URL=<value from .env.local>
-```
+\`\`\`
 
 ### Optional: PWA Push Notifications
-```bash
+\`\`\`bash
 NEXT_PUBLIC_VAPID_PUBLIC_KEY=<value from .env.local>
 VAPID_PRIVATE_KEY=<value from .env.local>
-```
+\`\`\`
 
 ## 🚀 How to Add to Vercel Production
 
@@ -49,7 +49,7 @@ VAPID_PRIVATE_KEY=<value from .env.local>
 
 Run these commands one by one, and paste the values from your `.env.local` file when prompted:
 
-```bash
+\`\`\`bash
 # Notion OAuth (REQUIRED)
 vercel env add SUPABASE_AUTH_EXTERNAL_NOTION_CLIENT_ID production
 vercel env add SUPABASE_AUTH_EXTERNAL_NOTION_SECRET production
@@ -68,7 +68,7 @@ vercel env add DISCORD_WEBHOOK_URL production
 # PWA Push Notifications (OPTIONAL)
 vercel env add NEXT_PUBLIC_VAPID_PUBLIC_KEY production
 vercel env add VAPID_PRIVATE_KEY production
-```
+\`\`\`
 
 ### Option 2: Vercel Dashboard
 
@@ -102,9 +102,8 @@ vercel env add VAPID_PRIVATE_KEY production
 
 After adding variables, verify they're set:
 
-```bash
+\`\`\`bash
 vercel env ls production
-```
+\`\`\`
 
 You should see all the variables listed above in the output.
-

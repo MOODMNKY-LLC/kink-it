@@ -122,10 +122,10 @@ Resetting production will **DELETE ALL DATA** including:
 5. Or manually drop all tables and reapply migrations
 
 ### Option 2: Use Supabase Management API
-```bash
+\`\`\`bash
 # This would require API access and careful execution
 # Not recommended without proper backup
-```
+\`\`\`
 
 ### Option 3: Verify Alignment Only (Current State)
 Since migrations are already aligned, you may only need to:
@@ -166,24 +166,24 @@ Since migrations are already aligned, you may only need to:
 ## Verification Commands
 
 ### Check Migration Status
-```bash
+\`\`\`bash
 # Local
 supabase migration list
 
 # Production (linked)
 supabase migration list --linked
-```
+\`\`\`
 
 ### Verify Schema Alignment
-```bash
+\`\`\`bash
 # Check for schema differences
 supabase db pull --linked
-```
+\`\`\`
 
 ### Reset Local (if needed again)
-```bash
+\`\`\`bash
 supabase db reset
-```
+\`\`\`
 
 ---
 
@@ -201,4 +201,3 @@ supabase db reset
 **Local Database**: Reset Complete ✅  
 **Production Database**: Migrations Aligned ✅  
 **Action Required**: Manual production reset if desired ⚠️
-

@@ -15,13 +15,13 @@ Complete testing checklist for verifying PWA implementation and mobile optimizat
 - [ ] Production server running (`pnpm start`)
 
 ### Verification:
-```bash
+\`\`\`bash
 # Run verification script
 pnpm run setup:pwa
 
 # Or manually verify
 node scripts/verify-pwa-setup.js
-```
+\`\`\`
 
 ---
 
@@ -291,7 +291,7 @@ node scripts/verify-pwa-setup.js
 
 ## 📊 Test Results Template
 
-```
+\`\`\`
 Date: ___________
 Tester: ___________
 Browser: ___________
@@ -317,12 +317,9 @@ Issues Found:
 
 Notes:
 ___________
-```
+\`\`\`
 
 ---
 
 **Last Updated**: January 2025
 **Status**: Ready for Testing
-
-
-

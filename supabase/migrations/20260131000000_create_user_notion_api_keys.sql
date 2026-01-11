@@ -232,5 +232,3 @@ COMMENT ON TABLE public.user_notion_api_keys IS 'Stores encrypted Notion API key
 COMMENT ON COLUMN public.user_notion_api_keys.encrypted_key IS 'Encrypted API key using pgcrypto pgp_sym_encrypt';
 COMMENT ON COLUMN public.user_notion_api_keys.key_hash IS 'First 8 characters of the API key for display/validation purposes';
 COMMENT ON COLUMN public.user_notion_api_keys.last_validated_at IS 'Timestamp when the key was last validated against Notion API';
-
-

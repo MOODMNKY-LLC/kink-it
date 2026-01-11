@@ -118,7 +118,7 @@
 
 ### Trigger Recovery Flow
 
-```tsx
+\`\`\`tsx
 import { DataRecoveryFlow } from "@/components/notion/data-recovery-flow"
 
 function SettingsPage() {
@@ -136,11 +136,11 @@ function SettingsPage() {
     </>
   )
 }
-```
+\`\`\`
 
 ### Programmatic Retrieval
 
-```typescript
+\`\`\`typescript
 const response = await fetch("/api/notion/retrieve-from-database", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
@@ -153,13 +153,13 @@ const response = await fetch("/api/notion/retrieve-from-database", {
 
 const result = await response.json()
 // result contains: retrieved, matched, conflicts, etc.
-```
+\`\`\`
 
 ---
 
 ## 📊 Architecture Overview
 
-```
+\`\`\`
 User Action
     ↓
 DataRecoveryFlow Component
@@ -185,7 +185,7 @@ resolveConflicts (conflict-resolution-service)
 Update Supabase & Notion
     ↓
 Update sync status
-```
+\`\`\`
 
 ---
 

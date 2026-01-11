@@ -252,5 +252,3 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
     </div>
   )
 }
-
-

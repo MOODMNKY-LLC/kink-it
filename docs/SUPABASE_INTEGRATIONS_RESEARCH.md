@@ -143,15 +143,15 @@ Supabase offers integrations with:
      - Idea search
      - Better search UX
    - **Installation**:
-     ```sql
+     \`\`\`sql
      CREATE EXTENSION IF NOT EXISTS pg_trgm;
-     ```
+     \`\`\`
    - **Usage Example**:
-     ```sql
+     \`\`\`sql
      SELECT * FROM kinksters 
      WHERE name % 'kinky'  -- Fuzzy match
      ORDER BY similarity(name, 'kinky') DESC;
-     ```
+     \`\`\`
 
 2. **pg_stat_statements** (Query Statistics)
    - **Purpose**: Performance monitoring
@@ -160,9 +160,9 @@ Supabase offers integrations with:
      - Optimize database performance
      - Monitor query patterns
    - **Installation**:
-     ```sql
+     \`\`\`sql
      CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
-     ```
+     \`\`\`
 
 ### Medium Priority
 
@@ -244,4 +244,3 @@ Supabase offers integrations with:
 **Date**: 2025-02-01
 **Author**: CODE MNKY
 **Status**: Research Complete
-

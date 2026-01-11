@@ -66,7 +66,7 @@ The comprehensive image management and generation system has been successfully b
 
 ## 📁 File Structure
 
-```
+\`\`\`
 supabase/migrations/
   └── 20260131000005_create_task_proof_storage_bucket.sql
 
@@ -81,7 +81,7 @@ components/
 
 lib/image/
   └── shared-utils.ts (new)
-```
+\`\`\`
 
 ---
 
@@ -169,7 +169,7 @@ lib/image/
 ## 📊 Database Schema
 
 ### task_proof Table
-```sql
+\`\`\`sql
 CREATE TABLE task_proof (
   id uuid PRIMARY KEY,
   task_id uuid REFERENCES tasks(id),
@@ -179,22 +179,22 @@ CREATE TABLE task_proof (
   submitted_at timestamptz,
   created_by uuid REFERENCES profiles(id)
 );
-```
+\`\`\`
 
 ### kinksters Table (existing)
-```sql
+\`\`\`sql
 -- Avatar fields already exist:
 avatar_url text,
 avatar_prompt text,
 avatar_generation_config jsonb
-```
+\`\`\`
 
 ---
 
 ## 🚀 Usage Examples
 
 ### Proof Upload
-```tsx
+\`\`\`tsx
 <ProofUpload
   taskId={task.id}
   existingProof={task.proof_url}
@@ -202,10 +202,10 @@ avatar_generation_config jsonb
     // Handle upload completion
   }}
 />
-```
+\`\`\`
 
 ### Avatar Management
-```tsx
+\`\`\`tsx
 <AvatarManagement
   kinksterId={kinkster.id}
   userId={user.id}
@@ -215,10 +215,10 @@ avatar_generation_config jsonb
     // Handle avatar update
   }}
 />
-```
+\`\`\`
 
 ### Shared Utilities
-```typescript
+\`\`\`typescript
 import { buildAvatarPrompt, validateProofFile } from '@/lib/image/shared-utils'
 
 // Build prompt
@@ -229,7 +229,7 @@ const validation = validateProofFile(file)
 if (!validation.valid) {
   console.error(validation.error)
 }
-```
+\`\`\`
 
 ---
 
@@ -300,6 +300,3 @@ if (!validation.valid) {
 **Status**: ✅ Implementation Complete  
 **Ready For**: Testing and integration  
 **Next Review**: After user testing feedback
-
-
-

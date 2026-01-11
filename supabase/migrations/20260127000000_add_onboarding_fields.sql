@@ -62,7 +62,3 @@ COMMENT ON COLUMN public.profiles.onboarding_completed IS 'Whether user has comp
 COMMENT ON COLUMN public.profiles.onboarding_step IS 'Current step in onboarding process (1-5)';
 COMMENT ON COLUMN public.profiles.onboarding_data IS 'Additional onboarding data stored as JSON';
 COMMENT ON TABLE public.notion_databases IS 'Tracks Notion databases discovered during onboarding';
-
-
-
-

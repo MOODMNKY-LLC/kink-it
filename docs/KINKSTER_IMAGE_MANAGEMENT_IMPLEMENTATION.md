@@ -22,12 +22,12 @@ Comprehensive image management system for KINKSTER avatars, implementing persist
 - **Allowed MIME Types**: `image/png`, `image/jpeg`, `image/webp`, `image/jpg`
 
 **File Organization Structure**:
-```
+\`\`\`
 kinkster-avatars/
   └── {user_id}/
       └── kinksters/
           └── avatar_{timestamp}_{kinkster_id}.{ext}
-```
+\`\`\`
 
 ### Security (RLS Policies)
 
@@ -38,7 +38,7 @@ kinkster-avatars/
 
 ### Image Pipeline
 
-```
+\`\`\`
 OpenAI DALL-E 3 Generation
     ↓
 Download Image (fetch)
@@ -50,7 +50,7 @@ Upload to Supabase Storage
 Get Public URL
     ↓
 Store URL in Database
-```
+\`\`\`
 
 ---
 
@@ -77,7 +77,7 @@ Creates:
 - Fallback: Returns OpenAI URL with warning if storage fails
 
 **Response Format**:
-```json
+\`\`\`json
 {
   "image_url": "https://{project}.supabase.co/storage/v1/object/public/kinkster-avatars/...",
   "storage_url": "https://{project}.supabase.co/storage/v1/object/public/kinkster-avatars/...",
@@ -86,7 +86,7 @@ Creates:
   "prompt": "...",
   "generation_config": { ... }
 }
-```
+\`\`\`
 
 ### 3. Manual Image Storage Route
 
@@ -95,13 +95,13 @@ Creates:
 **Purpose**: Store any image URL in Supabase Storage (useful for manual uploads or migration)
 
 **Usage**:
-```typescript
+\`\`\`typescript
 POST /api/kinksters/avatar/store
 {
   "image_url": "https://...",
   "kinkster_id": "optional-uuid"
 }
-```
+\`\`\`
 
 ---
 
@@ -111,7 +111,7 @@ POST /api/kinksters/avatar/store
 
 Supabase Storage provides on-the-fly image transformation:
 
-```typescript
+\`\`\`typescript
 // Get optimized image URL
 const { data } = supabase.storage
   .from('kinkster-avatars')
@@ -123,19 +123,19 @@ const { data } = supabase.storage
       format: 'webp'
     }
   })
-```
+\`\`\`
 
 ### Next.js Image Component Integration
 
 Create custom loader for Next.js Image component:
 
-```typescript
+\`\`\`typescript
 // lib/supabase-image-loader.ts
 export default function supabaseImageLoader({ src, width, quality }) {
   const projectId = process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0]
   return `https://${projectId}.supabase.co/storage/v1/object/public/kinkster-avatars/${src}?width=${width}&quality=${quality || 75}`
 }
-```
+\`\`\`
 
 ---
 
@@ -151,9 +151,9 @@ The `kinksters` table already includes:
 ### Migration Required
 
 Run migration to create storage bucket:
-```bash
+\`\`\`bash
 supabase migration up 20260131000002_create_kinkster_storage_bucket
-```
+\`\`\`
 
 ---
 
@@ -161,7 +161,7 @@ supabase migration up 20260131000002_create_kinkster_storage_bucket
 
 ### Generate and Store Avatar
 
-```typescript
+\`\`\`typescript
 // In avatar generation step
 const response = await fetch('/api/kinksters/avatar/generate', {
   method: 'POST',
@@ -176,11 +176,11 @@ const response = await fetch('/api/kinksters/avatar/generate', {
 
 const { image_url, storage_url } = await response.json()
 // image_url is now Supabase Storage URL (persistent)
-```
+\`\`\`
 
 ### Display Avatar with Optimization
 
-```typescript
+\`\`\`typescript
 import Image from 'next/image'
 import supabaseImageLoader from '@/lib/supabase-image-loader'
 
@@ -191,7 +191,7 @@ import supabaseImageLoader from '@/lib/supabase-image-loader'
   height={512}
   alt={kinkster.name}
 />
-```
+\`\`\`
 
 ---
 
@@ -271,6 +271,3 @@ If OpenAI image download fails:
 
 **Last Updated**: 2026-01-31  
 **Status**: Implementation Complete, Migration Pending
-
-
-

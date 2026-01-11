@@ -199,6 +199,3 @@ export function getPromptStats(prompt: string): {
     hasBaraStyle: prompt.toLowerCase().includes("bara"),
   }
 }
-
-
-

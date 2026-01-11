@@ -65,4 +65,3 @@ export function BokehEffect({ className, count = 20 }: BokehEffectProps) {
     </div>
   )
 }
-

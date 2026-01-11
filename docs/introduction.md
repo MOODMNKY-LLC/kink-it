@@ -115,6 +115,3 @@ Need help? We're here for you:
 ---
 
 Welcome to KINK IT. Let's build something beautiful together.
-
-
-

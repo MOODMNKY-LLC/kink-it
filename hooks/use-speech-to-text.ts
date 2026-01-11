@@ -170,5 +170,3 @@ declare global {
     webkitSpeechRecognition: typeof SpeechRecognition
   }
 }
-
-

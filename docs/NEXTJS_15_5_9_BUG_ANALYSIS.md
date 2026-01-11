@@ -9,11 +9,11 @@
 ### 1. GitHub Issues Confirm Bug Status
 
 - **Issue #65290** (May 2024): Labeled as "bug" - Reports exact same error pattern:
-  ```
+  \`\`\`
   Error: <Html> should not be imported outside of pages/_document
   Error occurred prerendering page "/404"
   Error occurred prerendering page "/500"
-  ```
+  \`\`\`
 
 - **Issue #55804** (September 2023): Older issue showing similar error pattern, suggesting this is a recurring problem
 

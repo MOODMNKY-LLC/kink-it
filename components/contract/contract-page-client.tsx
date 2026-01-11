@@ -309,4 +309,3 @@ export function ContractPageClient({ userId, userRole, bondId }: ContractPageCli
     </div>
   )
 }
-

@@ -18,7 +18,7 @@
 
 ### The Integration Status Endpoint Logic (CORRECT):
 
-```typescript
+\`\`\`typescript
 // Line 98-105: Checks authenticated user's API key
 const { data: apiKeys } = await supabase
   .from("user_notion_api_keys")
@@ -44,7 +44,7 @@ const { data: syncedDatabases } = await supabase
 
 // Line 340: Sets connected: true only if API key exists and works
 connected: true, // ← Only set if API key retrieved successfully ✅
-```
+\`\`\`
 
 ### Why User Sees "Connection" But No Databases:
 
@@ -71,10 +71,10 @@ connected: true, // ← Only set if API key retrieved successfully ✅
 ### Step 1: Verify What User Actually Sees
 
 Check the frontend component:
-```typescript
+\`\`\`typescript
 // app/account/settings/notion-integration-status/page.tsx
 // How does it display "connection" status?
-```
+\`\`\`
 
 ### Step 2: Check If User Has API Key
 
@@ -86,10 +86,10 @@ If user sees "connection", they likely have:
 ### Step 3: Ensure Sync Process Works
 
 The sync should happen during onboarding:
-```typescript
+\`\`\`typescript
 // POST /api/onboarding/notion/sync-template
 // Should discover and store databases
-```
+\`\`\`
 
 ---
 
@@ -97,7 +97,7 @@ The sync should happen during onboarding:
 
 ### 1. Check Authenticated User's Data
 
-```sql
+\`\`\`sql
 -- Check if user has API key
 SELECT * FROM user_notion_api_keys 
 WHERE user_id = 'USER-ID-FROM-AUTH';
@@ -105,11 +105,11 @@ WHERE user_id = 'USER-ID-FROM-AUTH';
 -- Check if user has synced databases
 SELECT * FROM notion_databases 
 WHERE user_id = 'USER-ID-FROM-AUTH';
-```
+\`\`\`
 
 ### 2. Test Integration Status Endpoint
 
-```bash
+\`\`\`bash
 # Call endpoint as authenticated user
 GET /api/notion/integration-status
 
@@ -119,16 +119,16 @@ GET /api/notion/integration-status
   "synced_databases_count": 0, // ← This is the issue
   "databases": []
 }
-```
+\`\`\`
 
 ### 3. Test Sync Process
 
-```bash
+\`\`\`bash
 # If user has API key but no databases:
 POST /api/onboarding/notion/sync-template
 
 # Should discover and store databases
-```
+\`\`\`
 
 ---
 
@@ -142,9 +142,9 @@ POST /api/onboarding/notion/sync-template
 3. Databases will be discovered and stored
 
 **Or manually trigger sync**:
-```bash
+\`\`\`bash
 POST /api/onboarding/notion/sync-template
-```
+\`\`\`
 
 ### If Frontend Shows Wrong Status:
 
@@ -172,5 +172,3 @@ POST /api/onboarding/notion/sync-template
 2. Check if sync-template endpoint works
 3. Ensure onboarding flow triggers sync
 4. Verify databases are stored correctly
-
-

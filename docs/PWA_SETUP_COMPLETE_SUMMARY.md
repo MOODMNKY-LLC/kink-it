@@ -14,10 +14,10 @@
 - ✅ **Next Step**: Copy keys to `.env.local` file
 
 **Generated Keys:**
-```
+\`\`\`
 NEXT_PUBLIC_VAPID_PUBLIC_KEY=BOL8s7L4B0zE9ZwY0tsno1GYg7nhv_EF5zndJ1B0OSypA9dRp3edJBtqQAuN46kwFAtAaxhstpBrwWrz0zx2dCM
 VAPID_PRIVATE_KEY=sn3Yp_b8LAPzG8eLSUw3Vl4QKzVQNiLOnb_tgYstIAo
-```
+\`\`\`
 
 ### 📱 Metadata & Social Sharing
 - ✅ **Open Graph**: Configured with banner image
@@ -37,26 +37,26 @@ VAPID_PRIVATE_KEY=sn3Yp_b8LAPzG8eLSUw3Vl4QKzVQNiLOnb_tgYstIAo
 
 ### 1. Add VAPID Keys to .env.local
 Copy the generated keys from `.env.vapid.keys` to your `.env.local` file:
-```env
+\`\`\`env
 NEXT_PUBLIC_VAPID_PUBLIC_KEY=BOL8s7L4B0zE9ZwY0tsno1GYg7nhv_EF5zndJ1B0OSypA9dRp3edJBtqQAuN46kwFAtAaxhstpBrwWrz0zx2dCM
 VAPID_PRIVATE_KEY=sn3Yp_b8LAPzG8eLSUw3Vl4QKzVQNiLOnb_tgYstIAo
-```
+\`\`\`
 
 ### 2. Generate Splash Screens (Optional but Recommended)
-```bash
+\`\`\`bash
 pnpm run generate:splash-screens
-```
+\`\`\`
 
 ### 3. Run Database Migration
-```bash
+\`\`\`bash
 supabase migration up
-```
+\`\`\`
 
 ### 4. Build & Test
-```bash
+\`\`\`bash
 pnpm run build
 pnpm start
-```
+\`\`\`
 
 ---
 
@@ -85,9 +85,9 @@ pnpm start
 ## 📊 Verification
 
 Run verification to check everything:
-```bash
+\`\`\`bash
 pnpm run setup:pwa
-```
+\`\`\`
 
 Expected output:
 - ✅ Manifest file exists
@@ -114,6 +114,3 @@ Your PWA is now ready with:
 
 **Last Updated**: January 2025
 **Status**: ✅ Complete - Ready for Testing
-
-
-

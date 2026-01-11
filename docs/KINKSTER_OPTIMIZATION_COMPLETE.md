@@ -50,7 +50,7 @@ Comprehensive optimization of the KINKSTER avatar generation system using Supaba
 
 ### 1. Run Migrations
 
-```bash
+\`\`\`bash
 # Run all migrations
 supabase migration up
 
@@ -58,39 +58,39 @@ supabase migration up
 # - 20260131000002_create_kinkster_storage_bucket.sql
 # - 20260131000003_create_avatar_management_functions.sql
 # - 20260131000004_add_avatar_realtime_policies.sql
-```
+\`\`\`
 
 ### 2. Set Edge Function Secret
 
-```bash
+\`\`\`bash
 # Set OpenAI API key as Edge Function secret
 supabase secrets set OPENAI_API_KEY=your-openai-api-key
 
 # For production:
 supabase secrets set OPENAI_API_KEY=your-key --project-ref your-project-ref
-```
+\`\`\`
 
 ### 3. Deploy Edge Function
 
-```bash
+\`\`\`bash
 # Deploy the function
 supabase functions deploy generate-kinkster-avatar
 
 # For production:
 supabase functions deploy generate-kinkster-avatar --project-ref your-project-ref
-```
+\`\`\`
 
 ### 4. Test End-to-End
 
 1. **Start Supabase** (if local):
-   ```bash
+   \`\`\`bash
    supabase start
-   ```
+   \`\`\`
 
 2. **Serve Edge Function** (if local):
-   ```bash
+   \`\`\`bash
    supabase functions serve generate-kinkster-avatar
-   ```
+   \`\`\`
 
 3. **Test Avatar Generation**:
    - Navigate to character creation
@@ -104,7 +104,7 @@ supabase functions deploy generate-kinkster-avatar --project-ref your-project-re
 
 ## 📊 Architecture Overview
 
-```
+\`\`\`
 ┌─────────┐
 │ Client  │
 └────┬────┘
@@ -130,7 +130,7 @@ supabase functions deploy generate-kinkster-avatar --project-ref your-project-re
 │  Client Receives    │
 │  Progress Updates   │
 └─────────────────────┘
-```
+\`\`\`
 
 ---
 
@@ -206,6 +206,3 @@ All components are implemented and ready for testing. The system provides:
 ---
 
 **Last Updated**: 2026-01-31
-
-
-

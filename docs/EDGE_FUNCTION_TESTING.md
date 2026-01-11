@@ -12,9 +12,9 @@ All three edge functions are accessible and responding:
 
 #### 1. chat-stream Function
 **Error:** Foreign key constraint violation
-```
+\`\`\`
 Key (user_id)=(00000000-0000-0000-0000-000000000000) is not present in table "profiles"
-```
+\`\`\`
 
 **Root Cause:** 
 - The function requires a valid `user_id` that exists in the `profiles` table
@@ -41,7 +41,7 @@ Key (user_id)=(00000000-0000-0000-0000-000000000000) is not present in table "pr
 ## Testing Commands
 
 ### Test chat-stream (requires valid user_id)
-```bash
+\`\`\`bash
 # Get a real user_id from Supabase Studio first
 USER_ID="<actual-user-uuid-from-profiles-table>"
 
@@ -54,10 +54,10 @@ curl -k -X POST "https://127.0.0.1:55321/functions/v1/chat-stream" \
     "messages": [{"role": "user", "content": "Hello"}],
     "stream": true
   }'
-```
+\`\`\`
 
 ### Test generate-kinkster-avatar
-```bash
+\`\`\`bash
 curl -k -X POST "https://127.0.0.1:55321/functions/v1/generate-kinkster-avatar" \
   -H "apikey: <anon-key>" \
   -H "Content-Type: application/json" \
@@ -69,7 +69,7 @@ curl -k -X POST "https://127.0.0.1:55321/functions/v1/generate-kinkster-avatar" 
       "appearance_description": "Test description"
     }
   }'
-```
+\`\`\`
 
 ## Frontend Integration Issues
 
@@ -93,26 +93,26 @@ curl -k -X POST "https://127.0.0.1:55321/functions/v1/generate-kinkster-avatar" 
 ## Debugging Steps
 
 1. **Check Edge Function Logs**
-   ```bash
+   \`\`\`bash
    docker logs supabase_edge_runtime_KINK-IT -f
-   ```
+   \`\`\`
 
 2. **Check Database Logs**
-   ```bash
+   \`\`\`bash
    docker logs supabase_db_KINK-IT 2>&1 | grep -i error
-   ```
+   \`\`\`
 
 3. **Verify Environment Variables**
-   ```bash
+   \`\`\`bash
    # Check Supabase status
    supabase status
    
    # Check if secrets are set (if available)
    supabase secrets list
-   ```
+   \`\`\`
 
 4. **Test Function Directly**
-   ```bash
+   \`\`\`bash
    # Start function in serve mode
    supabase functions serve chat-stream --no-verify-jwt
    
@@ -121,7 +121,7 @@ curl -k -X POST "https://127.0.0.1:55321/functions/v1/generate-kinkster-avatar" 
      -H "apikey: <anon-key>" \
      -H "Content-Type: application/json" \
      -d '{"user_id":"<valid-user-id>","messages":[{"role":"user","content":"test"}]}'
-   ```
+   \`\`\`
 
 ## Fixes Applied
 
@@ -154,10 +154,9 @@ curl -k -X POST "https://127.0.0.1:55321/functions/v1/generate-kinkster-avatar" 
 - `OPENAI_API_KEY` - Must be set in `.env.local` and available to edge functions
 
 ### To Set Secrets for Edge Functions:
-```bash
+\`\`\`bash
 # If Supabase CLI supports it:
 supabase secrets set OPENAI_API_KEY=<your-key>
 
 # Or ensure it's in .env.local and restart Supabase
-```
-
+\`\`\`

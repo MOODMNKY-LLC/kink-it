@@ -227,4 +227,3 @@ VALUES
   (gen_random_uuid(), NULL, 'favorite', 'status', '#ef4444'),
   (gen_random_uuid(), NULL, 'work-in-progress', 'status', '#f97316')
 ON CONFLICT DO NOTHING;
-

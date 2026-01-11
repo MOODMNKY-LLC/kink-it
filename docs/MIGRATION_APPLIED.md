@@ -40,7 +40,7 @@
 
 To verify everything is working:
 
-```sql
+\`\`\`sql
 -- Check if profiles table exists
 SELECT * FROM information_schema.tables 
 WHERE table_schema = 'public' AND table_name = 'profiles';
@@ -51,7 +51,7 @@ WHERE tgname = 'on_auth_user_created';
 
 -- After logging in, check your profile
 SELECT * FROM public.profiles;
-```
+\`\`\`
 
 ### Error Resolution
 
@@ -61,8 +61,3 @@ The error `"Could not find the table 'public.profiles' in the schema cache"` has
 3. Configuring RLS policies for security
 
 The app should now work correctly when you log in!
-
-
-
-
-

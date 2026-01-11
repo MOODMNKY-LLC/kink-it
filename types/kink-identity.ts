@@ -55,6 +55,3 @@ export interface KinkIdentity {
   scene_preferences: string[]
   kink_identity_public: boolean
 }
-
-
-

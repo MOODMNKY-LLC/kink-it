@@ -115,7 +115,3 @@ export async function PATCH(
 
   return NextResponse.json({ reward: updatedReward })
 }
-
-
-
-

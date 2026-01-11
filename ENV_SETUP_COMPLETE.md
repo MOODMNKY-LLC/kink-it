@@ -22,7 +22,7 @@ All environment variable files have been successfully created and populated with
 
 ### Supabase Local Development Status
 
-```
+\`\`\`
 ✅ Studio:          http://127.0.0.1:55323
 ✅ Mailpit:         http://127.0.0.1:55324
 ✅ MCP:             http://127.0.0.1:55321/mcp
@@ -31,42 +31,42 @@ All environment variable files have been successfully created and populated with
 ✅ GraphQL:         http://127.0.0.1:55321/graphql/v1
 ✅ Edge Functions:  http://127.0.0.1:55321/functions/v1
 ✅ Database:        postgresql://postgres:postgres@127.0.0.1:55432/postgres
-```
+\`\`\`
 
 ### Authentication Keys (Local)
 
-```
+\`\`\`
 ✅ Publishable Key: sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH
 ✅ Secret Key:      sb_secret_N7UND0UgjKTVK-Uodkm0Hg_xSvEMPvz
 ✅ Anon Key:        eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ✅ Service Role:    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+\`\`\`
 
 ### Storage (S3 Compatible - Local)
 
-```
+\`\`\`
 ✅ URL:        http://127.0.0.1:55321/storage/v1/s3
 ✅ Access Key: 625729a08b95bf1b7ff351a663f3a23c
 ✅ Secret Key: 850181e4652dd023b7a98c58ae0d2d34bd487ee0cc3254aed6eda37307425907
 ✅ Region:     local
-```
+\`\`\`
 
 ### Notion Integration
 
-```
+\`\`\`
 ✅ API Key:              YOUR_NOTION_API_KEY_HERE
 ✅ Database ID:          YOUR_NOTION_DATABASE_ID_HERE
 ✅ OAuth Client ID:      YOUR_NOTION_OAUTH_CLIENT_ID_HERE
 ✅ OAuth Client Secret:  YOUR_NOTION_OAUTH_CLIENT_SECRET_HERE
-```
+\`\`\`
 
 ### Production URLs
 
-```
+\`\`\`
 ✅ Production URL:       https://kink-it.moodmnky.com
 ✅ Supabase Project:     https://rbloeqwxivfzxmfropek.supabase.co
 ✅ Auth Callback:        https://kink-it.moodmnky.com/auth/callback
-```
+\`\`\`
 
 ---
 
@@ -195,7 +195,7 @@ All environment variable files have been successfully created and populated with
 
 To verify your environment setup:
 
-```powershell
+\`\`\`powershell
 # Check Supabase status
 supabase status
 
@@ -212,7 +212,7 @@ Select-String -Path .env -Pattern "NEXT_PUBLIC_SUPABASE_URL|NEXT_PUBLIC_PRODUCTI
 
 # Start development server
 pnpm dev
-```
+\`\`\`
 
 ---
 
@@ -262,9 +262,9 @@ Your KINK IT project is now fully configured with:
 
 **You can now start the development server and begin testing authentication!**
 
-```powershell
+\`\`\`powershell
 pnpm dev
-```
+\`\`\`
 
 Then visit: http://localhost:3000
 
@@ -273,6 +273,3 @@ Then visit: http://localhost:3000
 **Generated**: January 4, 2026  
 **Project**: KINK IT v0.1.0  
 **Environment**: Local Development + Production Ready
-
-
-

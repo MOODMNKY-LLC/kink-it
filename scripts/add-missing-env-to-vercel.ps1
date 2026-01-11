@@ -154,4 +154,3 @@ if ($missingOptional.Count -gt 0) {
 
 Write-Host "`n✅ Environment variable sync complete!`n" -ForegroundColor Green
 Write-Host "Verify with: vercel env ls production`n" -ForegroundColor Gray
-

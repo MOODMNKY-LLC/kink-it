@@ -276,4 +276,3 @@ export async function hasNotionOAuthTokens(userId: string): Promise<boolean> {
 
   return !error && !!data
 }
-

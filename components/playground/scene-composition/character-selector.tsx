@@ -312,5 +312,3 @@ export function CharacterSelector({
     </Card>
   )
 }
-
-

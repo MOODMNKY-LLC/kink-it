@@ -2,7 +2,7 @@
 
 ## Complete Setup Flow
 
-```
+\`\`\`
 ┌─────────────────────────────────────────────────────────────┐
 │  STEP 1: Discord Developer Portal                          │
 │  ─────────────────────────────────────────────────────────  │
@@ -112,13 +112,13 @@
                           │
                           ▼
                     ✅ SETUP COMPLETE!
-```
+\`\`\`
 
 ## Permission Selection Visual Guide
 
 ### In OAuth2 URL Generator:
 
-```
+\`\`\`
 ┌─────────────────────────────────────────┐
 │  SCOPES                                 │
 │  ┌───────────────────────────────────┐ │
@@ -143,11 +143,11 @@
 │  Generated URL:                         │
 │  https://discord.com/api/oauth2/...     │
 └─────────────────────────────────────────┘
-```
+\`\`\`
 
 ## Credential Collection Checklist
 
-```
+\`\`\`
 Developer Portal → General Information
 ├── Application ID ──────────────→ DISCORD_APPLICATION_ID
 ├── Public Key ──────────────────→ DISCORD_PUBLIC_KEY
@@ -161,22 +161,22 @@ Developer Portal → OAuth2
 
 Discord Server → Webhook
 └── Webhook URL ──────────────────→ DISCORD_WEBHOOK_URL ✅ (already have)
-```
+\`\`\`
 
 ## Permission Integer Reference
 
 ### Minimum (Required)
-```
+\`\`\`
 1024  (View Channels)
 + 2048  (Send Messages)
 + 65536 (Read Message History)
 ─────────────────────
 = 68608 (decimal)
 = 0x10C00 (hex)
-```
+\`\`\`
 
 ### Recommended (Full Functionality)
-```
+\`\`\`
 68608 (Minimum)
 + 536870912 (Manage Webhooks)
 + 16384 (Embed Links)
@@ -184,31 +184,31 @@ Discord Server → Webhook
 ─────────────────────
 = 536951424 (decimal)
 = 0x20010C00 (hex)
-```
+\`\`\`
 
 ## Quick Command Reference
 
 ### PowerShell (Windows)
-```powershell
+\`\`\`powershell
 # Export bot token for MCP
 $env:DISCORD_TOKEN = $env:DISCORD_BOT_TOKEN
 
 # Or from .env.local
 $env:DISCORD_TOKEN = (Get-Content .env.local | Select-String "DISCORD_BOT_TOKEN").ToString().Split("=")[1]
-```
+\`\`\`
 
 ### Bash/Zsh (Linux/Mac)
-```bash
+\`\`\`bash
 # Export bot token for MCP
 export DISCORD_TOKEN=$DISCORD_BOT_TOKEN
 
 # Or from .env.local
 export $(grep DISCORD_BOT_TOKEN .env.local | xargs)
-```
+\`\`\`
 
 ## Testing Checklist
 
-```
+\`\`\`
 ┌─────────────────────────────────────┐
 │  Test 1: Webhook                    │
 │  ✅ Already tested and working      │
@@ -234,11 +234,11 @@ export $(grep DISCORD_BOT_TOKEN .env.local | xargs)
 │  ☐ Can send messages via MCP        │
 │  ☐ Error handling works              │
 └─────────────────────────────────────┘
-```
+\`\`\`
 
 ## Next Steps After Setup
 
-```
+\`\`\`
 1. ✅ Complete bot setup
    │
    ├─→ 2. Store credentials in .env.local
@@ -253,12 +253,8 @@ export $(grep DISCORD_BOT_TOKEN .env.local | xargs)
        ├─→ Implement notification service
        ├─→ Set up event triggers
        └─→ Test end-to-end flow
-```
+\`\`\`
 
 ---
 
 **Follow the detailed guide**: `docs/DISCORD_BOT_SETUP_GUIDE.md`
-
-
-
-

@@ -65,4 +65,3 @@ export function getKinkyFullName(): string {
 export function getKinkyTitle(): string {
   return "The Digital Guide"
 }
-

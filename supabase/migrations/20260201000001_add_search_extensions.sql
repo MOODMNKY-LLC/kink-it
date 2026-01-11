@@ -24,4 +24,3 @@ END $$;;
 -- Comment: These extensions and indexes will improve search functionality
 -- and help monitor database performance. The trigram indexes enable
 -- fuzzy matching for better user experience when searching.
-

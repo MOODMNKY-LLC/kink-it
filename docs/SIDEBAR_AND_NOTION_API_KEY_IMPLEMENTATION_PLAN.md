@@ -39,14 +39,14 @@ No database changes required for sidebar differentiation, as the existing `profi
 The sidebar implementation will utilize a component composition pattern that separates navigation configuration from rendering logic. Two primary navigation configurations will be defined: one for admin users and one for regular users. The component will conditionally render the appropriate configuration based on the user's `system_role`.
 
 **File Structure:**
-```
+\`\`\`
 components/dashboard/sidebar/
 ├── index.tsx (main sidebar component)
 ├── admin-navigation.tsx (admin navigation configuration)
 ├── user-navigation.tsx (user navigation configuration)
 ├── context-switcher.tsx (new context switcher component)
 └── navigation-item.tsx (reusable navigation item component)
-```
+\`\`\`
 
 **Key Implementation Details:**
 
@@ -120,7 +120,7 @@ The context switcher will be implemented as a header component within the sideba
 
 **New Table: `user_notion_api_keys`**
 
-```sql
+\`\`\`sql
 CREATE TABLE public.user_notion_api_keys (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -158,11 +158,11 @@ CREATE POLICY "Users can delete their own API keys"
 -- Indexes
 CREATE INDEX idx_user_notion_api_keys_user_id ON public.user_notion_api_keys(user_id);
 CREATE INDEX idx_user_notion_api_keys_active ON public.user_notion_api_keys(user_id, is_active) WHERE is_active = true;
-```
+\`\`\`
 
 **Encryption Functions:**
 
-```sql
+\`\`\`sql
 -- Enable pgcrypto extension (if not already enabled)
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
@@ -242,13 +242,13 @@ BEGIN
   RETURN v_key_id;
 END;
 $$;
-```
+\`\`\`
 
 **Alternative: Using Supabase Vault (Recommended)**
 
 If using Supabase Vault instead of pgcrypto:
 
-```sql
+\`\`\`sql
 -- Store encryption key in Vault (one-time setup via Supabase Dashboard)
 -- Then use vault.decrypted_secrets view to access the key
 
@@ -294,19 +294,19 @@ BEGIN
   RETURN v_key_id;
 END;
 $$;
-```
+\`\`\`
 
 #### 3.2 API Endpoints
 
 **File: `app/api/notion/api-keys/route.ts`**
 
-```typescript
+\`\`\`typescript
 // GET /api/notion/api-keys - List user's API keys
 // POST /api/notion/api-keys - Add new API key
 // PATCH /api/notion/api-keys/[id] - Update API key
 // DELETE /api/notion/api-keys/[id] - Delete API key
 // POST /api/notion/api-keys/[id]/test - Test API key
-```
+\`\`\`
 
 **Key Implementation Details:**
 
@@ -432,6 +432,3 @@ The implementation will support dual authentication:
 ## Conclusion
 
 This comprehensive implementation plan provides a roadmap for enhancing the KINK IT application's sidebar architecture and implementing secure Notion API key management. The phased approach ensures that each component can be developed, tested, and deployed independently while maintaining system stability and security throughout the implementation process.
-
-
-

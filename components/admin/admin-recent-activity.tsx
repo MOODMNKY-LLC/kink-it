@@ -79,6 +79,3 @@ export function AdminRecentActivity({ activities }: AdminRecentActivityProps) {
     </Card>
   )
 }
-
-
-

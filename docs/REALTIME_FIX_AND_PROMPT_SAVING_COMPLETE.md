@@ -51,7 +51,7 @@ Fixed Realtime channel authorization error and implemented prompt saving functio
 ## Database Schema
 
 ### saved_prompts Table
-```sql
+\`\`\`sql
 CREATE TABLE saved_prompts (
   id UUID PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id),
@@ -62,7 +62,7 @@ CREATE TABLE saved_prompts (
   created_at TIMESTAMPTZ,
   updated_at TIMESTAMPTZ
 );
-```
+\`\`\`
 
 **RLS Policies**:
 - Users can only view their own saved prompts
@@ -137,6 +137,3 @@ Both issues resolved:
 3. ✅ Prompt saving feature implemented with database storage
 
 The prompt preview is now much more space-efficient, and users can save their favorite prompts for future use.
-
-
-

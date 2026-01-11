@@ -213,7 +213,7 @@ The system maps database types from `notion_databases` table:
 ## Response Formatting
 
 ### Search Results
-```
+\`\`\`
 Found 5 result(s):
 
 - **Task: Clean Kitchen**
@@ -221,10 +221,10 @@ Found 5 result(s):
 
 - **Task: Review Contract**
   https://notion.so/...
-```
+\`\`\`
 
 ### Page Details
-```
+\`\`\`
 **Kinky Kincade**
 
 URL: https://notion.so/...
@@ -237,10 +237,10 @@ URL: https://notion.so/...
 
 **Content:**
 [Page content here...]
-```
+\`\`\`
 
 ### Database Query Results
-```
+\`\`\`
 Found 3 tasks:
 
 - **Clean Kitchen** (Status: Pending, Priority: High, Due: 2026-02-01)
@@ -248,14 +248,14 @@ Found 3 tasks:
 
 - **Review Contract** (Status: Completed, Priority: Medium)
   https://notion.so/...
-```
+\`\`\`
 
 ### Create Results
-```
+\`\`\`
 ✅ Successfully created task: **Clean Kitchen**
 
 View in Notion: https://notion.so/...
-```
+\`\`\`
 
 ---
 
@@ -349,14 +349,12 @@ View in Notion: https://notion.so/...
 
 Users simply chat naturally:
 
-```
+\`\`\`
 User: "What's on my task list today?"
 Agent: [Queries Notion, displays formatted results]
 
 User: "Add a task: Clean the kitchen"
 Agent: [Creates task, confirms with URL]
-```
+\`\`\`
 
 No special syntax or commands needed - the AI understands natural language and uses the appropriate Notion tools automatically.
-
-

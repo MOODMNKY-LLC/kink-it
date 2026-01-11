@@ -24,11 +24,11 @@ All official SDKs and client libraries for Supabase, Notion, n8n, Discord, Flowi
 | `@supabase/functions-js` | ^2.89.0 | Edge Functions client for invoking serverless functions |
 
 **Usage:**
-```typescript
+\`\`\`typescript
 import { createClient } from '@supabase/supabase-js'
 import { createClient as createRealtimeClient } from '@supabase/realtime-js'
 import { createClient as createStorageClient } from '@supabase/storage-js'
-```
+\`\`\`
 
 ---
 
@@ -39,13 +39,13 @@ import { createClient as createStorageClient } from '@supabase/storage-js'
 | `@notionhq/client` | ^5.6.0 | Official Notion API SDK for JavaScript/TypeScript |
 
 **Usage:**
-```typescript
+\`\`\`typescript
 import { Client } from '@notionhq/client'
 
 const notion = new Client({
   auth: process.env.NOTION_API_KEY,
 })
-```
+\`\`\`
 
 ---
 
@@ -58,11 +58,11 @@ const notion = new Client({
 | `@discordjs/builders` | ^1.13.1 | Utilities for building Discord interactions (slash commands, embeds, etc.) |
 
 **Usage:**
-```typescript
+\`\`\`typescript
 import { Client, GatewayIntentBits } from 'discord.js'
 import { REST } from '@discordjs/rest'
 import { SlashCommandBuilder } from '@discordjs/builders'
-```
+\`\`\`
 
 ---
 
@@ -73,7 +73,7 @@ import { SlashCommandBuilder } from '@discordjs/builders'
 | `axios` | ^1.13.2 | HTTP client for API interactions with n8n and Flowise |
 
 **Usage:**
-```typescript
+\`\`\`typescript
 import axios from 'axios'
 
 // For n8n API calls
@@ -81,7 +81,7 @@ const n8nResponse = await axios.post('https://n8n-dev.moodmnky.com/webhook/...',
 
 // For Flowise API calls
 const flowiseResponse = await axios.post('https://flowise.moodmnky.com/api/v1/...', data)
-```
+\`\`\`
 
 **Note:** n8n and Flowise don't have official npm SDKs, so axios is used for HTTP API interactions.
 
@@ -95,14 +95,14 @@ const flowiseResponse = await axios.post('https://flowise.moodmnky.com/api/v1/..
 | `@vercel/client` | ^17.2.18 | Vercel API client for programmatic access to Vercel platform |
 
 **Usage:**
-```typescript
+\`\`\`typescript
 import { Analytics } from '@vercel/analytics/react'
 import { VercelClient } from '@vercel/client'
 
 const vercel = new VercelClient({
   token: process.env.VERCEL_TOKEN,
 })
-```
+\`\`\`
 
 ---
 
@@ -113,13 +113,13 @@ const vercel = new VercelClient({
 | `openai` | ^6.15.0 | Official OpenAI Node.js SDK for GPT models, embeddings, etc. |
 
 **Usage:**
-```typescript
+\`\`\`typescript
 import OpenAI from 'openai'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
-```
+\`\`\`
 
 ---
 
@@ -127,7 +127,7 @@ const openai = new OpenAI({
 
 ### Commands Used
 
-```bash
+\`\`\`bash
 # Install all service packages
 pnpm add @supabase/realtime-js @supabase/storage-js @supabase/functions-js \
   @notionhq/client discord.js @discordjs/rest @discordjs/builders \
@@ -135,7 +135,7 @@ pnpm add @supabase/realtime-js @supabase/storage-js @supabase/functions-js \
 
 # Update @vercel/analytics to fix peer dependency
 pnpm add @vercel/analytics@latest
-```
+\`\`\`
 
 ### Total Packages Added
 
@@ -186,8 +186,3 @@ pnpm add @vercel/analytics@latest
 
 **Last Updated:** January 5, 2026  
 **Package Manager:** pnpm v10.12.3
-
-
-
-
-

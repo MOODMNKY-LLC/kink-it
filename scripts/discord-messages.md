@@ -2,7 +2,7 @@
 
 ## #announcements Welcome Message
 
-```
+\`\`\`
 🎉 **KINK IT Discord Server Setup Complete!**
 
 Welcome to your KINK IT notification and communication hub. This server is designed to support your D/s dynamic with automated notifications and optional communication channels.
@@ -21,11 +21,11 @@ Welcome to your KINK IT notification and communication hub. This server is desig
 All notification channels are read-only and receive automated messages from the KINK IT application. You can customize which channels you receive notifications for in your app settings.
 
 For detailed setup instructions, see the documentation in your KINK IT repository.
-```
+\`\`\`
 
 ## #server-info Content
 
-```
+\`\`\`
 # KINK IT Discord Server Structure
 
 This server is organized into 5 main categories:
@@ -51,11 +51,11 @@ Educational content, guides, and app ideas.
 Historical notifications and system logs.
 
 **Note**: All notification channels are read-only. Messages are posted automatically by the KINK IT bot when events occur in the application.
-```
+\`\`\`
 
 ## #rules Content
 
-```
+\`\`\`
 # KINK IT Discord Server Rules
 
 ## Core Principles
@@ -81,44 +81,40 @@ This server may contain NSFW content related to D/s dynamics. All members must b
 ## Support
 
 For technical issues or questions, contact your server administrator or refer to the KINK IT app documentation.
-```
+\`\`\`
 
 ## Test Notification Messages
 
 ### Task Assignment Example
-```
+\`\`\`
 🎯 **NEW TASK ASSIGNED**
 Simeon has assigned you: **Morning Routine**
 Priority: High
 Due: Today at 9:00 AM
 Points: 10
-```
+\`\`\`
 
 ### Task Completion Example
-```
+\`\`\`
 ✅ **TASK COMPLETED**
 Kevin has completed: **Morning Routine**
 Completed at: 8:45 AM
 Points awarded: 10
 Current balance: 150 points
-```
+\`\`\`
 
 ### Submission State Change Example
-```
+\`\`\`
 🔄 **SUBMISSION STATE UPDATE**
 Kevin has updated submission state to: **Low Energy**
 Updated at: 2:30 PM
 Note: Need clearer instructions today, fewer choices please.
-```
+\`\`\`
 
 ### Reward Available Example
-```
+\`\`\`
 🎁 **NEW REWARD AVAILABLE**
 Reward: **Special Evening Together**
 Cost: 50 points
 Description: An evening of your Dominant's choosing
-```
-
-
-
-
+\`\`\`

@@ -89,30 +89,30 @@ Phase 1 implementation is complete! The foundation for "Kinky" as the AI KINKSTE
 ## 📊 Database Schema Changes
 
 ### New Column
-```sql
+\`\`\`sql
 ALTER TABLE public.kinksters
   ADD COLUMN is_system_kinkster boolean DEFAULT false NOT NULL;
-```
+\`\`\`
 
 ### Constraint
-```sql
+\`\`\`sql
 ALTER TABLE public.kinksters
   ADD CONSTRAINT system_kinkster_user_id_null 
   CHECK (
     (is_system_kinkster = true AND user_id IS NULL) OR
     (is_system_kinkster = false AND user_id IS NOT NULL)
   );
-```
+\`\`\`
 
 ### Index
-```sql
+\`\`\`sql
 CREATE INDEX idx_kinksters_system 
   ON public.kinksters(is_system_kinkster) 
   WHERE is_system_kinkster = true;
-```
+\`\`\`
 
 ### RLS Policy Update
-```sql
+\`\`\`sql
 CREATE POLICY "Users can view their own kinksters and system kinksters"
   ON public.kinksters FOR SELECT
   TO authenticated
@@ -120,7 +120,7 @@ CREATE POLICY "Users can view their own kinksters and system kinksters"
     user_id = auth.uid() OR 
     is_system_kinkster = true
   );
-```
+\`\`\`
 
 ---
 
@@ -219,6 +219,3 @@ CREATE POLICY "Users can view their own kinksters and system kinksters"
 
 **Status**: Phase 1 Complete ✅  
 **Ready for**: Phase 2 - Playground Infrastructure
-
-
-

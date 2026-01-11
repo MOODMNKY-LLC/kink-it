@@ -48,7 +48,7 @@ Phase 2 implementation is complete! The playground route structure, layout, hub 
 - Integrated into user navigation
 
 **Navigation Structure:**
-```typescript
+\`\`\`typescript
 {
   title: "Tools",
   items: [
@@ -59,7 +59,7 @@ Phase 2 implementation is complete! The playground route structure, layout, hub 
     },
   ],
 }
-```
+\`\`\`
 
 ### 4. Stock Images Organization ✅
 **File**: `docs/STOCK_IMAGES_INVENTORY.md`
@@ -91,7 +91,7 @@ Phase 2 implementation is complete! The playground route structure, layout, hub 
 
 ## 📁 File Structure
 
-```
+\`\`\`
 app/
   playground/
     layout.tsx          # Playground layout wrapper
@@ -106,7 +106,7 @@ components/
 docs/
   STOCK_IMAGES_INVENTORY.md  # Image asset documentation
   PHASE_2_PLAYGROUND_INFRASTRUCTURE_COMPLETE.md  # This file
-```
+\`\`\`
 
 ---
 
@@ -157,6 +157,3 @@ docs/
 
 **Status**: Complete ✅  
 **Next Phase**: Phase 3 - Image Generation Suite
-
-
-

@@ -8,10 +8,10 @@
 ### 1. Realtime Channel Authorization Errors
 
 **Error:**
-```
+\`\`\`
 Unauthorized: You do not have permissions to read from this Channel topic: user:83227e77-e805-4031-ad9e-c5798745ca48:notifications
 Unauthorized: You do not have permissions to read from this Channel topic: user:83227e77-e805-4031-ad9e-c5798745ca48:presence
-```
+\`\`\`
 
 **Root Cause:**
 - Missing RLS policy for `user:%:presence` channels
@@ -28,9 +28,9 @@ Created migration `20260202000001_fix_realtime_presence_and_notion_storage.sql` 
 ### 2. Notion API Key Storage Error
 
 **Error:**
-```
+\`\`\`
 Error adding API key: Error: Failed to store API key
-```
+\`\`\`
 
 **Root Cause:**
 - Database function `store_user_notion_api_key` uses `encrypt_notion_api_key`
@@ -51,7 +51,7 @@ Updated all encryption/decryption functions to:
 ### Changes:
 
 1. **Realtime Presence Policies:**
-   ```sql
+   \`\`\`sql
    -- Users can read from their own presence channel
    CREATE POLICY "Users can read their own presence channel"
      ON realtime.messages FOR SELECT
@@ -61,36 +61,36 @@ Updated all encryption/decryption functions to:
    CREATE POLICY "Users can write to their own presence channel"
      ON realtime.messages FOR INSERT
      WITH CHECK (topic LIKE 'user:%:presence' AND SPLIT_PART(topic, ':', 2)::uuid = auth.uid());
-   ```
+   \`\`\`
 
 2. **Realtime Notifications Write Policy:**
-   ```sql
+   \`\`\`sql
    -- Users can write to their own notification channel (for broadcasting)
    CREATE POLICY "Users can write to their own notification channel"
      ON realtime.messages FOR INSERT
      WITH CHECK (topic LIKE 'user:%:notifications' AND SPLIT_PART(topic, ':', 2)::uuid = auth.uid());
-   ```
+   \`\`\`
 
 3. **Fixed Encryption Functions:**
-   ```sql
+   \`\`\`sql
    -- Updated to use extensions schema
    CREATE OR REPLACE FUNCTION public.encrypt_notion_api_key(...)
    SET search_path = public, extensions
    AS $$
      RETURN extensions.pgp_sym_encrypt(p_api_key, p_encryption_key);
    $$;
-   ```
+   \`\`\`
 
 ## Application Steps
 
 ### For Local Development:
 
-```bash
+\`\`\`bash
 # Apply migration to local Supabase
 supabase db reset --local
 # Or
 supabase migration up
-```
+\`\`\`
 
 ### For Production:
 
@@ -101,9 +101,9 @@ supabase migration up
    - Apply migration
 
 2. **Via Supabase CLI:**
-   ```bash
+   \`\`\`bash
    supabase db push
-   ```
+   \`\`\`
 
 3. **Via MCP (if available):**
    - Use Supabase MCP `apply_migration` tool
@@ -156,4 +156,3 @@ This will help identify future issues more quickly.
 - `app/api/notion/api-keys/route.ts` - API route (enhanced error logging)
 - `hooks/use-online-status.ts` - Presence hook (should work after fix)
 - `components/dashboard/notifications/terminal-notifications-realtime.tsx` - Notifications component (should work after fix)
-

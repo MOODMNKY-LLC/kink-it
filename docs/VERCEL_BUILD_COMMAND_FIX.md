@@ -9,11 +9,11 @@
 ## Problem Identified
 
 The `vercel.json` file had:
-```json
+\`\`\`json
 {
   "buildCommand": "next build"
 }
-```
+\`\`\`
 
 This was **overriding** the `package.json` build script, causing Vercel to run `next build` directly instead of our custom `build-with-error-handling.js` script.
 
@@ -32,11 +32,11 @@ When `vercel.json` specifies a `buildCommand`, it takes precedence over `package
 ## Solution
 
 Updated `vercel.json` to use our custom build script:
-```json
+\`\`\`json
 {
   "buildCommand": "node scripts/build-with-error-handling.js"
 }
-```
+\`\`\`
 
 Now Vercel will:
 - ✅ Run our custom build script

@@ -67,7 +67,7 @@ The Edge Function's `propsToPrompt` and `buildAvatarPrompt` functions only check
 ### Architecture
 
 #### Directory Structure
-```
+\`\`\`
 public/
   backgrounds/
     environments/
@@ -79,14 +79,14 @@ public/
       - scene-1.png
       - scene-2.png
       ...
-```
+\`\`\`
 
 #### Supabase Storage
 - Bucket: `background-presets`
 - Path structure: `environments/{name}.png`, `scenes/{name}.png`
 
 #### Database Schema
-```sql
+\`\`\`sql
 CREATE TABLE background_presets (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL,
@@ -98,7 +98,7 @@ CREATE TABLE background_presets (
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );
-```
+\`\`\`
 
 ### Implementation Steps
 1. Create `public/backgrounds` directory structure
@@ -124,7 +124,7 @@ CREATE TABLE background_presets (
 - Supabase Storage: `scene-presets` bucket
 
 ### Database Schema
-```sql
+\`\`\`sql
 CREATE TABLE character_presets (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL,
@@ -148,7 +148,7 @@ CREATE TABLE scene_presets (
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );
-```
+\`\`\`
 
 ### Implementation Steps
 1. Create preset directory structure
@@ -174,13 +174,13 @@ CREATE TABLE scene_presets (
 - Better UX flow
 
 ### Proposed Structure
-```
+\`\`\`
 /playground/image-studio (or /playground/creative-studio)
   ├─ Tab 1: Generate (current KinkyKincadePlayground)
   ├─ Tab 2: Kinkster Creator (KinksterCreationWizard)
   ├─ Tab 3: Scene Composition (SceneComposer)
   └─ Tab 4: Presets (preset management)
-```
+\`\`\`
 
 ### Implementation Steps
 1. Create new unified page component

@@ -68,6 +68,3 @@ export async function shareTaskOrRule(
     url: window.location.href,
   })
 }
-
-
-

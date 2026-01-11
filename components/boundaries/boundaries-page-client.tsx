@@ -350,4 +350,3 @@ export function BoundariesPageClient({ userId, bondId }: BoundariesPageClientPro
     </div>
   )
 }
-

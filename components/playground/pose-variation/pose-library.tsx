@@ -200,6 +200,3 @@ export function PoseLibrary({ kinksterId, onSelectPose, className }: PoseLibrary
     </Card>
   )
 }
-
-
-

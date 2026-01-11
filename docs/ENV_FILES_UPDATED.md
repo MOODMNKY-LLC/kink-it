@@ -22,19 +22,19 @@ All Supabase URLs in environment files have been updated from HTTP to HTTPS to m
 ## 🔍 Updated URLs
 
 ### Supabase API & Services (HTTPS)
-```bash
+\`\`\`bash
 NEXT_PUBLIC_SUPABASE_URL=https://127.0.0.1:55321
 SUPABASE_REST_URL=https://127.0.0.1:55321/rest/v1
 SUPABASE_GRAPHQL_URL=https://127.0.0.1:55321/graphql/v1
 SUPABASE_FUNCTIONS_URL=https://127.0.0.1:55321/functions/v1
 SUPABASE_STUDIO_URL=https://127.0.0.1:55323
 SUPABASE_MCP_URL=https://127.0.0.1:55321/mcp
-```
+\`\`\`
 
 ### Mailpit (HTTP - No TLS Required)
-```bash
+\`\`\`bash
 SUPABASE_MAILPIT_URL=http://127.0.0.1:55324
-```
+\`\`\`
 
 ## 🚀 Next Steps
 
@@ -42,11 +42,11 @@ SUPABASE_MAILPIT_URL=http://127.0.0.1:55324
 
 After updating `.env.local`, restart your Next.js development server:
 
-```powershell
+\`\`\`powershell
 # Stop current server (Ctrl+C)
 # Then restart:
 pnpm dev
-```
+\`\`\`
 
 ### 2. Accept Self-Signed Certificate
 
@@ -65,9 +65,9 @@ When you first access Supabase over HTTPS, your browser will show a security war
 
 Check that Supabase is running with TLS:
 
-```powershell
+\`\`\`powershell
 supabase status
-```
+\`\`\`
 
 You should see HTTPS URLs:
 - ✅ API: `https://127.0.0.1:55321`
@@ -106,16 +106,16 @@ After restarting your dev server:
 ### Still Getting HTTP Errors?
 
 1. **Verify environment variable is loaded:**
-   ```powershell
+   \`\`\`powershell
    # Check if HTTPS URL is set
    $env:NEXT_PUBLIC_SUPABASE_URL
-   ```
+   \`\`\`
 
 2. **Clear Next.js cache:**
-   ```powershell
+   \`\`\`powershell
    Remove-Item -Recurse -Force .next
    pnpm dev
-   ```
+   \`\`\`
 
 3. **Check `.env.local` location:**
    - Should be at: `C:\DEV-MNKY\MOOD_MNKY\kink-it\.env.local`
@@ -132,21 +132,21 @@ If you see certificate errors:
 ### OAuth Still Failing?
 
 1. **Verify Notion redirect URI** matches exactly:
-   ```
+   \`\`\`
    https://127.0.0.1:55321/auth/v1/callback
-   ```
+   \`\`\`
 
 2. **Check Supabase config** has Notion OAuth enabled:
-   ```toml
+   \`\`\`toml
    [auth.external.notion]
    enabled = true
-   ```
+   \`\`\`
 
 3. **Restart Supabase** after config changes:
-   ```powershell
+   \`\`\`powershell
    supabase stop
    supabase start
-   ```
+   \`\`\`
 
 ## 📋 Verification Checklist
 
@@ -167,8 +167,3 @@ If you see certificate errors:
 
 **Status**: ✅ Environment Files Updated  
 **Next**: Restart your Next.js dev server and accept the certificate
-
-
-
-
-

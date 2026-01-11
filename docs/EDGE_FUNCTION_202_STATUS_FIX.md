@@ -17,35 +17,35 @@ Changed the response status from 202 to 200 OK. The function still processes eve
 ## Code Change
 
 ### Before
-```typescript
+\`\`\`typescript
 return new Response(JSON.stringify(response), {
   status: 202, // Accepted - processing in background
   headers: { ... }
 })
-```
+\`\`\`
 
 ### After
-```typescript
+\`\`\`typescript
 // Return 200 OK immediately - processing happens in background
 // Supabase functions.invoke treats 2xx as success
 return new Response(JSON.stringify(response), {
   status: 200,
   headers: { ... }
 })
-```
+\`\`\`
 
 ## Response Format
 
 The response still includes `status: "processing"` in the JSON body to indicate background processing:
 
-```json
+\`\`\`json
 {
   "prompt": "...",
   "generation_config": {...},
   "status": "processing",
   "kinkster_id": "..."
 }
-```
+\`\`\`
 
 The client can check `data.status === "processing"` to know to wait for Realtime updates.
 
@@ -60,6 +60,3 @@ The client can check `data.status === "processing"` to know to wait for Realtime
 ## Files Modified
 
 - `supabase/functions/generate-kinkster-avatar/index.ts`
-
-
-

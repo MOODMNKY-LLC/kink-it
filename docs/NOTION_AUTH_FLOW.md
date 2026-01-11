@@ -10,7 +10,7 @@ Here's exactly what happens when a user authenticates with Notion in your app:
 
 When user clicks **"Continue with Notion"** button:
 
-```typescript
+\`\`\`typescript
 const handleNotionLogin = async () => {
   const supabase = createClient()
   setIsOAuthLoading(true)
@@ -22,7 +22,7 @@ const handleNotionLogin = async () => {
     },
   })
 }
-```
+\`\`\`
 
 **What happens:**
 - ✅ Supabase generates OAuth authorization URL
@@ -41,7 +41,7 @@ const handleNotionLogin = async () => {
 
 **Location:** `app/auth/callback/route.ts`
 
-```typescript
+\`\`\`typescript
 export async function GET(request: NextRequest) {
   const code = requestUrl.searchParams.get("code")
   const error = requestUrl.searchParams.get("error")
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
   // Redirect to home page
   return NextResponse.redirect(new URL("/", requestUrl.origin))
 }
-```
+\`\`\`
 
 **What happens:**
 - ✅ Extracts `code` from URL query parameters
@@ -78,15 +78,15 @@ export async function GET(request: NextRequest) {
 
 When a new user is created in `auth.users`, a database trigger automatically fires:
 
-```sql
+\`\`\`sql
 create trigger on_auth_user_created
   after insert on auth.users
   for each row
   execute function public.handle_new_user();
-```
+\`\`\`
 
 **The trigger function:**
-```sql
+\`\`\`sql
 create or replace function public.handle_new_user()
 returns trigger
 as $$
@@ -118,7 +118,7 @@ begin
   return new;
 end;
 $$;
-```
+\`\`\`
 
 **What happens:**
 - ✅ Profile is automatically created in `profiles` table
@@ -132,7 +132,7 @@ $$;
 
 On every request (except `/auth/*` routes):
 
-```typescript
+\`\`\`typescript
 export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith("/auth/")) {
     return NextResponse.next()
@@ -140,7 +140,7 @@ export async function middleware(request: NextRequest) {
   
   return await updateSession(request)
 }
-```
+\`\`\`
 
 **What `updateSession` does:**
 - ✅ Refreshes user session from cookies
@@ -151,7 +151,7 @@ export async function middleware(request: NextRequest) {
 
 **Location:** `app/page.tsx`
 
-```typescript
+\`\`\`typescript
 export default async function DashboardOverview() {
   await requireAuth()  // Redirects to /auth/login if not authenticated
   const profile = await getUserProfile()  // Fetches profile from database
@@ -168,7 +168,7 @@ export default async function DashboardOverview() {
     </DashboardPageLayout>
   )
 }
-```
+\`\`\`
 
 **What happens:**
 - ✅ `requireAuth()` checks if user is authenticated
@@ -181,7 +181,7 @@ export default async function DashboardOverview() {
 
 **Location:** `app/layout.tsx`
 
-```typescript
+\`\`\`typescript
 export default async function RootLayout({ children }) {
   const user = await getCurrentUser()  // Returns null if not authenticated
   
@@ -213,7 +213,7 @@ export default async function RootLayout({ children }) {
     </html>
   )
 }
-```
+\`\`\`
 
 **What happens:**
 - ✅ Checks if user is authenticated
@@ -222,7 +222,7 @@ export default async function RootLayout({ children }) {
 
 ## 📊 Complete Flow Diagram
 
-```
+\`\`\`
 User clicks "Continue with Notion"
          ↓
 Supabase generates OAuth URL
@@ -250,7 +250,7 @@ Home page checks authentication
 Home page fetches profile
          ↓
 Dashboard displayed with user info
-```
+\`\`\`
 
 ## 🔐 Session Management
 
@@ -283,7 +283,7 @@ When a user authenticates for the first time:
 
 ### Profile Fields
 
-```typescript
+\`\`\`typescript
 interface Profile {
   id: string                    // UUID from auth.users
   email: string                 // From Notion OAuth
@@ -298,7 +298,7 @@ interface Profile {
   notifications_enabled: boolean // Default: true
   theme_preference: string      // Default: 'dark'
 }
-```
+\`\`\`
 
 ## 🚨 Error Handling
 
@@ -365,8 +365,3 @@ If profile doesn't exist:
 - [FIX_SUPABASE_HTTPS_ERROR.md](./FIX_SUPABASE_HTTPS_ERROR.md) - HTTPS setup
 - [NOTION_OAUTH_HTTPS_SETUP.md](../NOTION_OAUTH_HTTPS_SETUP.md) - OAuth configuration
 - [AUTH_VERIFICATION.md](../AUTH_VERIFICATION.md) - Auth setup verification
-
-
-
-
-

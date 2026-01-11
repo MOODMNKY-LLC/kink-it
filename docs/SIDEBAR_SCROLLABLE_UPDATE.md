@@ -13,7 +13,7 @@
 
 Added CSS utility class to hide scrollbars while maintaining scroll functionality:
 
-```css
+\`\`\`css
 /* Hide scrollbar but keep functionality */
 .scrollbar-hide {
   -ms-overflow-style: none; /* IE and Edge */
@@ -22,7 +22,7 @@ Added CSS utility class to hide scrollbars while maintaining scroll functionalit
 .scrollbar-hide::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
 }
-```
+\`\`\`
 
 ### 2. Made Sidebar Content Scrollable
 
@@ -30,11 +30,11 @@ Added CSS utility class to hide scrollbars while maintaining scroll functionalit
 
 Updated `SidebarContent` to be scrollable with invisible scrollbar:
 
-```typescript
+\`\`\`typescript
 <SidebarContent className="overflow-y-auto scrollbar-hide">
   {/* Navigation groups */}
 </SidebarContent>
-```
+\`\`\`
 
 ---
 
@@ -51,16 +51,13 @@ Updated `SidebarContent` to be scrollable with invisible scrollbar:
 
 The `scrollbar-hide` utility class can be used anywhere in the app:
 
-```tsx
+\`\`\`tsx
 <div className="overflow-y-auto scrollbar-hide">
   {/* Scrollable content */}
 </div>
-```
+\`\`\`
 
 ---
 
 **Last Updated**: 2026-01-31  
 **Status**: ✅ Complete
-
-
-

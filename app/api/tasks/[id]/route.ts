@@ -302,8 +302,3 @@ export async function DELETE(
 
   return NextResponse.json({ success: true })
 }
-
-
-
-
-

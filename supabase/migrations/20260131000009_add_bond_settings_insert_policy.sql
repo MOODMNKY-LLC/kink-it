@@ -13,4 +13,3 @@ WITH CHECK (
 -- Add comment explaining the policy
 COMMENT ON POLICY "Bond creators can insert settings" ON public.bond_settings IS 
   'Allows bond creators and managers to insert settings. Normally handled by trigger, but needed for upsert operations and manual creation.';
-

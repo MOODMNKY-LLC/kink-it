@@ -4,13 +4,13 @@
 
 The v0 MCP server was failing to start with the following error:
 
-```
+\`\`\`
 Error: Cannot find module 'fresh'
 Require stack:
 - C:\Users\Simeon\AppData\Local\npm-cache\_npx\705d23756ff7dacc\node_modules\send\index.js
 - C:\Users\Simeon\AppData\Local\npm-cache\_npx\705d23756ff7dacc\node_modules\express\lib\utils.js
 ...
-```
+\`\`\`
 
 ### **Root Cause**
 The npx cache at `C:\Users\Simeon\AppData\Local\npm-cache\_npx\` had a corrupted or incomplete installation of the `mcp-remote` package. The `send` package (a dependency of `express`, which `mcp-remote` uses) was missing its `fresh` module dependency.
@@ -26,9 +26,9 @@ The npx cache at `C:\Users\Simeon\AppData\Local\npm-cache\_npx\` had a corrupted
 ## ✅ **Solution Applied**
 
 ### **Step 1: Cleared npx Cache**
-```powershell
+\`\`\`powershell
 Remove-Item -Recurse -Force "$env:LOCALAPPDATA\npm-cache\_npx"
-```
+\`\`\`
 
 **What this does:**
 - Removes all cached npx packages
@@ -36,20 +36,20 @@ Remove-Item -Recurse -Force "$env:LOCALAPPDATA\npm-cache\_npx"
 - Clears any corrupted installations
 
 ### **Step 2: Verified Fix**
-```powershell
+\`\`\`powershell
 npx --yes mcp-remote --help
-```
+\`\`\`
 
 **Before Fix:**
-```
+\`\`\`
 Error: Cannot find module 'fresh'
-```
+\`\`\`
 ❌ Dependency missing, package broken
 
 **After Fix:**
-```
+\`\`\`
 Fatal error: TypeError: Invalid URL '--help'
-```
+\`\`\`
 ✅ Package works! (Error is expected - it needs a URL, not --help)
 
 ---
@@ -103,13 +103,13 @@ You should be able to:
 - Provides MCP protocol interface for v0 tools
 
 **Dependencies:**
-```
+\`\`\`
 mcp-remote
   ├── express (web framework)
   │   └── send (file sending)
   │       └── fresh (HTTP caching) ← This was missing!
   └── Other dependencies...
-```
+\`\`\`
 
 ### **npx Cache Location**
 
@@ -119,9 +119,9 @@ Each cached package gets a unique hash directory (e.g., `705d23756ff7dacc`). Whe
 
 ### **The Fix Strategy**
 
-```
+\`\`\`
 Corrupted Cache → Clear Cache → Fresh Download → Working Package
-```
+\`\`\`
 
 ---
 
@@ -131,7 +131,7 @@ Corrupted Cache → Clear Cache → Fresh Download → Working Package
 
 Run these commands:
 
-```powershell
+\`\`\`powershell
 # Clear entire npm cache (nuclear option)
 npm cache clean --force
 
@@ -140,7 +140,7 @@ Remove-Item -Recurse -Force "$env:LOCALAPPDATA\npm-cache\_npx"
 
 # Verify package reinstalls correctly
 npx --yes mcp-remote https://mcp.v0.dev --header "Authorization: Bearer test"
-```
+\`\`\`
 
 ### **When to Clear Cache**
 
@@ -168,14 +168,14 @@ Clear the cache if you see:
 
 ### **Original Error (2026-01-04 22:33:23)**
 
-```
+\`\`\`
 2026-01-04 22:33:19.541 [info] Starting new stdio process with command: 
   npx mcp-remote https://mcp.v0.dev --header Authorization: Bearer ${V0_API_KEY}
 
 2026-01-04 22:33:23.259 [error] Error: Cannot find module 'fresh'
 Require stack:
 - C:\Users\Simeon\AppData\Local\npm-cache\_npx\705d23756ff7dacc\node_modules\send\index.js
-```
+\`\`\`
 
 **Analysis:**
 - Command structure: ✅ Correct
@@ -210,10 +210,3 @@ Require stack:
 **Issue**: npx cache corruption  
 **Resolution**: ✅ Cache cleared and package reinstalled  
 **Status**: Ready to use (restart required)
-
-
-
-
-
-
-

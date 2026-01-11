@@ -41,10 +41,10 @@ This guide walks you through setting up the KINK IT Discord bot with all necessa
    **Application Name**: `KINK IT Bot`
    
    **Description**: 
-   ```
+   \`\`\`
    Automated notification bot for KINK IT - a D/s relationship management application. 
    Sends notifications for tasks, rewards, submission states, and other relationship events.
-   ```
+   \`\`\`
    
    **Application Icon**: 
    - Upload a custom icon (optional, recommended: 512x512px PNG)
@@ -72,9 +72,9 @@ This guide walks you through setting up the KINK IT Discord bot with all necessa
 1. **Username**: `KINK IT Bot` (or your preferred name)
 2. **Icon**: Upload bot avatar (512x512px PNG recommended)
 3. **Description**: 
-   ```
+   \`\`\`
    Sends automated notifications for KINK IT app events including tasks, rewards, submission states, and relationship updates.
-   ```
+   \`\`\`
 
 ### Important Bot Settings
 
@@ -178,9 +178,9 @@ Under **"BOT PERMISSIONS"**, check the following:
 
 At the bottom of the page, you'll see a **"Generated URL"** that looks like:
 
-```
+\`\`\`
 https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=PERMISSION_INTEGER&scope=bot
-```
+\`\`\`
 
 **Copy this URL** - you'll use it to invite the bot to your server.
 
@@ -216,7 +216,7 @@ Before proceeding, copy and securely store these values:
 
 ### Store in `.env.local`:
 
-```bash
+\`\`\`bash
 # Discord Bot Configuration
 DISCORD_APPLICATION_ID=1234567890123456789
 DISCORD_CLIENT_ID=1234567890123456789
@@ -226,7 +226,7 @@ DISCORD_CLIENT_SECRET=abcdef1234567890abcdef1234567890abcdef12
 
 # Discord Webhook (already configured)
 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/1457594153109164134/s6eRp1w03Gw-clh0QF_-uL70LAS7hdE8jgpz16-18kBmmCbEJ08PMBX4RXB4TqOlPknj
-```
+\`\`\`
 
 ---
 
@@ -303,7 +303,7 @@ Your webhook is already configured and tested. This confirms basic connectivity.
 
 Once you implement the bot API integration, test by sending a message:
 
-```typescript
+\`\`\`typescript
 // Example test (after implementing API)
 const response = await fetch(`https://discord.com/api/v10/channels/${CHANNEL_ID}/messages`, {
   method: 'POST',
@@ -315,7 +315,7 @@ const response = await fetch(`https://discord.com/api/v10/channels/${CHANNEL_ID}
     content: '🧪 Test message from KINK IT Bot'
   })
 })
-```
+\`\`\`
 
 ---
 
@@ -348,7 +348,7 @@ const response = await fetch(`https://discord.com/api/v10/channels/${CHANNEL_ID}
 
 You can calculate the permission integer by adding the hex values:
 
-```
+\`\`\`
 0x0000000000000800 (Send Messages)
 + 0x0000000000000400 (View Channels)
 + 0x0000000000000100 (Read Message History)
@@ -356,7 +356,7 @@ You can calculate the permission integer by adding the hex values:
 + 0x0000000000004000 (Embed Links)
 + 0x0000000000008000 (Attach Files)
 = 0x80000C00 (2147485696 decimal)
-```
+\`\`\`
 
 ---
 
@@ -456,31 +456,29 @@ You can calculate the permission integer by adding the hex values:
 
 ### Permission Values (Hex)
 
-```
+\`\`\`
 Send Messages:        0x0000000000000800
 View Channels:       0x0000000000000400
 Read Message History: 0x0000000000000100
 Manage Webhooks:      0x0000000000200000
 Embed Links:          0x0000000000004000
 Attach Files:         0x0000000000008000
-```
+\`\`\`
 
 ### OAuth2 URL Template
 
-```
+\`\`\`
 https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=PERMISSION_INTEGER&scope=bot
-```
+\`\`\`
 
 ### API Endpoint Template
 
-```
+\`\`\`
 POST https://discord.com/api/v10/channels/{CHANNEL_ID}/messages
 Authorization: Bot {BOT_TOKEN}
 Content-Type: application/json
-```
+\`\`\`
 
 ---
 
 **Setup Complete!** Your Discord bot is now configured and ready for integration with KINK IT.
-
-

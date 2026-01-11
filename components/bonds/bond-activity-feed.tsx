@@ -209,6 +209,3 @@ export function BondActivityFeed({ bondId }: BondActivityFeedProps) {
     </Card>
   )
 }
-
-
-

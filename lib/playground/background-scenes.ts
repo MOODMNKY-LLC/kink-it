@@ -204,5 +204,3 @@ export function searchBackgroundScenes(query: string): BackgroundSceneTemplate[]
       template.tags.some((tag) => tag.toLowerCase().includes(lowerQuery))
   )
 }
-
-

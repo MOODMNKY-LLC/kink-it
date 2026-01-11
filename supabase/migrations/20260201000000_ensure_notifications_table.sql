@@ -121,4 +121,3 @@ CREATE POLICY "Users can receive their own notification broadcasts"
 CREATE INDEX IF NOT EXISTS idx_realtime_messages_topic_user
   ON realtime.messages(topic) 
   WHERE topic LIKE 'user:%:notifications';
-

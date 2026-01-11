@@ -148,4 +148,3 @@ COMMENT ON FUNCTION public.encrypt_notion_api_key IS
   'Encrypts a Notion API key using pgcrypto. Uses extensions schema for pgcrypto functions.';
 COMMENT ON FUNCTION public.decrypt_notion_api_key IS 
   'Decrypts an encrypted Notion API key. Uses extensions schema for pgcrypto functions.';
-

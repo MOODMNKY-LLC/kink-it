@@ -112,7 +112,7 @@ Comprehensive back navigation functionality has been added to the onboarding flo
 
 **Adding Step Jumping to New Steps:**
 
-```tsx
+\`\`\`tsx
 // In OnboardingWizard renderStep()
 case N:
   return (
@@ -122,11 +122,11 @@ case N:
       initialData={wizardData}  // Always include
     />
   )
-```
+\`\`\`
 
 **Making Progress Indicator Clickable:**
 
-```tsx
+\`\`\`tsx
 // Already implemented - just pass onStepClick prop
 <OnboardingProgress
   currentStep={currentStep}
@@ -134,7 +134,7 @@ case N:
   completedSteps={completedSteps}
   onStepClick={handleStepJump}  // Makes steps clickable
 />
-```
+\`\`\`
 
 ---
 
@@ -228,6 +228,3 @@ case N:
 ---
 
 **Status**: ✅ Implementation complete, ready for testing
-
-
-

@@ -128,4 +128,3 @@ export function useOnlineStatus({ userId, enabled = true }: UseOnlineStatusOptio
 
   return { isOnline, isLoading }
 }
-

@@ -229,8 +229,3 @@ export function SubmissionStateSelector({
     </Card>
   )
 }
-
-
-
-
-

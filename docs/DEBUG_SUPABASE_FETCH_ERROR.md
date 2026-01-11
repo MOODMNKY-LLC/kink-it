@@ -10,11 +10,11 @@
 
 You're seeing these errors in the browser console:
 
-```
+\`\`\`
 Failed to fetch
 TypeError: Failed to fetch
 Error fetching bond memberships: {}
-```
+\`\`\`
 
 These errors occur when:
 - Supabase Auth client tries to check session (`_useSession` → `_getUser`)
@@ -40,9 +40,9 @@ This is a **development environment issue** that happens when:
 
 Open this URL directly in your browser:
 
-```
+\`\`\`
 https://127.0.0.1:55321
-```
+\`\`\`
 
 ### Step 2: Accept the Certificate
 
@@ -66,27 +66,27 @@ Refresh your app page (`https://127.0.0.1:3000`) and the errors should be gone.
 After accepting certificate, refresh your app and check console:
 
 **✅ Success:**
-```
+\`\`\`
 [Supabase Client] Initializing with URL: https://127.0.0.1:55321
-```
+\`\`\`
 
 **❌ Still Failing:**
-```
+\`\`\`
 🔒 Certificate/Network Error Detected!
 Error fetching bond memberships: ...
-```
+\`\`\`
 
 ### Check 2: Test Connection
 
 Open browser console and run:
 
-```javascript
+\`\`\`javascript
 // Use the built-in test function (available in dev mode)
 testSupabaseConnection()
-```
+\`\`\`
 
 **Expected Output:**
-```
+\`\`\`
 🧪 Testing Supabase connection...
 URL: https://127.0.0.1:55321
 
@@ -99,7 +99,7 @@ URL: https://127.0.0.1:55321
    ✅ Auth endpoint accessible
 
 ✅ Connection test complete!
-```
+\`\`\`
 
 **If it fails:** Certificate not accepted or wrong URL.
 
@@ -188,17 +188,17 @@ Different browsers handle certificates separately:
 
 ### Check Supabase Status
 
-```bash
+\`\`\`bash
 supabase status
-```
+\`\`\`
 
 **Expected:** Should show Supabase running on `https://127.0.0.1:55321`
 
 ### Test Direct Connection (Terminal)
 
-```bash
+\`\`\`bash
 curl -k https://127.0.0.1:55321/rest/v1/
-```
+\`\`\`
 
 **Expected:** HTTP 200 or 400 (not connection error)
 
@@ -206,9 +206,9 @@ curl -k https://127.0.0.1:55321/rest/v1/
 
 Open browser console and check:
 
-```javascript
+\`\`\`javascript
 console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
-```
+\`\`\`
 
 **Expected:** `https://127.0.0.1:55321` (not `localhost`)
 
@@ -217,12 +217,12 @@ console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
 Visit: `https://127.0.0.1:3000/api/debug/supabase-connection`
 
 Should show:
-```json
+\`\`\`json
 {
   "authTest": { "success": true },
   "queryTest": { "success": true }
 }
-```
+\`\`\`
 
 ---
 

@@ -157,7 +157,7 @@ Research on implementing role-based dashboard layouts for KINK IT, distinguishin
 
 ### Component Structure
 
-```
+\`\`\`
 components/
 ├── dashboard/
 │   ├── admin/
@@ -182,11 +182,11 @@ components/
 │       ├── bond-overview.tsx
 │       ├── analytics.tsx
 │       └── recent-activity.tsx
-```
+\`\`\`
 
 ### Route Structure
 
-```
+\`\`\`
 app/
 ├── dashboard/
 │   └── page.tsx (role-based redirect)
@@ -196,11 +196,11 @@ app/
 └── (user)/
     └── dashboard/
         └── page.tsx (user dashboard)
-```
+\`\`\`
 
 ### Permission System
 
-```typescript
+\`\`\`typescript
 interface DashboardPermissions {
   canViewAdminDashboard: boolean
   canManageUsers: boolean
@@ -227,7 +227,7 @@ function getDashboardLayout(user: Profile): DashboardLayout {
       return 'default'
   }
 }
-```
+\`\`\`
 
 ---
 
@@ -268,6 +268,3 @@ function getDashboardLayout(user: Profile): DashboardLayout {
 - [Bonds System Guide](./user-guides/bonds-system-guide.md)
 - [Kink Identity Guide](./user-guides/kink-identity-guide.md)
 - [Profile Management](./user-guides/onboarding-guide.md)
-
-
-

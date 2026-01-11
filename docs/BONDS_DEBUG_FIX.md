@@ -15,13 +15,13 @@
 
 **Fix**: Changed to `urlStep <= 6`
 
-```typescript
+\`\`\`typescript
 // Before
 const currentStep = urlStep && urlStep >= 1 && urlStep <= 5 ? urlStep : dbStep
 
 // After
 const currentStep = urlStep && urlStep >= 1 && urlStep <= 6 ? urlStep : dbStep
-```
+\`\`\`
 
 ---
 
@@ -50,13 +50,13 @@ const currentStep = urlStep && urlStep >= 1 && urlStep <= 6 ? urlStep : dbStep
 
 **Fix**: Changed to `step >= 6`
 
-```typescript
+\`\`\`typescript
 // Before
 completed: step >= 5, // 5 is the final step
 
 // After
 completed: step >= 6, // 6 is the final step (Welcome Splash)
-```
+\`\`\`
 
 ---
 
@@ -88,7 +88,7 @@ completed: step >= 6, // 6 is the final step (Welcome Splash)
 
 ## Component Structure
 
-```
+\`\`\`
 components/
 ├── account/
 │   ├── bond-management.tsx      (NEW - Bond management UI)
@@ -98,7 +98,7 @@ components/
     ├── onboarding-wizard.tsx    (Already had BondSetupStep)
     └── steps/
         └── bond-setup-step.tsx   (Exists and properly exported)
-```
+\`\`\`
 
 ---
 
@@ -136,39 +136,39 @@ components/
 ## Testing Steps
 
 1. **Test Onboarding**:
-   ```
+   \`\`\`
    - Navigate to /onboarding
    - Should see step 1 (Welcome)
    - Click Next
    - Should see step 2 (Bond Setup) ✅
-   ```
+   \`\`\`
 
 2. **Test Profile**:
-   ```
+   \`\`\`
    - Navigate to /account/profile
    - Click "Basic Information" tab
    - Scroll down
    - Should see "Bond Management" section ✅
-   ```
+   \`\`\`
 
 3. **Test Bond Creation**:
-   ```
+   \`\`\`
    - In profile, click "Create New" in Bond Management
    - Enter bond name
    - Select bond type
    - Click "Create Bond"
    - Should see success message ✅
-   ```
+   \`\`\`
 
 4. **Test Bond Joining**:
-   ```
+   \`\`\`
    - In profile, click "Join Existing" in Bond Management
    - Enter invite code
    - Click search
    - Select bond
    - Click "Join Bond"
    - Should see success message ✅
-   ```
+   \`\`\`
 
 ---
 
@@ -176,14 +176,14 @@ components/
 
 If user needs to restart onboarding:
 
-```sql
+\`\`\`sql
 UPDATE profiles
 SET 
   onboarding_completed = false,
   onboarding_step = 1,
   onboarding_data = '{}'::jsonb
 WHERE id = '<user_id>';
-```
+\`\`\`
 
 ---
 
@@ -212,6 +212,3 @@ WHERE id = '<user_id>';
 - [Bonds System User Guide](./user-guides/bonds-system-guide.md)
 - [Bonds API Reference](./api/bonds-api.md)
 - [Bonds Implementation Guide](./developer/bonds-implementation.md)
-
-
-

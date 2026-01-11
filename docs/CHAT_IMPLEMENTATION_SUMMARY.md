@@ -77,7 +77,7 @@
 ## Database Schema
 
 ### Messages Table
-```sql
+\`\`\`sql
 CREATE TABLE messages (
   id uuid PRIMARY KEY,
   conversation_id uuid REFERENCES conversations(id),
@@ -91,10 +91,10 @@ CREATE TABLE messages (
 
 CREATE INDEX messages_embedding_idx ON messages 
 USING ivfflat (embedding vector_cosine_ops) WITH (lists=100);
-```
+\`\`\`
 
 ### Search Functions
-```sql
+\`\`\`sql
 -- Search messages by similarity
 SELECT * FROM search_messages_by_similarity(
   query_embedding := '[0.1, 0.2, ...]'::vector(1536),
@@ -111,12 +111,12 @@ SELECT * FROM search_conversations_by_similarity(
   similarity_threshold := 0.7,
   limit_results := 10
 );
-```
+\`\`\`
 
 ## Usage
 
 ### Basic Chat (with history)
-```typescript
+\`\`\`typescript
 const { messages, sendMessage, isLoadingHistory } = useChatStream({
   conversationId: "conv-123",
   userId: user.id, // Now properly validated
@@ -126,10 +126,10 @@ const { messages, sendMessage, isLoadingHistory } = useChatStream({
 
 // Messages automatically load when conversationId changes
 // Realtime updates are handled automatically
-```
+\`\`\`
 
 ### Semantic Search
-```typescript
+\`\`\`typescript
 const { searchMessages, searchConversations } = useSemanticSearch({
   userId: user.id,
   conversationId: "conv-123", // optional
@@ -146,12 +146,12 @@ const conversations = await searchConversations("tasks and rewards", {
   similarityThreshold: 0.7,
   limit: 10,
 })
-```
+\`\`\`
 
 ## Architecture Flow
 
 ### Message Send Flow
-```
+\`\`\`
 1. User types message → Frontend validates userId ✅
 2. Frontend calls edge function with authenticated user_id ✅
 3. Edge function creates conversation if needed ✅
@@ -160,24 +160,24 @@ const conversations = await searchConversations("tasks and rewards", {
 6. Edge function saves assistant message ✅
 7. Edge function generates embedding (async) ✅
 8. Realtime broadcasts update to all clients ✅
-```
+\`\`\`
 
 ### Conversation Load Flow
-```
+\`\`\`
 1. User opens conversation → Frontend loads messages from DB ✅
 2. Frontend subscribes to Realtime updates ✅
 3. New messages appear via Realtime ✅
 4. Streaming messages update via UPDATE events ✅
-```
+\`\`\`
 
 ### Search Flow
-```
+\`\`\`
 1. User searches → Frontend calls /api/embeddings ✅
 2. API generates embedding using OpenAI ✅
 3. Frontend calls search function with embedding ✅
 4. Database performs cosine similarity search ✅
 5. Results returned ordered by similarity ✅
-```
+\`\`\`
 
 ## Testing Checklist
 
@@ -251,4 +251,3 @@ All requested features have been implemented:
 6. ✅ Search functions ready to use
 
 The chat system is now fully functional with authentication, history, Realtime updates, and semantic search capabilities!
-

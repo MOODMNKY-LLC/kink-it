@@ -74,6 +74,3 @@ export function getTemplateCharacterData(id: string): CharacterData | null {
   const template = getCharacterTemplate(id)
   return template?.characterData || null
 }
-
-
-

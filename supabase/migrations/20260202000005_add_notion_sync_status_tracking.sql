@@ -176,4 +176,3 @@ COMMENT ON COLUMN public.app_ideas.notion_page_id IS 'Notion page ID for this id
 COMMENT ON COLUMN public.app_ideas.notion_synced_at IS 'Timestamp of last successful sync to Notion';
 COMMENT ON COLUMN public.app_ideas.notion_sync_status IS 'Current sync status: synced, pending, failed, error';
 COMMENT ON COLUMN public.app_ideas.notion_sync_error IS 'Error message if sync failed';
-

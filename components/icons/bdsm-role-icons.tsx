@@ -185,6 +185,3 @@ export function BDSMRoleIcon({ role, size = 24, className, variant = "filled" }:
       return null
   }
 }
-
-
-

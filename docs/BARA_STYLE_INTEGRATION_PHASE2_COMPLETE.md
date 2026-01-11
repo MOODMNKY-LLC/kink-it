@@ -58,7 +58,7 @@ Phase 2 of the Bara style integration focused on creating UI components for prop
 ## Architecture
 
 ### Props Flow
-```
+\`\`\`
 User Input (PropsSelector)
   ↓
 Component State (props: GenerationProps)
@@ -70,7 +70,7 @@ API Route / Edge Function
 buildAvatarPrompt (with props)
   ↓
 OpenAI DALL-E 3
-```
+\`\`\`
 
 ### Default Behavior
 - All image generation defaults to **KINKY_DEFAULT_PROPS** (Bara style)
@@ -99,14 +99,14 @@ OpenAI DALL-E 3
 ## Technical Details
 
 ### Props Structure
-```typescript
+\`\`\`typescript
 interface GenerationProps {
   physical?: PhysicalProps
   clothing?: ClothingProps
   kink_accessories?: KinkAccessoriesProps
   background?: BackgroundProps
 }
-```
+\`\`\`
 
 ### Props to Prompt Conversion
 - `propsToPrompt()` function converts structured props to natural language
@@ -175,6 +175,3 @@ interface GenerationProps {
 ## Summary
 
 Phase 2 successfully implements a comprehensive prop selection UI system that integrates seamlessly with the existing image generation infrastructure. Users can now customize image generation through a structured interface while maintaining the default Bara style consistency. The implementation follows React best practices, uses Shadcn components for consistency, and integrates with both the playground and KINKSTER creation flows.
-
-
-

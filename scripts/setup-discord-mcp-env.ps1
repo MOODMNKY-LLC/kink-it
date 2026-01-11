@@ -43,7 +43,3 @@ Write-Host ""
 Write-Host "3. Test Discord MCP in Cursor:" -ForegroundColor Yellow
 Write-Host '   "Login to Discord with bot token"' -ForegroundColor Gray
 Write-Host '   "Send test message to channel 1457594125590462548"' -ForegroundColor Gray
-
-
-
-

@@ -257,5 +257,3 @@ export default function NotionSetupStep({ onNext, onBack, initialData }: NotionS
     </div>
   )
 }
-
-

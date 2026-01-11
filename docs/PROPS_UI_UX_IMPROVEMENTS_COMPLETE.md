@@ -75,9 +75,9 @@ Successfully fixed prompt synthesis issues, improved props state management, red
 ## Component Structure
 
 ### Tabs Layout
-```
+\`\`\`
 [Physical] [Clothing] [Accessories] [Background]
-```
+\`\`\`
 
 ### Physical Tab
 - 2-column grid for most fields
@@ -100,7 +100,7 @@ Successfully fixed prompt synthesis issues, improved props state management, red
 
 ## State Management Flow
 
-```
+\`\`\`
 PropsSelector (user selects)
   ↓
 onPropsChange (updates props state)
@@ -112,7 +112,7 @@ characterData.props (always in sync)
 PromptPreview (synthesizes prompt)
   ↓
 buildAvatarPrompt (uses characterData.props)
-```
+\`\`\`
 
 ## Navigation Updates
 
@@ -152,6 +152,3 @@ All issues have been resolved:
 4. ✅ KINKSTER creation is accessible from sidebar
 
 The PropsSelector is now more efficient, easier to use, and properly integrated with the prompt synthesis system.
-
-
-

@@ -326,6 +326,3 @@ export function BondOverview({ bondId, profile }: BondOverviewProps) {
     </div>
   )
 }
-
-
-

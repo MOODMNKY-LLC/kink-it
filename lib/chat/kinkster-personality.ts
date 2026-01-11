@@ -132,5 +132,3 @@ function interpretStats(kinkster: Kinkster): string {
 export function getKinksterChatName(kinkster: Kinkster): string {
   return kinkster.name
 }
-
-

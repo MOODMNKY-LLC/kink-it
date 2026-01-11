@@ -16,7 +16,3 @@ if ($tokenLine) {
 } else {
     Write-Host "❌ DISCORD_BOT_TOKEN not found in .env.local" -ForegroundColor Red
 }
-
-
-
-

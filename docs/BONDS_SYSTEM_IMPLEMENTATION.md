@@ -53,7 +53,7 @@ Based on traditional BDSM symbols:
 
 ### Bonds System (`bonds` table)
 
-```sql
+\`\`\`sql
 CREATE TABLE public.bonds (
   id uuid PRIMARY KEY,
   name text NOT NULL,
@@ -65,11 +65,11 @@ CREATE TABLE public.bonds (
   is_private boolean DEFAULT true,
   metadata jsonb DEFAULT '{}'
 )
-```
+\`\`\`
 
 ### Bond Members (`bond_members` table)
 
-```sql
+\`\`\`sql
 CREATE TABLE public.bond_members (
   id uuid PRIMARY KEY,
   bond_id uuid REFERENCES bonds(id),
@@ -82,7 +82,7 @@ CREATE TABLE public.bond_members (
   can_manage boolean DEFAULT false,
   metadata jsonb DEFAULT '{}'
 )
-```
+\`\`\`
 
 ### Enhanced Profiles
 
@@ -359,6 +359,3 @@ The bonds system aligns with Notion template structure:
 ## Conclusion
 
 This implementation provides a robust foundation for multi-member relationship management while significantly enhancing user self-expression through comprehensive kink identity fields. The system is designed to scale from simple dyads to complex polycules while maintaining security, privacy, and user control.
-
-
-

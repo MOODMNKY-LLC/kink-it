@@ -34,7 +34,7 @@ After comprehensive analysis using deep thinking protocol, I've identified criti
 - `app/api/tasks/[id]/route.ts` (UPDATE - remove TODO, add proof_id handling)
 
 **User Flow:**
-```
+\`\`\`
 User clicks "Complete" → 
   If proof_required → Show dialog with ProofUpload → 
     User uploads proof → 
@@ -44,7 +44,7 @@ User clicks "Complete" →
   If no proof_required → 
     Task completed directly → 
       Success
-```
+\`\`\`
 
 ---
 
@@ -169,7 +169,7 @@ User clicks "Complete" →
 
 ### Task Completion Flow (Updated)
 
-```typescript
+\`\`\`typescript
 // User clicks "Complete"
 handleComplete(task) {
   if (task.proof_required && !task.proof_id) {
@@ -189,11 +189,11 @@ onProofUploaded(proofId) {
     proof_id: proofId
   })
 }
-```
+\`\`\`
 
 ### PATCH Endpoint Update
 
-```typescript
+\`\`\`typescript
 // Accept proof_id instead of proof object
 const { status, completion_notes, proof_id } = body
 
@@ -222,11 +222,11 @@ if (proof_id) {
     )
   }
 }
-```
+\`\`\`
 
 ### AvatarManagement Integration
 
-```typescript
+\`\`\`typescript
 // In KinksterSheet component
 import { AvatarManagement } from '@/components/kinksters/avatar-management'
 
@@ -248,7 +248,7 @@ import { AvatarManagement } from '@/components/kinksters/avatar-management'
     />
   </CardContent>
 </Card>
-```
+\`\`\`
 
 ---
 
@@ -331,6 +331,3 @@ import { AvatarManagement } from '@/components/kinksters/avatar-management'
 **Status**: Ready for Implementation  
 **Priority**: High (Task Completion), Medium (Avatar Management), Medium (Proof Viewing)  
 **Estimated Time**: 4-6 hours for all integrations
-
-
-

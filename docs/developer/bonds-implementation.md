@@ -17,7 +17,7 @@ This document provides technical details for developers working with the Bonds S
 
 #### `bonds`
 
-```sql
+\`\`\`sql
 CREATE TABLE public.bonds (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL,
@@ -31,11 +31,11 @@ CREATE TABLE public.bonds (
   invite_code text UNIQUE,
   metadata jsonb DEFAULT '{}'::jsonb
 );
-```
+\`\`\`
 
 #### `bond_members`
 
-```sql
+\`\`\`sql
 CREATE TABLE public.bond_members (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   bond_id uuid NOT NULL REFERENCES public.bonds(id) ON DELETE CASCADE,
@@ -48,11 +48,11 @@ CREATE TABLE public.bond_members (
   can_manage boolean DEFAULT false,
   metadata jsonb DEFAULT '{}'::jsonb
 );
-```
+\`\`\`
 
 ### Enums
 
-```sql
+\`\`\`sql
 CREATE TYPE bond_type AS ENUM (
   'dyad',
   'polycule',
@@ -66,7 +66,7 @@ CREATE TYPE bond_status AS ENUM (
   'paused',
   'dissolved'
 );
-```
+\`\`\`
 
 ---
 
@@ -76,7 +76,7 @@ CREATE TYPE bond_status AS ENUM (
 
 **SELECT Policy**: Users can view bonds they belong to, created, or all bonds (admins)
 
-```sql
+\`\`\`sql
 CREATE POLICY "Users can view bonds they belong to"
 ON public.bonds FOR SELECT
 TO authenticated
@@ -93,7 +93,7 @@ USING (
     WHERE id = (SELECT auth.uid()) AND system_role = 'admin'
   )
 );
-```
+\`\`\`
 
 **INSERT Policy**: Authenticated users can create bonds
 
@@ -158,7 +158,7 @@ USING (
 
 ### Generate Invite Code
 
-```sql
+\`\`\`sql
 CREATE OR REPLACE FUNCTION public.generate_bond_invite_code()
 RETURNS text
 LANGUAGE plpgsql
@@ -177,7 +177,7 @@ BEGIN
   RETURN code;
 END;
 $$;
-```
+\`\`\`
 
 ---
 
@@ -185,7 +185,7 @@ $$;
 
 ### Performance Indexes
 
-```sql
+\`\`\`sql
 -- Bonds
 CREATE INDEX idx_bonds_created_by ON public.bonds(created_by);
 CREATE INDEX idx_bonds_status ON public.bonds(bond_status);
@@ -201,7 +201,7 @@ CREATE INDEX idx_bond_members_active ON public.bond_members(bond_id, is_active) 
 CREATE UNIQUE INDEX idx_bond_members_unique_active 
 ON public.bond_members(bond_id, user_id) 
 WHERE is_active = true;
-```
+\`\`\`
 
 ---
 
@@ -209,7 +209,7 @@ WHERE is_active = true;
 
 ### Bond Types
 
-```typescript
+\`\`\`typescript
 export type BondType = "dyad" | "polycule" | "household" | "dynamic"
 export type BondStatus = "forming" | "active" | "paused" | "dissolved"
 export type BondMemberRole = "founder" | "dominant" | "submissive" | "switch" | "member"
@@ -227,7 +227,7 @@ export interface Bond {
   invite_code: string | null
   metadata: Record<string, any>
 }
-```
+\`\`\`
 
 ---
 
@@ -269,11 +269,11 @@ Verify RLS policies:
 
 ### Data Migration Script (Future)
 
-```sql
+\`\`\`sql
 -- Convert partner_id relationships to dyad bonds
 -- Preserve existing relationship data
 -- Maintain backward compatibility
-```
+\`\`\`
 
 ---
 
@@ -301,6 +301,3 @@ Verify RLS policies:
 - [Bonds System User Guide](../user-guides/bonds-system-guide.md)
 - [Bonds API Reference](../api/bonds-api.md)
 - [Database Schema](../technical-specs/database-schema.md)
-
-
-

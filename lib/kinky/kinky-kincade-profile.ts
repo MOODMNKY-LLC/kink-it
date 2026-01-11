@@ -100,6 +100,3 @@ export const kinkyQuotes = [
   "Every great dynamic starts with clear boundaries and open dialogue.",
   "I'm not just here to assist - I'm here to inspire.",
 ]
-
-
-

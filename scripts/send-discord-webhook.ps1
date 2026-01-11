@@ -20,7 +20,3 @@ try {
     Write-Host "Error sending message: $_" -ForegroundColor Red
     exit 1
 }
-
-
-
-

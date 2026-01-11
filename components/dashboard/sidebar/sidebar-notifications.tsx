@@ -29,4 +29,3 @@ export function SidebarNotifications() {
 
   return <TerminalNotificationsRealtime userId={userId} />
 }
-

@@ -11,7 +11,7 @@
 
 **Open PowerShell** and run:
 
-```powershell
+\`\`\`powershell
 # Load DISCORD_BOT_TOKEN from .env.local (if not already loaded)
 $envContent = Get-Content ".env.local" | Where-Object { $_ -match "^DISCORD_BOT_TOKEN=" }
 if ($envContent) {
@@ -24,7 +24,7 @@ $env:DISCORD_TOKEN = $env:DISCORD_BOT_TOKEN
 
 # Verify it's set
 Write-Host "DISCORD_TOKEN length: $($env:DISCORD_TOKEN.Length)" -ForegroundColor Green
-```
+\`\`\`
 
 ### Step 2: Restart Cursor IDE
 
@@ -35,26 +35,26 @@ Write-Host "DISCORD_TOKEN length: $($env:DISCORD_TOKEN.Length)" -ForegroundColor
 ### Step 3: Test Again
 
 After restarting, try:
-```
+\`\`\`
 Login to Discord with bot token using random string "test"
-```
+\`\`\`
 
 Then:
-```
+\`\`\`
 Send a test message to Discord channel 1457594125590462548: "Test message"
-```
+\`\`\`
 
 ---
 
 ## 🔍 Alternative: Check Current Environment
 
 **Check if DISCORD_BOT_TOKEN is set**:
-```powershell
+\`\`\`powershell
 $env:DISCORD_BOT_TOKEN
-```
+\`\`\`
 
 **If it's not set**, you need to load it from `.env.local`:
-```powershell
+\`\`\`powershell
 # Get token from .env.local
 $envContent = Get-Content ".env.local"
 $tokenLine = $envContent | Where-Object { $_ -match "^DISCORD_BOT_TOKEN=" }
@@ -66,7 +66,7 @@ if ($tokenLine) {
 } else {
     Write-Host "❌ DISCORD_BOT_TOKEN not found in .env.local" -ForegroundColor Red
 }
-```
+\`\`\`
 
 ---
 
@@ -75,17 +75,17 @@ if ($tokenLine) {
 To make this persistent, add to your PowerShell profile:
 
 **Find your profile**:
-```powershell
+\`\`\`powershell
 $PROFILE
-```
+\`\`\`
 
 **Edit it**:
-```powershell
+\`\`\`powershell
 notepad $PROFILE
-```
+\`\`\`
 
 **Add this**:
-```powershell
+\`\`\`powershell
 # Discord MCP Token Setup
 if (Test-Path ".env.local") {
     $envContent = Get-Content ".env.local"
@@ -98,12 +98,12 @@ if (Test-Path ".env.local") {
         }
     }
 }
-```
+\`\`\`
 
 **Then restart PowerShell** or run:
-```powershell
+\`\`\`powershell
 . $PROFILE
-```
+\`\`\`
 
 ---
 
@@ -119,7 +119,3 @@ After setting the environment variable and restarting Cursor:
 
 **Last Updated**: 2026-01-27  
 **Status**: Ready for Testing
-
-
-
-

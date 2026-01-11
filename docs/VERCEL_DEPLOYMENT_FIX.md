@@ -9,11 +9,11 @@
 ## Problem
 
 Vercel deployments were failing with:
-```
+\`\`\`
 Error: <Html> should not be imported outside of pages/_document.
 Error occurred prerendering page "/404".
 Export encountered an error on /_error: /404, exiting the build.
-```
+\`\`\`
 
 Even though our custom build script was catching the error and exiting with code 0, Vercel was still detecting the Next.js build failure and marking the deployment as failed.
 

@@ -33,7 +33,7 @@ We use a **hybrid complementary approach**:
 
 ### Next.js Image Component
 
-```tsx
+\`\`\`tsx
 import Image from "next/image"
 import supabaseImageLoader from "@/lib/supabase-image-loader"
 
@@ -45,11 +45,11 @@ import supabaseImageLoader from "@/lib/supabase-image-loader"
   alt="Image"
   quality={85}
 />
-```
+\`\`\`
 
 ### Optimized Image Component
 
-```tsx
+\`\`\`tsx
 import { OptimizedImage } from "@/components/ui/optimized-image"
 
 <OptimizedImage
@@ -59,11 +59,11 @@ import { OptimizedImage } from "@/components/ui/optimized-image"
   height={600}
   quality={85}
 />
-```
+\`\`\`
 
 ### Utility Functions
 
-```tsx
+\`\`\`tsx
 import { getOptimizedImageUrl, getThumbnailUrl, getResponsiveImageUrls } from "@/lib/supabase-image-utils"
 
 // Get optimized URL
@@ -78,7 +78,7 @@ const thumbnailUrl = getThumbnailUrl(imageUrl, 200)
 // Get responsive URLs
 const responsiveUrls = getResponsiveImageUrls(imageUrl)
 // Returns: { mobile, tablet, desktop, full }
-```
+\`\`\`
 
 ## Workflow
 
@@ -103,13 +103,13 @@ const responsiveUrls = getResponsiveImageUrls(imageUrl)
 
 The custom loader is configured in `next.config.ts`:
 
-```typescript
+\`\`\`typescript
 images: {
   loader: 'custom',
   loaderFile: './lib/supabase-image-loader.ts',
   // ... other config
 }
-```
+\`\`\`
 
 ### Environment Variables
 
@@ -128,4 +128,3 @@ Required:
 - Format optimization based on browser capabilities
 - Quality optimization based on use case (thumbnail vs. full-size)
 - CDN caching strategies for different image types
-

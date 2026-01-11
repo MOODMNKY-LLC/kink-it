@@ -29,7 +29,7 @@ The `chat-stream` edge function couldn't connect while the `generate-kinkster-av
 - Added connection state debugging
 
 **Code Changes**:
-```typescript
+\`\`\`typescript
 // Before
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
@@ -37,7 +37,7 @@ const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
 // After
 const supabaseUrl = (supabase as any).supabaseUrl || process.env.NEXT_PUBLIC_SUPABASE_URL
 const anonKey = (supabase as any).supabaseKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-```
+\`\`\`
 
 ### 2. Enhanced Error Handling
 - Added detailed error logging with URL, status, and response
@@ -54,20 +54,20 @@ const anonKey = (supabase as any).supabaseKey || process.env.NEXT_PUBLIC_SUPABAS
 
 ### Local Development
 For local development, ensure the function is running:
-```bash
+\`\`\`bash
 supabase functions serve chat-stream --no-verify-jwt
-```
+\`\`\`
 
 Or serve all functions:
-```bash
+\`\`\`bash
 supabase functions serve --no-verify-jwt
-```
+\`\`\`
 
 ### Production
 The function should be automatically deployed and accessible at:
-```
+\`\`\`
 ${SUPABASE_URL}/functions/v1/chat-stream
-```
+\`\`\`
 
 ## Connection Flow
 
@@ -125,5 +125,3 @@ ${SUPABASE_URL}/functions/v1/chat-stream
 
 **Date**: 2025-02-01
 **Author**: CODE MNKY
-
-

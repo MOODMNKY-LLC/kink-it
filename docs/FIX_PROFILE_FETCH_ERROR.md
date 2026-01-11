@@ -37,7 +37,7 @@ If you have existing users without profiles, you can manually create them:
 
 ### Option 1: Run SQL Migration
 
-```sql
+\`\`\`sql
 -- Create profiles for existing users who don't have one
 INSERT INTO public.profiles (
   id,
@@ -65,27 +65,27 @@ SELECT
 FROM auth.users u
 LEFT JOIN public.profiles p ON u.id = p.id
 WHERE p.id IS NULL;
-```
+\`\`\`
 
 ### Option 2: Verify Trigger Exists
 
-```sql
+\`\`\`sql
 -- Check if trigger exists
 SELECT * FROM pg_trigger WHERE tgname = 'on_auth_user_created';
 
 -- Check if function exists
 SELECT * FROM pg_proc WHERE proname = 'handle_new_user';
-```
+\`\`\`
 
 ### Option 3: Re-run Migration
 
-```bash
+\`\`\`bash
 # Reset database (WARNING: This will delete all data)
 supabase db reset
 
 # Or apply migration manually
 supabase migration up
-```
+\`\`\`
 
 ## Prevention
 
@@ -108,8 +108,3 @@ After applying the fix:
 - `app/layout.tsx` - Improved error handling
 - `scripts/002_create_profiles.sql` - Profile creation trigger
 - `scripts/003_enhance_profile_trigger.sql` - Enhanced trigger for Notion metadata
-
-
-
-
-

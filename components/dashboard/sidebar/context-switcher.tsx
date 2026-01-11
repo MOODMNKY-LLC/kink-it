@@ -429,4 +429,3 @@ export function ContextSwitcher({ profile }: ContextSwitcherProps) {
     </Popover>
   )
 }
-

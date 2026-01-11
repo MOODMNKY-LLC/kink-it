@@ -74,7 +74,3 @@ export function useNotifications() {
     unreadCount: notifications.filter((n) => !n.read).length,
   }
 }
-
-
-
-

@@ -18,14 +18,14 @@ This migration creates:
 ### 2. Apply Migration
 
 **For Local Development:**
-```bash
+\`\`\`bash
 npx supabase migration up --local --include-all
-```
+\`\`\`
 
 **For Production:**
-```bash
+\`\`\`bash
 npx supabase db push
-```
+\`\`\`
 
 ### 3. Sharp Import Fix
 
@@ -36,13 +36,13 @@ Updated `app/api/image/remove-background/route.ts` to:
 
 ## Bucket Structure
 
-```
+\`\`\`
 generations/
   └── processed/
       └── {user_id}/
           ├── bg-removed-{timestamp}.png
           └── vectorized-{timestamp}.svg
-```
+\`\`\`
 
 ## RLS Policies
 
@@ -50,4 +50,3 @@ generations/
 - **View**: Users can view their own files + public access for CDN
 - **Update**: Users can update their own files
 - **Delete**: Users can delete their own files
-

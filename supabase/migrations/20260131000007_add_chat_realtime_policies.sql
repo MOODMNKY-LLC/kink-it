@@ -61,4 +61,3 @@ CREATE TRIGGER broadcast_message_update_trigger
 AFTER INSERT OR UPDATE ON public.messages
 FOR EACH ROW
 EXECUTE FUNCTION public.broadcast_message_update();
-

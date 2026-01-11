@@ -20,22 +20,22 @@ The Discord MCP Docker container needs `DISCORD_TOKEN` to be available when Curs
 ### Option 1: Start Cursor from PowerShell (Recommended)
 
 1. **Run the token loader script**:
-   ```powershell
+   \`\`\`powershell
    .\scripts\load-and-set-discord-token.ps1
-   ```
+   \`\`\`
 
 2. **Keep that PowerShell window open**
 
 3. **Start Cursor from that PowerShell session**:
-   ```powershell
+   \`\`\`powershell
    cursor .
-   ```
+   \`\`\`
 
 ### Option 2: Set Environment Variable Permanently
 
 **Add to PowerShell Profile** (`$PROFILE`):
 
-```powershell
+\`\`\`powershell
 # Discord MCP Token Setup
 if (Test-Path ".env.local") {
     $content = Get-Content ".env.local" -Raw
@@ -48,12 +48,12 @@ if (Test-Path ".env.local") {
         }
     }
 }
-```
+\`\`\`
 
 **Then restart PowerShell** or run:
-```powershell
+\`\`\`powershell
 . $PROFILE
-```
+\`\`\`
 
 ---
 
@@ -62,14 +62,14 @@ if (Test-Path ".env.local") {
 Once Cursor is restarted with `DISCORD_TOKEN` set:
 
 1. **Test Discord Login**:
-   ```
+   \`\`\`
    Login to Discord with bot token using random string "test"
-   ```
+   \`\`\`
 
 2. **Send Test Message**:
-   ```
+   \`\`\`
    Send a test message to Discord channel 1457594125590462548: "🎉 KINK IT Discord MCP Test - Connection successful!"
-   ```
+   \`\`\`
 
 ---
 
@@ -77,10 +77,10 @@ Once Cursor is restarted with `DISCORD_TOKEN` set:
 
 **Check if DISCORD_TOKEN is available to Docker**:
 
-```powershell
+\`\`\`powershell
 # In PowerShell where you set DISCORD_TOKEN
 docker run --rm -e DISCORD_TOKEN=$env:DISCORD_TOKEN mcp/mcp-discord echo "Token available: $($env:DISCORD_TOKEN.Length) chars"
-```
+\`\`\`
 
 If this works, Docker can access the token. Then restart Cursor from that same PowerShell session.
 
@@ -89,7 +89,7 @@ If this works, Docker can access the token. Then restart Cursor from that same P
 ## 📝 Current Configuration
 
 **MCP Config** (`.cursor/mcp.json`):
-```json
+\`\`\`json
 "mcp-discord": {
   "command": "docker",
   "args": [
@@ -101,7 +101,7 @@ If this works, Docker can access the token. Then restart Cursor from that same P
     "mcp/mcp-discord"
   ]
 }
-```
+\`\`\`
 
 **Note**: The `env` section was removed - Docker will pick up `DISCORD_TOKEN` from the host environment automatically.
 
@@ -119,7 +119,3 @@ After proper setup:
 
 **Last Updated**: 2026-01-27  
 **Status**: Waiting for Cursor Restart
-
-
-
-

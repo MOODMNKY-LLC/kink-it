@@ -8,9 +8,9 @@
 ## Seed Script Execution
 
 ### Command Used
-```bash
+\`\`\`bash
 pnpm seed
-```
+\`\`\`
 
 ### Results
 
@@ -60,13 +60,13 @@ The database dump confirms data was created:
 
 Run the API testing script (requires dev server to be running):
 
-```bash
+\`\`\`bash
 # Terminal 1: Start dev server
 pnpm dev
 
 # Terminal 2: Run API tests
 pnpm test:api
-```
+\`\`\`
 
 **Expected Tests**:
 - ✅ Authentication (Kevin & Simeon)
@@ -104,7 +104,7 @@ pnpm test:api
 
 ## Test Credentials
 
-```
+\`\`\`
 Simeon (Dominant/Admin):
   Email: simeon@kinkit.app
   Password: password123
@@ -112,7 +112,7 @@ Simeon (Dominant/Admin):
 Kevin (Submissive):
   Email: kevin@kinkit.app
   Password: password123
-```
+\`\`\`
 
 ---
 
@@ -127,8 +127,3 @@ Kevin (Submissive):
 ---
 
 **Status**: ✅ Seed data ready for comprehensive testing
-
-
-
-
-

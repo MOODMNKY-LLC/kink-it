@@ -2,9 +2,9 @@
 
 ## Issue
 Edge Function connection failing in local development with error:
-```
+\`\`\`
 Cannot connect to Edge Function at https://127.0.0.1:55321/functions/v1/chat-stream
-```
+\`\`\`
 
 ## Root Cause
 The Edge Function needs to be running locally for local development. The error occurs because:
@@ -18,7 +18,7 @@ The Edge Function needs to be running locally for local development. The error o
 
 **Start the Edge Function** in a separate terminal:
 
-```bash
+\`\`\`bash
 # Option 1: Using pnpm script
 pnpm functions:serve
 
@@ -29,7 +29,7 @@ supabase functions serve chat-stream --no-verify-jwt
 pnpm functions:serve:all
 # OR
 supabase functions serve --no-verify-jwt
-```
+\`\`\`
 
 ### What Changed
 
@@ -41,7 +41,7 @@ supabase functions serve --no-verify-jwt
 
 **File**: `hooks/use-chat-stream.ts`
 
-```typescript
+\`\`\`typescript
 // Detect if we're in local development
 const isLocalDev = supabaseUrl.includes("127.0.0.1") || 
                    supabaseUrl.includes("localhost") || 
@@ -55,7 +55,7 @@ if (status === 404 || status === 0) {
     errorMsg = `Edge Function not found at ${functionUrl}. Check if the function is deployed.`
   }
 }
-```
+\`\`\`
 
 ## Testing
 
@@ -73,22 +73,22 @@ if (status === 404 || status === 0) {
 ### Function Still Not Connecting Locally
 
 1. **Check if function is running**:
-   ```bash
+   \`\`\`bash
    # Should see output like:
    # Functions URL: http://127.0.0.1:54321/functions/v1
    # Functions:
    #   - chat-stream
-   ```
+   \`\`\`
 
 2. **Check port conflicts**:
    - Default: `54321` (functions port)
    - Check `supabase/config.toml` for custom ports
 
 3. **Check function logs**:
-   ```bash
+   \`\`\`bash
    # In the terminal running the function, you should see:
    # Listening on http://127.0.0.1:54321/functions/v1/chat-stream
-   ```
+   \`\`\`
 
 4. **Verify URL matches**:
    - Check `supabase status` output
@@ -113,5 +113,3 @@ if (status === 404 || status === 0) {
 **Date**: 2025-02-01
 **Author**: CODE MNKY
 **Status**: Fixed
-
-

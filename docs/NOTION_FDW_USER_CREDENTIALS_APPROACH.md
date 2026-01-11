@@ -61,7 +61,7 @@
 
 ### Step 1: Get Authenticated User ID
 
-```typescript
+\`\`\`typescript
 // In your API route or component
 const supabase = await createClient()
 const { data: { user } } = await supabase.auth.getUser()
@@ -73,21 +73,21 @@ if (!user) {
 
 // user.id is the authenticated user's ID
 // This matches profiles.id
-```
+\`\`\`
 
 ### Step 2: Check if User Has Notion API Key
 
-```sql
+\`\`\`sql
 -- Check if user has a Notion API key stored
 SELECT id, key_name, key_hash, is_active
 FROM user_notion_api_keys
 WHERE user_id = 'USER-ID-FROM-AUTH'
   AND is_active = true;
-```
+\`\`\`
 
 ### Step 3: Discover User's Databases
 
-```typescript
+\`\`\`typescript
 // Use user's Notion API key to discover databases
 const { data: apiKey } = await supabase.rpc('get_user_notion_api_key', {
   p_key_id: keyId,
@@ -108,11 +108,11 @@ const response = await fetch('https://api.notion.com/v1/search', {
 })
 
 const databases = await response.json()
-```
+\`\`\`
 
 ### Step 4: Store Database IDs
 
-```sql
+\`\`\`sql
 -- Insert discovered databases for authenticated user
 INSERT INTO notion_databases (database_type, database_id, database_name, user_id, parent_page_id)
 VALUES 
@@ -126,15 +126,15 @@ VALUES
 ON CONFLICT (user_id, database_id) DO UPDATE
 SET database_name = EXCLUDED.database_name,
     updated_at = now();
-```
+\`\`\`
 
 ### Step 5: Initialize FDW (Uses Service Account)
 
-```sql
+\`\`\`sql
 -- FDW uses service account key (NOTION_API_KEY_PROD)
 -- This can access all databases regardless of owner
 SELECT * FROM public.setup_notion_fdw_tables();
-```
+\`\`\`
 
 ---
 
@@ -176,7 +176,7 @@ The `setup_notion_fdw_tables()` function should:
 
 ### For Authenticated User Setup:
 
-```typescript
+\`\`\`typescript
 // 1. Get authenticated user
 const { data: { user } } = await supabase.auth.getUser()
 const userId = user.id // This is auth.users.id = profiles.id
@@ -196,18 +196,18 @@ if (apiKeys && apiKeys.length > 0) {
 
 // 4. Initialize FDW (uses service account)
 // This happens server-side with NOTION_API_KEY_PROD
-```
+\`\`\`
 
 ### For FDW Initialization:
 
-```sql
+\`\`\`sql
 -- FDW setup uses service account key
 -- But queries databases by user_id for proper linking
 SELECT * FROM public.setup_notion_fdw_tables();
 
 -- This creates foreign tables accessible via service account
 -- Admin views filter by bond membership
-```
+\`\`\`
 
 ---
 
@@ -228,5 +228,3 @@ SELECT * FROM public.setup_notion_fdw_tables();
 ---
 
 **Next Step**: Update FDW setup to properly query databases by authenticated user's `user_id`!
-
-

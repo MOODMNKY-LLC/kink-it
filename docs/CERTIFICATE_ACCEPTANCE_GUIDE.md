@@ -10,9 +10,9 @@ Browser is blocking Supabase requests with "Failed to fetch" errors because the 
 
 **Navigate directly to Supabase API:**
 
-```
+\`\`\`
 https://127.0.0.1:55321
-```
+\`\`\`
 
 **In your browser:**
 
@@ -27,7 +27,7 @@ https://127.0.0.1:55321
 
 **Test in browser console:**
 
-```javascript
+\`\`\`javascript
 // Run this in your browser console
 fetch('https://127.0.0.1:55321/rest/v1/', {
   headers: {
@@ -36,14 +36,14 @@ fetch('https://127.0.0.1:55321/rest/v1/', {
 })
 .then(r => console.log('✅ Success:', r.status))
 .catch(e => console.error('❌ Failed:', e))
-```
+\`\`\`
 
 **Or use the built-in test function:**
 
-```javascript
+\`\`\`javascript
 // Available in development mode
 testSupabaseConnection()
-```
+\`\`\`
 
 ### Step 3: Accept Certificate for WebSocket (Realtime)
 
@@ -91,14 +91,14 @@ If you're using Realtime features:
 After accepting certificate, refresh your app and check console:
 
 **✅ Success:**
-```
+\`\`\`
 [Supabase Client] Initializing with URL: https://127.0.0.1:55321
-```
+\`\`\`
 
 **❌ Still Failing:**
-```
+\`\`\`
 [Supabase Client] Fetch failed: Failed to fetch
-```
+\`\`\`
 
 ### Check 2: Network Tab
 
@@ -114,12 +114,12 @@ After accepting certificate, refresh your app and check console:
 Visit: `https://127.0.0.1:3000/api/debug/supabase-connection`
 
 Should show:
-```json
+\`\`\`json
 {
   "authTest": { "success": true },
   "queryTest": { "success": true }
 }
-```
+\`\`\`
 
 ## 🐛 Troubleshooting
 
@@ -140,14 +140,14 @@ Should show:
 - Try disabling "Strict certificate validation" temporarily
 
 **4. Verify Supabase is Running**
-```bash
+\`\`\`bash
 supabase status
-```
+\`\`\`
 
 **5. Test Direct Connection**
-```bash
+\`\`\`bash
 curl -k https://127.0.0.1:55321/rest/v1/
-```
+\`\`\`
 Should return HTTP 200 (not connection error).
 
 ### Certificate Accepted But Still Failing?

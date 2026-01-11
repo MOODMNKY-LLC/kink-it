@@ -145,6 +145,3 @@ export default function StatsStep({ onNext, onBack, initialData }: StatsStepProp
     </div>
   )
 }
-
-
-

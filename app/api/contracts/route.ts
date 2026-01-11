@@ -127,4 +127,3 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ contract }, { status: 201 })
 }
-

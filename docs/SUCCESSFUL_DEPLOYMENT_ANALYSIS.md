@@ -14,11 +14,11 @@
 - Vercel used `package.json` build script
 
 **package.json**:
-```json
+\`\`\`json
 {
   "build": "next build"
 }
-```
+\`\`\`
 - Direct Next.js build (no custom script)
 
 **app/not-found.tsx**:
@@ -71,11 +71,11 @@
 ## Solution
 
 ### Option 1: Make vercel.json Use Custom Script (Recommended)
-```json
+\`\`\`json
 {
   "buildCommand": "node scripts/build-with-error-handling.js"
 }
-```
+\`\`\`
 
 This ensures Vercel uses the same build script as local, which handles the Next.js bug.
 

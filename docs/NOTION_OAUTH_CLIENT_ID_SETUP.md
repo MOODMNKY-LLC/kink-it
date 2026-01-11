@@ -9,9 +9,9 @@
 
 Add this line to your `.env.local` file:
 
-```bash
+\`\`\`bash
 NEXT_PUBLIC_NOTION_CLIENT_ID=2dfd872b-594c-803e-a575-0037d97447ad
-```
+\`\`\`
 
 **That's it!** Restart your development server after adding this.
 
@@ -27,14 +27,14 @@ The Notion OAuth flow requires the client ID to be accessible in client-side cod
 
 Your `.env.local` should have these Notion OAuth variables:
 
-```bash
+\`\`\`bash
 # Server-side (for Supabase Auth and token exchange)
 SUPABASE_AUTH_EXTERNAL_NOTION_CLIENT_ID=2dfd872b-594c-803e-a575-0037d97447ad
 SUPABASE_AUTH_EXTERNAL_NOTION_SECRET=<your-secret-here>
 
 # Client-side (for OAuth URL construction)
 NEXT_PUBLIC_NOTION_CLIENT_ID=2dfd872b-594c-803e-a575-0037d97447ad
-```
+\`\`\`
 
 **Note**: Both client IDs should have the same value. The `NEXT_PUBLIC_` prefix makes it accessible in client-side code.
 
@@ -44,10 +44,10 @@ NEXT_PUBLIC_NOTION_CLIENT_ID=2dfd872b-594c-803e-a575-0037d97447ad
 
 Add to Vercel production environment:
 
-```bash
+\`\`\`bash
 vercel env add NEXT_PUBLIC_NOTION_CLIENT_ID production
 # Enter: 2dfd872b-594c-803e-a575-0037d97447ad
-```
+\`\`\`
 
 Or use the Vercel dashboard:
 1. Go to your project → Settings → Environment Variables

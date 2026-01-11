@@ -29,7 +29,7 @@
 
 Get the production anon key from Supabase Dashboard, then run:
 
-```bash
+\`\`\`bash
 source .env.local
 
 # Get the env ID
@@ -45,17 +45,17 @@ curl -X PATCH "https://api.vercel.com/v9/projects/prj_j1cfDo37sJwQctAX6JwG6gErup
     "value": "YOUR_PRODUCTION_ANON_KEY_HERE",
     "target": ["production", "preview", "development"]
   }'
-```
+\`\`\`
 
 ### Option 2: Use Helper Script
 
-```bash
+\`\`\`bash
 # Set the production anon key
 export PRODUCTION_SUPABASE_ANON_KEY='your-production-anon-key-here'
 
 # Run the script
 ./scripts/set-vercel-env-vars.sh
-```
+\`\`\`
 
 ### Option 3: Vercel Dashboard
 
@@ -80,10 +80,10 @@ export PRODUCTION_SUPABASE_ANON_KEY='your-production-anon-key-here'
 ## Verification
 
 After redeploying, check browser console for:
-```
+\`\`\`
 🔗 Connecting to Edge Function: https://rbloeqwxivfzxmfropek.supabase.co/functions/v1/chat-stream
 ✅ SSE connection opened successfully
-```
+\`\`\`
 
 ## Project Details
 

@@ -9,10 +9,10 @@
 ## 🔴 Error Identified
 
 **Error Message**:
-```
+\`\`\`
 Failed to fetch join requests
 at fetchJoinRequests (components/admin/admin-bond-management.tsx:228:15)
-```
+\`\`\`
 
 **Root Causes**:
 1. **Network Errors**: Certificate issues blocking requests
@@ -34,17 +34,17 @@ at fetchJoinRequests (components/admin/admin-bond-management.tsx:228:15)
 - ✅ Better error logging
 
 **Before**:
-```typescript
+\`\`\`typescript
 const response = await fetch(`/api/bonds/requests?${params.toString()}`)
 const data = await response.json()
 
 if (!response.ok) {
   throw new Error(data.error || "Failed to fetch join requests")
 }
-```
+\`\`\`
 
 **After**:
-```typescript
+\`\`\`typescript
 const response = await fetch(`/api/bonds/requests?${params.toString()}`)
 
 // Check for network errors (certificate issues, etc.)
@@ -63,7 +63,7 @@ try {
 if (!response.ok) {
   throw new Error(data.error || `Failed to fetch join requests: ${response.status}`)
 }
-```
+\`\`\`
 
 ### 2. API Route Error Handling (`app/api/bonds/requests/route.ts`)
 
@@ -73,17 +73,17 @@ if (!response.ok) {
 - ✅ More specific error messages
 
 **Before**:
-```typescript
+\`\`\`typescript
 if (adminError) {
   return NextResponse.json(
     { error: "Failed to fetch join requests" },
     { status: 500 }
   )
 }
-```
+\`\`\`
 
 **After**:
-```typescript
+\`\`\`typescript
 if (adminError) {
   return NextResponse.json(
     { 
@@ -95,7 +95,7 @@ if (adminError) {
     { status: 500 }
   )
 }
-```
+\`\`\`
 
 ---
 

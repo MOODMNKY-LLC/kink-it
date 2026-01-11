@@ -29,13 +29,13 @@ After comprehensive research, I've identified the best tools for browser debuggi
 - ✅ Real-time browser debugging
 
 **Installation**:
-```bash
+\`\`\`bash
 # No installation needed - uses npx
 # Just add to .cursor/mcp.json
-```
+\`\`\`
 
 **Configuration** (`.cursor/mcp.json`):
-```json
+\`\`\`json
 {
   "mcpServers": {
     "chrome-devtools": {
@@ -44,7 +44,7 @@ After comprehensive research, I've identified the best tools for browser debuggi
     }
   }
 }
-```
+\`\`\`
 
 **Why it's best**:
 - Official Google tool (most reliable)
@@ -73,12 +73,12 @@ After comprehensive research, I've identified the best tools for browser debuggi
 - TypeScript support
 
 **Installation**:
-```bash
+\`\`\`bash
 pnpm add react-error-boundary
-```
+\`\`\`
 
 **Usage Example**:
-```tsx
+\`\`\`tsx
 import { ErrorBoundary } from 'react-error-boundary'
 
 function ErrorFallback({error, resetErrorBoundary}) {
@@ -98,7 +98,7 @@ export default function Layout({ children }) {
     </ErrorBoundary>
   )
 }
-```
+\`\`\`
 
 **Benefits**:
 - Better UX than default error boundaries
@@ -189,7 +189,7 @@ export default function Layout({ children }) {
 ### Phase 1: Add Chrome DevTools MCP (Recommended)
 
 **Step 1**: Add to `.cursor/mcp.json`:
-```json
+\`\`\`json
 {
   "mcpServers": {
     "chrome-devtools": {
@@ -198,14 +198,14 @@ export default function Layout({ children }) {
     }
   }
 }
-```
+\`\`\`
 
 **Step 2**: Restart Cursor IDE
 
 **Step 3**: Test with prompt:
-```
+\`\`\`
 "Navigate to https://127.0.0.1:3000 and check for console errors"
-```
+\`\`\`
 
 **Benefits**:
 - AI can see errors in real-time
@@ -218,12 +218,12 @@ export default function Layout({ children }) {
 ### Phase 2: Improve Error Boundaries (Optional)
 
 **Step 1**: Install package:
-```bash
+\`\`\`bash
 pnpm add react-error-boundary
-```
+\`\`\`
 
 **Step 2**: Create enhanced error boundary component:
-```tsx
+\`\`\`tsx
 // components/error-boundary.tsx
 'use client'
 
@@ -261,10 +261,10 @@ export function AppErrorBoundary({ children }) {
     </ErrorBoundary>
   )
 }
-```
+\`\`\`
 
 **Step 3**: Wrap app in root layout:
-```tsx
+\`\`\`tsx
 // app/layout.tsx
 import { AppErrorBoundary } from '@/components/error-boundary'
 
@@ -279,7 +279,7 @@ export default function RootLayout({ children }) {
     </html>
   )
 }
-```
+\`\`\`
 
 **Benefits**:
 - Better error UX
@@ -306,29 +306,29 @@ export default function RootLayout({ children }) {
 ### With Chrome DevTools MCP
 
 **Example 1: Check Console Errors**
-```
+\`\`\`
 "Navigate to https://127.0.0.1:3000 and list all console errors"
-```
+\`\`\`
 
 **Example 2: Debug Network Issues**
-```
+\`\`\`
 "Check network requests on the dashboard page and identify failed API calls"
-```
+\`\`\`
 
 **Example 3: Verify Fixes**
-```
+\`\`\`
 "After I fix the error, navigate to the page and verify there are no console errors"
-```
+\`\`\`
 
 **Example 4: Performance Debugging**
-```
+\`\`\`
 "Record a performance trace of the dashboard page and identify bottlenecks"
-```
+\`\`\`
 
 ### With react-error-boundary
 
 **Example: Retry Failed Component**
-```tsx
+\`\`\`tsx
 <ErrorBoundary
   FallbackComponent={ErrorFallback}
   onReset={() => {
@@ -338,7 +338,7 @@ export default function RootLayout({ children }) {
 >
   <DataComponent />
 </ErrorBoundary>
-```
+\`\`\`
 
 ---
 
@@ -347,7 +347,7 @@ export default function RootLayout({ children }) {
 ### Immediate Setup (5 minutes)
 
 1. **Add Chrome DevTools MCP**:
-   ```json
+   \`\`\`json
    // .cursor/mcp.json
    {
      "mcpServers": {
@@ -357,7 +357,7 @@ export default function RootLayout({ children }) {
        }
      }
    }
-   ```
+   \`\`\`
 
 2. **Restart Cursor IDE**
 
@@ -368,9 +368,9 @@ export default function RootLayout({ children }) {
 ### Enhanced Setup (15 minutes)
 
 1. **Install react-error-boundary**:
-   ```bash
+   \`\`\`bash
    pnpm add react-error-boundary
-   ```
+   \`\`\`
 
 2. **Create error boundary component** (see Phase 2 above)
 

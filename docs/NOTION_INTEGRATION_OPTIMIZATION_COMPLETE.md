@@ -78,13 +78,13 @@ Successfully optimized the Notion integration status page and unified sync statu
 - **Improved Spacing**: Better visual hierarchy and spacing
 
 **Layout Structure:**
-```
+\`\`\`
 - Header with sync status badge and refresh button
 - Tabs:
   - Overview: Connection status and summary stats
   - API Keys: Manage Notion API keys
   - Databases & Pages: Side-by-side display
-```
+\`\`\`
 
 **Performance:**
 - Parallel data fetching (`Promise.all([fetchStatus(), fetchApiKeys()])`)
@@ -96,10 +96,10 @@ Successfully optimized the Notion integration status page and unified sync statu
 ### API Endpoint Optimizations
 
 1. **Parallel Queries:**
-   ```typescript
+   \`\`\`typescript
    const [apiKeysResult, syncedDatabasesResult] = await Promise.all([...])
    const [userResponse, databasesSearchResponse, pagesSearchResponse] = await Promise.all([...])
-   ```
+   \`\`\`
 
 2. **Limited Access Checks:**
    - Only check access for synced databases or first 10 unsynced ones
@@ -188,5 +188,3 @@ Successfully optimized the Notion integration status page and unified sync statu
 - The settings page loads significantly faster with parallel API calls
 - UI is more modern and user-friendly with glassmorphism effects
 - All components use the unified sync status hook for consistency
-
-

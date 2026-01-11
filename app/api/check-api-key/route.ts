@@ -7,6 +7,3 @@ export async function GET() {
     configured: !!apiKey,
   })
 }
-
-
-

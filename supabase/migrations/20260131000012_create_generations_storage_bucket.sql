@@ -64,4 +64,3 @@ USING (
   bucket_id = 'generations'
   AND (storage.foldername(name))[1] = auth.uid()::text
 );
-

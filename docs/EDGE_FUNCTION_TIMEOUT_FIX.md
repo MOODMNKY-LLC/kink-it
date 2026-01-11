@@ -38,16 +38,16 @@ Moved **all processing** (OpenAI generation, download, storage) into the backgro
 ## Code Changes
 
 ### Before
-```typescript
+\`\`\`typescript
 // OpenAI call awaited BEFORE returning
 await broadcastProgress(...)
 const openaiResponse = await fetch(...) // Blocks here
 const imageUrl = openaiData.data?.[0]?.url
 return new Response(...) // Only returns after OpenAI completes
-```
+\`\`\`
 
 ### After
-```typescript
+\`\`\`typescript
 // Return immediately
 const response = { status: "processing", ... }
 EdgeRuntime.waitUntil(async () => {
@@ -57,7 +57,7 @@ EdgeRuntime.waitUntil(async () => {
   // ... rest of processing
 })
 return new Response(JSON.stringify(response), { status: 202 })
-```
+\`\`\`
 
 ## Benefits
 
@@ -77,6 +77,3 @@ return new Response(JSON.stringify(response), { status: 202 })
 ## Files Modified
 
 - `supabase/functions/generate-kinkster-avatar/index.ts`
-
-
-

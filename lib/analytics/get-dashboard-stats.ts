@@ -186,4 +186,3 @@ function getEmptyStats(): DashboardStat[] {
     },
   ]
 }
-

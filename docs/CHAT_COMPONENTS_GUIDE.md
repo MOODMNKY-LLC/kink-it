@@ -43,13 +43,13 @@ The chat is accessible through the sidebar navigation:
 **Location**: Sidebar → Dashboard → **"AI Chat"**
 
 **File**: `components/dashboard/sidebar/navigation-config.ts`
-```typescript
+\`\`\`typescript
 {
   title: "AI Chat",
   url: "/chat",
   icon: MessageSquare,
 }
-```
+\`\`\`
 
 ### 2. Direct URL Access
 
@@ -65,7 +65,7 @@ Navigate directly to: **`/chat`**
 
 **File**: `app/chat/page.tsx`
 
-```typescript
+\`\`\`typescript
 export default async function ChatPage() {
   const user = await getCurrentUser()
   
@@ -81,7 +81,7 @@ export default async function ChatPage() {
     </div>
   )
 }
-```
+\`\`\`
 
 ### Chat Interface Component
 
@@ -112,7 +112,7 @@ export default async function ChatPage() {
 
 The chat link is added to the "Dashboard" navigation group:
 
-```typescript
+\`\`\`typescript
 export const userNavigation: NavigationGroup[] = [
   {
     title: "Dashboard",
@@ -132,7 +132,7 @@ export const userNavigation: NavigationGroup[] = [
   },
   // ... other groups
 ]
-```
+\`\`\`
 
 ### 2. Authentication
 
@@ -155,7 +155,7 @@ The chat page is rendered within the main dashboard layout:
 
 ## 🎨 Component Structure
 
-```
+\`\`\`
 components/chat/
 ├── chat-interface.tsx      # Main chat UI
 ├── message-list.tsx        # Message list container
@@ -163,7 +163,7 @@ components/chat/
 ├── streaming-message.tsx   # Streaming AI response
 ├── types.ts                # TypeScript types
 └── [legacy components]     # Old chat components (not used)
-```
+\`\`\`
 
 ---
 
@@ -197,7 +197,7 @@ components/chat/
 
 ### Basic Usage
 
-```typescript
+\`\`\`typescript
 import { ChatInterface } from "@/components/chat/chat-interface"
 
 export default function MyPage() {
@@ -205,11 +205,11 @@ export default function MyPage() {
     <ChatInterface agentName="KINK IT Assistant" />
   )
 }
-```
+\`\`\`
 
 ### Advanced Usage
 
-```typescript
+\`\`\`typescript
 import { ChatInterface } from "@/components/chat/chat-interface"
 
 export default function MyPage() {
@@ -225,7 +225,7 @@ export default function MyPage() {
     />
   )
 }
-```
+\`\`\`
 
 ---
 
@@ -259,6 +259,3 @@ export default function MyPage() {
 
 **Last Updated**: 2026-01-31  
 **Status**: ✅ Complete
-
-
-

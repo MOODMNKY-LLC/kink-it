@@ -145,4 +145,3 @@ CREATE TRIGGER ensure_single_primary_kinkster_trigger
   FOR EACH ROW
   WHEN (NEW.is_primary = true)
   EXECUTE FUNCTION public.ensure_single_primary_kinkster();
-

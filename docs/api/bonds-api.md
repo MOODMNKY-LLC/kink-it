@@ -20,16 +20,16 @@ Create a new bond.
 **Endpoint**: `POST /api/bonds/create`
 
 **Request Body**:
-```json
+\`\`\`json
 {
   "name": "Our Dynamic",
   "description": "Optional description",
   "bond_type": "dyad" | "polycule" | "household" | "dynamic"
 }
-```
+\`\`\`
 
 **Response** (200 OK):
-```json
+\`\`\`json
 {
   "success": true,
   "bond": {
@@ -40,7 +40,7 @@ Create a new bond.
     "invite_code": "ABC12345"
   }
 }
-```
+\`\`\`
 
 **Error Responses**:
 - `400`: Bad Request (missing name)
@@ -59,7 +59,7 @@ Search for a bond by invite code.
 - `code` (required): The invite code to search for
 
 **Response** (200 OK):
-```json
+\`\`\`json
 {
   "success": true,
   "bond": {
@@ -69,7 +69,7 @@ Search for a bond by invite code.
     "bond_type": "dyad"
   }
 }
-```
+\`\`\`
 
 **Error Responses**:
 - `400`: Bad Request (missing code)
@@ -86,14 +86,14 @@ Join an existing bond.
 **Endpoint**: `POST /api/bonds/join`
 
 **Request Body**:
-```json
+\`\`\`json
 {
   "bond_id": "uuid"
 }
-```
+\`\`\`
 
 **Response** (200 OK):
-```json
+\`\`\`json
 {
   "success": true,
   "bond": {
@@ -102,7 +102,7 @@ Join an existing bond.
     "bond_type": "dyad"
   }
 }
-```
+\`\`\`
 
 **Error Responses**:
 - `400`: Bad Request (missing bond_id or already a member)
@@ -158,7 +158,7 @@ All endpoints require authentication via Supabase Auth. Include the session cook
 
 ### Create a Dyad Bond
 
-```bash
+\`\`\`bash
 curl -X POST https://kinkit.app/api/bonds/create \
   -H "Content-Type: application/json" \
   -H "Cookie: sb-access-token=..." \
@@ -167,25 +167,25 @@ curl -X POST https://kinkit.app/api/bonds/create \
     "description": "Our D/s relationship",
     "bond_type": "dyad"
   }'
-```
+\`\`\`
 
 ### Search for Bond
 
-```bash
+\`\`\`bash
 curl -X GET "https://kinkit.app/api/bonds/search?code=ABC12345" \
   -H "Cookie: sb-access-token=..."
-```
+\`\`\`
 
 ### Join Bond
 
-```bash
+\`\`\`bash
 curl -X POST https://kinkit.app/api/bonds/join \
   -H "Content-Type: application/json" \
   -H "Cookie: sb-access-token=..." \
   -d '{
     "bond_id": "uuid-here"
   }'
-```
+\`\`\`
 
 ---
 
@@ -193,6 +193,3 @@ curl -X POST https://kinkit.app/api/bonds/join \
 
 - [Bonds System Guide](../user-guides/bonds-system-guide.md)
 - [Authentication Guide](./authentication.md)
-
-
-

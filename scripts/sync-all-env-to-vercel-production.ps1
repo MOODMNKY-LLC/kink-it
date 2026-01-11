@@ -158,4 +158,3 @@ if ($failed -gt 0) {
     Write-Host "⚠️  Some variables failed to add. Please add them manually.`n" -ForegroundColor Yellow
     exit 1
 }
-

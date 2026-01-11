@@ -71,6 +71,3 @@ export function TemplateSelector({ selectedId, onSelect }: TemplateSelectorProps
     </Card>
   )
 }
-
-
-

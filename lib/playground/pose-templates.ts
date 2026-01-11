@@ -285,6 +285,3 @@ export function searchPoseTemplates(query: string): PoseTemplate[] {
       template.tags.some((tag) => tag.toLowerCase().includes(lowerQuery))
   )
 }
-
-
-

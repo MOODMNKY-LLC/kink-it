@@ -26,9 +26,9 @@ This document defines the design system extracted from the authentication pages 
 ## Gradient Patterns
 
 ### Primary Gradient (Orange-White-Blue-Teal)
-```css
+\`\`\`css
 bg-gradient-to-r from-primary via-accent to-primary
-```
+\`\`\`
 Used for:
 - Title text (`bg-clip-text text-transparent`)
 - Progress bars
@@ -37,20 +37,20 @@ Used for:
 - Button hover states
 
 ### Border Glow Gradient
-```css
+\`\`\`css
 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 opacity-50 blur-xl
-```
+\`\`\`
 Used for:
 - Card borders
 - Glowing ring effects
 - Avatar rings
 
 ### Background Gradients
-```css
+\`\`\`css
 from-primary/30 via-accent/20 to-transparent
 from-accent/25 via-transparent to-transparent
 from-primary/15 via-transparent to-transparent
-```
+\`\`\`
 Used for:
 - Background mesh effects
 - Subtle depth layers
@@ -58,7 +58,7 @@ Used for:
 ## Component Patterns
 
 ### Cards
-```tsx
+\`\`\`tsx
 <Card className="relative overflow-hidden border-primary/20 bg-card/90 backdrop-blur-xl">
   {/* Glowing border effect */}
   <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 opacity-50 blur-xl" />
@@ -69,41 +69,41 @@ Used for:
     {/* Card content */}
   </div>
 </Card>
-```
+\`\`\`
 
 ### Buttons
 
 #### Primary Button
-```tsx
+\`\`\`tsx
 <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-[1.02]">
-```
+\`\`\`
 
 #### Secondary Button (OAuth-style)
-```tsx
+\`\`\`tsx
 <Button className="bg-primary/10 hover:bg-primary/20 border-2 border-primary/40 backdrop-blur-sm text-foreground font-semibold shadow-lg shadow-primary/20 transition-all duration-300 hover:shadow-primary/30 hover:scale-[1.02]">
-```
+\`\`\`
 
 ### Inputs
-```tsx
+\`\`\`tsx
 <Input className="bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm" />
-```
+\`\`\`
 
 ### Badges
-```tsx
+\`\`\`tsx
 {/* Gradient Badge */}
 <Badge className="bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold border-2 border-card shadow-lg">
 
 {/* Outline Badge */}
 <Badge variant="outline" className="border-primary/30 text-primary">
-```
+\`\`\`
 
 ### Titles
-```tsx
+\`\`\`tsx
 <h2 className="text-2xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-```
+\`\`\`
 
 ### Dividers
-```tsx
+\`\`\`tsx
 <div className="relative">
   <div className="absolute inset-0 flex items-center">
     <div className="w-full border-t border-primary/20" />
@@ -114,32 +114,32 @@ Used for:
     </div>
   </div>
 </div>
-```
+\`\`\`
 
 ### Progress Bars
-```tsx
+\`\`\`tsx
 <div className="relative h-2 w-full overflow-hidden rounded-full bg-muted/50">
   <div className="h-full rounded-full bg-gradient-to-r from-primary via-accent to-primary transition-all duration-1000 ease-out shadow-lg shadow-primary/50" />
   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
 </div>
-```
+\`\`\`
 
 ## Background Effects
 
 ### Gradient Mesh
-```tsx
+\`\`\`tsx
 <GradientMesh intensity="medium" />
-```
+\`\`\`
 
 ### Bokeh Effect
-```tsx
+\`\`\`tsx
 <BokehEffect count={20} />
-```
+\`\`\`
 
 ### Character Background
-```tsx
+\`\`\`tsx
 <CharacterBackground variant="hero" opacity={0.12} />
-```
+\`\`\`
 
 ## Typography
 
@@ -169,19 +169,19 @@ Used for:
 ## Animations
 
 ### Hover Scale
-```tsx
+\`\`\`tsx
 hover:scale-[1.02] transition-all duration-300
-```
+\`\`\`
 
 ### Pulse (for glowing effects)
-```tsx
+\`\`\`tsx
 animate-pulse
-```
+\`\`\`
 
 ### Shimmer (for progress bars)
-```tsx
+\`\`\`tsx
 animate-shimmer
-```
+\`\`\`
 
 ## Backdrop Blur
 
@@ -217,4 +217,3 @@ When creating or updating components, ensure:
 - [ ] Includes hover states with scale
 - [ ] Follows typography patterns
 - [ ] Maintains accessibility (contrast, focus states)
-

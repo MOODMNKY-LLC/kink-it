@@ -2,9 +2,9 @@
 
 ## 🔴 Error
 
-```
+\`\`\`
 {"code":504,"error_code":"request_timeout","msg":"Processing this request timed out, please retry after a moment.","error_id":"..."}
-```
+\`\`\`
 
 ## 🎯 Root Cause
 
@@ -17,14 +17,14 @@ We've configured Node.js to accept self-signed certificates **for local developm
 ### What Was Changed
 
 **`server.js`** - Added certificate acceptance at the top:
-```javascript
+\`\`\`javascript
 // Allow self-signed certificates for local development (Supabase TLS)
 // This is safe for local development only - NEVER use in production
 if (process.env.NODE_ENV !== 'production') {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
   console.log('⚠️  Self-signed certificates enabled for local development')
 }
-```
+\`\`\`
 
 This ensures:
 - ✅ Node.js accepts Supabase's self-signed certificate
@@ -38,17 +38,17 @@ This ensures:
 
 After this change, restart your Next.js development server:
 
-```powershell
+\`\`\`powershell
 # Stop current server (Ctrl+C)
 pnpm dev
-```
+\`\`\`
 
 ### 2. Verify It's Working
 
 You should see this message when starting:
-```
+\`\`\`
 ⚠️  Self-signed certificates enabled for local development
-```
+\`\`\`
 
 ### 3. Test OAuth Flow
 
@@ -98,24 +98,24 @@ The code checks `process.env.NODE_ENV !== 'production'`:
 ### Still Getting Timeouts?
 
 1. **Verify server.js is being used:**
-   ```powershell
+   \`\`\`powershell
    # Check if you're using the custom server
    pnpm dev
    # Should show: "⚠️  Self-signed certificates enabled for local development"
-   ```
+   \`\`\`
 
 2. **Check NODE_ENV:**
-   ```powershell
+   \`\`\`powershell
    $env:NODE_ENV
    # Should be empty or "development" (not "production")
-   ```
+   \`\`\`
 
 3. **Try HTTP mode temporarily:**
-   ```powershell
+   \`\`\`powershell
    pnpm run dev:http
    # This uses standard Next.js dev server (no custom server.js)
    # Note: OAuth might still fail, but you can test other features
-   ```
+   \`\`\`
 
 ### Certificate Errors in Browser
 
@@ -138,13 +138,13 @@ This works because:
 - Supabase redirects to Next.js HTTP (this is fine)
 
 **To use this approach:**
-```powershell
+\`\`\`powershell
 # Use HTTP dev server
 pnpm run dev:http
 
 # Keep Supabase URLs as HTTPS in .env.local
 NEXT_PUBLIC_SUPABASE_URL=https://127.0.0.1:55321
-```
+\`\`\`
 
 ## 📋 Verification Checklist
 
@@ -164,8 +164,3 @@ NEXT_PUBLIC_SUPABASE_URL=https://127.0.0.1:55321
 
 **Status**: ✅ Fixed - Node.js now accepts self-signed certificates  
 **Next**: Restart your dev server and test OAuth flow
-
-
-
-
-

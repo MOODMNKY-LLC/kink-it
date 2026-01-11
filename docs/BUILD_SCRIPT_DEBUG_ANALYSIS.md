@@ -15,9 +15,9 @@ Despite our build script:
 - ✅ Cleaning up error trace files
 
 Vercel is **still detecting the error** and failing deployments with:
-```
+\`\`\`
 Error: Export of Next.js app failed. Please check your build logs.
-```
+\`\`\`
 
 ---
 
@@ -28,18 +28,18 @@ Error: Export of Next.js app failed. Please check your build logs.
 Looking at the latest deployment logs (`dpl_9EGGVu8hxMbdJtTsNZ1v6Cs4VKRT`):
 
 1. **Our script runs successfully**:
-   ```
+   \`\`\`
    ✓ Build completed
    ✓ Application compiled
    ✓ Artifacts created
-   ```
+   \`\`\`
 
 2. **THEN stderr shows** (AFTER our script exits):
-   ```
+   \`\`\`
    Read more: https://nextjs.org/docs/messages/no-document-import-in-page
    Read more: https://nextjs.org/docs/messages/no-document-import-in-page
    Error: Export of Next.js app failed. Please check your build logs.
-   ```
+   \`\`\`
 
 ### Key Insight
 

@@ -31,7 +31,3 @@ Write-Host "Next steps:" -ForegroundColor Yellow
 Write-Host "1. Restart Cursor IDE to pick up environment variables" -ForegroundColor Gray
 Write-Host "2. Test Discord MCP functions in Cursor chat" -ForegroundColor Gray
 Write-Host "3. Use channel ID: 1457594125590462548 (#announcements)" -ForegroundColor Gray
-
-
-
-

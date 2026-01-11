@@ -80,5 +80,3 @@ export async function getCharacterReferenceDataUrls(
 
   return await convertUrlsToDataUrls(referenceUrls)
 }
-
-

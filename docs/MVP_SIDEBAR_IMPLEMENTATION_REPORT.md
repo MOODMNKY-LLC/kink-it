@@ -154,12 +154,12 @@ Performance indexes created for:
 - Proper spacing and typography
 
 **Component Structure**:
-```
+\`\`\`
 app/rules/
   └── page.tsx (server component)
 components/rules/
   └── rules-page-client.tsx (client component)
-```
+\`\`\`
 
 ### Pending UI Implementations
 
@@ -244,24 +244,24 @@ components/rules/
 Applied to Rules MVP:
 
 1. **Card Styling**:
-   ```tsx
+   \`\`\`tsx
    className="border-primary/20 bg-card/90 backdrop-blur-xl"
-   ```
+   \`\`\`
 
 2. **Button Styling**:
-   ```tsx
+   \`\`\`tsx
    className="bg-primary/10 hover:bg-primary/20 border-2 border-primary/40 backdrop-blur-sm shadow-lg shadow-primary/20"
-   ```
+   \`\`\`
 
 3. **Dialog Styling**:
-   ```tsx
+   \`\`\`tsx
    className="bg-card/95 backdrop-blur-xl border-primary/20"
-   ```
+   \`\`\`
 
 4. **Input Styling**:
-   ```tsx
+   \`\`\`tsx
    className="bg-muted/50 border-border backdrop-blur-sm"
-   ```
+   \`\`\`
 
 ### Background Effects
 
@@ -389,4 +389,3 @@ The MVP implementation is progressing well. The database foundation is solid, Ru
 
 **Report Generated**: 2026-02-02  
 **Next Review**: After Boundaries & Contracts MVP completion
-

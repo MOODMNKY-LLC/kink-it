@@ -57,7 +57,7 @@ The Kinkster Avatar Generation feature is **architecturally complete** but exper
    - Prompt building failure
 
 **Response Format**:
-```typescript
+\`\`\`typescript
 // Success (200)
 {
   prompt: string,
@@ -75,7 +75,7 @@ The Kinkster Avatar Generation feature is **architecturally complete** but exper
   error: string,
   details?: string
 }
-```
+\`\`\`
 
 ### 2. Client Hook: `useAvatarGeneration`
 
@@ -179,7 +179,7 @@ The Kinkster Avatar Generation feature is **architecturally complete** but exper
 
 ### Step 1: Check Edge Function Deployment
 
-```bash
+\`\`\`bash
 # Check if edge function is deployed
 supabase functions list
 
@@ -188,7 +188,7 @@ supabase functions deploy generate-kinkster-avatar
 
 # Check edge function logs
 supabase functions logs generate-kinkster-avatar
-```
+\`\`\`
 
 ### Step 2: Verify Environment Variables
 
@@ -200,14 +200,14 @@ supabase functions logs generate-kinkster-avatar
    - `SUPABASE_SERVICE_ROLE_KEY` (usually auto-set)
 
 **For Local Development**:
-```bash
+\`\`\`bash
 # Check .env.local or supabase/.env
 cat supabase/.env
-```
+\`\`\`
 
 ### Step 3: Test Edge Function Directly
 
-```bash
+\`\`\`bash
 # Test edge function with curl
 curl -X POST \
   https://[project-id].supabase.co/functions/v1/generate-kinkster-avatar \
@@ -219,7 +219,7 @@ curl -X POST \
       "name": "Test Character"
     }
   }'
-```
+\`\`\`
 
 ### Step 4: Check Browser Console
 
@@ -244,9 +244,9 @@ curl -X POST \
 ### Immediate Actions
 
 1. **Deploy Edge Function** (if not deployed)
-   ```bash
+   \`\`\`bash
    supabase functions deploy generate-kinkster-avatar
-   ```
+   \`\`\`
 
 2. **Configure Environment Variables**
    - Set `OPENAI_API_KEY` in Supabase Dashboard

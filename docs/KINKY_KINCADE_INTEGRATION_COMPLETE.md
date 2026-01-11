@@ -179,28 +179,28 @@ A stylized, vibrant digital illustration of a smiling, confident character with 
 ## 📝 Usage Examples
 
 ### Image Generation
-```typescript
+\`\`\`typescript
 import { kinkyImageGenerationExample } from "@/lib/kinky/kinky-kincade-profile"
 
 // Use as example data
 const exampleData = kinkyImageGenerationExample.characterData
-```
+\`\`\`
 
 ### Character Profile
-```typescript
+\`\`\`typescript
 import { kinkyKincadeProfile } from "@/lib/kinky/kinky-kincade-profile"
 
 // Access full profile
 const profile = kinkyKincadeProfile
-```
+\`\`\`
 
 ### Utility Functions
-```typescript
+\`\`\`typescript
 import { getKinkyFullName, getKinkyTitle } from "@/lib/kinky/get-kinky-kinkster"
 
 const name = getKinkyFullName() // "Kinky Kincade"
 const title = getKinkyTitle() // "The Digital Guide"
-```
+\`\`\`
 
 ---
 
@@ -234,6 +234,3 @@ const title = getKinkyTitle() // "The Digital Guide"
 **Status**: Complete ✅  
 **Last Updated**: 2026-01-31  
 **Character**: Fully integrated and ready for use across all app features
-
-
-

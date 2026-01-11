@@ -2,10 +2,10 @@
 
 ## 🔴 Error Message
 
-```
+\`\`\`
 400 Bad Request
 The plain HTTP request was sent to HTTPS port
-```
+\`\`\`
 
 ## 🎯 What This Means
 
@@ -50,35 +50,35 @@ Docker Desktop is expecting a **TLS/HTTPS** connection on port 2375, but you're 
 If you're using JSON configuration, ensure it's correct:
 
 **✅ Correct Configuration:**
-```json
+\`\`\`json
 {
   "hosts": [
     "npipe://",
     "tcp://localhost:2375"
   ]
 }
-```
+\`\`\`
 
 **❌ Common Mistakes:**
 
 1. **Using wrong port** (2376 is TLS):
-   ```json
+   \`\`\`json
    "tcp://localhost:2376"  // ❌ Wrong - this is TLS port
-   ```
+   \`\`\`
 
 2. **Using 0.0.0.0 instead of localhost**:
-   ```json
+   \`\`\`json
    "tcp://0.0.0.0:2375"  // ❌ Wrong - exposes to network
-   ```
+   \`\`\`
 
 3. **Having TLS settings enabled**:
-   ```json
+   \`\`\`json
    {
      "hosts": ["tcp://localhost:2375"],
      "tls": true,  // ❌ Wrong - forces HTTPS
      "tlsverify": true  // ❌ Wrong - forces HTTPS
    }
-   ```
+   \`\`\`
 
 ### Solution 3: Clean Configuration
 
@@ -87,23 +87,23 @@ Start with a minimal configuration:
 1. **Open Docker Desktop → Settings → Docker Engine**
 
 2. **Replace with minimal config:**
-   ```json
+   \`\`\`json
    {
      "hosts": [
        "npipe://",
        "tcp://localhost:2375"
      ]
    }
-   ```
+   \`\`\`
 
 3. **Remove ALL other settings temporarily** (you can add them back later)
 
 4. **Apply & Restart**
 
 5. **Test:**
-   ```powershell
+   \`\`\`powershell
    docker -H tcp://localhost:2375 ps
-   ```
+   \`\`\`
 
 6. **If it works**, add your other settings back one by one
 
@@ -112,19 +112,19 @@ Start with a minimal configuration:
 If port 2375 is problematic, use a different port:
 
 1. **Change to port 2377** (or any available port):
-   ```json
+   \`\`\`json
    {
      "hosts": [
        "npipe://",
        "tcp://localhost:2377"
      ]
    }
-   ```
+   \`\`\`
 
 2. **Test the new port:**
-   ```powershell
+   \`\`\`powershell
    docker -H tcp://localhost:2377 ps
-   ```
+   \`\`\`
 
 3. **Note**: Supabase Analytics may need to be configured to use this port, or you may need to disable Analytics
 
@@ -133,10 +133,10 @@ If port 2375 is problematic, use a different port:
 Some older versions handle TCP sockets differently:
 
 1. **Check version:**
-   ```powershell
+   \`\`\`powershell
    docker --version
    docker-compose --version
-   ```
+   \`\`\`
 
 2. **Update Docker Desktop** if it's older than 4.0
 
@@ -147,18 +147,18 @@ Some older versions handle TCP sockets differently:
 If you don't need Supabase Analytics, disable it:
 
 1. **Edit `supabase/config.toml`:**
-   ```toml
+   \`\`\`toml
    [analytics]
    enabled = false
    port = 55327
    backend = "postgres"
-   ```
+   \`\`\`
 
 2. **Restart Supabase:**
-   ```powershell
+   \`\`\`powershell
    supabase stop
    supabase start
-   ```
+   \`\`\`
 
 3. **Remove the TCP socket from Docker config** (no longer needed)
 
@@ -166,7 +166,7 @@ If you don't need Supabase Analytics, disable it:
 
 ### Step 1: Check Current Configuration
 
-```powershell
+\`\`\`powershell
 # Check if Docker is running
 docker ps
 
@@ -175,7 +175,7 @@ netstat -ano | findstr :2375
 
 # Try connecting with verbose output
 docker -H tcp://localhost:2375 --debug ps
-```
+\`\`\`
 
 ### Step 2: Check Docker Desktop Settings
 
@@ -194,7 +194,7 @@ docker -H tcp://localhost:2375 --debug ps
 
 Here's a complete, tested configuration that should work:
 
-```json
+\`\`\`json
 {
   "hosts": [
     "npipe://",
@@ -215,7 +215,7 @@ Here's a complete, tested configuration that should work:
   "max-concurrent-uploads": 5,
   "experimental": false
 }
-```
+\`\`\`
 
 **Important**: Make sure there are NO TLS-related options in your config!
 
@@ -235,13 +235,13 @@ Here's a complete, tested configuration that should work:
 **Cause**: Another service is using port 2375
 
 **Fix**:
-```powershell
+\`\`\`powershell
 # Find what's using the port
 netstat -ano | findstr :2375
 
 # Kill the process (replace PID with actual process ID)
 taskkill /PID <PID> /F
-```
+\`\`\`
 
 ### Issue: "Docker Desktop won't start after config change"
 
@@ -267,9 +267,3 @@ taskkill /PID <PID> /F
 - [Docker Desktop Settings](https://docs.docker.com/desktop/settings/)
 - [Docker Daemon Configuration](https://docs.docker.com/engine/daemon/)
 - [Supabase CLI Windows Setup](https://supabase.com/docs/guides/local-development/cli/getting-started?queryGroups=platform&platform=windows)
-
-
-
-
-
-

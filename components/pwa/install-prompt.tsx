@@ -107,6 +107,3 @@ export function InstallPrompt() {
     </Dialog>
   )
 }
-
-
-

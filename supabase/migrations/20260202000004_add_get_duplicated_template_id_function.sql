@@ -25,4 +25,3 @@ $$;
 GRANT EXECUTE ON FUNCTION public.get_user_notion_duplicated_template_id(uuid) TO authenticated;
 
 COMMENT ON FUNCTION public.get_user_notion_duplicated_template_id(uuid) IS 'Returns the duplicated_template_id from stored Notion OAuth tokens. This is the template page ID provided by Notion when the user duplicates the template during OAuth.';
-

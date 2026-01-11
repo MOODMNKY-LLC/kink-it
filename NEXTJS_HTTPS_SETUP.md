@@ -16,41 +16,41 @@ This guide explains how to run the Next.js dev server in HTTPS mode for local de
 ### Step 1: Install mkcert (Certificate Generator)
 
 **Windows (using Chocolatey):**
-```bash
+\`\`\`bash
 choco install mkcert
-```
+\`\`\`
 
 **macOS (using Homebrew):**
-```bash
+\`\`\`bash
 brew install mkcert
-```
+\`\`\`
 
 **Linux:**
-```bash
+\`\`\`bash
 # Ubuntu/Debian
 sudo apt install libnss3-tools
 wget -O mkcert https://github.com/FiloSottile/mkcert/releases/latest/download/mkcert-v1.4.4-linux-amd64
 chmod +x mkcert
 sudo mv mkcert /usr/local/bin/
-```
+\`\`\`
 
 ### Step 2: Create Local Certificate Authority
 
-```bash
+\`\`\`bash
 mkcert -install
-```
+\`\`\`
 
 This installs a local CA that your system will trust, eliminating browser security warnings.
 
 ### Step 3: Generate Certificates for Next.js
 
-```bash
+\`\`\`bash
 # Create certs directory
 mkdir -p certs
 
 # Generate certificates for localhost and 127.0.0.1
 mkcert -key-file certs/localhost+1-key.pem -cert-file certs/localhost+1.pem localhost 127.0.0.1
-```
+\`\`\`
 
 This creates:
 - `certs/localhost+1-key.pem` (private key)
@@ -60,25 +60,25 @@ This creates:
 
 Add certificates to `.gitignore` (they're local development only):
 
-```gitignore
+\`\`\`gitignore
 # Local development certificates
 certs/*.pem
 certs/*.key
-```
+\`\`\`
 
 ### Step 5: Run the Dev Server
 
 **HTTPS Mode (Recommended):**
-```bash
+\`\`\`bash
 pnpm run dev
 # or explicitly
 pnpm run dev:https
-```
+\`\`\`
 
 **HTTP Mode (Fallback):**
-```bash
+\`\`\`bash
 pnpm run dev:http
-```
+\`\`\`
 
 The server will start on `https://127.0.0.1:3000`
 
@@ -122,9 +122,9 @@ These are **separate** configurations:
 ### Certificate Not Found Error
 
 If you see:
-```
+\`\`\`
 ❌ Certificate files not found!
-```
+\`\`\`
 
 **Solution:**
 1. Make sure `mkcert` is installed
@@ -148,9 +148,9 @@ If port 3000 is already in use:
 ### Fallback to HTTP
 
 If HTTPS setup is problematic, you can always use:
-```bash
+\`\`\`bash
 pnpm run dev:http
-```
+\`\`\`
 
 This runs the standard Next.js HTTP dev server. Supabase will still use HTTPS for OAuth callbacks.
 
@@ -172,4 +172,3 @@ This runs the standard Next.js HTTP dev server. Supabase will still use HTTPS fo
 
 **Status**: ✅ Next.js HTTPS Setup Complete  
 **Next**: Generate certificates with `mkcert` and run `pnpm run dev`
-

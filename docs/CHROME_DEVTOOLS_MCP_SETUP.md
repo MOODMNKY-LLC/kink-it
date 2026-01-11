@@ -9,7 +9,7 @@
 
 Chrome DevTools MCP server has been successfully added to `.cursor/mcp.json`:
 
-```json
+\`\`\`json
 {
   "mcpServers": {
     "chrome-devtools": {
@@ -18,7 +18,7 @@ Chrome DevTools MCP server has been successfully added to `.cursor/mcp.json`:
     }
   }
 }
-```
+\`\`\`
 
 ---
 
@@ -29,11 +29,11 @@ Chrome DevTools MCP server has been successfully added to `.cursor/mcp.json`:
 **Status**: ✅ Upgraded and set as default
 
 **Upgrade Completed**: Using nvm
-```bash
+\`\`\`bash
 nvm install 20.19.0
 nvm use 20.19.0
 nvm alias default 20.19.0
-```
+\`\`\`
 
 ---
 
@@ -54,10 +54,10 @@ Upgrade to Node.js 20.19.0+ using one of the methods above.
 
 ### Step 2: Verify Node Version
 
-```bash
+\`\`\`bash
 node --version
 # Should show: v20.19.0 or higher
-```
+\`\`\`
 
 ### Step 3: Restart Cursor IDE
 
@@ -71,24 +71,24 @@ After upgrading Node.js:
 Once Cursor restarts, test with these prompts:
 
 **Test 1: Basic Connection**
-```
+\`\`\`
 "Navigate to https://127.0.0.1:3000 using Chrome DevTools MCP"
-```
+\`\`\`
 
 **Test 2: Check Console Errors**
-```
+\`\`\`
 "Use Chrome DevTools MCP to navigate to my app and list all console errors"
-```
+\`\`\`
 
 **Test 3: Take Snapshot**
-```
+\`\`\`
 "Take a snapshot of the dashboard page using Chrome DevTools MCP"
-```
+\`\`\`
 
 **Test 4: Network Monitoring**
-```
+\`\`\`
 "Check network requests on the dashboard page and identify any failed API calls"
-```
+\`\`\`
 
 ---
 
@@ -110,9 +110,9 @@ Once Cursor restarts, test with these prompts:
 ### Issue: "Unsupported engine" Error
 
 **Symptom**: 
-```
+\`\`\`
 ERROR: `chrome-devtools-mcp` does not support Node v20.18.0
-```
+\`\`\`
 
 **Solution**: Upgrade Node.js to 20.19.0+ (see Upgrade Options above)
 
@@ -153,24 +153,24 @@ ERROR: `chrome-devtools-mcp` does not support Node v20.18.0
 Once Cursor restarts, try these prompts to test Chrome DevTools MCP:
 
 **Test 1: Basic Navigation**
-```
+\`\`\`
 "Use Chrome DevTools MCP to navigate to https://127.0.0.1:3000"
-```
+\`\`\`
 
 **Test 2: Console Error Check**
-```
+\`\`\`
 "Navigate to my app using Chrome DevTools MCP and list all console errors"
-```
+\`\`\`
 
 **Test 3: Network Monitoring**
-```
+\`\`\`
 "Check network requests on the dashboard page and show any failed API calls"
-```
+\`\`\`
 
 **Test 4: Page Snapshot**
-```
+\`\`\`
 "Take a snapshot of the dashboard page using Chrome DevTools MCP"
-```
+\`\`\`
 
 ---
 

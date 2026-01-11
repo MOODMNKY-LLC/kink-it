@@ -77,6 +77,3 @@ export function useSavedPrompts(userId: string | undefined) {
     deleteSavedPrompt,
   }
 }
-
-
-

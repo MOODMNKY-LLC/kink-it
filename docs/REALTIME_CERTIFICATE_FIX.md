@@ -4,11 +4,11 @@
 
 Realtime presence channel is failing to connect:
 
-```
+\`\`\`
 [OnlineStatus] Channel closed
 [OnlineStatus] Channel not subscribed, cannot track presence. State: closed
 [OnlineStatus] Channel subscription timed out - will retry
-```
+\`\`\`
 
 ## 🎯 Root Cause
 
@@ -23,14 +23,14 @@ Additionally, you're accessing the app via `localhost:3000` but the certificate 
 **Important:** Always use `127.0.0.1` instead of `localhost` to match your certificates.
 
 **Change your browser URL from:**
-```
+\`\`\`
 https://localhost:3000/chat
-```
+\`\`\`
 
 **To:**
-```
+\`\`\`
 https://127.0.0.1:3000/chat
-```
+\`\`\`
 
 ### Step 2: Accept Certificate for HTTPS API
 
@@ -61,16 +61,16 @@ https://127.0.0.1:3000/chat
 After accepting certificates, check your browser console. You should see:
 
 **✅ Success:**
-```
+\`\`\`
 ✅ Realtime subscription active for conversation: <id>
 [OnlineStatus] Channel subscribed
-```
+\`\`\`
 
 **❌ Still Failing:**
-```
+\`\`\`
 [OnlineStatus] Channel closed
 [OnlineStatus] Channel subscription timed out
-```
+\`\`\`
 
 ## 🔍 Alternative: Disable Realtime Temporarily
 
@@ -78,11 +78,11 @@ If you continue having issues, you can temporarily disable the online status fea
 
 **In `components/chat/enhanced-ai-chat-interface.tsx`:**
 
-```typescript
+\`\`\`typescript
 // Comment out or disable useOnlineStatus
 // const { isOnline } = useOnlineStatus({ userId: userId || "", enabled: false })
 const isOnline = true // Temporary fallback
-```
+\`\`\`
 
 This won't affect chat functionality, only the online status indicator.
 
@@ -92,12 +92,12 @@ This won't affect chat functionality, only the online status indicator.
 
 **1. Check Supabase Realtime Status**
 
-```bash
+\`\`\`bash
 supabase status
 
 # Should show:
 # Realtime │ Enabled
-```
+\`\`\`
 
 **2. Verify WebSocket Port**
 
@@ -130,9 +130,9 @@ Test in incognito/private mode to rule out extensions:
 
 Check `.env.local`:
 
-```bash
+\`\`\`bash
 NEXT_PUBLIC_SUPABASE_URL=https://127.0.0.1:55321
-```
+\`\`\`
 
 **Important:** Must use `127.0.0.1`, not `localhost`!
 
@@ -148,10 +148,10 @@ NEXT_PUBLIC_SUPABASE_URL=https://127.0.0.1:55321
 ## 🚀 Expected Behavior After Fix
 
 **Console logs should show:**
-```
+\`\`\`
 ✅ Realtime subscription active for conversation: <id>
 [OnlineStatus] Channel subscribed
-```
+\`\`\`
 
 **No more errors:**
 - ❌ `Channel closed`

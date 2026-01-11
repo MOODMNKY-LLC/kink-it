@@ -44,7 +44,3 @@ Write-Host "2. Test Discord MCP in Cursor" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "To start Cursor with environment variables:" -ForegroundColor Gray
 Write-Host "  cursor ." -ForegroundColor White
-
-
-
-

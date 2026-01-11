@@ -248,6 +248,3 @@ export function applyStyleToPrompt(prompt: string, style: StylePreset | null): s
   if (!style) return prompt
   return `${prompt}, ${style.promptEnhancement}`
 }
-
-
-

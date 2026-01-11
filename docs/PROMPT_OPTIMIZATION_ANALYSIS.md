@@ -18,7 +18,7 @@ Analysis of a comprehensive ChatGPT conversation about character consistency and
 
 The conversation revealed a sophisticated prompt structure with clear sections:
 
-```
+\`\`\`
 [STYLE HEADER]
 [CHARACTER CANON]
 [POSE + EMOTION]
@@ -26,7 +26,7 @@ The conversation revealed a sophisticated prompt structure with clear sections:
 [COMPOSITION]
 [QUALITY TAGS]
 [NEGATIVE CONSTRAINTS]
-```
+\`\`\`
 
 **Benefits:**
 - Ensures all critical information is included systematically
@@ -164,7 +164,7 @@ Validates prompt completeness and consistency using checklist criteria.
 
 ### Scene Generation with Character Canon
 
-```typescript
+\`\`\`typescript
 import { extractCharacterCanon, buildStructuredScenePrompt } from "@/lib/playground/prompt-templates"
 import { getStylePresetById } from "@/lib/playground/style-presets"
 
@@ -183,21 +183,21 @@ const prompt = buildStructuredScenePrompt("A neon-lit bar district at night", {
   cameraAngle: "3/4",
   focalHierarchy: { character: 70, props: 20, background: 10 },
 })
-```
+\`\`\`
 
 ### Pose Variation with Character Consistency
 
-```typescript
+\`\`\`typescript
 const canon = extractCharacterCanon(kinkster)
 const prompt = buildStructuredPosePrompt(canon, "sitting on a barstool, leaning forward", {
   style: getStylePresetById("anime"),
   cameraAngle: "medium-close",
 })
-```
+\`\`\`
 
 ### Scene Composition with Two Characters
 
-```typescript
+\`\`\`typescript
 const canon1 = extractCharacterCanon(character1)
 const canon2 = extractCharacterCanon(character2)
 
@@ -211,7 +211,7 @@ const prompt = buildStructuredCompositionPrompt(
     focalHierarchy: { character: 70, props: 20, background: 10 },
   }
 )
-```
+\`\`\`
 
 ---
 
@@ -258,5 +258,3 @@ const prompt = buildStructuredCompositionPrompt(
 The structured prompt template approach from the ChatGPT conversation provides a systematic way to improve character consistency and scene quality. By implementing character canon extraction, structured prompt builders, and consistency validation, we can maintain character identity across all generations while improving overall image quality.
 
 The hybrid approach (structured prompts + multi-image references) leverages both prompt engineering and Gemini 3 Pro's multi-image capabilities for optimal results.
-
-

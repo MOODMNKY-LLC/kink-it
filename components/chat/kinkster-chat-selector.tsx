@@ -148,5 +148,3 @@ export function KinksterChatSelector({ onKinksterSelect, className }: KinksterCh
     </Card>
   )
 }
-
-

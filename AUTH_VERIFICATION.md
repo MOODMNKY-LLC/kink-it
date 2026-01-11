@@ -32,10 +32,10 @@ The issue is likely related to how the layout is handling authenticated vs non-a
 ### Things to Check
 
 #### 1. Verify Supabase is Running
-```bash
+\`\`\`bash
 # Check if Supabase is running
 supabase status
-```
+\`\`\`
 
 Expected output should show services running on ports:
 - API: `http://127.0.0.1:55321`
@@ -44,7 +44,7 @@ Expected output should show services running on ports:
 
 #### 2. Verify Environment Variables
 Open `.env.local` and confirm:
-```bash
+\`\`\`bash
 # Supabase Local Development
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:55321
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key-from-supabase-status>
@@ -52,7 +52,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key-from-supabase-status>
 # Notion (Optional)
 NOTION_API_KEY=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
 NOTION_APP_IDEAS_DATABASE_ID=cc491ef5f0a64eac8e05a6ea10dfb735
-```
+\`\`\`
 
 #### 3. Check Browser Console
 When you see the white/blank screen:
@@ -68,19 +68,19 @@ When you see the white/blank screen:
 
 #### Issue: Database connection errors
 **Fix**: Run the migration scripts:
-```bash
+\`\`\`bash
 # From project root
 psql postgresql://postgres:postgres@127.0.0.1:55432/postgres < scripts/001_create_app_ideas.sql
 psql postgresql://postgres:postgres@127.0.0.1:55432/postgres < scripts/002_create_profiles.sql
-```
+\`\`\`
 
 #### Issue: White screen with no errors
 **Fix**: Clear browser cache and Next.js cache:
-```bash
+\`\`\`bash
 # Stop dev server (Ctrl+C)
 rm -rf .next
 pnpm dev
-```
+\`\`\`
 
 #### Issue: Auth pages show but forms don't work
 **Fix**: Check that the Supabase client is properly initialized. The error should appear in the browser console.
@@ -117,7 +117,7 @@ After authentication, check:
 ### Database Verification
 
 Check if the tables exist:
-```sql
+\`\`\`sql
 -- Connect to local Supabase
 psql postgresql://postgres:postgres@127.0.0.1:55432/postgres
 
@@ -132,36 +132,36 @@ SELECT id, email, system_role, dynamic_role FROM profiles;
 
 -- Exit psql
 \q
-```
+\`\`\`
 
 ### Next.js Dev Server
 
 Make sure the dev server is running:
-```bash
+\`\`\`bash
 pnpm dev
-```
+\`\`\`
 
 Expected output:
-```
+\`\`\`
 ▲ Next.js 15.5.9
 - Local:        http://localhost:3000
 - Environments: .env.local
 
 ✓ Starting...
 ✓ Ready in 2.3s
-```
+\`\`\`
 
 ### If All Else Fails
 
 1. **Stop everything**:
-   ```bash
+   \`\`\`bash
    # Stop Next.js dev server (Ctrl+C in terminal)
    # Stop Supabase
    supabase stop
-   ```
+   \`\`\`
 
 2. **Clean and restart**:
-   ```bash
+   \`\`\`bash
    # Clean Next.js cache
    rm -rf .next
    
@@ -170,15 +170,15 @@ Expected output:
    
    # Start Next.js
    pnpm dev
-   ```
+   \`\`\`
 
 3. **Check for port conflicts**:
-   ```bash
+   \`\`\`bash
    # Windows PowerShell
    netstat -ano | findstr :3000
    netstat -ano | findstr :55321
    netstat -ano | findstr :55432
-   ```
+   \`\`\`
 
 ## Expected Behavior After Fix
 

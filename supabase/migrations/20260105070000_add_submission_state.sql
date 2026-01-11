@@ -119,4 +119,3 @@ USING (
 CREATE INDEX IF NOT EXISTS idx_profiles_partner_id 
   ON public.profiles(partner_id) 
   WHERE partner_id IS NOT NULL;
-

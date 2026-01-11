@@ -214,5 +214,3 @@ export function InstructionCards({ profile, onPromptSelect, onDismiss }: Instruc
     </Card>
   )
 }
-
-

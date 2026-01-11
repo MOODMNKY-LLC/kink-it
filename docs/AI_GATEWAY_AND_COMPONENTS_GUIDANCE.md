@@ -59,14 +59,14 @@
    - Other components → **Review case-by-case**
 
 2. **Import Strategy:**
-   ```tsx
+   \`\`\`tsx
    // AI Elements components
    import { Conversation, Message } from "@/components/ai-elements/conversation"
    
    // Standard shadcn/ui components
    import { Button } from "@/components/ui/button"
    import { Input } from "@/components/ui/input"
-   ```
+   \`\`\`
 
 3. **This gives you:**
    - AI Elements for chat/AI-specific features
@@ -87,5 +87,3 @@
 - **Generally keep existing** unless AI Elements has specific AI-focused enhancements
 
 **Best approach**: Install to `components/ai-elements/` (default) and keep your `components/ui/` components separate.
-
-

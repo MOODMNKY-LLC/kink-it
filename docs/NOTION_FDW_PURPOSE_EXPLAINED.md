@@ -15,7 +15,7 @@
 ## 📊 Before vs After
 
 ### Before FDW (Current State)
-```
+\`\`\`
 Admin wants to find "kinky scene" images across 10 bond members:
 
 1. Make API call to Notion for User 1 → 2 seconds
@@ -27,16 +27,16 @@ Admin wants to find "kinky scene" images across 10 bond members:
 12. Combine all results → 1 second
 
 Total Time: ~25 seconds 😞
-```
+\`\`\`
 
 ### After FDW (With This Setup)
-```
+\`\`\`
 Admin wants to find "kinky scene" images across 10 bond members:
 
 1. Run ONE SQL query that joins Supabase + Notion → 0.2 seconds
 
 Total Time: 0.2 seconds 🚀 (125x faster!)
-```
+\`\`\`
 
 ---
 
@@ -56,7 +56,7 @@ Total Time: 0.2 seconds 🚀 (125x faster!)
    - You can query them like regular SQL tables
 
 ### Step 2: Usage (Ongoing)
-```typescript
+\`\`\`typescript
 // Admin searches for images
 const results = await supabase.rpc('admin_search_image_generations', {
   search_query: 'kinky scene',
@@ -65,7 +65,7 @@ const results = await supabase.rpc('admin_search_image_generations', {
 })
 
 // Returns results from ALL bond members in 200ms!
-```
+\`\`\`
 
 ---
 
@@ -103,9 +103,9 @@ const results = await supabase.rpc('admin_search_image_generations', {
 
 I created a script that does this automatically:
 
-```bash
+\`\`\`bash
 pnpm tsx scripts/get-notion-database-ids.ts
-```
+\`\`\`
 
 This will:
 - ✅ Connect to Notion using your API key
@@ -121,9 +121,9 @@ This will:
 ### Once Database IDs Are Configured:
 
 1. **Foreign Tables Created**
-   ```sql
+   \`\`\`sql
    SELECT * FROM public.setup_notion_fdw_tables();
-   ```
+   \`\`\`
    Creates: `notion_fdw.image_generations_all`, `notion_fdw.kinkster_profiles_all`
 
 2. **Admin Views Created** (Automatic)
@@ -131,13 +131,13 @@ This will:
    - `admin_kinkster_profiles_all` - Bond-filtered view
 
 3. **Ready to Use**
-   ```typescript
+   \`\`\`typescript
    // Fast admin search
    const images = await supabase.rpc('admin_search_image_generations', {
      search_query: 'kinky',
      admin_user_id: userId
    })
-   ```
+   \`\`\`
 
 ---
 
@@ -150,14 +150,14 @@ This will:
 - Copy ID from URL: `notion.so/.../{DATABASE_ID}`
 
 **Option 2: Automated** (Use the script)
-```bash
+\`\`\`bash
 pnpm tsx scripts/get-notion-database-ids.ts
-```
+\`\`\`
 
 **Option 3: From Existing Data**
-```sql
+\`\`\`sql
 SELECT * FROM notion_databases WHERE user_id IS NULL;
-```
+\`\`\`
 
 ### "What is the purpose?"
 
@@ -181,29 +181,27 @@ SELECT * FROM notion_databases WHERE user_id IS NULL;
 ## 🚀 Next Steps
 
 1. **Get Database IDs**:
-   ```bash
+   \`\`\`bash
    pnpm tsx scripts/get-notion-database-ids.ts
-   ```
+   \`\`\`
 
 2. **Insert into Database**:
-   ```sql
+   \`\`\`sql
    INSERT INTO notion_databases (database_type, database_id, database_name, user_id)
    VALUES ('image_generations', 'YOUR-DB-ID', 'Image Generations', NULL);
-   ```
+   \`\`\`
 
 3. **Initialize Foreign Tables**:
-   ```sql
+   \`\`\`sql
    SELECT * FROM public.setup_notion_fdw_tables();
-   ```
+   \`\`\`
 
 4. **Start Using**:
-   ```typescript
+   \`\`\`typescript
    // In your admin API endpoints
    const results = await supabase.rpc('admin_search_image_generations', {...})
-   ```
+   \`\`\`
 
 ---
 
 **Summary**: FDW makes admin searches 100x faster by letting us query Notion directly via SQL instead of slow API calls. You just need to configure which databases to access!
-
-

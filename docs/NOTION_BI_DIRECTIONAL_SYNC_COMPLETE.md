@@ -154,7 +154,7 @@ All 8 database types are fully supported:
 ## 🔧 Technical Implementation
 
 ### Architecture Pattern
-```
+\`\`\`
 User Action
     ↓
 UI Component (DataRecoveryFlow)
@@ -180,7 +180,7 @@ Conflict Resolution Service
 Update Supabase & Notion
     ↓
 Update Sync Status
-```
+\`\`\`
 
 ### Rate Limiting
 - **Notion API**: 3 requests/second average
@@ -221,7 +221,7 @@ Update Sync Status
 5. Continue to welcome splash
 
 ### Programmatic API
-```typescript
+\`\`\`typescript
 // Retrieve from Notion
 const response = await fetch("/api/notion/retrieve-from-database", {
   method: "POST",
@@ -237,7 +237,7 @@ const resolveResponse = await fetch("/api/notion/resolve-conflicts", {
     resolutions: [...],
   }),
 })
-```
+\`\`\`
 
 ---
 

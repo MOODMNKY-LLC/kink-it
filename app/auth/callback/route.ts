@@ -388,7 +388,3 @@ export async function GET(request: NextRequest) {
   errorUrl.searchParams.set("error", "Invalid authentication request. Please try signing in again.")
   return NextResponse.redirect(errorUrl)
 }
-
-
-
-

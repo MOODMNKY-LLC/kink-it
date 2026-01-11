@@ -57,7 +57,7 @@
 
 ### CORS Headers Logic
 
-```typescript
+\`\`\`typescript
 const getCorsHeaders = (): HeadersInit => {
   // 1. Extract origin from headers ✅
   const originHeader = req.headers.get("origin")
@@ -83,7 +83,7 @@ const getCorsHeaders = (): HeadersInit => {
     // ... other headers
   }
 }
-```
+\`\`\`
 
 **Analysis**: ✅ Code logic is correct and will work in production
 
@@ -110,12 +110,12 @@ const getCorsHeaders = (): HeadersInit => {
 
 The CORS fix is in `supabase/functions/chat-stream/index.ts`. When you deploy:
 
-```bash
+\`\`\`bash
 # Deploy Edge Function to production
 supabase functions deploy chat-stream
 
 # Or if using CI/CD, it should deploy automatically
-```
+\`\`\`
 
 ### Environment Variables
 
@@ -133,11 +133,11 @@ Production should have:
 ### After Deployment
 
 1. **Test CORS Headers**:
-   ```bash
+   \`\`\`bash
    # Test from your production domain
    curl -X OPTIONS https://YOUR_SUPABASE_URL/functions/v1/chat-stream \
      -H "Origin: https://YOUR_APP_DOMAIN" -v
-   ```
+   \`\`\`
    
    **Expected**: `Access-Control-Allow-Origin: https://YOUR_APP_DOMAIN` (not `*`)
 

@@ -53,7 +53,7 @@ If you want to add Discord as a user authentication option:
 
 Add to `supabase/config.toml`:
 
-```toml
+\`\`\`toml
 # Discord OAuth provider for user authentication
 [auth.external.discord]
 enabled = true
@@ -63,17 +63,17 @@ redirect_uri = ""
 url = ""
 skip_nonce_check = false
 email_optional = false
-```
+\`\`\`
 
 #### Step 2: Add Environment Variables
 
 Add to `.env.local`:
 
-```bash
+\`\`\`bash
 # Discord OAuth for user authentication (different from bot token)
 SUPABASE_AUTH_EXTERNAL_DISCORD_CLIENT_ID=YOUR_DISCORD_CLIENT_ID
 SUPABASE_AUTH_EXTERNAL_DISCORD_SECRET=YOUR_DISCORD_CLIENT_SECRET
-```
+\`\`\`
 
 **Note**: These are the same values as `DISCORD_CLIENT_ID` and `DISCORD_CLIENT_SECRET` from your Discord Developer Portal.
 
@@ -82,9 +82,9 @@ SUPABASE_AUTH_EXTERNAL_DISCORD_SECRET=YOUR_DISCORD_CLIENT_SECRET
 In Discord Developer Portal → OAuth2 → General:
 
 1. **Add Redirect URI**:
-   ```
+   \`\`\`
    https://127.0.0.1:55321/auth/v1/callback
-   ```
+   \`\`\`
    (This is Supabase's OAuth callback endpoint)
 
 2. **Required Scopes** (for user authentication):
@@ -98,7 +98,7 @@ In Discord Developer Portal → OAuth2 → General:
 
 If you want users to sign in with Discord, add to `app/auth/login/page.tsx`:
 
-```typescript
+\`\`\`typescript
 const handleDiscordLogin = async () => {
   const supabase = createClient()
   setIsOAuthLoading(true)
@@ -118,7 +118,7 @@ const handleDiscordLogin = async () => {
     setIsOAuthLoading(false)
   }
 }
-```
+\`\`\`
 
 ## Recommended Approach
 
@@ -134,7 +134,7 @@ const handleDiscordLogin = async () => {
 
 The current callback route (`app/auth/callback/route.ts`) already handles OAuth errors correctly:
 
-```typescript
+\`\`\`typescript
 if (error) {
   const errorUrl = new URL("/auth/login", requestUrl.origin)
   errorUrl.searchParams.set("error", error)
@@ -143,7 +143,7 @@ if (error) {
   }
   return NextResponse.redirect(errorUrl)
 }
-```
+\`\`\`
 
 This redirects users back to the login page with the error message, which is the correct behavior.
 
@@ -171,7 +171,3 @@ To prevent accidental Discord OAuth attempts:
 - Error handling in place
 
 No action required unless you want to add Discord as a user authentication option.
-
-
-
-

@@ -100,10 +100,10 @@ Comprehensive documentation including:
 - ✅ Maintained existing functionality
 
 **Styling Updates:**
-```tsx
+\`\`\`tsx
 <span className="text-2xl font-display bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">KINK IT</span>
 <span className="text-xs uppercase text-sidebar-foreground/70">D/s Relationship Manager</span>
-```
+\`\`\`
 
 ### 4. Dashboard Layout
 
@@ -286,7 +286,7 @@ Comprehensive documentation including:
 ## Design System Patterns Applied
 
 ### Card Pattern
-```tsx
+\`\`\`tsx
 <Card className="relative overflow-hidden border-primary/20 bg-card/90 backdrop-blur-xl">
   <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 opacity-50 blur-xl" />
   <div className="absolute inset-[1px] rounded-lg bg-card/95 backdrop-blur-xl" />
@@ -294,22 +294,22 @@ Comprehensive documentation including:
     {/* Content */}
   </div>
 </Card>
-```
+\`\`\`
 
 ### Button Pattern
-```tsx
+\`\`\`tsx
 <Button className="bg-primary/10 hover:bg-primary/20 border-2 border-primary/40 backdrop-blur-sm text-foreground font-semibold shadow-lg shadow-primary/20 transition-all duration-300 hover:shadow-primary/30 hover:scale-[1.02]">
-```
+\`\`\`
 
 ### Title Pattern
-```tsx
+\`\`\`tsx
 <h2 className="text-2xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-```
+\`\`\`
 
 ### Input Pattern
-```tsx
+\`\`\`tsx
 <Input className="bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm" />
-```
+\`\`\`
 
 ## MVP Status Summary
 
@@ -421,4 +421,3 @@ All MVP sections are complete and design system compliant, ready for user testin
 2. **Iteration** - Gather feedback and refine UX
 3. **Enhancements** - Add advanced calendar features
 4. **Documentation** - Update user documentation with new calendar features
-

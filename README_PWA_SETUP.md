@@ -8,9 +8,9 @@ All PWA and mobile optimization features have been implemented. Follow these ste
 
 ## Step 1: Install Dependencies
 
-```bash
+\`\`\`bash
 pnpm install
-```
+\`\`\`
 
 This will install:
 - `idb` - IndexedDB wrapper for offline storage
@@ -21,10 +21,10 @@ This will install:
 
 ## Step 2: Generate PWA Icons
 
-```bash
+\`\`\`bash
 # Generate all required PWA icons from source image
 pnpm run generate:pwa-icons
-```
+\`\`\`
 
 This creates all icon sizes in `public/icons/` from `public/images/app-icon/kink-it-icon.png`.
 
@@ -36,10 +36,10 @@ This creates all icon sizes in `public/icons/` from `public/images/app-icon/kink
 
 ## Step 3: Run Database Migration
 
-```bash
+\`\`\`bash
 # Apply push_subscriptions table migration
 supabase migration up
-```
+\`\`\`
 
 Or manually run:
 `supabase/migrations/20250106000000_create_push_subscriptions.sql`
@@ -48,31 +48,31 @@ Or manually run:
 
 ## Step 4: Generate VAPID Keys (for Push Notifications)
 
-```bash
+\`\`\`bash
 # Install web-push globally (if not already installed)
 npm install -g web-push
 
 # Generate VAPID keys
 web-push generate-vapid-keys
-```
+\`\`\`
 
 Add to `.env.local`:
-```env
+\`\`\`env
 NEXT_PUBLIC_VAPID_PUBLIC_KEY=your-public-key-here
 VAPID_PRIVATE_KEY=your-private-key-here
-```
+\`\`\`
 
 ---
 
 ## Step 5: Build and Test
 
-```bash
+\`\`\`bash
 # Build in production mode
 pnpm run build
 
 # Start production server
 pnpm start
-```
+\`\`\`
 
 ### Test PWA Installation:
 
@@ -124,10 +124,10 @@ pnpm start
 
 ## 📊 Bundle Analysis
 
-```bash
+\`\`\`bash
 # Analyze bundle size
 pnpm run analyze
-```
+\`\`\`
 
 Opens interactive bundle analyzer at `http://localhost:3000`
 
@@ -220,6 +220,3 @@ Opens interactive bundle analyzer at `http://localhost:3000`
 Once you've completed the setup steps above, your KINK IT app will be a fully functional PWA with excellent mobile optimization!
 
 For detailed information, see the comprehensive guides in the `docs/` directory.
-
-
-

@@ -335,7 +335,3 @@ When writing copy for any feature:
 **Last Updated**: 2026-01-05  
 **Status**: Living Document - Update as language evolves  
 **Maintained By**: Development Team + Product Owners
-
-
-
-

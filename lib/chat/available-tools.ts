@@ -79,5 +79,3 @@ export function getEnabledToolIds(
     return true
   })
 }
-
-

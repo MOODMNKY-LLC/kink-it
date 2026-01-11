@@ -90,6 +90,3 @@ export default function supabaseImageLoader({ src, width, quality = 75 }: Loader
   // Use the render/image endpoint for transformations
   return `https://${projectId}.supabase.co/storage/v1/render/image/public/${src}?width=${width}&quality=${quality}`
 }
-
-
-

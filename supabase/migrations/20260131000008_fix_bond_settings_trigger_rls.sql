@@ -20,4 +20,3 @@ $$;
 -- Add comment explaining why SECURITY DEFINER is needed
 COMMENT ON FUNCTION public.create_bond_settings() IS 
   'Trigger function to auto-create bond_settings when a bond is created. Uses SECURITY DEFINER to bypass RLS since this is a system operation.';
-

@@ -64,11 +64,11 @@ Template sync is failing with "Template not found" error during onboarding step 
 
 **File**: `supabase/migrations/20260202000004_add_get_duplicated_template_id_function.sql`
 
-```sql
+\`\`\`sql
 CREATE OR REPLACE FUNCTION public.get_user_notion_duplicated_template_id(
   p_user_id uuid
 ) RETURNS text
-```
+\`\`\`
 
 **Purpose**: Retrieve the template page ID that Notion provided during OAuth
 
@@ -133,35 +133,35 @@ CREATE OR REPLACE FUNCTION public.get_user_notion_duplicated_template_id(
 When sync fails, check browser console and server logs for:
 
 1. **Token Retrieval**:
-   ```
+   \`\`\`
    "Using session provider_token as fallback for template sync"
    "No Notion access token available for user: <user_id>"
-   ```
+   \`\`\`
 
 2. **Template ID Check**:
-   ```
+   \`\`\`
    "Found duplicated_template_id from OAuth: <template_id>"
    "No duplicated_template_id found, using search method"
-   ```
+   \`\`\`
 
 3. **Search Results**:
-   ```
+   \`\`\`
    "Notion search returned X pages"
    "Searched X pages. Found Y with titles. Titles: [...]"
-   ```
+   \`\`\`
 
 4. **Template Matching**:
-   ```
+   \`\`\`
    "Found potential template page: '<title>' (ID: <id>)"
    "Page '<title>' has X child databases"
    "✓ Template found: '<title>' with X databases"
-   ```
+   \`\`\`
 
 5. **Errors**:
-   ```
+   \`\`\`
    "Notion search API error: {...}"
    "Template not found after searching {...}"
-   ```
+   \`\`\`
 
 ---
 
@@ -213,9 +213,8 @@ If sync still fails after these fixes:
 
 **Important**: Apply the new migration before testing:
 
-```bash
+\`\`\`bash
 supabase migration up
-```
+\`\`\`
 
 This creates the `get_user_notion_duplicated_template_id()` function needed for the fix.
-

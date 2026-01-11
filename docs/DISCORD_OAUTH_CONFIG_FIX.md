@@ -10,7 +10,7 @@ Added explicit Discord OAuth configuration to `supabase/config.toml` with `enabl
 
 Added Discord OAuth provider configuration section:
 
-```toml
+\`\`\`toml
 # Discord OAuth provider - DISABLED (KINK IT uses Discord Bot for notifications, not user authentication)
 # If you want to enable Discord user authentication, set enabled = true and configure credentials below
 # Note: Discord OAuth requires different scopes (identify, email) than bot installation (bot scope)
@@ -22,20 +22,20 @@ redirect_uri = ""
 url = ""
 skip_nonce_check = false
 email_optional = false
-```
+\`\`\`
 
 ### `ENV_LOCAL_TEMPLATE.txt`
 
 Added section documenting Discord OAuth environment variables (for future reference):
 
-```bash
+\`\`\`bash
 # ============================================
 # DISCORD OAUTH FOR USER AUTHENTICATION (OPTIONAL - DISABLED BY DEFAULT)
 # ============================================
 # These are used ONLY if you enable Discord OAuth user authentication in supabase/config.toml
 # Currently disabled - KINK IT uses Notion OAuth for user authentication
 # Discord is only used for bot notifications (different from user OAuth)
-```
+\`\`\`
 
 ## Why This Fixes the Error
 
@@ -57,10 +57,10 @@ Added section documenting Discord OAuth environment variables (for future refere
 
 1. Set `enabled = true` in `supabase/config.toml`
 2. Add environment variables to `.env.local`:
-   ```bash
+   \`\`\`bash
    SUPABASE_AUTH_EXTERNAL_DISCORD_CLIENT_ID=YOUR_CLIENT_ID
    SUPABASE_AUTH_EXTERNAL_DISCORD_SECRET=YOUR_CLIENT_SECRET
-   ```
+   \`\`\`
 3. Configure Discord OAuth app in Discord Developer Portal:
    - Add redirect URI: `https://127.0.0.1:55321/auth/v1/callback`
    - Use scopes: `identify`, `email` (NOT `bot` scope)
@@ -70,10 +70,10 @@ Added section documenting Discord OAuth environment variables (for future refere
 
 1. ✅ Configuration updated
 2. ⏳ Restart Supabase local development:
-   ```bash
+   \`\`\`bash
    supabase stop
    supabase start
-   ```
+   \`\`\`
 3. ⏳ Test that Discord OAuth errors no longer occur
 
 ## Summary
@@ -84,7 +84,3 @@ Added section documenting Discord OAuth environment variables (for future refere
 - ✅ Clear distinction between Discord Bot and Discord OAuth
 
 The error should no longer occur, and if it does, it will be handled gracefully with user-friendly error messages.
-
-
-
-

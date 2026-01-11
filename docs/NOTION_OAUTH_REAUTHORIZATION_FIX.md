@@ -19,18 +19,18 @@ Instead of relying on Supabase's OAuth handler, we need to handle the OAuth flow
 
 ### Current Flow (Problematic)
 
-```
+\`\`\`
 User → supabase.auth.signInWithOAuth() → Supabase OAuth Handler → Notion → Supabase → App
                                                                               ↓
                                                                     Only access_token available
                                                                     refresh_token lost
-```
+\`\`\`
 
 ### Recommended Flow (Fixed)
 
-```
+\`\`\`
 User → Direct OAuth URL → Notion → Custom Callback Handler → Store tokens → Create Supabase session
-```
+\`\`\`
 
 ## 🔧 Implementation Steps
 
@@ -39,17 +39,17 @@ User → Direct OAuth URL → Notion → Custom Callback Handler → Store token
 **File**: `app/auth/login/page.tsx`
 
 Instead of:
-```typescript
+\`\`\`typescript
 const { error } = await supabase.auth.signInWithOAuth({
   provider: "notion",
   options: {
     redirectTo: `${window.location.origin}/auth/callback`,
   },
 })
-```
+\`\`\`
 
 Use:
-```typescript
+\`\`\`typescript
 const handleNotionLogin = async () => {
   const clientId = process.env.NEXT_PUBLIC_NOTION_CLIENT_ID
   const redirectUri = `${window.location.origin}/api/auth/notion/callback`
@@ -63,7 +63,7 @@ const handleNotionLogin = async () => {
   
   window.location.href = notionAuthUrl
 }
-```
+\`\`\`
 
 ### Step 2: Update Custom Callback Handler
 
@@ -81,7 +81,7 @@ This already exists and handles token exchange correctly! It:
 
 Check that tokens are being stored:
 
-```sql
+\`\`\`sql
 -- Check if tokens exist
 SELECT 
   user_id,
@@ -92,19 +92,19 @@ SELECT
   updated_at
 FROM user_notion_oauth_tokens
 WHERE user_id = '<your-user-id>';
-```
+\`\`\`
 
 ### Step 4: Verify Token Refresh Works
 
 The `getNotionAccessToken()` function should automatically refresh expired tokens. Test it:
 
-```typescript
+\`\`\`typescript
 // This should automatically refresh if expired
 const token = await getNotionAccessToken(userId)
 if (!token) {
   // No token available - user needs to re-authenticate
 }
-```
+\`\`\`
 
 ## 🐛 Troubleshooting
 
@@ -112,9 +112,9 @@ if (!token) {
 
 **Check 1: Are tokens being stored?**
 
-```sql
+\`\`\`sql
 SELECT COUNT(*) FROM user_notion_oauth_tokens;
-```
+\`\`\`
 
 If 0, tokens aren't being stored. Check:
 - OAuth callback handler is being called
@@ -123,7 +123,7 @@ If 0, tokens aren't being stored. Check:
 
 **Check 2: Are refresh tokens valid?**
 
-```typescript
+\`\`\`typescript
 // Test refresh token manually
 const { data: refreshToken } = await supabase.rpc("get_user_notion_oauth_refresh_token", {
   p_user_id: userId,
@@ -135,7 +135,7 @@ if (refreshToken) {
   const refreshed = await refreshNotionAccessToken(refreshToken)
   console.log("Refresh successful:", !!refreshed.access_token)
 }
-```
+\`\`\`
 
 **Check 3: Is Notion OAuth app configured correctly?**
 

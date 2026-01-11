@@ -3,20 +3,20 @@
 ## 📋 Credentials Retrieved from Notion Database
 
 ### Notion API Key
-```bash
+\`\`\`bash
 NOTION_API_KEY=YOUR_NOTION_API_KEY_HERE
-```
+\`\`\`
 
 ### Notion OAuth Credentials (for Supabase Auth)
-```bash
+\`\`\`bash
 NOTION_OAUTH_CLIENT_ID=YOUR_NOTION_OAUTH_CLIENT_ID_HERE
 NOTION_OAUTH_CLIENT_SECRET=YOUR_NOTION_OAUTH_CLIENT_SECRET_HERE
-```
+\`\`\`
 
 ### Notion App ID Database (from ENV_VARIABLES.md)
-```bash
+\`\`\`bash
 NOTION_APP_IDEAS_DATABASE_ID=cc491ef5f0a64eac8e05a6ea10dfb735
-```
+\`\`\`
 
 ---
 
@@ -24,7 +24,7 @@ NOTION_APP_IDEAS_DATABASE_ID=cc491ef5f0a64eac8e05a6ea10dfb735
 
 Open your `.env.local` file and **add/update** these variables:
 
-```bash
+\`\`\`bash
 # ============================================
 # NOTION INTEGRATION (UPDATED)
 # ============================================
@@ -44,7 +44,7 @@ SUPABASE_AUTH_EXTERNAL_NOTION_CLIENT_ID=YOUR_NOTION_OAUTH_CLIENT_ID_HERE
 
 # Notion OAuth Client Secret  
 SUPABASE_AUTH_EXTERNAL_NOTION_SECRET=YOUR_NOTION_OAUTH_CLIENT_SECRET_HERE
-```
+\`\`\`
 
 **Important Notes:**
 - The OAuth secret uses the Supabase naming convention for environment variables
@@ -58,13 +58,13 @@ SUPABASE_AUTH_EXTERNAL_NOTION_SECRET=YOUR_NOTION_OAUTH_CLIENT_SECRET_HERE
 
 The `supabase/config.toml` file has been automatically updated with:
 
-```toml
+\`\`\`toml
 [auth.external.notion]
 enabled = true
 client_id = "env(SUPABASE_AUTH_EXTERNAL_NOTION_CLIENT_ID)"
 secret = "env(SUPABASE_AUTH_EXTERNAL_NOTION_SECRET)"
 redirect_uri = ""
-```
+\`\`\`
 
 This configuration:
 - ✅ Enables Notion as an OAuth provider
@@ -77,13 +77,13 @@ This configuration:
 
 After updating `.env.local`, restart your Supabase instance:
 
-```bash
+\`\`\`bash
 # Stop Supabase
 supabase stop
 
 # Start Supabase (picks up new env vars and config)
 supabase start
-```
+\`\`\`
 
 ---
 
@@ -99,7 +99,7 @@ supabase start
 
 In your Next.js app, you can now use Supabase's OAuth flow:
 
-```typescript
+\`\`\`typescript
 import { createClient } from '@/lib/supabase/client'
 
 const supabase = createClient()
@@ -111,7 +111,7 @@ const { data, error } = await supabase.auth.signInWithOAuth({
     redirectTo: `${window.location.origin}/auth/callback`,
   },
 })
-```
+\`\`\`
 
 ---
 
@@ -185,6 +185,3 @@ Your Notion integration is configured with:
 
 **Status**: ✅ Ready for configuration
 **Next**: Update `.env.local` and restart Supabase
-
-
-

@@ -86,8 +86,3 @@ $$;
 
 -- Note: The trigger is already created in 002_create_profiles.sql
 -- This migration only updates the function definition
-
-
-
-
-

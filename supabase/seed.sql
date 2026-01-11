@@ -432,5 +432,3 @@ ON CONFLICT (id) DO NOTHING;
 --
 -- Note: In production, use Supabase Auth API to create users properly.
 -- This seed file is for local development only.
-
-

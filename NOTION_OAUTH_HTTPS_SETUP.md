@@ -14,10 +14,10 @@ We've enabled TLS in your Supabase `config.toml`. Supabase will automatically ge
 
 After enabling TLS, restart Supabase to generate certificates:
 
-```bash
+\`\`\`bash
 supabase stop
 supabase start
-```
+\`\`\`
 
 ### Step 2: Accept Self-Signed Certificate
 
@@ -34,10 +34,10 @@ When you first access Supabase over HTTPS, your browser will show a security war
 
 Update your `.env.local` to use HTTPS URLs:
 
-```bash
+\`\`\`bash
 # Use HTTPS instead of HTTP
 NEXT_PUBLIC_SUPABASE_URL=https://127.0.0.1:55321
-```
+\`\`\`
 
 **Important:** Keep the HTTP URLs commented or remove them, but ensure HTTPS is primary.
 
@@ -45,9 +45,9 @@ NEXT_PUBLIC_SUPABASE_URL=https://127.0.0.1:55321
 
 In your Notion OAuth app settings, add this redirect URI:
 
-```
+\`\`\`
 https://127.0.0.1:55321/auth/v1/callback
-```
+\`\`\`
 
 **Where to configure:**
 1. Go to https://www.notion.so/my-integrations
@@ -77,9 +77,9 @@ This works because the critical OAuth callback (Notion → Supabase) uses HTTPS.
 
 After restarting Supabase, check:
 
-```bash
+\`\`\`bash
 supabase status
-```
+\`\`\`
 
 You should see HTTPS URLs:
 - API: `https://127.0.0.1:55321`
@@ -90,14 +90,14 @@ You should see HTTPS URLs:
 ### For Notion OAuth Configuration:
 
 **Local Development:**
-```
+\`\`\`
 https://127.0.0.1:55321/auth/v1/callback
-```
+\`\`\`
 
 **Production:**
-```
+\`\`\`
 https://rbloeqwxivfzxmfropek.supabase.co/auth/v1/callback
-```
+\`\`\`
 
 ### Flow Explanation:
 
@@ -152,4 +152,3 @@ If Next.js can't connect to Supabase:
 
 **Status**: ✅ TLS Configuration Complete  
 **Next**: Restart Supabase and configure Notion redirect URI
-

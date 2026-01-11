@@ -203,4 +203,3 @@ export function isValidGoogleEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   return emailRegex.test(email) && (email.endsWith('@gmail.com') || email.endsWith('@googlemail.com') || email.includes('@'))
 }
-

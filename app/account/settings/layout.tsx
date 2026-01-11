@@ -55,6 +55,3 @@ export default async function SettingsLayout({
     </div>
   )
 }
-
-
-

@@ -16,6 +16,3 @@ export default async function SceneCompositionPage() {
     </div>
   )
 }
-
-
-

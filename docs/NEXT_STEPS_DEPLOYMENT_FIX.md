@@ -61,26 +61,26 @@ Modified build script to **suppress known error from stderr** to prevent Vercel 
 
 ### Solution 1: Vercel Build Override
 Configure Vercel to use a different build command that handles the error:
-```json
+\`\`\`json
 {
   "buildCommand": "node scripts/build-with-error-handling.js || true"
 }
-```
+\`\`\`
 
 ### Solution 2: Environment Detection
 Detect Vercel environment and handle differently:
-```javascript
+\`\`\`javascript
 const isVercel = process.env.VERCEL === '1'
 if (isVercel && isKnownError) {
   // Handle differently for Vercel
 }
-```
+\`\`\`
 
 ### Solution 3: Next.js Upgrade
 Check if Next.js 15.6.0+ fixes this bug:
-```bash
+\`\`\`bash
 pnpm add next@latest
-```
+\`\`\`
 
 ### Solution 4: Remove Error Pages Temporarily
 As a last resort, temporarily remove custom error pages:
@@ -92,11 +92,11 @@ As a last resort, temporarily remove custom error pages:
 ## Monitoring
 
 ### Check Deployment Status
-```bash
+\`\`\`bash
 # Use Vercel MCP or dashboard
 # Check latest deployment logs
 # Verify build succeeds
-```
+\`\`\`
 
 ### Test Production
 - Visit production URL

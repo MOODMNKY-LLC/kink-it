@@ -48,9 +48,9 @@ Enhanced the `handle_new_user()` function to better extract Notion OAuth metadat
 - Handles Notion-specific metadata fields
 
 **To apply**: Run this migration against your Supabase database:
-```bash
+\`\`\`bash
 supabase db reset  # Or apply migration manually
-```
+\`\`\`
 
 ### Profile Page
 **Route**: `/account/profile`
@@ -111,10 +111,10 @@ The app now uses a consistent color scheme matching the auth page:
 
 ### Migration Required
 To apply the enhanced profile trigger, run:
-```bash
+\`\`\`bash
 supabase db reset
 # Or manually apply scripts/003_enhance_profile_trigger.sql
-```
+\`\`\`
 
 ## 🔗 Related Files
 
@@ -142,8 +142,3 @@ The theme overhaul maintains the tactical/military aesthetic seen in the auth pa
 - Glassmorphism effects (backdrop blur)
 - Animated borders and hover effects
 - Consistent use of theme variables throughout
-
-
-
-
-

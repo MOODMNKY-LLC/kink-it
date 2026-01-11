@@ -4,7 +4,7 @@ This document shows how to integrate the data recovery flow into your applicatio
 
 ## Adding to Settings Page
 
-```tsx
+\`\`\`tsx
 // app/account/settings/page.tsx or similar
 
 "use client"
@@ -47,11 +47,11 @@ export function SettingsPage() {
     </div>
   )
 }
-```
+\`\`\`
 
 ## Adding to Onboarding Flow
 
-```tsx
+\`\`\`tsx
 // components/onboarding/steps/notion-recovery-step.tsx
 
 "use client"
@@ -90,11 +90,11 @@ export function NotionRecoveryStep({ onNext }: { onNext: () => void }) {
     </div>
   )
 }
-```
+\`\`\`
 
 ## Auto-Detection on Login
 
-```tsx
+\`\`\`tsx
 // app/auth/callback/route.ts or middleware
 
 import { useNotionRecoveryDetection } from "@/hooks/use-notion-recovery-detection"
@@ -111,11 +111,11 @@ export async function handleAuthCallback() {
     // Show recovery prompt on next page load
   }
 }
-```
+\`\`\`
 
 ## Manual Recovery Trigger
 
-```tsx
+\`\`\`tsx
 // Anywhere in your app
 
 import { DataRecoveryFlow } from "@/components/notion/data-recovery-flow"
@@ -137,11 +137,11 @@ function MyComponent() {
     </>
   )
 }
-```
+\`\`\`
 
 ## Programmatic API Usage
 
-```typescript
+\`\`\`typescript
 // Direct API usage without UI
 
 async function recoverTasks() {
@@ -177,37 +177,37 @@ async function recoverTasks() {
     console.log("Resolved:", resolveResult)
   }
 }
-```
+\`\`\`
 
 ## Testing the Implementation
 
 1. **Test Recovery Detection**:
-   ```typescript
+   \`\`\`typescript
    // Create test scenario: Empty Supabase table but Notion database exists
    // Hook should detect needsRecovery = true
-   ```
+   \`\`\`
 
 2. **Test Retrieval**:
-   ```typescript
+   \`\`\`typescript
    // Call retrieve-from-database API
    // Verify pages are retrieved, matched, conflicts detected
-   ```
+   \`\`\`
 
 3. **Test Conflict Resolution**:
-   ```typescript
+   \`\`\`typescript
    // Create conflicts manually
    // Test each resolution strategy
    // Verify both Notion and Supabase are updated
-   ```
+   \`\`\`
 
 4. **Test UI Flow**:
-   ```typescript
+   \`\`\`typescript
    // Open recovery flow
    // Select database
    // Watch progress
    // Resolve conflicts
    // Verify completion
-   ```
+   \`\`\`
 
 ---
 

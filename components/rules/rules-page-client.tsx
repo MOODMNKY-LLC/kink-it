@@ -704,4 +704,3 @@ export function RulesPageClient({ userId, userRole, bondId }: RulesPageClientPro
     </div>
   )
 }
-

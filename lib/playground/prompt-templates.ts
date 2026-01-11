@@ -475,5 +475,3 @@ export function validateConsistency(
     warnings,
   }
 }
-
-

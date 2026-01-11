@@ -38,6 +38,3 @@ export interface ImageUploadState {
   isConvertingHeic: boolean
   heicProgress: number
 }
-
-
-

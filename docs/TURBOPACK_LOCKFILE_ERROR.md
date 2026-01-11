@@ -2,18 +2,18 @@
 
 ## Error Message
 
-```
+\`\`\`
 ⨯ Failed to patch lockfile, please try uninstalling and reinstalling next in this workspace
 [TypeError: Cannot read properties of undefined (reading 'os')]
-```
+\`\`\`
 
 ## Status
 
 ⚠️ **Warning Only** - This error does **not** prevent the server from starting or functioning. The server still works correctly as shown by:
 
-```
+\`\`\`
 ✅ Ready on https://127.0.0.1:3000
-```
+\`\`\`
 
 ## Root Cause
 
@@ -32,13 +32,13 @@ This is a known issue with **Next.js 15.5.9** and Turbopack's lockfile patching 
 
 The project uses `pnpm`, but `package-lock.json` (from npm) exists and causes conflicts:
 
-```powershell
+\`\`\`powershell
 # Remove npm lockfile (project uses pnpm)
 Remove-Item package-lock.json
 
 # Reinstall to ensure clean state
 pnpm install
-```
+\`\`\`
 
 This should resolve the lockfile patching error.
 
@@ -50,17 +50,17 @@ Since the error doesn't affect functionality, you can safely ignore it. The serv
 
 If the warning bothers you, you can disable Turbopack:
 
-```powershell
+\`\`\`powershell
 # Use standard webpack bundler
 pnpm dev:http
 
 # Instead of:
 pnpm dev:turbo
-```
+\`\`\`
 
 ### Option 4: Clear Cache and Reinstall
 
-```powershell
+\`\`\`powershell
 # Clear Next.js cache
 Remove-Item -Recurse -Force .next
 
@@ -69,15 +69,15 @@ pnpm store prune
 
 # Reinstall dependencies
 pnpm install
-```
+\`\`\`
 
 ### Option 4: Update Next.js (When Available)
 
 When Next.js releases a fix for this issue, update:
 
-```powershell
+\`\`\`powershell
 pnpm update next@latest
-```
+\`\`\`
 
 ## Related Issues
 
@@ -101,4 +101,3 @@ To verify the server is working despite the warning:
 3. Verify all features work correctly
 
 The warning is cosmetic and doesn't impact functionality.
-

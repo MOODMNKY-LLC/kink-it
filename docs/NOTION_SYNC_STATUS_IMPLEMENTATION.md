@@ -116,7 +116,7 @@ All sync routes now track status throughout the sync process:
 
 ### Using the Generic Button Component
 
-```tsx
+\`\`\`tsx
 import { AddToNotionButtonGeneric } from "@/components/playground/shared/add-to-notion-button-generic"
 
 // In your component
@@ -128,22 +128,22 @@ import { AddToNotionButtonGeneric } from "@/components/playground/shared/add-to-
   size="sm"
   showStatusBadge={true}
 />
-```
+\`\`\`
 
 ### Using the Sync Status Hook
 
-```tsx
+\`\`\`tsx
 import { useNotionItemSyncStatus } from "@/components/playground/shared/use-notion-item-sync-status"
 
 const { status, syncedAt, error, notionPageId, isLoading } = useNotionItemSyncStatus({
   tableName: "tasks",
   itemId: task.id,
 })
-```
+\`\`\`
 
 ### Using the Sync Status Badge
 
-```tsx
+\`\`\`tsx
 import { SyncStatusBadge } from "@/components/playground/shared/sync-status-badge"
 
 <SyncStatusBadge
@@ -152,7 +152,7 @@ import { SyncStatusBadge } from "@/components/playground/shared/sync-status-badg
   error={error}
   notionPageUrl={notionPageUrl}
 />
-```
+\`\`\`
 
 ---
 
@@ -208,4 +208,3 @@ import { SyncStatusBadge } from "@/components/playground/shared/sync-status-badg
 **Implementation Complete:** February 2, 2025  
 **Migration Applied:** ✅ Local Database  
 **Migration Applied:** ⏳ Production Database (pending)
-

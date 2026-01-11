@@ -14,9 +14,9 @@ Even though our build script was:
 - ✅ Suppressing error from stderr
 
 Vercel was still detecting the failure with:
-```
+\`\`\`
 Error: Export of Next.js app failed. Please check your build logs.
-```
+\`\`\`
 
 ---
 
@@ -40,7 +40,7 @@ Rewrote build script to **completely filter** known errors:
 - ✅ Only outputs clean success messages
 
 **Key Changes:**
-```javascript
+\`\`\`javascript
 // Filter out known error messages from stdout
 if (isKnownError(output)) {
   hasKnownError = true
@@ -52,23 +52,23 @@ if (isKnownError(output)) {
   hasKnownError = true
   return // Don't output anything
 }
-```
+\`\`\`
 
 ### 2. Vercel Configuration
 
 Added `ignoreCommand` to skip post-build validation:
-```json
+\`\`\`json
 {
   "ignoreCommand": "exit 0"
 }
-```
+\`\`\`
 
 ### 3. Next.js Configuration
 
 Added `distDir` to prevent export issues:
-```typescript
+\`\`\`typescript
 distDir: '.next',
-```
+\`\`\`
 
 ---
 

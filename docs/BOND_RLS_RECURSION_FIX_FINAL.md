@@ -8,9 +8,9 @@
 ## Problem
 
 Infinite recursion error when creating bonds:
-```
+\`\`\`
 Error: infinite recursion detected in policy for relation "bond_members"
-```
+\`\`\`
 
 **Root Cause**: RLS policies on `bond_members` were querying the `bond_members` table itself to check permissions, causing infinite recursion when inserting the first member.
 
@@ -47,30 +47,30 @@ Used the same approach as the `profiles` table fix - create security definer fun
 All policies now use these functions instead of direct queries:
 
 **SELECT Policy**:
-```sql
+\`\`\`sql
 USING (
   public.is_bond_creator(bond_id, (SELECT auth.uid()))
   OR public.is_bond_member(bond_id, (SELECT auth.uid()))
   OR public.is_admin((SELECT auth.uid()))
 )
-```
+\`\`\`
 
 **INSERT Policy**:
-```sql
+\`\`\`sql
 WITH CHECK (
   public.can_invite_to_bond(bond_id, (SELECT auth.uid()))
   OR public.is_admin((SELECT auth.uid()))
 )
-```
+\`\`\`
 
 **UPDATE Policy**:
-```sql
+\`\`\`sql
 USING (
   user_id = (SELECT auth.uid())
   OR public.can_manage_bond(bond_id, (SELECT auth.uid()))
   OR public.is_admin((SELECT auth.uid()))
 )
-```
+\`\`\`
 
 ---
 
@@ -128,6 +128,3 @@ If you still see recursion errors:
 2. **Check Migration Status**: `npx supabase migration list`
 3. **Verify Functions**: Check that functions exist in database
 4. **Clear Cache**: Restart Next.js dev server
-
-
-

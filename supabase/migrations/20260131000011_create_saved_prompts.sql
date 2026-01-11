@@ -61,4 +61,3 @@ CREATE TRIGGER update_saved_prompts_updated_at
   BEFORE UPDATE ON saved_prompts
   FOR EACH ROW
   EXECUTE FUNCTION update_saved_prompts_updated_at();
-

@@ -661,5 +661,3 @@ function getDefaultInstructions(profile?: Profile | null, kinksterId?: string): 
 
   return `You are Kinky Kincade, a helpful AI assistant for the KINK IT app. You help users explore and manage their dynamic relationships, learn about BDSM/kink, and use the app's features. Be respectful, knowledgeable, and supportive.`
 }
-
-

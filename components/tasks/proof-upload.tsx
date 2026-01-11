@@ -160,4 +160,3 @@ export function ProofUpload({ onUploadComplete, existingProof, taskId }: ProofUp
     </div>
   )
 }
-

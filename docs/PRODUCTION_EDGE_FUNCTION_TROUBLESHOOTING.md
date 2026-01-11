@@ -3,9 +3,9 @@
 ## Issue
 
 Cannot connect to Edge Function in production:
-```
+\`\`\`
 Cannot connect to Edge Function at https://rbloeqwxivfzxmfropek.supabase.co/functions/v1/chat-stream
-```
+\`\`\`
 
 ## Function Status
 
@@ -59,10 +59,10 @@ Cannot connect to Edge Function at https://rbloeqwxivfzxmfropek.supabase.co/func
 ### Step 1: Check Environment Variables
 
 In production browser console:
-```javascript
+\`\`\`javascript
 console.log("Supabase URL:", process.env.NEXT_PUBLIC_SUPABASE_URL)
 console.log("Anon Key:", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? "Set" : "Missing")
-```
+\`\`\`
 
 Should show:
 - URL: `https://rbloeqwxivfzxmfropek.supabase.co`
@@ -71,7 +71,7 @@ Should show:
 ### Step 2: Test Function Endpoint
 
 In browser console:
-```javascript
+\`\`\`javascript
 fetch('https://rbloeqwxivfzxmfropek.supabase.co/functions/v1/chat-stream', {
   method: 'OPTIONS',
   headers: {
@@ -80,7 +80,7 @@ fetch('https://rbloeqwxivfzxmfropek.supabase.co/functions/v1/chat-stream', {
 })
 .then(r => console.log('CORS OK:', r.status))
 .catch(e => console.error('CORS Error:', e))
-```
+\`\`\`
 
 Should return status 200 or 204 (CORS preflight success).
 
@@ -93,9 +93,9 @@ In Supabase Dashboard:
 
 ### Step 4: Verify Function Deployment
 
-```bash
+\`\`\`bash
 supabase functions list --project-ref rbloeqwxivfzxmfropek
-```
+\`\`\`
 
 Should show `chat-stream` as ACTIVE.
 
@@ -103,14 +103,14 @@ Should show `chat-stream` as ACTIVE.
 
 ### Fix 1: Set Vercel Environment Variables
 
-```bash
+\`\`\`bash
 # Via Vercel CLI (if available)
 vercel env add NEXT_PUBLIC_SUPABASE_URL production
 # Enter: https://rbloeqwxivfzxmfropek.supabase.co
 
 vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY production
 # Enter: your-production-anon-key
-```
+\`\`\`
 
 Or via Dashboard:
 1. https://vercel.com/mood-mnkys-projects/kink-it/settings/environment-variables
@@ -120,9 +120,9 @@ Or via Dashboard:
 
 ### Fix 2: Redeploy Function
 
-```bash
+\`\`\`bash
 supabase functions deploy chat-stream --project-ref rbloeqwxivfzxmfropek
-```
+\`\`\`
 
 ### Fix 3: Check Browser Console
 
@@ -137,20 +137,20 @@ Open browser DevTools → Console and look for:
 ### Successful Connection
 
 Browser console should show:
-```
+\`\`\`
 🔗 Connecting to Edge Function: https://rbloeqwxivfzxmfropek.supabase.co/functions/v1/chat-stream
 📋 Connection details: { supabaseUrl: "...", functionUrl: "...", ... }
 ✅ SSE connection opened successfully
 📡 Streaming chat messages...
-```
+\`\`\`
 
 ### Failed Connection
 
 Browser console will show:
-```
+\`\`\`
 ❌ SSE connection error: ...
 📋 SSE error details: { status: 0, url: "...", ... }
-```
+\`\`\`
 
 ## Production URLs
 

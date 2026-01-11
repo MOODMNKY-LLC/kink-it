@@ -13,7 +13,7 @@ The Discord MCP server configuration has been updated to use `DISCORD_BOT_TOKEN`
 
 **File**: `.cursor/mcp.json`
 
-```json
+\`\`\`json
 "mcp-discord": {
   "command": "docker",
   "args": [
@@ -28,7 +28,7 @@ The Discord MCP server configuration has been updated to use `DISCORD_BOT_TOKEN`
     "DISCORD_TOKEN": "${DISCORD_BOT_TOKEN}"
   }
 }
-```
+\`\`\`
 
 ### How It Works
 
@@ -44,9 +44,9 @@ The Discord MCP server configuration has been updated to use `DISCORD_BOT_TOKEN`
 
 Make sure your `.env.local` file contains:
 
-```bash
+\`\`\`bash
 DISCORD_BOT_TOKEN=your_actual_discord_bot_token_here
-```
+\`\`\`
 
 ### 2. Restart Cursor IDE
 
@@ -84,10 +84,10 @@ To verify the Discord MCP is working:
 **Solution**:
 1. Ensure `.env.local` is in the project root
 2. Try exporting the variable manually:
-   ```powershell
+   \`\`\`powershell
    # Windows PowerShell
    $env:DISCORD_BOT_TOKEN = "your_token_here"
-   ```
+   \`\`\`
 3. Restart Cursor IDE
 
 ### Docker Container Issues
@@ -97,9 +97,9 @@ To verify the Discord MCP is working:
 **Solution**:
 1. Ensure Docker Desktop is running
 2. Pull the MCP Discord image:
-   ```bash
+   \`\`\`bash
    docker pull mcp/mcp-discord
-   ```
+   \`\`\`
 3. Check Docker logs for errors
 
 ---
@@ -109,23 +109,23 @@ To verify the Discord MCP is working:
 If the `${DISCORD_BOT_TOKEN}` substitution doesn't work, you can:
 
 1. **Export DISCORD_TOKEN directly**:
-   ```powershell
+   \`\`\`powershell
    # Windows PowerShell
    $env:DISCORD_TOKEN = $env:DISCORD_BOT_TOKEN
-   ```
+   \`\`\`
 
 2. **Or add to .env.local**:
-   ```bash
+   \`\`\`bash
    DISCORD_TOKEN=your_discord_bot_token_here
-   ```
+   \`\`\`
 
 Then update the MCP config to use `DISCORD_TOKEN` directly:
 
-```json
+\`\`\`json
 "env": {
   "DISCORD_TOKEN": "${DISCORD_TOKEN}"
 }
-```
+\`\`\`
 
 ---
 
@@ -141,7 +141,3 @@ After setup, you should be able to:
 
 **Last Updated**: 2026-01-27  
 **Status**: Ready for Use
-
-
-
-

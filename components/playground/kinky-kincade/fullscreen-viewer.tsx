@@ -114,5 +114,3 @@ export function FullscreenViewer({ imageUrl, generations, onClose, onNavigate }:
     </div>
   )
 }
-
-

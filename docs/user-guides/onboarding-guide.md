@@ -216,6 +216,3 @@ Need help? Contact us:
 - **Email**: support@kinkit.app
 - **Discord**: [Join our server](#)
 - **Documentation**: Check other guides
-
-
-

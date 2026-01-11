@@ -118,5 +118,3 @@ async function getNotionDatabaseIds() {
 }
 
 getNotionDatabaseIds()
-
-

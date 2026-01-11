@@ -126,6 +126,3 @@ export function getStylePresetTags(id: string): string[] {
   const preset = getStylePreset(id)
   return preset?.styleTags || []
 }
-
-
-

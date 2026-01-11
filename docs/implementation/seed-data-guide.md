@@ -18,9 +18,9 @@ We have two methods for seeding the database:
 
 The `supabase/seed.sql` file runs automatically when you execute:
 
-```bash
+\`\`\`bash
 supabase db reset
-```
+\`\`\`
 
 **Note**: This method attempts to insert directly into `auth.users`, which may not work in all Supabase setups. If you encounter issues, use Method 2.
 
@@ -32,27 +32,27 @@ supabase db reset
 
 Install required dependencies:
 
-```bash
+\`\`\`bash
 pnpm add -D tsx dotenv
-```
+\`\`\`
 
 ### Usage
 
 Run the seed script:
 
-```bash
+\`\`\`bash
 pnpm seed
-```
+\`\`\`
 
 Or reset database and seed in one command:
 
-```bash
+\`\`\`bash
 pnpm seed:reset
-```
+\`\`\`
 
 ### Manual Execution
 
-```bash
+\`\`\`bash
 # Get service role key from Supabase status
 supabase status
 
@@ -60,7 +60,7 @@ supabase status
 SUPABASE_URL=http://127.0.0.1:55321 \
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key \
 pnpm tsx scripts/seed-db.ts
-```
+\`\`\`
 
 ---
 
@@ -116,11 +116,11 @@ pnpm tsx scripts/seed-db.ts
 ## Testing with Seed Data
 
 ### 1. Login as Simeon (Dominant)
-```bash
+\`\`\`bash
 # Navigate to: http://127.0.0.1:3000/auth/login
 # Email: simeon@kinkit.app
 # Password: password123
-```
+\`\`\`
 
 **Expected**:
 - Dashboard shows Kevin's submission state
@@ -129,11 +129,11 @@ pnpm tsx scripts/seed-db.ts
 - Can approve completed tasks
 
 ### 2. Login as Kevin (Submissive)
-```bash
+\`\`\`bash
 # Navigate to: http://127.0.0.1:3000/auth/login
 # Email: kevin@kinkit.app
 # Password: password123
-```
+\`\`\`
 
 **Expected**:
 - Dashboard shows submission state selector
@@ -162,15 +162,15 @@ pnpm tsx scripts/seed-db.ts
 
 **Solution**: Get the service role key from Supabase:
 
-```bash
+\`\`\`bash
 supabase status
-```
+\`\`\`
 
 Look for the "Secret" key under "Authentication Keys" and add it to `.env.local`:
 
-```bash
+\`\`\`bash
 SUPABASE_SERVICE_ROLE_KEY=sb_secret_...
-```
+\`\`\`
 
 ### Error: "User already exists"
 
@@ -203,8 +203,3 @@ After seeding:
 ---
 
 **Status**: Ready for testing with comprehensive seed data
-
-
-
-
-

@@ -78,7 +78,7 @@ All templates use:
 
 All background scenes use structured prompts with:
 
-```
+\`\`\`
 Style Header:
 "Bara anime cartoon comic style, game-ready illustration, bold clean linework, smooth cel-shading with soft gradients, vibrant neon accents, highly detailed background but clear focal hierarchy"
 
@@ -93,7 +93,7 @@ Quality Tags:
 
 Negative Constraints:
 "no characters, no people, no human figures, no photorealism, no painterly oil texture, no muddy colors, no low-detail background, no text artifacts, empty scene ready for character placement"
-```
+\`\`\`
 
 ---
 
@@ -101,10 +101,10 @@ Negative Constraints:
 
 ### Option 1: Via API Route (Recommended)
 
-```bash
+\`\`\`bash
 # Make POST request to generate all scenes
 curl -X POST http://localhost:3000/api/generate-background-scenes
-```
+\`\`\`
 
 Or use the browser/Postman:
 - URL: `http://localhost:3000/api/generate-background-scenes`
@@ -138,7 +138,7 @@ The script `scripts/generate-background-scenes.ts` is ready but requires:
 
 ### Using Default Character in Components
 
-```typescript
+\`\`\`typescript
 import { getDefaultCharacter } from "@/lib/playground/default-character"
 
 // In component
@@ -147,11 +147,11 @@ useEffect(() => {
     getDefaultCharacter().then(setSelectedCharacter)
   }
 }, [selectedCharacter])
-```
+\`\`\`
 
 ### Using Background Scene Templates
 
-```typescript
+\`\`\`typescript
 import { BACKGROUND_SCENE_TEMPLATES, getBackgroundTemplate } from "@/lib/playground/background-scenes"
 
 // Get all templates
@@ -162,7 +162,7 @@ const beachScene = getBackgroundTemplate("beach-tropical")
 
 // Use template prompt for generation
 const prompt = beachScene?.prompt
-```
+\`\`\`
 
 ---
 
@@ -191,5 +191,3 @@ const prompt = beachScene?.prompt
 - **Prompt Templates**: `lib/playground/prompt-templates.ts`
 - **Kinky Kincade Profile**: `lib/kinky/kinky-kincade-profile.ts`
 - **Default Character**: `lib/playground/default-character.ts`
-
-

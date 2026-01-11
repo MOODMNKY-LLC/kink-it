@@ -17,7 +17,7 @@
    - Click **New Query**
 
 3. **Copy and Paste Migration SQL**
-   ```sql
+   \`\`\`sql
    -- Fix RLS policy to allow searching bonds by invite code
    -- Users need to be able to search for bonds by invite_code even if they're not members yet
    -- This allows the invite code joining flow to work
@@ -35,7 +35,7 @@
      -- Note: The actual invite_code matching is done in the API route query
      -- This policy just allows the SELECT to proceed for bonds with invite codes
    );
-   ```
+   \`\`\`
 
 4. **Run the Query**
    - Click **Run** (or press `Cmd+Enter` / `Ctrl+Enter`)
@@ -43,13 +43,13 @@
 
 5. **Verify Migration**
    - Run this verification query:
-   ```sql
+   \`\`\`sql
    -- Check if policy exists
    SELECT schemaname, tablename, policyname, permissive, roles, cmd, qual
    FROM pg_policies
    WHERE tablename = 'bonds'
    AND policyname = 'Users can search bonds by invite code';
-   ```
+   \`\`\`
    - Should return 1 row with the policy details
 
 ---
@@ -58,7 +58,7 @@
 
 If you want to align migration history first:
 
-```bash
+\`\`\`bash
 # 1. Repair migration history (mark remote-only migrations as reverted)
 supabase migration repair --status reverted 20260108115920 20260108120708 20260108121207 20260108122240 20260108122804 20260108125610
 
@@ -67,7 +67,7 @@ supabase db pull --linked
 
 # 3. Push new migration
 supabase db push --linked
-```
+\`\`\`
 
 **Note**: This approach requires resolving migration history conflicts first.
 

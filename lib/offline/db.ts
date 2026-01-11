@@ -124,6 +124,3 @@ export async function deleteRule(id: string): Promise<void> {
   const db = await getDB()
   await db.delete('rules', id)
 }
-
-
-

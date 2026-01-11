@@ -46,19 +46,19 @@ Generates:
 ## 📋 Next Steps
 
 1. **Generate PWA Icons:**
-   ```bash
+   \`\`\`bash
    pnpm run generate:pwa-icons
-   ```
+   \`\`\`
 
 2. **Generate Splash Screens:**
-   ```bash
+   \`\`\`bash
    pnpm run generate:splash-screens
-   ```
+   \`\`\`
 
 3. **Verify Setup:**
-   ```bash
+   \`\`\`bash
    pnpm run setup:pwa
-   ```
+   \`\`\`
 
 ---
 
@@ -89,6 +89,3 @@ Generates:
 
 **Last Updated**: January 2025
 **Status**: Ready for Icon Generation
-
-
-

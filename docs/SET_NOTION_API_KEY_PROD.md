@@ -16,9 +16,9 @@ To set the `NOTION_API_KEY_PROD` secret for the `setup-notion-fdw` Edge Function
 
 ### Option 2: Via Supabase CLI
 
-```bash
+\`\`\`bash
 supabase secrets set NOTION_API_KEY_PROD='your-notion-api-key-here' --project-ref rbloeqwxivfzxmfropek
-```
+\`\`\`
 
 Replace `your-notion-api-key-here` with your actual Notion API key.
 
@@ -33,9 +33,9 @@ Your Notion API key can be found in:
 
 After setting the secret, verify it's configured:
 
-```bash
+\`\`\`bash
 supabase secrets list --project-ref rbloeqwxivfzxmfropek
-```
+\`\`\`
 
 You should see `NOTION_API_KEY_PROD` in the list.
 

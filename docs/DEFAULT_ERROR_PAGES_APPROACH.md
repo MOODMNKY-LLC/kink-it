@@ -9,10 +9,10 @@
 
 Next.js 15.5.9 has a bug where it tries to statically generate error pages (`/404`, `/500`) even when they're marked as client-side only or dynamic. This causes build failures with:
 
-```
+\`\`\`
 Error: <Html> should not be imported outside of pages/_document.
 Error occurred prerendering page "/404".
-```
+\`\`\`
 
 ---
 
@@ -74,15 +74,15 @@ Our custom build script (`scripts/build-with-error-handling.js`) handles the err
 Once Next.js fixes the bug (likely in 15.6.0+), we can restore our custom error pages:
 
 1. Restore from backups:
-   ```bash
+   \`\`\`bash
    mv app/error.tsx.backup app/error.tsx
    mv app/not-found.tsx.backup app/not-found.tsx
-   ```
+   \`\`\`
 
 2. Test build:
-   ```bash
+   \`\`\`bash
    pnpm run build
-   ```
+   \`\`\`
 
 3. If build succeeds, remove build script fallback (optional)
 

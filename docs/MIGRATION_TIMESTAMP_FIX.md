@@ -3,10 +3,10 @@
 ## Problem
 
 Multiple migrations had duplicate timestamps, causing a unique constraint violation:
-```
+\`\`\`
 ERROR: duplicate key value violates unique constraint "schema_migrations_pkey"
 Key (version)=(20260131000005) already exists.
-```
+\`\`\`
 
 ## Root Cause
 
@@ -49,10 +49,10 @@ Renamed migrations to have unique, sequential timestamps:
 
 After fixing the migration timestamps, restart Supabase:
 
-```bash
+\`\`\`bash
 supabase stop
 supabase start
-```
+\`\`\`
 
 The migrations should now apply in order without conflicts.
 
@@ -60,11 +60,8 @@ The migrations should now apply in order without conflicts.
 
 When creating new migrations, always check existing timestamps:
 
-```bash
+\`\`\`bash
 Get-ChildItem -Path "supabase/migrations" -Filter "*.sql" | Sort-Object Name | Select-Object Name
-```
+\`\`\`
 
 Use a unique timestamp format: `YYYYMMDDHHMMSS_description.sql`
-
-
-

@@ -55,6 +55,3 @@ export default async function BondsPage() {
     </DashboardPageLayout>
   )
 }
-
-
-

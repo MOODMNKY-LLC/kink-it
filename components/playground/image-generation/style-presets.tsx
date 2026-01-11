@@ -66,6 +66,3 @@ export function StylePresets({ selectedId, onSelect }: StylePresetsProps) {
     </Card>
   )
 }
-
-
-

@@ -47,7 +47,7 @@
 
 ## 📊 Verification Results
 
-```
+\`\`\`
 ✅ Profiles Count: Found 2 profiles
 ✅ Simeon dynamic_role: Correct: dominant
 ✅ Simeon system_role: Correct: admin
@@ -64,14 +64,14 @@
 ✅ Task Proof Count: Found 2 task proof submission(s)
 
 📈 Summary: 14 passed, 0 failed
-```
+\`\`\`
 
 ---
 
 ## 🚀 Ready to Test
 
 ### Test Credentials
-```
+\`\`\`
 Simeon (Dominant/Admin):
   Email: simeon@kinkit.app
   Password: password123
@@ -79,10 +79,10 @@ Simeon (Dominant/Admin):
 Kevin (Submissive):
   Email: kevin@kinkit.app
   Password: password123
-```
+\`\`\`
 
 ### Quick Start
-```bash
+\`\`\`bash
 # Terminal 1: Start dev server
 pnpm dev
 
@@ -91,7 +91,7 @@ pnpm test:api
 
 # Browser: Test UI
 # Navigate to: https://127.0.0.1:3000
-```
+\`\`\`
 
 ---
 
@@ -207,15 +207,10 @@ pnpm test:api
 
 **Next Step**: Start the dev server and begin testing!
 
-```bash
+\`\`\`bash
 pnpm dev
-```
+\`\`\`
 
 ---
 
 **Congratulations!** 🎉 The MVP foundation is complete and ready for testing.
-
-
-
-
-

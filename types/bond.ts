@@ -38,6 +38,3 @@ export interface BondWithMembers extends Bond {
   members: BondMember[]
   member_count: number
 }
-
-
-

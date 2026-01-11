@@ -161,4 +161,3 @@ export function ImageUploadBox(props: ImageUploadBoxProps) {
     </>
   )
 }
-

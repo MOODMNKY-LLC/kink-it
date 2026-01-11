@@ -53,8 +53,3 @@ After this fix, the hydration error should be resolved. The app will:
 
 - [React Hydration Mismatch Documentation](https://react.dev/link/hydration-mismatch)
 - [suppressHydrationWarning API](https://react.dev/reference/react-dom/client/hydrateRoot#suppressing-unavoidable-hydration-mismatch-errors)
-
-
-
-
-

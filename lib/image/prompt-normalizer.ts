@@ -158,5 +158,3 @@ export function combinePromptsWithStyle(
   const promptToUse = customPrompt.trim() || propsPrompt.trim()
   return normalizePromptWithStyle(promptToUse, { forceStyle: false, prependStyle: true })
 }
-
-

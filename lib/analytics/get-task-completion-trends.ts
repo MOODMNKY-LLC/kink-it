@@ -168,7 +168,3 @@ function calculateYearData(
 
   return dataPoints
 }
-
-
-
-

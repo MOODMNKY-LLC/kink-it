@@ -114,6 +114,3 @@ export function RoleDashboardSubmissive({ userName }: RoleDashboardSubmissivePro
     </div>
   )
 }
-
-
-

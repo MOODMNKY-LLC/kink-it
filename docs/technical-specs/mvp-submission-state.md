@@ -50,22 +50,22 @@ Three distinct states that can be self-declared by the submissive:
 
 ### Enum Type
 
-```sql
+\`\`\`sql
 CREATE TYPE submission_state AS ENUM ('active', 'low_energy', 'paused');
-```
+\`\`\`
 
 ### Profile Table Update
 
 Add column to `profiles` table:
 
-```sql
+\`\`\`sql
 ALTER TABLE public.profiles
 ADD COLUMN submission_state submission_state DEFAULT 'active' NOT NULL;
-```
+\`\`\`
 
 ### State Change Log Table
 
-```sql
+\`\`\`sql
 CREATE TABLE public.submission_state_logs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -78,11 +78,11 @@ CREATE TABLE public.submission_state_logs (
 
 CREATE INDEX idx_submission_state_logs_user_id ON public.submission_state_logs(user_id);
 CREATE INDEX idx_submission_state_logs_created_at ON public.submission_state_logs(created_at DESC);
-```
+\`\`\`
 
 ### RLS Policies
 
-```sql
+\`\`\`sql
 -- State logs: users can read their own, partners can read partner's
 CREATE POLICY "submission_state_logs_select_own_or_partner"
 ON public.submission_state_logs FOR SELECT
@@ -94,7 +94,7 @@ USING (
     WHERE id = auth.uid() AND system_role = 'admin'
   )
 );
-```
+\`\`\`
 
 ---
 
@@ -105,22 +105,22 @@ USING (
 **Endpoint**: `PATCH /api/submission-state`
 
 **Request**:
-```typescript
+\`\`\`typescript
 {
   state: 'active' | 'low_energy' | 'paused',
   reason?: string // Optional context
 }
-```
+\`\`\`
 
 **Response**:
-```typescript
+\`\`\`typescript
 {
   success: boolean,
   previous_state: string,
   new_state: string,
   updated_at: string
 }
-```
+\`\`\`
 
 **Validation**:
 - User must be authenticated
@@ -129,7 +129,7 @@ USING (
 - Reason is optional but recommended for 'paused' state
 
 **Implementation**:
-```typescript
+\`\`\`typescript
 // app/api/submission-state/route.ts
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
@@ -193,20 +193,20 @@ export async function PATCH(req: Request) {
     updated_at: new Date().toISOString()
   })
 }
-```
+\`\`\`
 
 ### Get Current Submission State
 
 **Endpoint**: `GET /api/submission-state`
 
 **Response**:
-```typescript
+\`\`\`typescript
 {
   state: 'active' | 'low_energy' | 'paused',
   updated_at: string,
   can_change: boolean // true if user is submissive
 }
-```
+\`\`\`
 
 ---
 
@@ -232,7 +232,7 @@ export async function PATCH(req: Request) {
 - **Paused**: Red, pause icon
 
 **Implementation**:
-```typescript
+\`\`\`typescript
 'use client'
 
 import { useState } from "react"
@@ -333,7 +333,7 @@ export function SubmissionStateSelector({
     </Card>
   )
 }
-```
+\`\`\`
 
 ### Submission State Display (Dominant View)
 
@@ -348,7 +348,7 @@ export function SubmissionStateSelector({
 - Link to state change history (future)
 
 **Implementation**:
-```typescript
+\`\`\`typescript
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle2, BatteryLow, PauseCircle } from "lucide-react"
 
@@ -396,7 +396,7 @@ export function SubmissionStateDisplay({
     </div>
   )
 }
-```
+\`\`\`
 
 ---
 
@@ -407,7 +407,7 @@ export function SubmissionStateDisplay({
 **Location**: Task creation/assignment API
 
 **Logic**:
-```typescript
+\`\`\`typescript
 // Before assigning task to submissive
 const { data: submissiveProfile } = await supabase
   .from("profiles")
@@ -426,7 +426,7 @@ if (submissiveProfile?.submission_state === 'low_energy') {
   // Allow but log that it's low-energy mode
   // Could show warning to Dominant
 }
-```
+\`\`\`
 
 ### UI Enforcement
 
@@ -447,7 +447,7 @@ if (submissiveProfile?.submission_state === 'low_energy') {
 **Purpose**: Both partners see state changes instantly
 
 **Implementation**:
-```typescript
+\`\`\`typescript
 // hooks/useSubmissionState.ts
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
@@ -489,7 +489,7 @@ export function useSubmissionState(userId: string) {
 
   return state
 }
-```
+\`\`\`
 
 ---
 
@@ -557,8 +557,3 @@ export function useSubmissionState(userId: string) {
 **Last Updated**: 2026-01-05  
 **Author**: Development Team  
 **Status**: Ready for Implementation
-
-
-
-
-

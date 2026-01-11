@@ -36,9 +36,9 @@ Edge Functions require the following secrets to be configured in Supabase:
 3. Add secret: `OPENAI_API_KEY` = `your-openai-api-key`
 
 **Or via CLI:**
-```bash
+\`\`\`bash
 supabase secrets set OPENAI_API_KEY=your-key --project-ref rbloeqwxivfzxmfropek
-```
+\`\`\`
 
 ### 2. NOTION_API_KEY_PROD
 **Required for:**
@@ -50,9 +50,9 @@ supabase secrets set OPENAI_API_KEY=your-key --project-ref rbloeqwxivfzxmfropek
 3. Add secret: `NOTION_API_KEY_PROD` = `your-notion-api-key`
 
 **Or via CLI:**
-```bash
+\`\`\`bash
 supabase secrets set NOTION_API_KEY_PROD=your-key --project-ref rbloeqwxivfzxmfropek
-```
+\`\`\`
 
 ## Auto-Provided Secrets
 
@@ -63,20 +63,20 @@ Supabase automatically provides these to all Edge Functions (no configuration ne
 ## Verification
 
 ### Check Function Status
-```bash
+\`\`\`bash
 supabase functions list --project-ref rbloeqwxivfzxmfropek
-```
+\`\`\`
 
 ### Check Secrets
-```bash
+\`\`\`bash
 supabase secrets list --project-ref rbloeqwxivfzxmfropek
-```
+\`\`\`
 
 ### Test Function Endpoint
-```bash
+\`\`\`bash
 curl -I "https://rbloeqwxivfzxmfropek.supabase.co/functions/v1/chat-stream"
 # Should return HTTP 401 (unauthorized) - means function is reachable
-```
+\`\`\`
 
 ## Function Details
 
@@ -110,7 +110,7 @@ curl -I "https://rbloeqwxivfzxmfropek.supabase.co/functions/v1/chat-stream"
 
 To redeploy functions in the future:
 
-```bash
+\`\`\`bash
 # Deploy single function
 supabase functions deploy chat-stream --project-ref rbloeqwxivfzxmfropek
 
@@ -118,7 +118,7 @@ supabase functions deploy chat-stream --project-ref rbloeqwxivfzxmfropek
 supabase functions deploy chat-stream --project-ref rbloeqwxivfzxmfropek
 supabase functions deploy generate-kinkster-avatar --project-ref rbloeqwxivfzxmfropek
 supabase functions deploy setup-notion-fdw --project-ref rbloeqwxivfzxmfropek
-```
+\`\`\`
 
 ## Troubleshooting
 

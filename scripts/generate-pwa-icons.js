@@ -111,6 +111,3 @@ try {
   console.error('Or: pnpm add -D sharp')
   process.exit(1)
 }
-
-
-

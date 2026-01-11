@@ -134,10 +134,10 @@ The page ID is the 32-character string at the end of the Notion URL:
 
 Add to `.env.local`:
 
-```bash
+\`\`\`bash
 # Notion Template URL for onboarding
 NEXT_PUBLIC_NOTION_TEMPLATE_URL=https://www.notion.so/2dfcd2a6542281bcba14ffa2099160d8
-```
+\`\`\`
 
 ---
 
@@ -192,7 +192,3 @@ The verification API maps database names to types:
 **Template Status**: ✅ Complete  
 **Ready for Use**: Yes  
 **Last Updated**: 2026-01-27
-
-
-
-

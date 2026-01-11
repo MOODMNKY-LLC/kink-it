@@ -109,7 +109,7 @@ This document outlines the research, design, and implementation plan for the Kin
 
 ### Database Schema
 
-```sql
+\`\`\`sql
 -- Kinkster Characters Table
 CREATE TABLE kinksters (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -165,7 +165,7 @@ CREATE TABLE kinkster_creation_sessions (
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );
-```
+\`\`\`
 
 ### API Endpoints
 
@@ -256,11 +256,11 @@ CREATE TABLE kinkster_creation_sessions (
 ### OpenAI Integration
 
 **Prompt Template Structure**:
-```
+\`\`\`
 [Art Style] character portrait of [Character Name], [Physical Description], 
 [Clothing/Accessories], [Pose/Expression], [Lighting], [Composition], 
 [Quality Modifiers], [App Theme Consistency]
-```
+\`\`\`
 
 **Backend Presets**:
 - Art style: "digital art, character portrait, fantasy art style, detailed"
@@ -307,6 +307,3 @@ CREATE TABLE kinkster_creation_sessions (
 4. Create OpenAI integration for avatar generation
 5. Build character sheet/profile display
 6. Test end-to-end character creation flow
-
-
-

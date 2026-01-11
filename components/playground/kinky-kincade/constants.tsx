@@ -66,6 +66,3 @@ export const ALLOWED_IMAGE_TYPES = [
   "image/heic",
   "image/heif",
 ]
-
-
-

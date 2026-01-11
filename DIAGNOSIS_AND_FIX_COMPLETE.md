@@ -33,24 +33,24 @@ I ran diagnostics and confirmed:
 
 ### Step 3: Restart
 
-```bash
+\`\`\`bash
 # Stop dev server (Ctrl+C)
 pnpm dev
-```
+\`\`\`
 
 ## ✅ Verification
 
 Run this to confirm everything is working:
 
-```bash
+\`\`\`bash
 node scripts/verify-env.js
-```
+\`\`\`
 
 **Expected:**
-```
+\`\`\`
 ✅ All environment variables are set correctly!
 ✅ Successfully connected to Supabase!
-```
+\`\`\`
 
 ## 📚 Documentation Created
 
@@ -177,7 +177,7 @@ After signing in:
 5. Clear Next.js cache: `rm -rf .next && pnpm dev`
 
 ### If Database Issues
-```bash
+\`\`\`bash
 # Connect to database
 psql postgresql://postgres:postgres@127.0.0.1:55432/postgres
 
@@ -189,7 +189,7 @@ psql postgresql://postgres:postgres@127.0.0.1:55432/postgres
 
 # Exit
 \q
-```
+\`\`\`
 
 ### Common Issues
 
@@ -237,10 +237,3 @@ All necessary documentation has been created:
 ---
 
 **Everything else is working perfectly.** Just add those environment variables and you're good to go! 💪
-
-
-
-
-
-
-

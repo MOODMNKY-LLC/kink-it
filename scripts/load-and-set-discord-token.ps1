@@ -40,7 +40,3 @@ Write-Host "Start Cursor IDE from this terminal:" -ForegroundColor Yellow
 Write-Host "  cursor ." -ForegroundColor White
 Write-Host ""
 Write-Host "Or restart Cursor IDE completely after running this script." -ForegroundColor Gray
-
-
-
-

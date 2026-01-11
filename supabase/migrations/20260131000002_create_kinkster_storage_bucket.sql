@@ -60,4 +60,3 @@ USING (
   bucket_id = 'kinkster-avatars'
   AND (storage.foldername(name))[1] = auth.uid()::text
 );
-

@@ -106,5 +106,3 @@ export async function getPartnerRanking(
 
   return rankings
 }
-
-

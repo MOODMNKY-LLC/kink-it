@@ -94,4 +94,3 @@ export function NotionIcon({ className, size = 24, variant = "gradient" }: Notio
     </svg>
   )
 }
-

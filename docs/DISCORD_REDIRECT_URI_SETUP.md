@@ -12,9 +12,9 @@ Your app generates the redirect URI dynamically:
 
 **Code Location**: `app/api/auth/discord/guild-install/route.ts`
 
-```typescript
+\`\`\`typescript
 const redirectUri = `${request.nextUrl.origin}/api/auth/discord/callback`
-```
+\`\`\`
 
 This means:
 - **Local Development**: `http://localhost:3000/api/auth/discord/callback`
@@ -38,14 +38,14 @@ This means:
 Add **both** development and production URLs:
 
 #### For Local Development:
-```
+\`\`\`
 http://localhost:3000/api/auth/discord/callback
-```
+\`\`\`
 
 #### For Production (when deployed):
-```
+\`\`\`
 https://your-domain.com/api/auth/discord/callback
-```
+\`\`\`
 
 **Important Notes**:
 - ✅ Discord requires **exact match** of redirect URI
@@ -63,32 +63,32 @@ If you want to use a fixed redirect URI, you can update the code:
 
 **Update**: `app/api/auth/discord/guild-install/route.ts`
 
-```typescript
+\`\`\`typescript
 const redirectUri = process.env.NEXT_PUBLIC_DISCORD_REDIRECT_URI || `${request.nextUrl.origin}/api/auth/discord/callback`
-```
+\`\`\`
 
 **Add to `.env.local`**:
-```bash
+\`\`\`bash
 # Discord OAuth Redirect URI
 NEXT_PUBLIC_DISCORD_REDIRECT_URI=http://localhost:3000/api/auth/discord/callback
-```
+\`\`\`
 
 **For Production**:
-```bash
+\`\`\`bash
 NEXT_PUBLIC_DISCORD_REDIRECT_URI=https://your-domain.com/api/auth/discord/callback
-```
+\`\`\`
 
 ### Option 2: Hardcode for Development
 
 **Update**: `app/api/auth/discord/guild-install/route.ts`
 
-```typescript
+\`\`\`typescript
 // For development
 const redirectUri = "http://localhost:3000/api/auth/discord/callback"
 
 // For production, use:
 // const redirectUri = "https://your-domain.com/api/auth/discord/callback"
-```
+\`\`\`
 
 ---
 
@@ -144,10 +144,10 @@ const redirectUri = "http://localhost:3000/api/auth/discord/callback"
 
 Verify your redirect URI matches what's in Discord:
 
-```typescript
+\`\`\`typescript
 // In app/api/auth/discord/guild-install/route.ts
 console.log("Redirect URI:", redirectUri)
-```
+\`\`\`
 
 ### 2. Check Discord Developer Portal
 
@@ -213,7 +213,3 @@ console.log("Redirect URI:", redirectUri)
 
 **Last Updated**: 2026-01-27  
 **Status**: Ready for Configuration
-
-
-
-

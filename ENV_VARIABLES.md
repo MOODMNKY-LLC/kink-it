@@ -28,45 +28,45 @@ The following environment variables are already set up through the Supabase inte
 ### Notion Integration
 Add these to your v0 Vars section:
 
-```bash
+\`\`\`bash
 # Notion API Key for CODE MNKY workspace
 NOTION_API_KEY=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
 
 # App Ideas Database ID (already created in Notion under KINK IT page)
 NOTION_APP_IDEAS_DATABASE_ID=cc491ef5f0a64eac8e05a6ea10dfb735
-```
+\`\`\`
 
 ### Supabase MCP (Management API) - Optional
 For advanced Supabase management features:
 
-```bash
+\`\`\`bash
 # Supabase Personal Access Token
 SUPABASE_ACCESS_TOKEN=sbp_ccd894cb49cd5faf2f80a4d479b3749f999e8a4a
-```
+\`\`\`
 
 ### Development Redirect URL
 For local development with Supabase Auth email verification:
 
-```bash
+\`\`\`bash
 # Development redirect URL for email confirmation
 NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=http://localhost:3000/auth/callback
-```
+\`\`\`
 
 ## Environment Variables Usage
 
 ### In Server Components and API Routes
-```typescript
+\`\`\`typescript
 // Access server-side environment variables
 const supabaseUrl = process.env.SUPABASE_URL
 const apiKey = process.env.NOTION_API_KEY
-```
+\`\`\`
 
 ### In Client Components
-```typescript
+\`\`\`typescript
 // Access public environment variables (must be prefixed with NEXT_PUBLIC_)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-```
+\`\`\`
 
 ## Security Notes
 

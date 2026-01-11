@@ -42,7 +42,7 @@ Test the endpoints manually in a browser to verify they work, then compare the a
 ## Implementation Details
 
 ### Cookie Creation
-```typescript
+\`\`\`typescript
 // Using createBrowserClient with custom cookie storage
 const cookieStore: Array<{ name: string; value: string }> = []
 
@@ -58,7 +58,7 @@ const supabase = createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     },
   },
 })
-```
+\`\`\`
 
 ### Cookie Format
 - **Name**: `sb-127-auth-token` (from hostname `127.0.0.1`)
@@ -71,7 +71,3 @@ const supabase = createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 
 - [Supabase SSR Documentation](https://supabase.com/docs/guides/auth/server-side/creating-a-client?queryGroups=package-manager&package-manager=pnpm)
 - `@supabase/ssr` package - `createBrowserClient` function
-
-
-
-

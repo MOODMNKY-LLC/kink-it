@@ -170,12 +170,12 @@ You are an expert digital artist and character designer specializing in **Bara a
 **Emotional Intent**: Welcoming, encouraging, guiding
 
 **Prompt Structure**:
-```
+\`\`\`
 [Art Style Base] + [Character Description] + [Context-Specific Pose/Expression] + [Background Elements] + [Quality Standards]
-```
+\`\`\`
 
 **Example - Dashboard Empty State**:
-```
+\`\`\`
 Bara art style, digital art, character portrait, professional illustration, detailed. 
 Kinky Kincade, a friendly AI assistant character with short spiky brown hair (faded sides), 
 full dark brown beard and mustache, muscular well-built physique with prominent muscles and 
@@ -190,7 +190,7 @@ Centered composition, character portrait, high detail, professional quality. Hig
 elegant. Respectful representation, consensual context, tasteful. Earthy color palette 
 (browns, olive greens, dark greys, black). Bara style: emphasis on muscular, masculine character 
 with detailed anatomy and strong physical presence.
-```
+\`\`\`
 
 **Variations by Context**:
 - **Tasks**: Holding clipboard/list, pointing to empty space
@@ -207,12 +207,12 @@ with detailed anatomy and strong physical presence.
 **Emotional Intent**: Patient, focused, "Working on it"
 
 **Prompt Structure**:
-```
+\`\`\`
 [Art Style Base] + [Character Description] + [Thinking/Processing Pose] + [Processing Indicators] + [Quality Standards]
-```
+\`\`\`
 
 **Example - General Loading**:
-```
+\`\`\`
 Bara art style, digital art, character portrait, professional illustration. 
 Kinky Kincade with short spiky brown hair (faded sides), full dark brown beard and mustache, 
 muscular well-built physique with prominent muscles and well-defined arms, dark brown expressive 
@@ -223,7 +223,7 @@ strong highlights and shadows emphasizing muscle definition. Dramatic lighting, 
 portrait lighting. Centered composition, high detail. High quality, 4k resolution, professional, 
 polished. Mature, sophisticated, tasteful. Earthy color palette (browns, olive greens, dark greys, 
 black). Bara style: emphasis on muscular, masculine character with detailed anatomy.
-```
+\`\`\`
 
 **Variations**:
 - **Avatar Generation**: Magic/sparkles around, creative energy, focused expression
@@ -237,12 +237,12 @@ black). Bara style: emphasis on muscular, masculine character with detailed anat
 **Emotional Intent**: Helpful, reassuring, problem-solving
 
 **Prompt Structure**:
-```
+\`\`\`
 [Art Style Base] + [Character Description] + [Error-Specific Pose/Expression] + [Context Elements] + [Quality Standards]
-```
+\`\`\`
 
 **Example - 404 Not Found**:
-```
+\`\`\`
 Bara art style, digital art, character portrait, professional illustration. 
 Kinky Kincade with short spiky brown hair (faded sides), full dark brown beard and mustache, 
 muscular well-built physique with prominent muscles and well-defined arms, dark brown expressive 
@@ -254,7 +254,7 @@ muscle definition. Dramatic lighting, professional portrait lighting. Centered c
 high detail. High quality, 4k resolution, professional, polished. Mature, sophisticated, tasteful. 
 Helpful, reassuring tone. Earthy color palette (browns, olive greens, dark greys, black). 
 Bara style: emphasis on muscular, masculine character with detailed anatomy.
-```
+\`\`\`
 
 **Variations**:
 - **Network Error**: Connection symbols (broken link, wifi), concerned but supportive
@@ -270,12 +270,12 @@ Bara style: emphasis on muscular, masculine character with detailed anatomy.
 **Emotional Intent**: Proud, celebratory, accomplished
 
 **Prompt Structure**:
-```
+\`\`\`
 [Art Style Base] + [Character Description] + [Celebratory Pose] + [Success Indicators] + [Quality Standards]
-```
+\`\`\`
 
 **Example - Task Completed**:
-```
+\`\`\`
 Bara art style, digital art, character portrait, professional illustration. 
 Kinky Kincade with short spiky brown hair (faded sides), full dark brown beard and mustache, 
 muscular well-built physique with prominent muscles and well-defined arms, dark brown expressive 
@@ -287,7 +287,7 @@ professional portrait lighting. Centered composition, high detail. High quality,
 professional, polished. Mature, sophisticated, tasteful. Celebratory but professional tone. 
 Earthy color palette (browns, olive greens, dark greys, black). Bara style: emphasis on muscular, 
 masculine character with detailed anatomy and strong physical presence.
-```
+\`\`\`
 
 **Variations**:
 - **Bond Created**: Connection gesture, warm expression, bond symbols
@@ -302,12 +302,12 @@ masculine character with detailed anatomy and strong physical presence.
 **Emotional Intent**: Excited welcome, helpful guide, proud completion
 
 **Prompt Structure**:
-```
+\`\`\`
 [Art Style Base] + [Character Description] + [Step-Specific Pose/Expression] + [Context Elements] + [Quality Standards]
-```
+\`\`\`
 
 **Example - Welcome Step**:
-```
+\`\`\`
 Bara art style, digital art, character portrait, professional illustration. 
 Kinky Kincade with short spiky brown hair (faded sides), full dark brown beard and mustache, 
 muscular well-built physique with prominent muscles and well-defined arms, dark brown expressive 
@@ -320,7 +320,7 @@ high detail. High quality, 4k resolution, professional, polished. Mature, sophis
 Excited welcome tone. Earthy color palette (browns, olive greens, dark greys, black). 
 Bara style: emphasis on muscular, masculine character with detailed anatomy and strong physical 
 presence.
-```
+\`\`\`
 
 **Variations by Step**:
 - **Bond Setup**: Explaining/guiding gesture, connection symbols
@@ -400,7 +400,7 @@ Before finalizing any image, verify:
 ## 🎯 Context-Specific Prompt Examples
 
 ### Empty State: Tasks
-```
+\`\`\`
 Bara art style, digital art, character portrait, professional illustration, detailed. 
 Kinky Kincade, AI assistant with short spiky brown hair (faded sides), full dark brown beard 
 and mustache, muscular well-built physique with prominent muscles and well-defined arms, 
@@ -413,10 +413,10 @@ portrait lighting. Centered composition, high detail. High quality, 4k resolutio
 polished. Mature, sophisticated, tasteful. Helpful, guiding tone. Earthy color palette (browns, 
 olive greens, dark greys, black). Bara style: emphasis on muscular, masculine character with 
 detailed anatomy.
-```
+\`\`\`
 
 ### Loading: Avatar Generation
-```
+\`\`\`
 Bara art style, digital art, character portrait, professional illustration. 
 Kinky Kincade with short spiky brown hair (faded sides), full dark brown beard and mustache, 
 muscular well-built physique with prominent muscles and well-defined arms, dark brown expressive 
@@ -428,10 +428,10 @@ emphasizing muscle definition. Dramatic lighting, professional portrait lighting
 composition, high detail. High quality, 4k resolution, professional, polished. Mature, 
 sophisticated, tasteful. Creative, focused tone. Earthy color palette (browns, olive greens, 
 dark greys, black). Bara style: emphasis on muscular, masculine character with detailed anatomy.
-```
+\`\`\`
 
 ### Error: Network Error
-```
+\`\`\`
 Bara art style, digital art, character portrait, professional illustration. 
 Kinky Kincade with short spiky brown hair (faded sides), full dark brown beard and mustache, 
 muscular well-built physique with prominent muscles and well-defined arms, dark brown expressive 
@@ -444,10 +444,10 @@ composition, high detail. High quality, 4k resolution, professional, polished. M
 sophisticated, tasteful. Understanding, supportive tone. Earthy color palette (browns, 
 olive greens, dark greys, black). Bara style: emphasis on muscular, masculine character with 
 detailed anatomy.
-```
+\`\`\`
 
 ### Success: Task Completed
-```
+\`\`\`
 Bara art style, digital art, character portrait, professional illustration. 
 Kinky Kincade with short spiky brown hair (faded sides), full dark brown beard and mustache, 
 muscular well-built physique with prominent muscles and well-defined arms, dark brown expressive 
@@ -460,7 +460,7 @@ Centered composition, high detail. High quality, 4k resolution, professional, po
 Mature, sophisticated, tasteful. Proud, celebratory tone. Earthy color palette (browns, 
 olive greens, dark greys, black). Bara style: emphasis on muscular, masculine character with 
 detailed anatomy and strong physical presence.
-```
+\`\`\`
 
 ---
 
@@ -689,4 +689,3 @@ Every image of Kinky Kincade should feel like the same character, just in differ
 **Status**: Ready for Use ✅  
 **Last Updated**: 2026-01-31  
 **Version**: 1.0
-

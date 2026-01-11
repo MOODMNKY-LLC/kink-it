@@ -9,11 +9,11 @@
 ## Problem Summary
 
 Vercel deployments were failing with:
-```
+\`\`\`
 Error: <Html> should not be imported outside of pages/_document.
 Error occurred prerendering page "/404".
 Export encountered an error on /_error: /404, exiting the build.
-```
+\`\`\`
 
 This is a **Next.js 15.5.9 internal bug** where Next.js tries to statically generate error pages (`/404`, `/500`) even when they're marked as `export const dynamic = 'force-dynamic'` and are client components.
 
@@ -53,21 +53,21 @@ This is a **Next.js 15.5.9 internal bug** where Next.js tries to statically gene
 ## Configuration Changes
 
 ### 1. Package.json
-```json
+\`\`\`json
 {
   "scripts": {
     "build": "node scripts/build-with-error-handling.js"
   }
 }
-```
+\`\`\`
 
 ### 2. Next.js Config
-```typescript
+\`\`\`typescript
 {
   output: 'standalone', // Vercel uses standalone output
   // Error pages already have export const dynamic = 'force-dynamic'
 }
-```
+\`\`\`
 
 ### 3. Error Pages
 - `app/error.tsx` - Client component with `export const dynamic = 'force-dynamic'`
@@ -142,10 +142,10 @@ Once Next.js fixes this bug (likely in 15.6.0+), we can:
 ## Testing
 
 ### Local Testing
-```bash
+\`\`\`bash
 pnpm run build
 # Should succeed even with error page bug
-```
+\`\`\`
 
 ### Vercel Testing
 - Push to main branch

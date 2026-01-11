@@ -42,19 +42,19 @@ Users were being forced through Notion OAuth consent every time they closed the 
 
 **⚠️ ACTION REQUIRED**: Add this to your `.env.local`:
 
-```bash
+\`\`\`bash
 # Notion OAuth Client ID (public - safe to expose in client code)
 # This must match SUPABASE_AUTH_EXTERNAL_NOTION_CLIENT_ID
 NEXT_PUBLIC_NOTION_CLIENT_ID=2dfd872b-594c-803e-a575-0037d97447ad
-```
+\`\`\`
 
 **Why**: The OAuth client ID must be accessible in client-side code to construct the OAuth URL. The client ID is public by design (unlike the client secret).
 
 **For Vercel Production:**
-```bash
+\`\`\`bash
 vercel env add NEXT_PUBLIC_NOTION_CLIENT_ID production
 # Enter: 2dfd872b-594c-803e-a575-0037d97447ad
-```
+\`\`\`
 
 ---
 
@@ -107,7 +107,7 @@ vercel env add NEXT_PUBLIC_NOTION_CLIENT_ID production
 ## Verification
 
 ### Check Token Storage:
-```sql
+\`\`\`sql
 -- In Supabase SQL Editor
 SELECT 
   user_id,
@@ -119,7 +119,7 @@ SELECT
 FROM user_notion_oauth_tokens
 ORDER BY created_at DESC
 LIMIT 10;
-```
+\`\`\`
 
 ### Check Session:
 - Open browser DevTools → Application → Cookies
@@ -138,14 +138,14 @@ Look for these log messages:
 
 If issues occur, revert `app/auth/login/page.tsx` to use Supabase OAuth handler:
 
-```typescript
+\`\`\`typescript
 const { error } = await supabase.auth.signInWithOAuth({
   provider: "notion",
   options: {
     redirectTo: `${window.location.origin}/auth/callback`,
   },
 })
-```
+\`\`\`
 
 ---
 

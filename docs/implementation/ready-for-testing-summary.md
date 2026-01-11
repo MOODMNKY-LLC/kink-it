@@ -52,15 +52,15 @@
 ### Immediate Actions
 
 #### 1. Start Development Server
-```bash
+\`\`\`bash
 pnpm dev
-```
+\`\`\`
 Server will start at: `https://127.0.0.1:3000`
 
 #### 2. Test API Endpoints (in separate terminal)
-```bash
+\`\`\`bash
 pnpm test:api
-```
+\`\`\`
 
 **Expected Results**:
 - ✅ All API endpoints return 200 OK
@@ -88,13 +88,13 @@ pnpm test:api
 ## 📋 Testing Workflow
 
 ### Phase 1: API Testing (5 minutes)
-```bash
+\`\`\`bash
 # Terminal 1
 pnpm dev
 
 # Terminal 2
 pnpm test:api
-```
+\`\`\`
 
 ### Phase 2: UI Testing (15 minutes)
 1. Login as Kevin
@@ -191,17 +191,12 @@ pnpm test:api
 
 **Next Action**: Start the dev server and begin testing!
 
-```bash
+\`\`\`bash
 pnpm dev
-```
+\`\`\`
 
 Then open: `https://127.0.0.1:3000`
 
 ---
 
 **Status**: ✅ Ready for comprehensive testing
-
-
-
-
-

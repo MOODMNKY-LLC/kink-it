@@ -285,6 +285,3 @@ This guide provides general safety information. It is not a substitute for:
 - Personal judgment
 
 Always prioritize your safety and well-being.
-
-
-

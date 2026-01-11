@@ -38,7 +38,7 @@ Edge Function connection not working in local development. Need to verify it wil
 
 ### Code Changes
 
-```typescript
+\`\`\`typescript
 // Health check before connecting (local dev only)
 if (isLocalDev) {
   try {
@@ -60,7 +60,7 @@ if (isLocalDev) {
     console.warn("⚠️ Could not verify Edge Function availability")
   }
 }
-```
+\`\`\`
 
 ## Production Verification
 
@@ -73,15 +73,15 @@ if (isLocalDev) {
 
 ### Production Flow
 
-```
+\`\`\`
 Client → Production Supabase URL → Edge Function (auto-deployed) → SSE Stream
-```
+\`\`\`
 
 ### Local Development Flow
 
-```
+\`\`\`
 Client → Local Supabase URL → Edge Function (must be running) → SSE Stream
-```
+\`\`\`
 
 **Requirement**: Function must be started with `pnpm functions:serve`
 
@@ -111,17 +111,17 @@ Client → Local Supabase URL → Edge Function (must be running) → SSE Stream
 
 **Solution**:
 1. Check if function is running:
-   ```bash
+   \`\`\`bash
    # Should see output like:
    # Functions URL: http://127.0.0.1:54321/functions/v1
    # Functions:
    #   - chat-stream
-   ```
+   \`\`\`
 
 2. Start the function:
-   ```bash
+   \`\`\`bash
    pnpm functions:serve
-   ```
+   \`\`\`
 
 3. Verify URL matches:
    - Check `supabase status` output
@@ -135,14 +135,14 @@ Client → Local Supabase URL → Edge Function (must be running) → SSE Stream
 
 **Solution**:
 1. Deploy the function:
-   ```bash
+   \`\`\`bash
    supabase functions deploy chat-stream
-   ```
+   \`\`\`
 
 2. Verify deployment:
-   ```bash
+   \`\`\`bash
    supabase functions list
-   ```
+   \`\`\`
 
 3. Check function logs in dashboard
 
@@ -161,7 +161,7 @@ Client → Local Supabase URL → Edge Function (must be running) → SSE Stream
 
 ### 1. Local Development Test
 
-```bash
+\`\`\`bash
 # Terminal 1: Start Supabase
 supabase start
 
@@ -170,13 +170,13 @@ pnpm functions:serve
 
 # Terminal 3: Start Next.js
 pnpm dev
-```
+\`\`\`
 
 Then test the chat interface.
 
 ### 2. Production Deployment Test
 
-```bash
+\`\`\`bash
 # Deploy function
 supabase functions deploy chat-stream
 
@@ -185,7 +185,7 @@ supabase functions list
 
 # Test in production
 # (Open app in browser, test chat)
-```
+\`\`\`
 
 ## Expected Behavior
 
@@ -225,5 +225,3 @@ The health check and improved error messages will help diagnose issues in both e
 **Date**: 2025-02-01
 **Author**: CODE MNKY
 **Status**: Verified
-
-

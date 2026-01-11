@@ -18,7 +18,7 @@
 - ✅ Better error logging
 
 **Key Changes**:
-```typescript
+\`\`\`typescript
 // Check for network errors before parsing
 if (!response.ok && response.status === 0) {
   throw new Error("Network error: Unable to connect to server...")
@@ -31,7 +31,7 @@ try {
 } catch (parseError) {
   throw new Error(`Failed to parse response: ${response.status}`)
 }
-```
+\`\`\`
 
 ### 2. API Route Error Handling (`app/api/bonds/requests/route.ts`)
 
@@ -41,7 +41,7 @@ try {
 - ✅ Better error logging
 
 **Key Changes**:
-```typescript
+\`\`\`typescript
 // Use admin client for admin operations
 if (isAdmin) {
   const adminClient = createAdminClient() // Bypasses RLS
@@ -55,7 +55,7 @@ return NextResponse.json({
   code: adminError.code,
   hint: adminError.hint
 }, { status: 500 })
-```
+\`\`\`
 
 ---
 

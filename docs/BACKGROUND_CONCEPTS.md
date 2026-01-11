@@ -13,9 +13,9 @@ Dark-mode-first visual design using the tactical character with vibrant orange-r
 - Creates depth without distraction
 
 **Implementation:**
-```tsx
+\`\`\`tsx
 <CharacterBackground variant="corner" opacity={0.08} />
-```
+\`\`\`
 
 ### 2. **Hero Variant**
 **Use Case:** Landing pages, welcome screens, empty states
@@ -25,9 +25,9 @@ Dark-mode-first visual design using the tactical character with vibrant orange-r
 - Best for pages with minimal content
 
 **Implementation:**
-```tsx
+\`\`\`tsx
 <CharacterBackground variant="hero" opacity={0.15} />
-```
+\`\`\`
 
 ### 3. **Subtle Variant**
 **Use Case:** Content-heavy pages, forms, settings
@@ -36,9 +36,9 @@ Dark-mode-first visual design using the tactical character with vibrant orange-r
 - Perfect for pages requiring focus
 
 **Implementation:**
-```tsx
+\`\`\`tsx
 <CharacterBackground variant="subtle" opacity={0.05} />
-```
+\`\`\`
 
 ### 4. **Pattern Variant**
 **Use Case:** Special pages, achievements, rewards
@@ -47,9 +47,9 @@ Dark-mode-first visual design using the tactical character with vibrant orange-r
 - Use sparingly for impact
 
 **Implementation:**
-```tsx
+\`\`\`tsx
 <CharacterBackground variant="pattern" opacity={0.12} />
-```
+\`\`\`
 
 ### 5. **Parallax Variant**
 **Use Case:** Scrollable hero sections, feature pages
@@ -58,9 +58,9 @@ Dark-mode-first visual design using the tactical character with vibrant orange-r
 - Creates sense of depth and movement
 
 **Implementation:**
-```tsx
+\`\`\`tsx
 <CharacterBackground variant="parallax" opacity={0.1} />
-```
+\`\`\`
 
 ## Supporting Background Elements
 
@@ -71,9 +71,9 @@ Dark-mode-first visual design using the tactical character with vibrant orange-r
 - Complements character backgrounds
 
 **Implementation:**
-```tsx
+\`\`\`tsx
 <GradientMesh intensity="subtle" />
-```
+\`\`\`
 
 ### Bokeh Effect
 **Purpose:** Sparkling light particles inspired by app icon background
@@ -82,38 +82,38 @@ Dark-mode-first visual design using the tactical character with vibrant orange-r
 - Creates magical, premium feel
 
 **Implementation:**
-```tsx
+\`\`\`tsx
 <BokehEffect count={15} />
-```
+\`\`\`
 
 ## Recommended Combinations
 
 ### Dashboard (Current)
-```tsx
+\`\`\`tsx
 <CharacterBackground variant="corner" opacity={0.08} />
 <GradientMesh intensity="subtle" />
 <BokehEffect count={15} />
-```
+\`\`\`
 
 ### Landing/Welcome Page
-```tsx
+\`\`\`tsx
 <CharacterBackground variant="hero" opacity={0.15} />
 <GradientMesh intensity="medium" />
 <BokehEffect count={25} />
-```
+\`\`\`
 
 ### Content Pages (Ideas, Tasks, etc.)
-```tsx
+\`\`\`tsx
 <CharacterBackground variant="subtle" opacity={0.05} />
 <GradientMesh intensity="subtle" />
-```
+\`\`\`
 
 ### Special Pages (Rewards, Achievements)
-```tsx
+\`\`\`tsx
 <CharacterBackground variant="pattern" opacity={0.12} />
 <GradientMesh intensity="medium" />
 <BokehEffect count={20} />
-```
+\`\`\`
 
 ## Color Palette Integration
 
@@ -175,10 +175,3 @@ Dark-mode-first visual design using the tactical character with vibrant orange-r
    - Toggle background intensity
    - Choose variant preference
    - Custom opacity settings
-
-
-
-
-
-
-

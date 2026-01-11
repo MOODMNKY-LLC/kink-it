@@ -110,29 +110,29 @@
 ## 🔧 Verification Commands
 
 ### Check Migrations
-```bash
+\`\`\`bash
 supabase db diff
 supabase migration list
-```
+\`\`\`
 
 ### Check Edge Function
-```bash
+\`\`\`bash
 supabase functions list
 supabase functions serve chat-stream --no-verify-jwt
-```
+\`\`\`
 
 ### Check Secrets
-```bash
+\`\`\`bash
 supabase secrets list
-```
+\`\`\`
 
 ### Test Edge Function Locally
-```bash
+\`\`\`bash
 curl -X POST http://localhost:54321/functions/v1/chat-stream \
   -H "Authorization: Bearer YOUR_ANON_KEY" \
   -H "Content-Type: application/json" \
   -d '{"user_id":"test","messages":[{"role":"user","content":"Hello"}]}'
-```
+\`\`\`
 
 ---
 
@@ -197,6 +197,3 @@ curl -X POST http://localhost:54321/functions/v1/chat-stream \
 
 **Last Updated**: 2026-01-31  
 **Status**: Ready for Testing
-
-
-

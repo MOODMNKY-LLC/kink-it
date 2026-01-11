@@ -38,11 +38,11 @@ Transformed the top-right Widget component (clock component) into a comprehensiv
 - `className`: Additional CSS classes
 
 **Usage**:
-```tsx
+\`\`\`tsx
 <AvatarRing isOnline={true} size={48}>
   <Image src="/images/kinky/kinky-avatar.svg" />
 </AvatarRing>
-```
+\`\`\`
 
 ### 2. useOnlineStatus Hook
 
@@ -59,9 +59,9 @@ Transformed the top-right Widget component (clock component) into a comprehensiv
 - `isLoading`: Boolean indicating if status is being fetched
 
 **Usage**:
-```tsx
+\`\`\`tsx
 const { isOnline, isLoading } = useOnlineStatus({ userId: profile.id })
-```
+\`\`\`
 
 ### 3. TerminalWidget Component
 
@@ -128,12 +128,12 @@ const { isOnline, isLoading } = useOnlineStatus({ userId: profile.id })
 - Key: User ID
 
 **Presence Data**:
-```typescript
+\`\`\`typescript
 {
   online: true,
   last_seen: ISO8601 timestamp
 }
-```
+\`\`\`
 
 **Lifecycle**:
 1. On mount: Subscribe to presence channel and set initial presence
@@ -187,7 +187,7 @@ const { isOnline, isLoading } = useOnlineStatus({ userId: profile.id })
 
 ## Usage Example
 
-```tsx
+\`\`\`tsx
 import TerminalWidget from "@/components/dashboard/widget/terminal-widget"
 
 <TerminalWidget
@@ -196,7 +196,7 @@ import TerminalWidget from "@/components/dashboard/widget/terminal-widget"
   location="New York, NY"
   profile={profile}
 />
-```
+\`\`\`
 
 ---
 
@@ -237,5 +237,3 @@ import TerminalWidget from "@/components/dashboard/widget/terminal-widget"
 - Uses Realtime Presence for accurate online status
 - Context-aware content adapts to user's role and relationship status
 - Kinky Kincade avatar serves as the "terminal AI" persona
-
-

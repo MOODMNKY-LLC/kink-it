@@ -18,7 +18,7 @@
 - `components/chat/enhanced-chat-input.tsx`
 
 **Code Change**:
-```typescript
+\`\`\`typescript
 // Before
 import { Radio, RadioOff } from "lucide-react"
 {realtimeMode ? <Radio /> : <RadioOff />}
@@ -30,7 +30,7 @@ import { Radio, Circle } from "lucide-react"
 ) : (
   <Circle className="h-3 w-3 text-muted-foreground" />
 )}
-```
+\`\`\`
 
 ### 2. Next.js 15 searchParams Async Issue ✅
 **Error**: `Route "/chat" used searchParams.kinkster. searchParams should be awaited before using its properties`
@@ -46,7 +46,7 @@ import { Radio, Circle } from "lucide-react"
 - `app/chat/page.tsx`
 
 **Code Change**:
-```typescript
+\`\`\`typescript
 // Before
 export default async function ChatPage({
   searchParams,
@@ -69,7 +69,7 @@ export default async function ChatPage({
   {!params.kinkster && ...}
   kinksterId={params.kinkster}
 }
-```
+\`\`\`
 
 ## Verification
 
@@ -85,5 +85,3 @@ All build errors resolved. Chat interface should now work correctly.
 
 **Date**: 2025-02-01
 **Author**: CODE MNKY
-
-

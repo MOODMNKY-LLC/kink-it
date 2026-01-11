@@ -19,7 +19,3 @@ export interface Reward {
   created_at: string
   updated_at: string
 }
-
-
-
-

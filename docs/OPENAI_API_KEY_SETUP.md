@@ -20,14 +20,14 @@ Successfully retrieved OpenAI API key for CODE MNKY from Notion Credentials data
 
 The OpenAI API key has been added to `.env.local`:
 
-```bash
+\`\`\`bash
 # ============================================
 # OPENAI INTEGRATION
 # ============================================
 # OpenAI API Key for CODE MNKY (retrieved from Notion Credentials database)
 OPENAI_API_KEY=YOUR_OPENAI_API_KEY_HERE
 OPENAI_ORG_ID=YOUR_OPENAI_ORG_ID_HERE
-```
+\`\`\`
 
 ---
 
@@ -35,7 +35,7 @@ OPENAI_ORG_ID=YOUR_OPENAI_ORG_ID_HERE
 
 To add the OpenAI API key to Vercel production environment, run:
 
-```bash
+\`\`\`bash
 # Add OpenAI API Key
 vercel env add OPENAI_API_KEY production
 
@@ -45,7 +45,7 @@ vercel env add OPENAI_API_KEY production
 vercel env add OPENAI_ORG_ID production
 
 # When prompted, paste the org ID from your .env.local file
-```
+\`\`\`
 
 ### Alternative: Using Vercel Dashboard
 
@@ -64,18 +64,18 @@ vercel env add OPENAI_ORG_ID production
 
 ### Server-Side (API Routes, Server Components)
 
-```typescript
+\`\`\`typescript
 import OpenAI from 'openai'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   organization: process.env.OPENAI_ORG_ID, // Optional
 })
-```
+\`\`\`
 
 ### Client-Side (if needed)
 
-```typescript
+\`\`\`typescript
 // Note: API keys should generally NOT be exposed to client-side
 // Use API routes instead for security
 const response = await fetch('/api/openai', {
@@ -83,7 +83,7 @@ const response = await fetch('/api/openai', {
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ prompt: '...' }),
 })
-```
+\`\`\`
 
 ---
 
@@ -101,13 +101,13 @@ const response = await fetch('/api/openai', {
 
 After adding to Vercel, verify it's working:
 
-```bash
+\`\`\`bash
 # Pull production env vars to verify
 vercel env pull .env.production
 
 # Check if OPENAI_API_KEY is present
 grep OPENAI_API_KEY .env.production
-```
+\`\`\`
 
 ---
 
@@ -121,4 +121,3 @@ grep OPENAI_API_KEY .env.production
 
 **Last Updated:** January 5, 2026  
 **Source:** Notion Credentials Database (CODE MNKY)
-

@@ -51,9 +51,9 @@ The AI chat system is now fully deployed and ready for testing!
 ### Quick Test Steps:
 
 1. **Navigate to Chat Page**
-   ```
+   \`\`\`
    http://localhost:3000/chat
-   ```
+   \`\`\`
 
 2. **Send a Test Message**
    - Type a message in the chat input
@@ -196,6 +196,3 @@ The AI chat system is **fully deployed and ready for use**!
 **Last Updated**: 2026-01-31  
 **Deployment Time**: ~30 minutes  
 **Status**: ✅ **COMPLETE**
-
-
-

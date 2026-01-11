@@ -12,9 +12,9 @@ The `realtime.broadcast_changes()` function is not available in local Supabase d
 ## Error Encountered
 
 When running `supabase db reset`, migrations fail with:
-```
+\`\`\`
 ERROR: syntax error at or near "PERFORM" (SQLSTATE 42601)
-```
+\`\`\`
 
 This occurs when trying to use `PERFORM realtime.broadcast_changes(...)` in trigger functions.
 
@@ -58,8 +58,3 @@ Both files contain commented-out trigger functions with clear notes about when t
 ---
 
 **Next Steps**: When deploying to production, uncomment the trigger functions and test Realtime functionality end-to-end.
-
-
-
-
-

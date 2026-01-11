@@ -210,4 +210,3 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.get_conversation_stats(uuid) TO authenticated;
-

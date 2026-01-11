@@ -111,14 +111,14 @@ Successfully completed critical fixes and implemented major improvements to the 
 ## 📋 Immediate Next Steps
 
 1. **Deploy Edge Function**:
-   ```bash
+   \`\`\`bash
    supabase functions deploy generate-kinkster-avatar
-   ```
+   \`\`\`
 
 2. **Run Database Migration**:
-   ```bash
+   \`\`\`bash
    supabase db reset  # Or apply migration manually
-   ```
+   \`\`\`
 
 3. **Test Props Fix**:
    - Use PropsSelector to select character accessories

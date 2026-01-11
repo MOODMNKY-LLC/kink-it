@@ -27,7 +27,7 @@
 ### 1. CSS Variable Improvements (`app/globals.css`)
 
 **Dark Mode Muted Colors**:
-```css
+\`\`\`css
 /* Before */
 --muted: oklch(0.20 0.03 240);
 --muted-foreground: oklch(0.70 0.05 220);
@@ -35,10 +35,10 @@
 /* After */
 --muted: oklch(0.25 0.04 240);           /* Lighter background */
 --muted-foreground: oklch(0.85 0.02 220); /* Brighter text */
-```
+\`\`\`
 
 **Dark Mode Input/Border Colors**:
-```css
+\`\`\`css
 /* Before */
 --border: oklch(0.25 0.04 240);
 --pop: oklch(0.22 0.04 240);
@@ -48,7 +48,7 @@
 --border: oklch(0.30 0.05 240);  /* Lighter borders */
 --pop: oklch(0.25 0.04 240);     /* Lighter pop elements */
 --input: oklch(0.25 0.04 240);   /* Lighter input backgrounds */
-```
+\`\`\`
 
 **Contrast Ratios**:
 - `oklch(0.25 0.04 240)` background + `oklch(0.98 0.01 220)` text = **~8.5:1** ✅
@@ -106,16 +106,16 @@
 ## Best Practices Established
 
 ### 1. Always Use Explicit Text Colors
-```tsx
+\`\`\`tsx
 // ✅ Good
 <div className="bg-muted text-foreground">Content</div>
 
 // ❌ Bad (relies on inheritance)
 <div className="bg-muted">Content</div>
-```
+\`\`\`
 
 ### 2. Form Components Must Have Text Colors
-```tsx
+\`\`\`tsx
 // ✅ Good
 <Input className="text-foreground" />
 <Textarea className="text-foreground" />
@@ -123,25 +123,25 @@
 
 // ❌ Bad
 <Input /> // Inherits, may fail in nested contexts
-```
+\`\`\`
 
 ### 3. Background Opacity Guidelines
-```tsx
+\`\`\`tsx
 // ✅ Good (sufficient contrast)
 <div className="dark:bg-input/50 text-foreground">Content</div>
 
 // ❌ Bad (too dark)
 <div className="dark:bg-input/30 text-foreground">Content</div>
-```
+\`\`\`
 
 ### 4. Muted Text Guidelines
-```tsx
+\`\`\`tsx
 // ✅ Good (sufficient contrast)
 <span className="text-muted-foreground">Secondary text</span>
 
 // ❌ Bad (too dim)
 <span className="text-muted-foreground opacity-50">Secondary text</span>
-```
+\`\`\`
 
 ---
 
@@ -163,10 +163,10 @@
 
 ### 1. Automated Contrast Testing
 Consider adding automated contrast ratio testing:
-```bash
+\`\`\`bash
 # Example: Use tools like pa11y or axe-core
 npm install --save-dev @axe-core/cli
-```
+\`\`\`
 
 ### 2. Design System Documentation
 Create a design system document with:
@@ -176,10 +176,10 @@ Create a design system document with:
 
 ### 3. Component Audit Script
 Create a script to find components without explicit text colors:
-```bash
+\`\`\`bash
 # Find components using bg-* without text-*
 grep -r "bg-" components/ | grep -v "text-"
-```
+\`\`\`
 
 ---
 

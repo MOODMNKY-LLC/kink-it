@@ -9,9 +9,9 @@
 ### Prerequisites
 
 1. **Next.js dev server running**
-   ```bash
+   \`\`\`bash
    npm run dev
-   ```
+   \`\`\`
 
 2. **Authenticated session**
    - Open the app in browser and log in
@@ -22,14 +22,14 @@
 
 ### Generate Scenes
 
-```bash
+\`\`\`bash
 npm run generate:backgrounds
-```
+\`\`\`
 
 Or directly:
-```bash
+\`\`\`bash
 tsx scripts/generate-background-scenes.ts
-```
+\`\`\`
 
 ---
 
@@ -62,7 +62,7 @@ The script will:
 
 ### Console Output
 
-```
+\`\`\`
 🎨 Generating background scenes...
 Found 5 templates
 
@@ -93,7 +93,7 @@ Generated Scenes:
     URL: https://...
 
 ...
-```
+\`\`\`
 
 ### Files Created
 
@@ -114,16 +114,16 @@ Generated Scenes:
 ### Error: "Configuration error: No AI Gateway API key"
 
 **Solution**: Add `AI_GATEWAY_API_KEY` to `.env.local`:
-```env
+\`\`\`env
 AI_GATEWAY_API_KEY=your_key_here
-```
+\`\`\`
 
 ### Error: "Failed to fetch"
 
 **Solution**: Ensure Next.js dev server is running:
-```bash
+\`\`\`bash
 npm run dev
-```
+\`\`\`
 
 ### Error: "Failed to save scene to database"
 
@@ -187,9 +187,9 @@ Background scenes are used when composing two-character scenes:
 
 You can also generate scenes via the API route:
 
-```bash
+\`\`\`bash
 curl -X POST http://localhost:3000/api/generate-background-scenes
-```
+\`\`\`
 
 This requires authentication and returns JSON with results.
 
@@ -202,5 +202,3 @@ This requires authentication and returns JSON with results.
 - **API Route**: `app/api/generate-background-scenes/route.ts`
 - **Prompt Templates**: `lib/playground/prompt-templates.ts`
 - **ChatGPT Style Guide**: [Bara Art Wallpaper Request](https://chatgpt.com/share/695ca984-fe08-800f-8fac-2e3e535ab72b)
-
-

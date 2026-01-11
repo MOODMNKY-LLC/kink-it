@@ -126,5 +126,3 @@ export default function DiscordStep({ onNext, onBack, initialData }: DiscordStep
     </div>
   )
 }
-
-

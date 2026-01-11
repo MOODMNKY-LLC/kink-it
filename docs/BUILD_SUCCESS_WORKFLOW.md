@@ -14,9 +14,9 @@ All builds now succeed before pushing changes, as requested. A custom build scri
 ## Build Process
 
 ### Standard Build Command
-```bash
+\`\`\`bash
 pnpm run build
-```
+\`\`\`
 
 ### What Happens
 
@@ -33,9 +33,9 @@ pnpm run build
 
 ### The Bug
 Next.js 15.5.9 has an internal bug that causes static generation of error pages (`/404`, `/500`) to fail with:
-```
+\`\`\`
 Error: <Html> should not be imported outside of pages/_document.
-```
+\`\`\`
 
 ### Why It's Safe to Ignore
 - ✅ **All application code compiles successfully**

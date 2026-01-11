@@ -97,7 +97,7 @@ Create a lightweight HTTP server that:
 
 ### MCP Tool Definitions
 
-```typescript
+\`\`\`typescript
 const notionTools = [
   {
     name: "notion-search",
@@ -164,13 +164,13 @@ const notionTools = [
     },
   },
 ]
-```
+\`\`\`
 
 ---
 
 ## Database Type Mapping
 
-```typescript
+\`\`\`typescript
 const DATABASE_TYPE_MAP = {
   tasks: "tasks",
   ideas: "ideas",
@@ -180,13 +180,13 @@ const DATABASE_TYPE_MAP = {
   rewards: "rewards",
   // ... etc
 }
-```
+\`\`\`
 
 ---
 
 ## Role-Based Permissions
 
-```typescript
+\`\`\`typescript
 const PERMISSIONS = {
   // All users can query
   "notion-search": ["user", "admin"],
@@ -201,7 +201,7 @@ const PERMISSIONS = {
   "notion-update-page": ["admin"],
   "notion-delete-page": ["admin"],
 }
-```
+\`\`\`
 
 ---
 
@@ -315,5 +315,3 @@ Update agent instructions to:
 - Database IDs are stored in `notion_databases` table
 - Role-based permissions are enforced server-side
 - All Notion operations are logged for audit
-
-

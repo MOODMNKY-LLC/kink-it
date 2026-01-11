@@ -33,19 +33,19 @@
 
 ### Storage Structure
 
-```
+\`\`\`
 kinkster-avatars/
   └── {user_id}/
       └── kinksters/
           └── avatar_{timestamp}_{kinkster_id}.{ext}
-```
+\`\`\`
 
 ### Data Flow
 
-```
+\`\`\`
 User → Component → Hook → API/Edge Function → OpenAI → 
 Download → Upload → Storage → Database → Display
-```
+\`\`\`
 
 ---
 
@@ -76,7 +76,7 @@ Download → Upload → Storage → Database → Display
 
 ### Generate Avatar (Edge Function)
 
-```typescript
+\`\`\`typescript
 import { useAvatarGeneration } from '@/hooks/use-avatar-generation'
 
 const { generateAvatar, progress, isGenerating } = useAvatarGeneration({
@@ -91,11 +91,11 @@ const { generateAvatar, progress, isGenerating } = useAvatarGeneration({
 })
 
 await generateAvatar(characterData, customPrompt)
-```
+\`\`\`
 
 ### Display Avatar
 
-```typescript
+\`\`\`typescript
 import Image from 'next/image'
 import supabaseImageLoader from '@/lib/supabase-image-loader'
 
@@ -106,11 +106,11 @@ import supabaseImageLoader from '@/lib/supabase-image-loader'
   height={256}
   alt={kinkster.name}
 />
-```
+\`\`\`
 
 ### Manual Storage
 
-```typescript
+\`\`\`typescript
 const response = await fetch('/api/kinksters/avatar/store', {
   method: 'POST',
   body: JSON.stringify({
@@ -118,7 +118,7 @@ const response = await fetch('/api/kinksters/avatar/store', {
     kinkster_id: 'optional-uuid',
   }),
 })
-```
+\`\`\`
 
 ---
 
@@ -211,6 +211,3 @@ const response = await fetch('/api/kinksters/avatar/store', {
 ---
 
 **For detailed information, see [Comprehensive Analysis](./IMAGE_MANAGEMENT_SYSTEM_COMPREHENSIVE_ANALYSIS.md)**
-
-
-

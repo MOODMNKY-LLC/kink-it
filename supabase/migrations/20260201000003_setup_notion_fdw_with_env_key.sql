@@ -585,4 +585,3 @@ GRANT EXECUTE ON FUNCTION public.log_admin_fdw_access TO authenticated;
 COMMENT ON SCHEMA notion_fdw IS 'Private schema for Notion Foreign Data Wrapper tables. Not exposed via API.';
 COMMENT ON FUNCTION public.create_notion_fdw_server IS 'Creates or updates Notion FDW foreign server with API key. Called by setup API endpoint.';
 COMMENT ON FUNCTION public.setup_notion_fdw_tables IS 'Initializes Notion FDW foreign tables based on database IDs in notion_databases table.';
-

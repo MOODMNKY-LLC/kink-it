@@ -37,9 +37,9 @@
 ## 🚀 Next Steps
 
 1. **Run Migration**:
-   ```bash
+   \`\`\`bash
    supabase migration up 20260131000002_create_kinkster_storage_bucket
-   ```
+   \`\`\`
 
 2. **Verify Environment**:
    - ✅ `OPENAI_API_KEY` - Confirmed in `.env.local`
@@ -84,6 +84,3 @@
 
 **Ready for Testing**: ✅  
 **Migration Required**: ⚠️ Run storage bucket migration
-
-
-

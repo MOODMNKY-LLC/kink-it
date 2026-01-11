@@ -125,6 +125,3 @@ export function useGenerationHistory(
     updateGeneration,
   }
 }
-
-
-

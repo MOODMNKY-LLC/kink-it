@@ -89,4 +89,3 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ entry }, { status: 201 })
 }
-

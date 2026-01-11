@@ -212,4 +212,3 @@ By using KINK IT, you consent to this Privacy Policy and agree to its terms. If 
 ---
 
 **Your privacy matters. We're committed to protecting it.**
-

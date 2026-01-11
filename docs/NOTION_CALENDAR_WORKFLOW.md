@@ -91,7 +91,7 @@ According to [Notion Calendar documentation](https://www.notion.com/help/notion-
 
 ## Data Flow Diagram
 
-```
+\`\`\`
 ┌─────────────────┐
 │  KINK IT App    │
 │  Calendar Page  │
@@ -127,7 +127,7 @@ According to [Notion Calendar documentation](https://www.notion.com/help/notion-
 │  App (Display)  │
 │  Shows events   │
 └─────────────────┘
-```
+\`\`\`
 
 ## Two Integration Methods
 
@@ -259,4 +259,3 @@ According to [Notion Calendar documentation](https://www.notion.com/help/notion-
 ---
 
 **Last Updated:** February 2, 2025
-

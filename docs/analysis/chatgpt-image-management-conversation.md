@@ -45,12 +45,12 @@ This conversation informed the design decisions for:
 - Users can update/delete their own avatars
 
 ### File Organization
-```
+\`\`\`
 kinkster-avatars/
   └── {user_id}/
       └── kinksters/
           └── avatar_{timestamp}_{kinkster_id}.{ext}
-```
+\`\`\`
 
 ### API Routes
 - `POST /api/kinksters/avatar/generate` - Generates avatar and stores in Supabase Storage
@@ -84,6 +84,3 @@ kinkster-avatars/
 
 **Last Updated**: 2026-01-31  
 **Status**: Reference document - stores context for future image management enhancements
-
-
-

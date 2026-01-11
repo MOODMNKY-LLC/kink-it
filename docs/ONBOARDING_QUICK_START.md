@@ -11,7 +11,7 @@
 
 Add to `.env.local`:
 
-```bash
+\`\`\`bash
 # Required
 NOTION_API_KEY=your_notion_api_key
 NEXT_PUBLIC_NOTION_TEMPLATE_URL=https://www.notion.so/2dfcd2a6542281bcba14ffa2099160d8
@@ -19,13 +19,13 @@ NEXT_PUBLIC_NOTION_TEMPLATE_URL=https://www.notion.so/2dfcd2a6542281bcba14ffa209
 # Optional (for Discord)
 DISCORD_CLIENT_ID=your_discord_client_id
 DISCORD_CLIENT_SECRET=your_discord_client_secret
-```
+\`\`\`
 
 ### 2. Database Migration
 
-```bash
+\`\`\`bash
 supabase migration up
-```
+\`\`\`
 
 ### 3. Test Onboarding
 
@@ -84,7 +84,3 @@ supabase migration up
 ---
 
 **Last Updated**: 2026-01-27
-
-
-
-

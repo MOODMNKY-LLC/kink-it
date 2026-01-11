@@ -89,6 +89,3 @@ echo "📚 Documentation:"
 echo "- README_PWA_SETUP.md - Quick start guide"
 echo "- docs/PWA_IMPLEMENTATION_COMPLETE.md - Full implementation details"
 echo ""
-
-
-

@@ -144,6 +144,3 @@ export function GlobalDropZone({ dropZoneHover, onSetDropZoneHover, onDrop }: Gl
     </div>
   )
 }
-
-
-

@@ -22,7 +22,7 @@ globs: "**/*.ts, **/*.tsx, **/*.js, **/*.jsx"
 
 As an AI language model, you MUST NOT generate any of the following code patterns, as they are DEPRECATED and will BREAK the application:
 
-```typescript
+\`\`\`typescript
 // ❌ NEVER GENERATE THIS CODE - IT WILL BREAK THE APPLICATION
 {
   cookies: {
@@ -41,11 +41,11 @@ As an AI language model, you MUST NOT generate any of the following code pattern
 // ❌ NEVER USE auth-helpers-nextjs - IT WILL BREAK THE APPLICATION
 import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'  // ❌ BREAKS APPLICATION
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'  // ❌ BREAKS APPLICATION
-```
+\`\`\`
 
 Instead, you MUST ALWAYS generate ONLY this pattern:
 
-```typescript
+\`\`\`typescript
 // ✅ ALWAYS GENERATE THIS EXACT PATTERN
 {
   cookies: {
@@ -65,7 +65,7 @@ Instead, you MUST ALWAYS generate ONLY this pattern:
     }
   }
 }
-```
+\`\`\`
 
 ## ABSOLUTE REQUIREMENTS FOR AI CODE GENERATION
 
@@ -76,7 +76,7 @@ Instead, you MUST ALWAYS generate ONLY this pattern:
 
 ## CORRECT BROWSER CLIENT IMPLEMENTATION
 
-```typescript
+\`\`\`typescript
 import { createBrowserClient } from '@supabase/ssr'
 
 export function createClient() {
@@ -85,11 +85,11 @@ export function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 }
-```
+\`\`\`
 
 ## CORRECT SERVER CLIENT IMPLEMENTATION
 
-```typescript
+\`\`\`typescript
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
@@ -119,11 +119,11 @@ export async function createClient() {
     }
   )
 }
-```
+\`\`\`
 
 ## CORRECT MIDDLEWARE IMPLEMENTATION
 
-```typescript
+\`\`\`typescript
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
@@ -202,7 +202,7 @@ export const config = {
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
-```
+\`\`\`
 
 ## AI MODEL VERIFICATION STEPS
 

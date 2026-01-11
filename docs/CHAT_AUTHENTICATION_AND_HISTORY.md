@@ -33,7 +33,7 @@
 - ✅ Merges loaded messages with Realtime updates
 
 **Implementation:**
-```typescript
+\`\`\`typescript
 // Automatically loads when conversationId or userId changes
 useEffect(() => {
   if (!conversationId || !userId) {
@@ -49,7 +49,7 @@ useEffect(() => {
   
   loadChatHistory()
 }, [conversationId, userId])
-```
+\`\`\`
 
 ### 3. Supabase Realtime Integration
 
@@ -62,7 +62,7 @@ useEffect(() => {
 - ✅ Proper channel cleanup on unmount
 
 **Channel Setup:**
-```typescript
+\`\`\`typescript
 const channel = supabase
   .channel(`chat:${conversationId}`)
   .on("postgres_changes", {
@@ -78,7 +78,7 @@ const channel = supabase
     filter: `conversation_id=eq.${conversationId}`,
   }, handleMessageUpdate)
   .subscribe()
-```
+\`\`\`
 
 ### 4. pgvector Setup for Semantic Search
 
@@ -126,7 +126,7 @@ const channel = supabase
 ## Usage Examples
 
 ### Search Messages in Current Conversation
-```typescript
+\`\`\`typescript
 const { searchMessages, isSearching } = useSemanticSearch({
   userId: user.id,
   conversationId: currentConversationId,
@@ -136,10 +136,10 @@ const results = await searchMessages("kinkster avatar generation", {
   similarityThreshold: 0.7,
   limit: 5,
 })
-```
+\`\`\`
 
 ### Search Across All Conversations
-```typescript
+\`\`\`typescript
 const { searchConversations } = useSemanticSearch({
   userId: user.id,
 })
@@ -148,7 +148,7 @@ const conversations = await searchConversations("tasks and rewards", {
   similarityThreshold: 0.7,
   limit: 10,
 })
-```
+\`\`\`
 
 ## Architecture
 
@@ -268,4 +268,3 @@ const conversations = await searchConversations("tasks and rewards", {
 - Verify embeddings exist for messages
 - Check similarity threshold (try lower value)
 - Ensure user_id matches authenticated user
-

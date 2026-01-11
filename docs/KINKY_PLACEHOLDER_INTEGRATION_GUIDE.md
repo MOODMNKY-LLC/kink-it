@@ -21,7 +21,7 @@ This guide documents where Kinky Kincade placeholder components should be integr
 - `components/kinky/kinky-success-state.tsx` - Success state variant
 
 ### Usage Example
-```tsx
+\`\`\`tsx
 import { KinkyEmptyState } from "@/components/kinky/kinky-empty-state"
 import { KinkyLoadingState } from "@/components/kinky/kinky-loading-state"
 import { KinkyErrorState } from "@/components/kinky/kinky-error-state"
@@ -50,7 +50,7 @@ import { KinkySuccessState } from "@/components/kinky/kinky-success-state"
   title="Task completed!"
   description="Great job on finishing that task."
 />
-```
+\`\`\`
 
 ---
 
@@ -205,7 +205,7 @@ import { KinkySuccessState } from "@/components/kinky/kinky-success-state"
 ## 🎨 Component Props Reference
 
 ### KinkyEmptyState
-```tsx
+\`\`\`tsx
 interface KinkyEmptyStateProps {
   title: string                    // Required: Main message
   description?: string              // Optional: Additional context
@@ -215,19 +215,19 @@ interface KinkyEmptyStateProps {
   size?: "sm" | "md" | "lg" | "xl" // Optional: Size variant (default: "md")
   className?: string               // Optional: Additional classes
 }
-```
+\`\`\`
 
 ### KinkyLoadingState
-```tsx
+\`\`\`tsx
 interface KinkyLoadingStateProps {
   message?: string                 // Optional: Loading message (default: "Loading...")
   size?: "sm" | "md" | "lg" | "xl" // Optional: Size variant (default: "md")
   className?: string              // Optional: Additional classes
 }
-```
+\`\`\`
 
 ### KinkyErrorState
-```tsx
+\`\`\`tsx
 interface KinkyErrorStateProps {
   title: string                    // Required: Error title
   description?: string              // Optional: Error details
@@ -236,17 +236,17 @@ interface KinkyErrorStateProps {
   size?: "sm" | "md" | "lg" | "xl" // Optional: Size variant (default: "md")
   className?: string              // Optional: Additional classes
 }
-```
+\`\`\`
 
 ### KinkySuccessState
-```tsx
+\`\`\`tsx
 interface KinkySuccessStateProps {
   title: string                    // Required: Success message
   description?: string             // Optional: Additional context
   size?: "sm" | "md" | "lg" | "xl" // Optional: Size variant (default: "md")
   className?: string              // Optional: Additional classes
 }
-```
+\`\`\`
 
 ---
 
@@ -305,6 +305,3 @@ interface KinkySuccessStateProps {
 **Status**: Components Created ✅  
 **Next**: Systematic Integration  
 **Last Updated**: 2026-01-31
-
-
-

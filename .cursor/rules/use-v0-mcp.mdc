@@ -80,7 +80,7 @@ Before using v0 MCP, determine:
 ### Step 2: Create v0 Chat with Detailed Prompt
 
 **Template Structure**:
-```typescript
+\`\`\`typescript
 {
   "tool": "mcp_v0_createChat",
   "parameters": {
@@ -112,7 +112,7 @@ Technical:
     }
   }
 }
-```
+\`\`\`
 
 ### Step 3: Review Generated Code
 
@@ -130,7 +130,7 @@ Technical:
 **Required Adaptations**:
 
 1. **Add Supabase Integration** (if needed):
-```typescript
+\`\`\`typescript
 // Add to generated component
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUser } from '@/lib/auth/get-user'
@@ -146,31 +146,31 @@ export default async function Component() {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 }
-```
+\`\`\`
 
 2. **Apply Theme Variables**:
-```typescript
+\`\`\`typescript
 // Replace hardcoded colors with theme variables
 className="bg-background text-foreground border-border"
 // Use accent color: text-primary or bg-primary/20
-```
+\`\`\`
 
 3. **Add TypeScript Types**:
-```typescript
+\`\`\`typescript
 // Import from types directory
 import type { Task } from '@/types/tasks'
 import type { Profile } from '@/types/profile'
-```
+\`\`\`
 
 4. **Add Magic UI Effects**:
-```typescript
+\`\`\`typescript
 import { BorderBeam } from '@/components/ui/border-beam'
 import { ShineBorder } from '@/components/ui/shine-border'
 import { MagicCard } from '@/components/ui/magic-card'
-```
+\`\`\`
 
 5. **Add Error Handling**:
-```typescript
+\`\`\`typescript
 // Add proper error boundaries and loading states
 if (error) {
   return <ErrorComponent error={error} />
@@ -178,7 +178,7 @@ if (error) {
 if (loading) {
   return <LoadingSkeleton />
 }
-```
+\`\`\`
 
 ### Step 5: Integrate and Test
 
@@ -196,7 +196,7 @@ if (loading) {
 
 ### Theme Variables (from `app/globals.css`)
 
-```css
+\`\`\`css
 /* Always use these variables in generated components */
 --background: oklch(0.05 0 0);
 --foreground: oklch(0.99 0 0);
@@ -206,12 +206,12 @@ if (loading) {
 --border: oklch(0.20 0.01 240);
 --card: oklch(0.08 0.01 240);
 --popover: oklch(0.10 0.01 240);
-```
+\`\`\`
 
 ### Component Patterns
 
 **Card Pattern** (reference: `components/dashboard/card/index.tsx`):
-```typescript
+\`\`\`typescript
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 
 <Card className="bg-background border-border">
@@ -222,10 +222,10 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
     {/* Content */}
   </CardContent>
 </Card>
-```
+\`\`\`
 
 **Form Pattern** (reference: `components/account/profile-form.tsx`):
-```typescript
+\`\`\`typescript
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -252,10 +252,10 @@ export function FormComponent() {
     </form>
   )
 }
-```
+\`\`\`
 
 **Data Fetching Pattern** (reference: `app/page.tsx`):
-```typescript
+\`\`\`typescript
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUser } from '@/lib/auth/get-user'
 
@@ -275,7 +275,7 @@ export default async function Page() {
   
   return <Component data={data} />
 }
-```
+\`\`\`
 
 ---
 
@@ -283,7 +283,7 @@ export default async function Page() {
 
 ### ✅ Good Prompt Example
 
-```
+\`\`\`
 Create a task card component for KINK IT dashboard.
 
 Requirements:
@@ -306,13 +306,13 @@ Technical:
 - Client component wrapper for interactivity
 - Proper TypeScript types
 - Accessibility: ARIA labels, keyboard navigation
-```
+\`\`\`
 
 ### ❌ Bad Prompt Example
 
-```
+\`\`\`
 Create a task component
-```
+\`\`\`
 **Problems**: Too vague, no design system reference, no technical details
 
 ---
@@ -336,7 +336,7 @@ When reviewing v0 MCP generated code, ALWAYS verify:
 ### Task Management Components
 
 **Prompt Template**:
-```
+\`\`\`
 Create a [component name] for KINK IT task management.
 
 Features:
@@ -357,12 +357,12 @@ Technical:
 - Server component for data fetching
 - Client component for interactivity
 - Supabase integration ready (add manually)
-```
+\`\`\`
 
 ### Scene Logging Components
 
 **Prompt Template**:
-```
+\`\`\`
 Create a scene logging [component type] for KINK IT.
 
 Form Fields:
@@ -387,12 +387,12 @@ Technical:
 - TypeScript with Scene type
 - Server action for submission
 - Toast notifications (sonner)
-```
+\`\`\`
 
 ### Communication Log Components
 
 **Prompt Template**:
-```
+\`\`\`
 Create a communication log [component] for KINK IT.
 
 Features:
@@ -416,7 +416,7 @@ Technical:
 - Infinite scroll pagination
 - TypeScript types
 - Server + Client component pattern
-```
+\`\`\`
 
 ---
 
@@ -424,7 +424,7 @@ Technical:
 
 ### Complete Component Generation Process
 
-```
+\`\`\`
 1. User Request
    ↓
 2. Assess: Is this suitable for v0 MCP?
@@ -445,7 +445,7 @@ Technical:
 7. Integrate into app
    ↓
 8. Commit with clear message
-```
+\`\`\`
 
 ---
 
@@ -512,22 +512,22 @@ Before integrating v0 MCP generated code:
 ## 🚫 Common Mistakes to Avoid
 
 ### ❌ Mistake 1: Using v0 for Security Code
-```typescript
+\`\`\`typescript
 // ❌ DON'T generate auth logic with v0
 const isAuthorized = user.role === 'admin' // Generate this manually
-```
+\`\`\`
 
 ### ❌ Mistake 2: Hardcoded Colors
-```typescript
+\`\`\`typescript
 // ❌ DON'T use hardcoded colors
 className="bg-[#1a1a1a] text-[#ffffff]"
 
 // ✅ DO use theme variables
 className="bg-background text-foreground"
-```
+\`\`\`
 
 ### ❌ Mistake 3: Missing RLS Checks
-```typescript
+\`\`\`typescript
 // ❌ DON'T forget RLS
 const { data } = await supabase.from('tasks').select('*')
 
@@ -536,10 +536,10 @@ const { data } = await supabase
   .from('tasks')
   .select('*')
   .eq('user_id', user.id)
-```
+\`\`\`
 
 ### ❌ Mistake 4: Client-Side Data Mutations
-```typescript
+\`\`\`typescript
 // ❌ DON'T mutate from client component
 const handleSubmit = async () => {
   await fetch('/api/tasks', { method: 'POST' })
@@ -551,7 +551,7 @@ export async function createTask(data) {
   const supabase = await createClient()
   // RLS-protected insert
 }
-```
+\`\`\`
 
 ---
 
@@ -561,7 +561,7 @@ export async function createTask(data) {
 "Create a rewards display widget for the dashboard"
 
 ### Step 1: Create v0 Chat
-```typescript
+\`\`\`typescript
 await mcp_v0_createChat({
   message: `Create a rewards display widget for KINK IT dashboard.
 
@@ -586,7 +586,7 @@ Technical:
 - Client component for interactivity`,
   modelConfiguration: { modelId: "v0-1.5-md" }
 })
-```
+\`\`\`
 
 ### Step 2: Review Generated Code
 - Check structure matches existing patterns
@@ -594,7 +594,7 @@ Technical:
 - Ensure TypeScript types present
 
 ### Step 3: Adapt to KINK IT
-```typescript
+\`\`\`typescript
 // Add Supabase integration
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUser } from '@/lib/auth/get-user'
@@ -618,7 +618,7 @@ export default async function RewardsWidget() {
   
   return <RewardsWidgetClient rewards={rewards} />
 }
-```
+\`\`\`
 
 ### Step 4: Test & Integrate
 - Test with real data

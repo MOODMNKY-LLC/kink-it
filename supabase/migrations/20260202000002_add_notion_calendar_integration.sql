@@ -154,4 +154,3 @@ GRANT EXECUTE ON FUNCTION public.generate_ical_uid(uuid) TO authenticated;
 -- Comments for documentation
 COMMENT ON FUNCTION public.generate_ical_uid IS 
   'Generates RFC5545-compliant iCalendar UID for calendar events. Format: {uuid}@kink-it.app';
-

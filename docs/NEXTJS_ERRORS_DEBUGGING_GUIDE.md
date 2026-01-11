@@ -14,7 +14,7 @@ Since Chrome DevTools MCP uses a separate browser instance, we need to capture e
 
 **Run this in your browser console** (where you see the errors):
 
-```javascript
+\`\`\`javascript
 // Capture all Next.js errors
 (function() {
   const errors = [];
@@ -95,7 +95,7 @@ Since Chrome DevTools MCP uses a separate browser instance, we need to capture e
   
   console.log('✅ Error capture script loaded. Errors will be logged in 4 seconds.');
 })();
-```
+\`\`\`
 
 **After running**, wait 4 seconds and check console for `=== CAPTURED ERRORS ===`
 
@@ -103,7 +103,7 @@ Since Chrome DevTools MCP uses a separate browser instance, we need to capture e
 
 **Run this in your browser console**:
 
-```javascript
+\`\`\`javascript
 // Get Next.js error overlay content
 const portal = document.querySelector('nextjs-portal');
 if (portal && portal.shadowRoot) {
@@ -120,7 +120,7 @@ if (portal && portal.shadowRoot) {
 } else {
   console.log('No Next.js error overlay found');
 }
-```
+\`\`\`
 
 ### Method 3: Network Tab Errors
 
@@ -141,9 +141,9 @@ if (portal && portal.shadowRoot) {
 **Error**: `searchParams` is a Promise and must be awaited
 
 **Check**:
-```bash
+\`\`\`bash
 grep -r "searchParams\." app/ --include="*.tsx" --include="*.ts"
-```
+\`\`\`
 
 **Fix**: Change `searchParams.step` to `(await searchParams).step`
 
@@ -152,10 +152,10 @@ grep -r "searchParams\." app/ --include="*.tsx" --include="*.ts"
 **Error**: Cannot pass functions from Server Components to Client Components
 
 **Check**:
-```bash
+\`\`\`bash
 grep -r "use client" app/ | grep -v "use client"
 # Find Server Components passing functions to Client Components
-```
+\`\`\`
 
 **Fix**: Add `"use client"` to Server Components that pass functions
 
@@ -192,23 +192,23 @@ grep -r "use client" app/ | grep -v "use client"
 
 ### Step 1: Check TypeScript Errors
 
-```bash
+\`\`\`bash
 cd /Users/moodmnky/GitHub/kink-it
 npx tsc --noEmit 2>&1 | head -50
-```
+\`\`\`
 
 ### Step 2: Check for Common Patterns
 
 **Check searchParams usage**:
-```bash
+\`\`\`bash
 grep -rn "searchParams\." app/ --include="*.tsx" --include="*.ts" | grep -v "await"
-```
+\`\`\`
 
 **Check Server/Client boundaries**:
-```bash
+\`\`\`bash
 # Find files without "use client" that might need it
 find app/ -name "*.tsx" -exec grep -L "use client" {} \; | head -20
-```
+\`\`\`
 
 ### Step 3: Check Build Output
 

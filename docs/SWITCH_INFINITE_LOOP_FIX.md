@@ -15,18 +15,18 @@ Radix UI Switch component was causing "Maximum update depth exceeded" errors. Th
 ### 1. Mount Tracking
 Use `useRef` to track if component is mounted. Only process callbacks after mount:
 
-```typescript
+\`\`\`typescript
 const isMountedRef = useRef(false)
 
 useEffect(() => {
   isMountedRef.current = true
 }, [])
-```
+\`\`\`
 
 ### 2. Update-In-Progress Flag
 Prevent recursive calls with a flag:
 
-```typescript
+\`\`\`typescript
 const isUpdatingAgentModeRef = useRef(false)
 
 onCheckedChange={(checked) => {
@@ -41,12 +41,12 @@ onCheckedChange={(checked) => {
     }
   }
 }}
-```
+\`\`\`
 
 ### 3. Value Change Check
 Only update if value actually changed:
 
-```typescript
+\`\`\`typescript
 const agentModeRef = useRef(agentMode)
 
 onCheckedChange={(checked) => {
@@ -54,12 +54,12 @@ onCheckedChange={(checked) => {
     // Update
   }
 }}
-```
+\`\`\`
 
 ### 4. Combined Guard
 All three checks together:
 
-```typescript
+\`\`\`typescript
 onCheckedChange={(checked) => {
   if (
     isMountedRef.current &&           // 1. After mount
@@ -77,7 +77,7 @@ onCheckedChange={(checked) => {
     }
   }
 }}
-```
+\`\`\`
 
 ## Implementation
 

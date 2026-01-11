@@ -319,4 +319,3 @@ export function propsToPrompt(props: GenerationProps): string[] {
 
   return parts
 }
-

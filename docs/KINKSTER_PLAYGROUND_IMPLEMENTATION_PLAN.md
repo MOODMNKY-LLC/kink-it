@@ -103,14 +103,14 @@ This document outlines the comprehensive plan for creating a Playground feature 
 ### 1. "Kinky" AI KINKSTER System
 
 **Database Schema:**
-```sql
+\`\`\`sql
 -- Create system KINKSTER for "Kinky" AI
 -- Special flag: is_system_kinkster = true
 -- user_id = NULL or special system user
 -- avatar_url = new KINKSTER avatar
 -- name = "Kinky"
 -- personality, stats, backstory predefined
-```
+\`\`\`
 
 **Implementation:**
 - Create migration for system KINKSTER support
@@ -121,12 +121,12 @@ This document outlines the comprehensive plan for creating a Playground feature 
 ### 2. Playground Structure
 
 **Route Architecture:**
-```
+\`\`\`
 /playground
   ├── / (hub page - tool selection)
   ├── /image-generation (image generation suite)
   └── /[future-tool] (extensible for future tools)
-```
+\`\`\`
 
 **Navigation Integration:**
 - Add "Tools" group to sidebar navigation
@@ -135,7 +135,7 @@ This document outlines the comprehensive plan for creating a Playground feature 
 - Visual indicator for active tool
 
 **Component Structure:**
-```
+\`\`\`
 components/playground/
   ├── playground-layout.tsx (wrapper layout)
   ├── playground-hub.tsx (tool selection)
@@ -145,7 +145,7 @@ components/playground/
   │       ├── generation-panel.tsx
   │       ├── management-panel.tsx
   │       └── gallery-view.tsx
-```
+\`\`\`
 
 ### 3. Avatar Integration Points
 
@@ -274,7 +274,7 @@ components/playground/
 ### Database Changes
 
 **Migration: `20260131000008_add_system_kinksters.sql`**
-```sql
+\`\`\`sql
 -- Add support for system KINKSTERS
 ALTER TABLE public.kinksters
   ADD COLUMN IF NOT EXISTS is_system_kinkster boolean DEFAULT false;
@@ -302,12 +302,12 @@ INSERT INTO public.kinksters (
   '/images/kinky-avatar.svg', -- New avatar path
   -- ... predefined stats, personality, etc.
 );
-```
+\`\`\`
 
 ### Component Structure
 
 **New Components:**
-```
+\`\`\`
 components/
   ├── kinky/ (AI persona components)
   │   ├── kinky-avatar.tsx (avatar component)
@@ -320,23 +320,23 @@ components/
   │           └── [tool components]
   └── icons/
       └── kinky-icon.tsx (new icon component)
-```
+\`\`\`
 
 ### Route Structure
 
 **New Routes:**
-```
+\`\`\`
 app/
   └── playground/
       ├── page.tsx (hub)
       └── image-generation/
           └── page.tsx (image generation suite)
-```
+\`\`\`
 
 ### Navigation Updates
 
 **File: `components/dashboard/sidebar/navigation-config.ts`**
-```typescript
+\`\`\`typescript
 {
   title: "Tools",
   items: [
@@ -347,7 +347,7 @@ app/
     },
   ],
 }
-```
+\`\`\`
 
 ---
 
@@ -400,6 +400,3 @@ app/
 **Status**: Ready for implementation  
 **Priority**: High - Foundation for future features  
 **Estimated Effort**: 3-4 weeks for complete implementation
-
-
-

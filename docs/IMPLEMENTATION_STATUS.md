@@ -30,7 +30,7 @@
 **Status**: Requires manual installation due to interactive prompts
 
 **Installation Steps**:
-```bash
+\`\`\`bash
 # Install all components (will prompt for overwrites)
 pnpm dlx ai-elements@latest
 
@@ -42,7 +42,7 @@ pnpm dlx ai-elements@latest add reasoning
 pnpm dlx ai-elements@latest add tool
 pnpm dlx ai-elements@latest add sources
 pnpm dlx ai-elements@latest add suggestions
-```
+\`\`\`
 
 **Note**: When prompted about overwriting existing files (button.tsx, tooltip.tsx, etc.), choose:
 - **"N" (No)** - Keep existing shadcn/ui components
@@ -80,7 +80,7 @@ pnpm dlx ai-elements@latest add suggestions
 ### Terminal Component Usage
 
 **For Notifications**:
-```tsx
+\`\`\`tsx
 import { Terminal, AnimatedSpan } from "@/components/ui/terminal"
 
 <Terminal>
@@ -90,10 +90,10 @@ import { Terminal, AnimatedSpan } from "@/components/ui/terminal"
     </AnimatedSpan>
   ))}
 </Terminal>
-```
+\`\`\`
 
 **For Chat**:
-```tsx
+\`\`\`tsx
 import { Terminal, TypingAnimation } from "@/components/ui/terminal"
 
 <Terminal>
@@ -103,12 +103,12 @@ import { Terminal, TypingAnimation } from "@/components/ui/terminal"
     </TypingAnimation>
   ))}
 </Terminal>
-```
+\`\`\`
 
 ### AI Elements Usage
 
 **Basic Chat**:
-```tsx
+\`\`\`tsx
 import { Conversation, ConversationContent } from "@/components/ai-elements/conversation"
 import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message"
 import { PromptInput, PromptInputTextarea, PromptInputSubmit } from "@/components/ai-elements/prompt-input"
@@ -131,22 +131,22 @@ const { messages, input, handleInputChange, handleSubmit } = useChat()
     <PromptInputSubmit />
   </PromptInput>
 </Conversation>
-```
+\`\`\`
 
 ### Image Generation Migration
 
 **Before** (Direct OpenAI):
-```tsx
+\`\`\`tsx
 const openai = new OpenAI({ apiKey })
 const response = await openai.images.generate({
   model: "dall-e-3",
   prompt: prompt,
   size: imageSize,
 })
-```
+\`\`\`
 
 **After** (Vercel AI SDK):
-```tsx
+\`\`\`tsx
 import { generateImage } from "ai"
 import { openai } from "@ai-sdk/openai"
 
@@ -162,7 +162,7 @@ try {
   const openai = new OpenAI({ apiKey })
   const response = await openai.images.generate({...})
 }
-```
+\`\`\`
 
 ---
 
@@ -185,5 +185,3 @@ try {
 - [AI Elements Docs](https://ai-sdk.dev/elements)
 - [Vercel AI SDK Image Generation](https://ai-sdk.dev/docs/ai-sdk-core/image-generation)
 - [Migration Plan](./AI_COMPONENTS_MIGRATION_PLAN.md)
-
-

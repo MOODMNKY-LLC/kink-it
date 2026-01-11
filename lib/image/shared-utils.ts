@@ -291,4 +291,3 @@ export function generateUniqueFilename(
     ? `${prefix}_${timestamp}_${id}.${extension}`
     : `${prefix}_${timestamp}.${extension}`
 }
-

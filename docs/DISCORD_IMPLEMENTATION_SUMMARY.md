@@ -80,7 +80,3 @@
 - Webhook Script: `scripts/send-discord-webhook.ps1`
 
 All documentation is complete and ready for implementation!
-
-
-
-

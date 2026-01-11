@@ -16,17 +16,17 @@
 ## 🔄 Step-by-Step Flow Analysis
 
 ### Step 1: Image Download ✅
-```
+\`\`\`
 [Info] [downloadAndStoreImage] Fetch completed (1060ms), status: 200
 [Info] [downloadAndStoreImage] Buffer created (211ms), size: 1403352 bytes
-```
+\`\`\`
 - **Duration**: 1,060ms (download) + 211ms (buffer conversion) = 1,271ms
 - **Status**: ✅ Success (HTTP 200)
 - **Image Size**: 1.4MB PNG
 - **Performance**: Good (under 1.5 seconds for download + conversion)
 
 ### Step 2: Storage Upload ✅
-```
+\`\`\`
 [Info] [downloadAndStoreImage] Uploading to storage bucket: kinkster-avatars
 [Info] [downloadAndStoreImage] Upload completed (52ms)
 [Info] [downloadAndStoreImage] Upload data: {
@@ -34,7 +34,7 @@
   id: "12e18eff-d4f3-4bfb-95a5-1064c88dd5e2",
   fullPath: "kinkster-avatars/663d7f2e-8e8b-49cc-9747-546223cf2da1/kinksters/avatar_1767676222789.png"
 }
-```
+\`\`\`
 - **Duration**: 52ms
 - **Status**: ✅ Success
 - **Bucket**: `kinkster-avatars`
@@ -42,10 +42,10 @@
 - **Performance**: Excellent (52ms for 1.4MB upload)
 
 ### Step 3: Public URL Construction ✅
-```
+\`\`\`
 [Info] [downloadAndStoreImage] Local dev detected, using public API URL: https://127.0.0.1:55321
 [Info] [downloadAndStoreImage] Final storage URL: https://127.0.0.1:55321/storage/v1/object/public/kinkster-avatars/663d7f2e-8e8b-49cc-9747-546223cf2da1/kinksters/avatar_1767676222789.png
-```
+\`\`\`
 - **URL Detection**: ✅ Correctly identified local dev environment
 - **URL Transformation**: ✅ Using public API URL (`https://127.0.0.1:55321`)
 - **Path**: ✅ Correct storage path format
@@ -54,20 +54,20 @@
 ### Step 4: Progress Broadcasts ✅
 
 #### Uploading Status
-```
+\`\`\`
 [Info] [broadcastProgress] Starting broadcast: status=uploading, message=Uploading to storage...
 [Info] [broadcastProgress] Topic: user:663d7f2e-8e8b-49cc-9747-546223cf2da1:avatar
 [Info] [broadcastProgress] Broadcast URL: http://kong:8000/realtime/v1/api/broadcast
 [Info] [broadcastProgress] Fetch completed (8ms), status: 202 Accepted
 [Info] [broadcastProgress] ✅ Success (8ms)
-```
+\`\`\`
 - **Duration**: 8ms
 - **Status**: ✅ 202 Accepted
 - **Topic**: ✅ Correct (`user:{userId}:avatar`)
 - **Performance**: Excellent
 
 #### Completion Status
-```
+\`\`\`
 [Info] [broadcastProgress] Starting broadcast: status=completed, message=Avatar generated and stored successfully
 [Info] [broadcastProgress] Topic: user:663d7f2e-8e8b-49cc-9747-546223cf2da1:avatar
 [Info] [broadcastProgress] Payload: {
@@ -85,17 +85,17 @@
 }
 [Info] [broadcastProgress] Fetch completed (4ms), status: 202 Accepted
 [Info] [broadcastProgress] ✅ Success (4ms)
-```
+\`\`\`
 - **Duration**: 4ms
 - **Status**: ✅ 202 Accepted
 - **Payload**: ✅ Complete (includes `storage_url` and `storage_path`)
 - **Performance**: Excellent
 
 ### Step 5: Final Completion ✅
-```
+\`\`\`
 [Info] [Background Task] ✅ COMPLETED SUCCESSFULLY in 23274ms
 [Info] [Background Task] Final storage URL: https://127.0.0.1:55321/storage/v1/object/public/kinkster-avatars/663d7f2e-8e8b-49cc-9747-546223cf2da1/kinksters/avatar_1767676222789.png
-```
+\`\`\`
 - **Total Duration**: 23,274ms (~23 seconds)
 - **Status**: ✅ Success
 - **Final URL**: ✅ Correct and accessible
@@ -192,6 +192,3 @@ The client-side UI should be receiving these broadcasts and displaying the gener
 3. ✅ Test with production Supabase URL to ensure URL transformation works there too
 4. ✅ Consider adding more granular progress updates if needed
 5. ✅ Monitor performance in production environment
-
-
-

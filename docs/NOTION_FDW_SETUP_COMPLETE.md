@@ -37,42 +37,42 @@
 ## 🔍 Verification Queries
 
 ### Check Foreign Server
-```sql
+\`\`\`sql
 SELECT srvname, srvoptions 
 FROM pg_foreign_server 
 WHERE srvname = 'notion_service_account_server';
-```
+\`\`\`
 
 ### Check Foreign Tables
-```sql
+\`\`\`sql
 SELECT schemaname, tablename 
 FROM pg_tables 
 WHERE schemaname = 'notion_fdw';
-```
+\`\`\`
 
 ### Test Foreign Table Query
-```sql
+\`\`\`sql
 -- Test Image Generations
 SELECT COUNT(*) FROM notion_fdw.image_generations_all;
 
 -- Test KINKSTER Profiles
 SELECT COUNT(*) FROM notion_fdw.kinkster_profiles_all;
-```
+\`\`\`
 
 ### Test Admin View (requires admin authentication)
-```sql
+\`\`\`sql
 SELECT * FROM public.admin_image_generations_all LIMIT 5;
-```
+\`\`\`
 
 ### Test Admin Search
-```sql
+\`\`\`sql
 SELECT * 
 FROM public.admin_search_image_generations(
   'kinky scene', 
   auth.uid(), 
   10
 );
-```
+\`\`\`
 
 ---
 
@@ -80,12 +80,12 @@ FROM public.admin_search_image_generations(
 
 The FDW reads database IDs from `notion_databases` table:
 
-```sql
+\`\`\`sql
 SELECT database_type, database_id, database_name 
 FROM notion_databases 
 WHERE user_id IS NULL 
 ORDER BY database_type;
-```
+\`\`\`
 
 **Required:**
 - `image_generations` - Image Generations database ID
@@ -101,24 +101,24 @@ ORDER BY database_type;
 
 ### Admin Image Search API
 
-```typescript
+\`\`\`typescript
 // app/api/admin/gallery/search/route.ts
 const { data, error } = await supabase.rpc('admin_search_image_generations', {
   search_query: 'kinky scene',
   admin_user_id: userId,
   limit_count: 100
 })
-```
+\`\`\`
 
 ### Admin KINKSTER Browse API
 
-```typescript
+\`\`\`typescript
 const { data, error } = await supabase.rpc('admin_search_kinkster_profiles', {
   search_query: 'dominant',
   admin_user_id: userId,
   limit_count: 50
 })
-```
+\`\`\`
 
 ---
 
@@ -176,5 +176,3 @@ const { data, error } = await supabase.rpc('admin_search_kinkster_profiles', {
 **Foreign Tables**: Initialized  
 **Admin Functions**: Ready  
 **Documentation**: Complete
-
-

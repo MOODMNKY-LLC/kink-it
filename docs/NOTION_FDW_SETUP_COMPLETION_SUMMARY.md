@@ -44,21 +44,21 @@
 - KINKSTER Profiles database ID (from Notion workspace)
 
 **Step 2**: Insert into `notion_databases` table:
-```sql
+\`\`\`sql
 INSERT INTO notion_databases (database_type, database_id, database_name, user_id)
 VALUES 
   ('image_generations', 'your-image-generations-db-id', 'Image Generations', NULL),
   ('kinkster_profiles', 'your-kinkster-profiles-db-id', 'KINKSTER Profiles', NULL)
 ON CONFLICT DO NOTHING;
-```
+\`\`\`
 
 **Step 3**: Initialize foreign tables:
-```sql
+\`\`\`sql
 SELECT * FROM public.setup_notion_fdw_tables();
-```
+\`\`\`
 
 **Step 4**: Verify:
-```sql
+\`\`\`sql
 -- Check foreign tables were created
 SELECT schemaname, tablename 
 FROM pg_tables 
@@ -66,7 +66,7 @@ WHERE schemaname = 'notion_fdw';
 
 -- Test foreign table query
 SELECT COUNT(*) FROM notion_fdw.image_generations_all;
-```
+\`\`\`
 
 ---
 
@@ -75,24 +75,24 @@ SELECT COUNT(*) FROM notion_fdw.image_generations_all;
 Even without foreign tables, you can:
 
 ✅ **Create/Update Foreign Server**
-```sql
+\`\`\`sql
 SELECT public.create_notion_fdw_server('your-api-key');
-```
+\`\`\`
 
 ✅ **Check Admin Role**
-```sql
+\`\`\`sql
 SELECT public.is_admin(auth.uid());
-```
+\`\`\`
 
 ✅ **Get Bond Members**
-```sql
+\`\`\`sql
 SELECT public.get_bond_member_ids(auth.uid());
-```
+\`\`\`
 
 ✅ **Use Admin Search Functions** (once foreign tables are created)
-```sql
+\`\`\`sql
 SELECT * FROM public.admin_search_image_generations('query', auth.uid(), 10);
-```
+\`\`\`
 
 ---
 
@@ -115,14 +115,14 @@ SELECT * FROM public.admin_search_image_generations('query', auth.uid(), 10);
 ## 🔍 Verification Commands
 
 ### Check Foreign Server
-```sql
+\`\`\`sql
 SELECT srvname, array_to_string(srvoptions, ', ') as options
 FROM pg_foreign_server 
 WHERE srvname = 'notion_service_account_server';
-```
+\`\`\`
 
 ### Check Functions
-```sql
+\`\`\`sql
 SELECT routine_name 
 FROM information_schema.routines 
 WHERE routine_schema = 'public' 
@@ -135,14 +135,14 @@ WHERE routine_schema = 'public'
     'admin_search_kinkster_profiles'
   )
 ORDER BY routine_name;
-```
+\`\`\`
 
 ### Check Database IDs
-```sql
+\`\`\`sql
 SELECT database_type, database_id, database_name 
 FROM notion_databases 
 WHERE user_id IS NULL;
-```
+\`\`\`
 
 ---
 
@@ -180,5 +180,3 @@ All documentation available in `docs/`:
 **Setup Completed By**: CODE MNKY  
 **Completion Date**: 2025-02-01  
 **Ready for**: Database ID configuration and foreign table initialization
-
-

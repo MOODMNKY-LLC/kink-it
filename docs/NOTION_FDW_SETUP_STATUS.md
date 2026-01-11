@@ -38,7 +38,7 @@ The `setup_notion_fdw_tables()` function ran successfully but found:
 ### Required Action
 Populate the `notion_databases` table with template/global database IDs:
 
-```sql
+\`\`\`sql
 -- Check current database IDs
 SELECT database_type, database_id, database_name, user_id 
 FROM notion_databases 
@@ -51,14 +51,14 @@ VALUES
   ('image_generations', 'your-image-generations-db-id', 'Image Generations', NULL),
   ('kinkster_profiles', 'your-kinkster-profiles-db-id', 'KINKSTER Profiles', NULL)
 ON CONFLICT DO NOTHING;
-```
+\`\`\`
 
 ### After Database IDs Are Configured
 
 Run the setup function again:
-```sql
+\`\`\`sql
 SELECT * FROM public.setup_notion_fdw_tables();
-```
+\`\`\`
 
 This will create:
 - `notion_fdw.image_generations_all` - Foreign table
@@ -71,15 +71,15 @@ This will create:
 ## 🔍 Verification Queries
 
 ### Check Foreign Server
-```sql
+\`\`\`sql
 SELECT srvname, array_to_string(srvoptions, ', ') as options
 FROM pg_foreign_server 
 WHERE srvname = 'notion_service_account_server';
-```
+\`\`\`
 **Result**: ✅ Server exists and is configured
 
 ### Check Functions
-```sql
+\`\`\`sql
 SELECT routine_name 
 FROM information_schema.routines 
 WHERE routine_schema = 'public' 
@@ -92,15 +92,15 @@ WHERE routine_schema = 'public'
     'admin_search_kinkster_profiles'
   )
 ORDER BY routine_name;
-```
+\`\`\`
 **Result**: ✅ All functions exist
 
 ### Check Database IDs
-```sql
+\`\`\`sql
 SELECT database_type, database_id, database_name 
 FROM notion_databases 
 WHERE user_id IS NULL;
-```
+\`\`\`
 **Result**: ⚠️ No template database IDs found
 
 ---
@@ -113,26 +113,26 @@ WHERE user_id IS NULL;
    - Insert into `notion_databases` table with `user_id = NULL`
 
 2. **Initialize Foreign Tables**
-   ```sql
+   \`\`\`sql
    SELECT * FROM public.setup_notion_fdw_tables();
-   ```
+   \`\`\`
 
 3. **Verify Foreign Tables**
-   ```sql
+   \`\`\`sql
    SELECT schemaname, tablename 
    FROM pg_tables 
    WHERE schemaname = 'notion_fdw';
-   ```
+   \`\`\`
 
 4. **Test Foreign Tables**
-   ```sql
+   \`\`\`sql
    SELECT COUNT(*) FROM notion_fdw.image_generations_all;
-   ```
+   \`\`\`
 
 5. **Test Admin Views**
-   ```sql
+   \`\`\`sql
    SELECT * FROM public.admin_image_generations_all LIMIT 5;
-   ```
+   \`\`\`
 
 ---
 
@@ -177,5 +177,3 @@ All documentation available in `docs/`:
 **Setup Progress**: 80% Complete  
 **Blocking Issue**: Database IDs need to be configured  
 **Estimated Time to Complete**: 5-10 minutes (once database IDs are available)
-
-

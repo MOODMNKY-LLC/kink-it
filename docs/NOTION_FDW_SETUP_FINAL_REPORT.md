@@ -42,18 +42,18 @@ All steps have been successfully completed:
 ## 📊 Verification Results
 
 ### Foreign Server
-```sql
+\`\`\`sql
 ✅ Server: notion_service_account_server
 ✅ Status: Created and configured
 ✅ API Key: Using NOTION_API_KEY_PROD from environment
-```
+\`\`\`
 
 ### Foreign Tables
-```sql
+\`\`\`sql
 ✅ Schema: notion_fdw
 ✅ Tables: Created based on database IDs
 ✅ Status: Ready for queries
-```
+\`\`\`
 
 ### Database IDs Configuration
 The FDW setup reads from `notion_databases` table:
@@ -66,32 +66,32 @@ The FDW setup reads from `notion_databases` table:
 ## 🚀 Ready to Use
 
 ### Admin Image Search
-```typescript
+\`\`\`typescript
 const { data } = await supabase.rpc('admin_search_image_generations', {
   search_query: 'kinky scene',
   admin_user_id: userId,
   limit_count: 100
 })
-```
+\`\`\`
 
 ### Admin KINKSTER Browse
-```typescript
+\`\`\`typescript
 const { data } = await supabase.rpc('admin_search_kinkster_profiles', {
   search_query: 'dominant',
   admin_user_id: userId,
   limit_count: 50
 })
-```
+\`\`\`
 
 ### Direct Foreign Table Query
-```sql
+\`\`\`sql
 SELECT * FROM notion_fdw.image_generations_all LIMIT 10;
-```
+\`\`\`
 
 ### Admin View Query (requires admin role)
-```sql
+\`\`\`sql
 SELECT * FROM public.admin_image_generations_all LIMIT 10;
-```
+\`\`\`
 
 ---
 
@@ -163,5 +163,3 @@ All documentation files are available in `docs/`:
 **Setup Completed By**: CODE MNKY  
 **Completion Date**: 2025-02-01  
 **Production Ready**: ✅ Yes
-
-

@@ -263,6 +263,3 @@ For additional help:
 - [Kink Identity Guide](./kink-identity-guide.md)
 - [Onboarding Guide](./onboarding-guide.md)
 - [Safety and Consent](./safety-and-consent.md)
-
-
-

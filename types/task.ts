@@ -40,8 +40,3 @@ export interface TaskProof {
   submitted_at: string
   created_by: string
 }
-
-
-
-
-

@@ -30,7 +30,7 @@ The Discord MCP Docker container requires `DISCORD_TOKEN` environment variable, 
 ## 🎯 Current Configuration
 
 **`.cursor/mcp.json`**:
-```json
+\`\`\`json
 "mcp-discord": {
   "command": "docker",
   "args": [
@@ -42,7 +42,7 @@ The Discord MCP Docker container requires `DISCORD_TOKEN` environment variable, 
     "mcp/mcp-discord"
   ]
 }
-```
+\`\`\`
 
 **PowerShell Profile** (`$PROFILE`):
 - Auto-loads `DISCORD_TOKEN` from `.env.local` on PowerShell startup
@@ -54,22 +54,22 @@ The Discord MCP Docker container requires `DISCORD_TOKEN` environment variable, 
 ### Step 1: Ensure DISCORD_TOKEN is Set
 
 **Option A: Use PowerShell Profile (Already Set Up)**
-```powershell
+\`\`\`powershell
 # Restart PowerShell or reload profile
 . $PROFILE
 
 # Verify token is set
 $env:DISCORD_TOKEN
-```
+\`\`\`
 
 **Option B: Set Manually Before Starting Cursor**
-```powershell
+\`\`\`powershell
 # Load from .env.local
 .\scripts\load-and-set-discord-token.ps1
 
 # Start Cursor from this PowerShell session
 cursor .
-```
+\`\`\`
 
 ### Step 2: Set as Windows System Environment Variable (Recommended)
 
@@ -81,9 +81,9 @@ cursor .
 5. Click **OK** and restart Cursor IDE
 
 **PowerShell (Run as Admin)**:
-```powershell
+\`\`\`powershell
 [System.Environment]::SetEnvironmentVariable("DISCORD_TOKEN", "your_token_here", "User")
-```
+\`\`\`
 
 ### Step 3: Restart Cursor IDE Completely
 
@@ -96,16 +96,16 @@ cursor .
 ## 🧪 Verification
 
 **Test 1: Check Environment Variable**
-```powershell
+\`\`\`powershell
 $env:DISCORD_TOKEN
 # Should show your token
-```
+\`\`\`
 
 **Test 2: Test Docker Directly**
-```powershell
+\`\`\`powershell
 docker run --rm -e DISCORD_TOKEN=$env:DISCORD_TOKEN mcp/mcp-discord echo "Token: $($env:DISCORD_TOKEN.Length) chars"
 # Should succeed
-```
+\`\`\`
 
 **Test 3: Test Discord MCP in Cursor**
 - Login to Discord
@@ -119,7 +119,7 @@ docker run --rm -e DISCORD_TOKEN=$env:DISCORD_TOKEN mcp/mcp-discord echo "Token:
 
 If MCP continues to have issues, use Discord webhooks directly:
 
-```typescript
+\`\`\`typescript
 // In your Next.js app
 const webhookUrl = process.env.DISCORD_WEBHOOK_URL
 await fetch(webhookUrl, {
@@ -127,19 +127,19 @@ await fetch(webhookUrl, {
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ content: 'Your message' })
 })
-```
+\`\`\`
 
 ### Option 2: Use Discord.js Directly
 
 Create a simple Node.js script that uses Discord.js:
 
-```javascript
+\`\`\`javascript
 const { Client, GatewayIntentBits } = require('discord.js');
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.login(process.env.DISCORD_BOT_TOKEN);
 // Use client to send messages
-```
+\`\`\`
 
 ---
 
@@ -163,6 +163,3 @@ After proper setup:
 
 **Last Updated**: 2026-01-27  
 **Next Step**: Set DISCORD_TOKEN as Windows system environment variable and restart Cursor
-
-
-

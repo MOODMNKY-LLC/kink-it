@@ -66,8 +66,3 @@ create policy "app_ideas_update_policy"
     or auth.uid()::text = assigned_to
     or public.is_admin(auth.uid())
   );
-
-
-
-
-

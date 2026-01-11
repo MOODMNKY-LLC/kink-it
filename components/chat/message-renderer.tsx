@@ -338,4 +338,3 @@ export function MessageRenderer({ parts, isStreaming = false, className }: Messa
     </div>
   )
 }
-

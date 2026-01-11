@@ -192,5 +192,3 @@ async function debugIntegrationStatus(userId?: string) {
 // Run debug
 const userId = process.argv[2]
 debugIntegrationStatus(userId).catch(console.error)
-
-

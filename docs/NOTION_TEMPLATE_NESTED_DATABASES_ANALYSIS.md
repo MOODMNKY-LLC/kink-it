@@ -10,14 +10,14 @@
 ### Issue 1: Nested Database Structure
 
 **Current Structure**:
-```
+\`\`\`
 Template Page (Main)
   └─ Database/Backend Page (Child Page)
       ├─ Tasks Database
       ├─ Rules Database
       ├─ Calendar Database
       └─ ... (13 total databases)
-```
+\`\`\`
 
 **Previous Assumption**:
 - Databases were direct children of template page
@@ -47,7 +47,7 @@ Template Page (Main)
 ### 1. Nested Database Discovery ✅
 
 **New Logic**:
-```typescript
+\`\`\`typescript
 // Recursive function to discover databases
 async function discoverDatabasesFromBlocks(blocks: any[]): Promise<void> {
   for (const block of blocks) {
@@ -61,7 +61,7 @@ async function discoverDatabasesFromBlocks(blocks: any[]): Promise<void> {
     }
   }
 }
-```
+\`\`\`
 
 **Benefits**:
 - Handles nested structure automatically
@@ -71,7 +71,7 @@ async function discoverDatabasesFromBlocks(blocks: any[]): Promise<void> {
 ### 2. Bond Name Search ✅
 
 **New Logic**:
-```typescript
+\`\`\`typescript
 // Get user's bond name
 const { data: bond } = await supabase
   .from("bonds")
@@ -83,7 +83,7 @@ const { data: bond } = await supabase
 if (bondName) {
   templateKeywords.push(bondName)
 }
-```
+\`\`\`
 
 **Benefits**:
 - Searches for templates renamed to bond name
@@ -93,13 +93,13 @@ if (bondName) {
 ### 3. Improved Heuristic Search ✅
 
 **New Logic**:
-```typescript
+\`\`\`typescript
 // Count databases including nested ones
 async function countDatabasesInPage(pageId: string): Promise<number> {
   // Recursively count databases in page and nested pages
   // Returns total count including nested databases
 }
-```
+\`\`\`
 
 **Benefits**:
 - Finds templates by structure, not name
@@ -251,4 +251,3 @@ The fixes address both issues:
 2. ✅ **Template Renaming**: Uses bond name + heuristic search
 
 The solution is flexible and handles various template structures while maintaining backward compatibility.
-
