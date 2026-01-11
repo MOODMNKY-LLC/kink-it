@@ -52,6 +52,22 @@ For local development with Supabase Auth email verification:
 NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=http://localhost:3000/auth/callback
 \`\`\`
 
+### Flowise AI Integration
+For Flowise AI chatflow integration:
+
+```bash
+# Flowise instance URL (required)
+NEXT_PUBLIC_FLOWISE_URL=https://flowise-dev.moodmnky.com
+# Or use FLOWISE_URL for server-side only
+
+# Flowise API Key (required)
+FLOWISE_API_KEY=3-5qP08qhP9NUOUw0-yAdIz78ZWt166orwnHvRM2c2s
+
+# Note: Kinky Kincade uses OpenAI, not Flowise
+# NEXT_PUBLIC_FLOWISE_KINKY_KINCADE_CHATFLOW_ID is deprecated and not used
+# Kinksters use Flowise - configure flowise_chatflow_id in the kinksters table
+```
+
 ## Environment Variables Usage
 
 ### In Server Components and API Routes

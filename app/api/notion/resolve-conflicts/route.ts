@@ -32,11 +32,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Handle "no conflicts" gracefully - this is actually a success case
+    // Conflicts may have been auto-resolved or already handled
     if (!conflicts || conflicts.length === 0) {
-      return NextResponse.json(
-        { success: false, error: "No conflicts to resolve" },
-        { status: 400 }
-      )
+      return NextResponse.json({
+        success: true,
+        recordsUpdated: 0,
+        recordsSkipped: 0,
+        errors: [],
+        message: "No conflicts to resolve - all records are already in sync",
+      })
     }
 
     const result = await resolveConflicts(

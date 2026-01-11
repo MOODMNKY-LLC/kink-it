@@ -15,6 +15,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { ChevronDown, ChevronUp } from "lucide-react"
+import { ThemeSwitcher } from "@/components/theme/theme-switcher"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -126,13 +127,18 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-background relative overflow-hidden">
+    <div className="flex min-h-screen w-full items-center justify-center p-3 sm:p-4 md:p-6 lg:p-10 bg-background relative overflow-hidden safe-area-insets">
       {/* Character-based backgrounds - dark mode first */}
       <CharacterBackground variant="hero" opacity={0.12} />
       <GradientMesh intensity="medium" />
       <BokehEffect count={20} />
       
-      <div className="w-full max-w-md relative z-10">
+      {/* Theme Switcher - Top Right */}
+      <div className="absolute top-3 right-3 sm:top-4 sm:right-4 md:top-6 md:right-6 z-20">
+        <ThemeSwitcher />
+      </div>
+      
+      <div className="w-full max-w-md relative z-10 px-1">
         <GamerProfileCard
           title="Welcome Back"
           subtitle="Sign in to access your KINK IT dashboard"
@@ -148,7 +154,7 @@ export default function LoginPage() {
               <Button
                 onClick={handleNotionLogin}
                 disabled={isOAuthLoading || isLoading}
-                className="w-full h-14 bg-primary/10 hover:bg-primary/20 border-2 border-primary/40 backdrop-blur-sm text-foreground font-semibold shadow-lg shadow-primary/20 transition-all duration-300 hover:shadow-primary/30 hover:scale-[1.02] group"
+                className="w-full h-12 sm:h-14 bg-primary/10 hover:bg-primary/20 border-2 border-primary/40 backdrop-blur-sm text-foreground font-semibold text-sm sm:text-base shadow-lg shadow-primary/20 transition-all duration-300 hover:shadow-primary/30 hover:scale-[1.02] group"
               >
                 {isOAuthLoading ? (
                   <span className="flex items-center gap-3">
@@ -199,7 +205,7 @@ export default function LoginPage() {
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="h-9 text-sm bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm"
+                        className="h-10 sm:h-11 text-sm bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm w-full"
                       />
                     </div>
                     <div className="grid gap-1.5">
@@ -212,7 +218,7 @@ export default function LoginPage() {
                         required
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="h-9 text-sm bg-muted/50 border-border text-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm"
+                        className="h-10 sm:h-11 text-sm bg-muted/50 border-border text-foreground focus:border-primary focus:ring-primary/20 backdrop-blur-sm w-full"
                       />
                     </div>
                     {error && (
@@ -233,7 +239,7 @@ export default function LoginPage() {
                     )}
                     <Button
                       type="submit"
-                      className="w-full h-9 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-[1.02]"
+                      className="w-full h-10 sm:h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-[1.02]"
                       disabled={isLoading}
                     >
                       {isLoading ? "Signing in..." : "Sign In"}

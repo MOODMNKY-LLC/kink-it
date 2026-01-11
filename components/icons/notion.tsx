@@ -1,19 +1,53 @@
 import React from "react"
+import { siNotion } from "simple-icons"
 
 interface NotionIconProps {
   className?: string
   size?: number
-  variant?: "gradient" | "solid" | "outline" | "official"
+  variant?: "gradient" | "solid" | "outline" | "official" | "brand"
 }
 
 /**
- * Notion icon component with gradient variant matching app's color scheme
- * Gradient: Cyan-blue (#00BFFF) to Orange-red (#FF6347)
- * Based on Icons8 Notion icon styles, customized for KINK IT brand
+ * Notion icon component with multiple variants
+ * - "brand": Official Notion brand icon from simple-icons (recommended)
+ * - "official": Uses the actual Notion app icon SVG file
+ * - "gradient": Custom gradient variant matching app's color scheme
+ * - "solid": Solid variant using currentColor
+ * - "outline": Outline variant using stroke
  * 
- * New "official" variant uses the actual Notion app icon SVG
+ * Compatible with lucide-react icon usage (accepts className prop)
  */
-export function NotionIcon({ className, size = 24, variant = "gradient" }: NotionIconProps) {
+export function NotionIcon({ className, size, variant = "brand" }: NotionIconProps) {
+  // Extract size from className if not provided (for lucide-react compatibility)
+  // lucide-react icons typically use className="h-4 w-4" format (Tailwind classes)
+  // h-4 = 16px, h-5 = 20px, h-6 = 24px, etc.
+  let finalSize = size
+  if (!finalSize && className) {
+    const heightMatch = className.match(/h-(\d+)/)
+    if (heightMatch) {
+      finalSize = parseInt(heightMatch[1]) * 4 // Convert Tailwind size to pixels
+    }
+  }
+  finalSize = finalSize || 24 // Default to 24px
+  
+  // Official Notion brand icon from simple-icons (recommended)
+  if (variant === "brand") {
+    return (
+      <svg
+        role="img"
+        viewBox="0 0 24 24"
+        width={finalSize}
+        height={finalSize}
+        className={className}
+        fill={siNotion.hex ? `#${siNotion.hex}` : "currentColor"}
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <title>{siNotion.title}</title>
+        <path d={siNotion.path} />
+      </svg>
+    )
+  }
+
   // Official Notion icon from SVG file
   // Using regular img tag instead of Next.js Image to avoid loader issues with SVG files
   if (variant === "official") {
@@ -21,20 +55,20 @@ export function NotionIcon({ className, size = 24, variant = "gradient" }: Notio
       <img
         src="/icons/notion-app-icon.svg"
         alt="Notion"
-        width={size}
-        height={Math.round(size * 0.66)}
+        width={finalSize}
+        height={Math.round(finalSize * 0.66)}
         className={className}
         style={{ display: "inline-block" }}
       />
     )
   }
-  const iconId = `notion-gradient-${size}`
+  const iconId = `notion-gradient-${finalSize}`
   
   if (variant === "gradient") {
     return (
       <svg
-        width={size}
-        height={size}
+        width={finalSize}
+        height={finalSize}
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -58,8 +92,8 @@ export function NotionIcon({ className, size = 24, variant = "gradient" }: Notio
   if (variant === "outline") {
     return (
       <svg
-        width={size}
-        height={size}
+        width={finalSize}
+        height={finalSize}
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -80,8 +114,8 @@ export function NotionIcon({ className, size = 24, variant = "gradient" }: Notio
   // Solid variant (default, uses currentColor)
   return (
     <svg
-      width={size}
-      height={size}
+      width={finalSize}
+      height={finalSize}
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

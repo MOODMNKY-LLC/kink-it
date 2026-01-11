@@ -313,12 +313,13 @@ Deno.serve(async (req: Request) => {
                   description: "Search query (e.g., 'tasks due today', 'latest image generation', 'KINKSTER profile for [name]')",
                 },
                 database_type: {
-                  type: "string",
-                  enum: ["tasks", "ideas", "image_generations", "kinksters", "rules", "rewards", "journal", "scene_logs"],
+                  type: ["string", "null"],
+                  enum: ["tasks", "ideas", "image_generations", "kinksters", "rules", "rewards", "journal", "scene_logs", null],
                   description: "Optional: Filter results by database type",
                 },
               },
-              required: ["query"],
+              required: ["query", "database_type"],
+              additionalProperties: false,
             },
             execute: async ({ query, database_type }: { query: string; database_type?: string }) => {
               const response = await fetch(`${apiBaseUrl}/api/notion/chat-tools`, {
@@ -346,6 +347,7 @@ Deno.serve(async (req: Request) => {
                 },
               },
               required: ["page_id"],
+              additionalProperties: false,
             },
             execute: async ({ page_id }: { page_id: string }) => {
               const response = await fetch(`${apiBaseUrl}/api/notion/chat-tools`, {
@@ -373,30 +375,43 @@ Deno.serve(async (req: Request) => {
                   description: "Type of database to query",
                 },
                 filter: {
-                  type: "object",
-                  description: "Notion filter object (e.g., { property: 'Due Date', date: { equals: 'today' } })",
+                  type: ["string", "null"],
+                  description: "Optional: Notion filter object as JSON string (e.g., '{\"property\":\"Due Date\",\"date\":{\"equals\":\"today\"}}')",
                 },
                 sorts: {
-                  type: "array",
+                  type: ["array", "null"],
                   items: {
                     type: "object",
                     properties: {
                       property: { type: "string" },
                       direction: { type: "string", enum: ["ascending", "descending"] },
                     },
+                    required: ["property", "direction"],
+                    additionalProperties: false,
                   },
-                  description: "Sort options (e.g., [{ property: 'Created', direction: 'descending' }])",
+                  description: "Optional: Sort options (e.g., [{ property: 'Created', direction: 'descending' }])",
                 },
               },
-              required: ["database_type"],
+              required: ["database_type", "filter", "sorts"],
+              additionalProperties: false,
             },
-            execute: async ({ database_type, filter, sorts }: { database_type: string; filter?: any; sorts?: any[] }) => {
+            execute: async ({ database_type, filter, sorts }: { database_type: string; filter?: string | null; sorts?: any[] | null }) => {
+              // Parse filter JSON string if provided
+              let parsedFilter: any = null
+              if (filter && typeof filter === "string") {
+                try {
+                  parsedFilter = JSON.parse(filter)
+                } catch (e) {
+                  return `Error: Invalid JSON in filter parameter: ${e instanceof Error ? e.message : "Unknown error"}`
+                }
+              }
+              
               const response = await fetch(`${apiBaseUrl}/api/notion/chat-tools`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                   tool_name: "notion_query_database",
-                  args: { database_type, filter, sorts },
+                  args: { database_type, filter: parsedFilter, sorts },
                   user_id,
                 }),
               })
@@ -424,12 +439,13 @@ Deno.serve(async (req: Request) => {
                 type: "object",
                 properties: {
                   title: { type: "string", description: "Task title" },
-                  description: { type: "string", description: "Task description or instructions" },
-                  priority: { type: "string", enum: ["low", "medium", "high"], description: "Task priority" },
-                  due_date: { type: "string", description: "Due date in ISO 8601 format (e.g., '2026-02-01')" },
-                  assigned_to: { type: "string", description: "Partner user ID (optional, for assigning to submissive)" },
+                  description: { type: ["string", "null"], description: "Optional: Task description or instructions" },
+                  priority: { type: ["string", "null"], enum: ["low", "medium", "high", null], description: "Optional: Task priority" },
+                  due_date: { type: ["string", "null"], description: "Optional: Due date in ISO 8601 format (e.g., '2026-02-01')" },
+                  assigned_to: { type: ["string", "null"], description: "Optional: Partner user ID (for assigning to submissive)" },
                 },
-                required: ["title"],
+                required: ["title", "description", "priority", "due_date", "assigned_to"],
+                additionalProperties: false,
               },
               execute: async (args: any) => {
                 const response = await fetch(`${apiBaseUrl}/api/notion/chat-tools`, {
@@ -452,10 +468,11 @@ Deno.serve(async (req: Request) => {
                 type: "object",
                 properties: {
                   title: { type: "string", description: "Idea title" },
-                  description: { type: "string", description: "Idea description or details" },
-                  category: { type: "string", description: "Idea category (e.g., 'scene', 'rule', 'reward')" },
+                  description: { type: ["string", "null"], description: "Optional: Idea description or details" },
+                  category: { type: ["string", "null"], description: "Optional: Idea category (e.g., 'scene', 'rule', 'reward')" },
                 },
-                required: ["title"],
+                required: ["title", "description", "category"],
+                additionalProperties: false,
               },
               execute: async (args: any) => {
                 const response = await fetch(`${apiBaseUrl}/api/notion/chat-tools`, {
@@ -479,7 +496,58 @@ Deno.serve(async (req: Request) => {
       // Continue without Notion tools if there's an error
     }
 
-    // Combine user-provided tools with Notion tools
+    // Add YouTube transcript tool (always available)
+    const youtubeTranscriptTool = tool({
+      name: "youtube_transcript",
+      description: "Fetch transcript from a YouTube video URL. Use this to analyze, summarize, or extract information from YouTube videos. The transcript includes timestamps for each segment.",
+      parameters: {
+        type: "object",
+        properties: {
+          videoUrl: {
+            type: "string",
+            description: "YouTube video URL (e.g., https://youtu.be/VIDEO_ID or https://www.youtube.com/watch?v=VIDEO_ID)"
+          },
+          videoId: {
+            type: ["string", "null"],
+            description: "Optional: YouTube video ID if you already have it (e.g., 'OgnYxRkxEUw')"
+          },
+        },
+        required: ["videoUrl"],
+        additionalProperties: false,
+      },
+      execute: async ({ videoUrl, videoId }: { videoUrl: string; videoId?: string }) => {
+        try {
+          const response = await fetch(`${apiBaseUrl}/api/youtube/transcript`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ videoUrl, videoId }),
+          })
+          
+          if (!response.ok) {
+            const error = await response.json()
+            return `Error fetching transcript: ${error.error || "Unknown error"}. ${error.details || ""}`
+          }
+          
+          const result = await response.json()
+          
+          // Format transcript for AI consumption
+          const formattedTranscript = result.transcript
+            .map((seg: any) => {
+              const minutes = Math.floor(seg.start / 60)
+              const seconds = Math.floor(seg.start % 60)
+              const timestamp = `${minutes}:${seconds.toString().padStart(2, "0")}`
+              return `[${timestamp}] ${seg.text}`
+            })
+            .join("\n")
+          
+          return `YouTube Video Transcript (${result.videoId}):\n\nDuration: ${Math.floor(result.duration / 60)}:${Math.floor(result.duration % 60).toString().padStart(2, "0")}\nSegments: ${result.segmentCount}\n\nTranscript:\n${formattedTranscript}\n\nFull Text:\n${result.fullText}`
+        } catch (error: any) {
+          return `Error fetching YouTube transcript: ${error.message || "Unknown error"}`
+        }
+      },
+    })
+
+    // Combine user-provided tools with Notion tools and YouTube transcript tool
     const allTools = [...tools, ...notionTools]
 
     // Create agent
@@ -490,9 +558,8 @@ Deno.serve(async (req: Request) => {
       model,
     })
 
-    // Set OpenAI API key for Agents SDK
-    // Note: Agents SDK uses OPENAI_API_KEY env var
-    Deno.env.set("OPENAI_API_KEY", openaiApiKey)
+    // Note: OpenAI API key is passed directly to run() call below
+    // Deno.env.set() is not supported in Supabase Edge Functions
 
     // Stream response
     if (stream) {
@@ -502,6 +569,10 @@ Deno.serve(async (req: Request) => {
           try {
             let fullContent = ""
             let chunkIndex = 0
+
+            // Get Supabase URL and service role key once (before the loop)
+            const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? ""
+            const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
 
             // Run agent with streaming (use enhanced content with file URLs)
             const agentStream = await run(agent, enhancedContent, {
@@ -528,11 +599,114 @@ Deno.serve(async (req: Request) => {
 
               // Broadcast via Realtime REST API (optional, for multi-client sync)
               // Note: supabase.realtime.send() doesn't work in Edge Functions
-              // Use REST API instead
+              // Use REST API instead - don't await to avoid blocking
+              if (supabaseUrl && serviceRoleKey) {
+                fetch(`${supabaseUrl}/realtime/v1/api/broadcast`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "apikey": serviceRoleKey,
+                    "Authorization": `Bearer ${serviceRoleKey}`,
+                  },
+                  body: JSON.stringify({
+                    messages: [
+                      {
+                        topic: `conversation:${convId}:messages`,
+                        event: "message_chunk",
+                        payload: {
+                          message_id: messageId,
+                          chunk: chunk,
+                          chunk_index: chunkIndex,
+                        },
+                      },
+                    ],
+                  }),
+                }).catch((broadcastError) => {
+                  // Ignore broadcast errors - SSE is the primary communication method
+                  console.error("Failed to broadcast chunk:", broadcastError)
+                })
+              }
+            }
+
+            // Send completion event immediately after stream ends
+            const completionData = JSON.stringify({
+              type: "done",
+              message_id: messageId,
+              content: fullContent,
+            })
+
+            controller.enqueue(
+              encoder.encode(`data: ${completionData}\n\n`)
+            )
+
+            // Close stream immediately to prevent timeout
+            controller.close()
+
+            // Handle database updates and embedding generation asynchronously (don't block)
+            // Use EdgeRuntime.waitUntil if available, otherwise just fire-and-forget
+            const updateDatabase = async () => {
               try {
-                const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? ""
-                const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-                
+                // Wait for agent stream completion (if needed for final state)
+                try {
+                  await agentStream.completed
+                } catch (streamError) {
+                  console.warn("Agent stream completion check failed:", streamError)
+                  // Continue anyway - we have the content
+                }
+
+                // Update message in database
+                if (messageId) {
+                  await supabase
+                    .from("messages")
+                    .update({
+                      content: fullContent,
+                      is_streaming: false,
+                      token_count: Math.ceil(fullContent.length / 4), // Rough estimate
+                    })
+                    .eq("id", messageId)
+
+                  // Generate embedding for semantic search (async, don't wait)
+                  const generateEmbedding = async () => {
+                    try {
+                      const openaiEmbeddingResponse = await fetch("https://api.openai.com/v1/embeddings", {
+                        method: "POST",
+                        headers: {
+                          "Authorization": `Bearer ${openaiApiKey}`,
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          model: "text-embedding-3-small",
+                          input: fullContent,
+                        }),
+                      })
+
+                      if (openaiEmbeddingResponse.ok) {
+                        const embeddingData = await openaiEmbeddingResponse.json()
+                        const embedding = embeddingData.data?.[0]?.embedding
+
+                        if (embedding && Array.isArray(embedding)) {
+                          // Update message with embedding
+                          await supabase
+                            .from("messages")
+                            .update({
+                              embedding: `[${embedding.join(",")}]`, // Convert array to PostgreSQL vector format
+                            })
+                            .eq("id", messageId)
+                          
+                          console.log("✅ Generated embedding for message:", messageId)
+                        }
+                      }
+                    } catch (embeddingError) {
+                      // Don't fail the message update if embedding fails
+                      console.error("Failed to generate embedding:", embeddingError)
+                    }
+                  }
+
+                  // Generate embedding asynchronously (don't block)
+                  generateEmbedding().catch((err) => console.error("Embedding generation error:", err))
+                }
+
+                // Broadcast completion via Realtime REST API
                 if (supabaseUrl && serviceRoleKey) {
                   await fetch(`${supabaseUrl}/realtime/v1/api/broadcast`, {
                     method: "POST",
@@ -545,123 +719,32 @@ Deno.serve(async (req: Request) => {
                       messages: [
                         {
                           topic: `conversation:${convId}:messages`,
-                          event: "message_chunk",
+                          event: "message_complete",
                           payload: {
                             message_id: messageId,
-                            chunk: chunk,
-                            chunk_index: chunkIndex,
+                            content: fullContent,
                           },
                         },
                       ],
                     }),
+                  }).catch((broadcastError) => {
+                    // Ignore broadcast errors - SSE is the primary communication method
+                    console.error("Failed to broadcast completion:", broadcastError)
                   })
                 }
-              } catch (broadcastError) {
-                // Ignore broadcast errors - SSE is the primary communication method
-                console.error("Failed to broadcast chunk:", broadcastError)
+              } catch (updateError) {
+                console.error("Error updating database:", updateError)
+                // Don't throw - stream is already closed
               }
             }
 
-            // Wait for agent stream completion
-            await agentStream.completed
-
-            // Update message in database
-            if (messageId) {
-              // Generate embedding for semantic search (async, don't wait)
-              const generateEmbedding = async () => {
-                try {
-                  const openaiEmbeddingResponse = await fetch("https://api.openai.com/v1/embeddings", {
-                    method: "POST",
-                    headers: {
-                      "Authorization": `Bearer ${openaiApiKey}`,
-                      "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                      model: "text-embedding-3-small",
-                      input: fullContent,
-                    }),
-                  })
-
-                  if (openaiEmbeddingResponse.ok) {
-                    const embeddingData = await openaiEmbeddingResponse.json()
-                    const embedding = embeddingData.data?.[0]?.embedding
-
-                    if (embedding && Array.isArray(embedding)) {
-                      // Update message with embedding
-                      await supabase
-                        .from("messages")
-                        .update({
-                          embedding: `[${embedding.join(",")}]`, // Convert array to PostgreSQL vector format
-                        })
-                        .eq("id", messageId)
-                      
-                      console.log("✅ Generated embedding for message:", messageId)
-                    }
-                  }
-                } catch (embeddingError) {
-                  // Don't fail the message update if embedding fails
-                  console.error("Failed to generate embedding:", embeddingError)
-                }
-              }
-
-              // Update message content first
-              await supabase
-                .from("messages")
-                .update({
-                  content: fullContent,
-                  is_streaming: false,
-                  token_count: Math.ceil(fullContent.length / 4), // Rough estimate
-                })
-                .eq("id", messageId)
-
-              // Generate embedding asynchronously (don't block response)
-              generateEmbedding().catch((err) => console.error("Embedding generation error:", err))
+            // Run database updates in background if EdgeRuntime.waitUntil is available
+            if (typeof EdgeRuntime !== "undefined" && EdgeRuntime.waitUntil) {
+              EdgeRuntime.waitUntil(updateDatabase())
+            } else {
+              // Fallback: fire and forget (may not complete if function terminates)
+              updateDatabase().catch((err) => console.error("Background update error:", err))
             }
-
-            // Send completion event
-            const completionData = JSON.stringify({
-              type: "done",
-              message_id: messageId,
-              content: fullContent,
-            })
-
-            controller.enqueue(
-              encoder.encode(`data: ${completionData}\n\n`)
-            )
-
-            // Broadcast completion via Realtime REST API
-            try {
-              const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? ""
-              const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-              
-              if (supabaseUrl && serviceRoleKey) {
-                await fetch(`${supabaseUrl}/realtime/v1/api/broadcast`, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "apikey": serviceRoleKey,
-                    "Authorization": `Bearer ${serviceRoleKey}`,
-                  },
-                  body: JSON.stringify({
-                    messages: [
-                      {
-                        topic: `conversation:${convId}:messages`,
-                        event: "message_complete",
-                        payload: {
-                          message_id: messageId,
-                          content: fullContent,
-                        },
-                      },
-                    ],
-                  }),
-                })
-              }
-            } catch (broadcastError) {
-              // Ignore broadcast errors - SSE is the primary communication method
-              console.error("Failed to broadcast completion:", broadcastError)
-            }
-
-            controller.close()
           } catch (error: any) {
             console.error("Streaming error:", error)
 
@@ -704,11 +787,18 @@ Deno.serve(async (req: Request) => {
         run = agentsModule.run
       }
       
+      // Combine all tools: user-provided + Notion + YouTube transcript
+      const allTools = [
+        ...(tools || []),
+        ...notionTools,
+        youtubeTranscriptTool,
+      ]
+
       // Create agent for non-streaming
       const agent = new Agent({
         name: agent_name,
         instructions: agent_instructions || "You are a helpful assistant.",
-        tools: tools.length > 0 ? tools : undefined,
+        tools: allTools.length > 0 ? allTools : undefined,
         model,
       })
       

@@ -10,7 +10,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Send, Square, Trash2, Sparkles } from "lucide-react"
+import { Trash2, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text"
@@ -18,6 +18,9 @@ import { useChatStream, type ChatMessage } from "@/hooks/use-chat-stream"
 import { createClient } from "@/lib/supabase/client"
 import { kinkyKincadeProfile } from "@/lib/kinky/kinky-kincade-profile"
 import { buildKinksterPersonalityPrompt } from "@/lib/chat/kinkster-personality"
+import { EnhancedChatInputBar } from "@/components/chat/enhanced-chat-input-bar"
+import type { FileAttachment } from "@/components/chat/file-upload-handler"
+import type { Profile } from "@/types/profile"
 
 // ============================================================================
 // Types
@@ -132,9 +135,10 @@ function TypingIndicator() {
 export function TerminalChatView({ className, userId: propUserId }: TerminalChatViewProps) {
   const [input, setInput] = useState("")
   const [userId, setUserId] = useState(propUserId || "")
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [realtimeEnabled, setRealtimeEnabled] = useState(false)
   // Use first message as default to avoid hydration mismatch, randomize on client
   const [welcomeMessage, setWelcomeMessage] = useState(WELCOME_MESSAGES[0])
-  const inputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const supabaseRef = useRef(createClient())
   
@@ -143,20 +147,40 @@ export function TerminalChatView({ className, userId: propUserId }: TerminalChat
     setWelcomeMessage(WELCOME_MESSAGES[Math.floor(Math.random() * WELCOME_MESSAGES.length)])
   }, [])
 
-  // Fetch user ID if not provided
+  // Fetch user ID and profile if not provided
   useEffect(() => {
-    if (propUserId) {
-      setUserId(propUserId)
-      return
-    }
+    const fetchUserData = async () => {
+      if (propUserId) {
+        setUserId(propUserId)
+        // Fetch profile
+        const { data: { user } } = await supabaseRef.current.auth.getUser()
+        if (user) {
+          const { data: profileData } = await supabaseRef.current
+            .from("profiles")
+            .select("*")
+            .eq("id", user.id)
+            .single()
+          if (profileData) {
+            setProfile(profileData)
+          }
+        }
+        return
+      }
 
-    const fetchUserId = async () => {
       const { data: { user } } = await supabaseRef.current.auth.getUser()
       if (user) {
         setUserId(user.id)
+        const { data: profileData } = await supabaseRef.current
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single()
+        if (profileData) {
+          setProfile(profileData)
+        }
       }
     }
-    fetchUserId()
+    fetchUserData()
   }, [propUserId])
 
   // Chat stream hook
@@ -203,32 +227,19 @@ export function TerminalChatView({ className, userId: propUserId }: TerminalChat
     inputRef.current?.focus()
   }, [])
 
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault()
-      if (!input.trim() || isStreaming || !userId) return
+  const handleSend = useCallback(
+    async (data: { text: string; files: FileAttachment[] }) => {
+      if (!data.text.trim() || isStreaming || !userId) return
 
-      const userInput = input.trim()
-      setInput("")
-
-      await sendMessage(userInput, {
+      // TODO: Handle file attachments (upload to Supabase Storage and include URLs)
+      await sendMessage(data.text.trim(), {
         agentName: "Kinky Kincade",
         agentInstructions: KINKY_INSTRUCTIONS,
         model: "gpt-4o-mini",
         temperature: 0.8,
       })
     },
-    [input, isStreaming, userId, sendMessage]
-  )
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault()
-        handleSubmit(e)
-      }
-    },
-    [handleSubmit]
+    [isStreaming, userId, sendMessage]
   )
 
   // Build display messages - avoid useMemo to prevent re-render issues
@@ -325,48 +336,21 @@ export function TerminalChatView({ className, userId: propUserId }: TerminalChat
         </div>
       </div>
 
-      {/* Input Area */}
-      <div className="border-t border-border/50 p-2">
-        <form onSubmit={handleSubmit} className="flex items-center gap-2">
-          <div className="flex-1 flex items-center gap-2 bg-muted/30 rounded-lg px-3 py-1.5 border border-border/50 focus-within:border-primary/50 transition-colors">
-            <span className="text-[10px] font-mono text-primary/70 whitespace-nowrap">
-              you@kink-it:~$
-            </span>
-            <input
-              ref={inputRef}
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Type your message..."
-              disabled={isStreaming || !userId}
-              className="flex-1 bg-transparent text-xs font-mono text-foreground placeholder:text-muted-foreground/50 focus:outline-none disabled:opacity-50"
-            />
-          </div>
-          {isStreaming ? (
-            <Button
-              type="button"
-              size="sm"
-              variant="destructive"
-              onClick={stopStreaming}
-              className="h-8 w-8 p-0"
-            >
-              <Square className="h-3.5 w-3.5" />
-            </Button>
-          ) : (
-            <Button
-              type="submit"
-              size="sm"
-              disabled={!input.trim() || !userId}
-              className="h-8 w-8 p-0"
-            >
-              <Send className="h-3.5 w-3.5" />
-            </Button>
-          )}
-        </form>
-        <p className="text-[9px] text-muted-foreground/60 font-mono mt-1.5 px-1">
-          Press Enter to send • Powered by AI
-        </p>
+      {/* Enhanced Input Bar */}
+      <div className="border-t border-border/50">
+        <EnhancedChatInputBar
+          value={input}
+          onChange={setInput}
+          onSend={handleSend}
+          disabled={isStreaming || !userId}
+          isStreaming={isStreaming}
+          realtimeEnabled={realtimeEnabled}
+          onRealtimeToggle={setRealtimeEnabled}
+          profile={profile}
+          hasNotionKey={false}
+          placeholder="you@kink-it:~$ Type your message..."
+          className="bg-muted/30 border-0"
+        />
       </div>
     </div>
   )

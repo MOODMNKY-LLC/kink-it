@@ -105,6 +105,7 @@ export interface Kinkster extends KinksterNotionSync {
   is_active: boolean
   is_primary: boolean
   metadata?: Record<string, any>
+  flowise_chatflow_id?: string | null // Flowise chatflow ID for this Kinkster
   // Timestamps
   created_at: string
   updated_at: string

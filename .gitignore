@@ -40,6 +40,8 @@ lerna-debug.log*
 # Local development certificates
 certs/*.pem
 certs/*.key
+supabase/certs/*.pem
+supabase/certs/*.key
 
 # Vercel
 .vercel

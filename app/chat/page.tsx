@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation"
 import { getCurrentUser, getUserProfile } from "@/lib/auth/get-user"
-import { EnhancedAIChatInterface } from "@/components/chat/enhanced-ai-chat-interface"
-import { KinksterChatSelector } from "@/components/chat/kinkster-chat-selector"
+import { KinkyChatInterface } from "@/components/chat/kinky-chat-interface"
 
 export default async function ChatPage({
   searchParams,
@@ -20,18 +19,11 @@ export default async function ChatPage({
   const params = await searchParams
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* KINKSTER Chat Selector - Show when not chatting with a specific KINKSTER */}
-        {!params.kinkster && (
-          <KinksterChatSelector />
-        )}
-        
-        {/* Main Chat Interface */}
-        <EnhancedAIChatInterface
-          agentName="KINK IT Assistant"
+    <div className="w-full h-screen sm:h-[calc(100vh-8rem)] sm:container sm:mx-auto sm:py-8 flex flex-col">
+      <div className="w-full h-full sm:max-w-6xl sm:mx-auto flex flex-col">
+        <KinkyChatInterface
           profile={profile}
-          kinksterId={params.kinkster}
+          initialKinksterId={params.kinkster}
         />
       </div>
     </div>

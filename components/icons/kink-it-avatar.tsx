@@ -7,6 +7,7 @@ interface KinkItAvatarProps {
   size?: number
   variant?: "logo" | "decorative" | "full"
   opacity?: number
+  priority?: boolean // Allow explicit priority control
 }
 
 /**
@@ -22,7 +23,8 @@ export function KinkItAvatar({
   className, 
   size = 64, 
   variant = "logo",
-  opacity = 1 
+  opacity = 1,
+  priority // Explicit priority prop (defaults to variant === "logo" if not provided)
 }: KinkItAvatarProps) {
   const baseClasses = "transition-all duration-300"
   
@@ -58,8 +60,8 @@ export function KinkItAvatar({
         width={size}
         height={Math.round(size * 1.5)}
         className="object-contain drop-shadow-lg"
-        priority={variant === "logo"}
-        loading={variant === "logo" ? undefined : "lazy"}
+        priority={priority !== undefined ? priority : variant === "logo"}
+        loading={priority !== undefined ? (priority ? undefined : "lazy") : (variant === "logo" ? undefined : "lazy")}
       />
     </div>
   )

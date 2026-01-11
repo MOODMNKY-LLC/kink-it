@@ -59,7 +59,7 @@ export const userNavigation: NavigationGroup[] = [
         icon: BracketsIcon,
       },
       {
-        title: "AI Chat",
+        title: "KINKY Chat",
         url: "/chat",
         icon: MessageSquare,
       },

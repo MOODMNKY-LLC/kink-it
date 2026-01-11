@@ -36,12 +36,16 @@ export function useSpeechToText({
   const [transcript, setTranscript] = useState("")
   const [isListening, setIsListening] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isSupported, setIsSupported] = useState(false) // Start as false to avoid hydration mismatch
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const finalTranscriptRef = useRef("")
 
-  // Check browser support
-  const isSupported = typeof window !== "undefined" && 
-    ("webkitSpeechRecognition" in window || "SpeechRecognition" in window)
+  // Check browser support on client side only (after hydration)
+  useEffect(() => {
+    const supported = typeof window !== "undefined" && 
+      ("webkitSpeechRecognition" in window || "SpeechRecognition" in window)
+    setIsSupported(supported)
+  }, [])
 
   useEffect(() => {
     if (!isSupported) {

@@ -273,9 +273,14 @@ export async function GET(request: NextRequest) {
               if (notionUserResponse.ok) {
                 const notionUser = await notionUserResponse.json()
                 
-                // Extract workspace_id from bot owner or use bot ID as fallback
-                // Notion API returns workspace_id in bot.owner.workspace_id
-                const workspaceId = notionUser.bot?.owner?.workspace_id || 
+                // Extract workspace_id from Notion API response
+                // Notion API returns workspace_id in different locations depending on response structure:
+                // 1. bot.workspace_id (most common for bot users)
+                // 2. bot.owner.workspace_id (some OAuth flows)
+                // 3. bot.workspace.id (alternative structure)
+                // 4. workspace.id (direct workspace reference)
+                const workspaceId = notionUser.bot?.workspace_id || 
+                                  notionUser.bot?.owner?.workspace_id || 
                                   notionUser.bot?.workspace?.id ||
                                   notionUser.workspace?.id ||
                                   ""
@@ -283,11 +288,14 @@ export async function GET(request: NextRequest) {
                 // Extract bot_id
                 const botId = notionUser.bot?.id || notionUser.id || ""
                 
-                // Extract workspace name and icon from bot owner
-                const workspaceName = notionUser.bot?.owner?.workspace_name || 
+                // Extract workspace name and icon from bot or workspace
+                // bot.workspace_name is available directly on bot object
+                const workspaceName = notionUser.bot?.workspace_name ||
+                                     notionUser.bot?.owner?.workspace_name || 
                                      notionUser.workspace?.name ||
                                      null
-                const workspaceIcon = notionUser.bot?.owner?.workspace_icon ||
+                const workspaceIcon = notionUser.bot?.workspace_icon ||
+                                     notionUser.bot?.owner?.workspace_icon ||
                                      notionUser.workspace?.icon ||
                                      null
                 const ownerType = notionUser.bot?.owner?.type || "user"
@@ -296,10 +304,24 @@ export async function GET(request: NextRequest) {
                 const duplicatedTemplateId = session.user?.app_metadata?.provider_metadata?.duplicated_template_id || null
                 
                 if (!workspaceId || !botId) {
-                  console.warn("Could not extract workspace_id or bot_id from Notion user response:", {
+                  console.error("❌ Could not extract workspace_id or bot_id from Notion user response:", {
                     notionUser,
                     workspaceId,
                     botId,
+                    botStructure: notionUser.bot ? {
+                      hasWorkspaceId: !!notionUser.bot.workspace_id,
+                      workspaceId: notionUser.bot.workspace_id,
+                      hasOwner: !!notionUser.bot.owner,
+                      ownerWorkspaceId: notionUser.bot.owner?.workspace_id,
+                      hasWorkspace: !!notionUser.bot.workspace,
+                      workspaceIdAlt: notionUser.bot.workspace?.id,
+                    } : null,
+                  })
+                } else {
+                  console.log("✅ Successfully extracted Notion workspace info:", {
+                    workspaceId,
+                    botId,
+                    workspaceName,
                   })
                 }
                 

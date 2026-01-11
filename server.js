@@ -1,7 +1,6 @@
 console.log('🚀 Starting HTTPS dev server...')
 
 const { createServer } = require('https')
-const { parse } = require('url')
 const next = require('next')
 const fs = require('fs')
 const path = require('path')
@@ -89,7 +88,17 @@ app.prepare()
 
     const server = createServer(httpsOptions, async (req, res) => {
       try {
-        const parsedUrl = parse(req.url, true)
+        // Use WHATWG URL API instead of deprecated url.parse()
+        // Convert to format Next.js expects: { pathname, query }
+        // req.headers.host already includes the port, so use it directly
+        const baseUrl = req.headers.host 
+          ? `https://${req.headers.host}` 
+          : `https://${hostname}:${port}`
+        const url = new URL(req.url, baseUrl)
+        const parsedUrl = {
+          pathname: url.pathname,
+          query: Object.fromEntries(url.searchParams)
+        }
         await handle(req, res, parsedUrl)
       } catch (err) {
         console.error('❌ Error occurred handling', req.url, err)

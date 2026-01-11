@@ -9,6 +9,7 @@ import type { DatabaseType } from "@/lib/notion/data-transformation"
 
 interface RetrieveRequest {
   databaseType: DatabaseType
+  databaseId?: string // Optional: if provided, use this specific database_id instead of querying by type
   conflictResolution?: "prefer_supabase" | "prefer_notion" | "manual"
   autoResolve?: boolean // Auto-resolve non-conflicting records
 }
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = (await request.json()) as RetrieveRequest
-    const { databaseType, conflictResolution = "prefer_supabase", autoResolve = false } = body
+    const { databaseType, databaseId: providedDatabaseId, conflictResolution = "prefer_supabase", autoResolve = false } = body
 
     if (!databaseType) {
       return NextResponse.json(
@@ -48,18 +49,37 @@ export async function POST(request: NextRequest) {
     }
 
     // Get database ID from notion_databases table
-    const { data: db } = await supabase
-      .from("notion_databases")
-      .select("database_id")
-      .eq("user_id", profile.id)
-      .eq("database_type", databaseType)
-      .single()
+    // If databaseId is provided, use it directly; otherwise query by database_type
+    let db: { database_id: string } | null = null
+    
+    if (providedDatabaseId) {
+      // Use provided database_id directly - verify it belongs to user and matches database_type
+      const { data: dbData } = await supabase
+        .from("notion_databases")
+        .select("database_id")
+        .eq("user_id", profile.id)
+        .eq("database_id", providedDatabaseId)
+        .eq("database_type", databaseType)
+        .single()
+      
+      db = dbData
+    } else {
+      // Fallback: query by database_type (for backward compatibility)
+      const { data: dbData } = await supabase
+        .from("notion_databases")
+        .select("database_id")
+        .eq("user_id", profile.id)
+        .eq("database_type", databaseType)
+        .single()
+      
+      db = dbData
+    }
 
     if (!db?.database_id) {
       return NextResponse.json(
         {
           success: false,
-          error: `${databaseType} database not found. Please sync your Notion template.`,
+          error: `${databaseType} database not synced. The database exists in your Notion workspace but hasn't been synced yet. Please sync your Notion template first.`,
         },
         { status: 404 }
       )
@@ -69,6 +89,17 @@ export async function POST(request: NextRequest) {
 
     // Get table name for Supabase queries
     const tableName = getTableName(databaseType)
+    
+    // Check if table exists (some database types don't have corresponding tables yet)
+    if (!tableName) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `${databaseType} table not found in database. This database type may not be supported yet.`,
+        },
+        { status: 404 }
+      )
+    }
 
     // Retrieve all pages from Notion
     let progressCurrent = 0
@@ -85,10 +116,25 @@ export async function POST(request: NextRequest) {
     }
 
     // Get all Supabase records for this database type
-    const { data: supabaseRecords, error: recordsError } = await supabase
-      .from(tableName)
-      .select("*")
-      .eq("created_by", profile.id)
+    // Different tables use different columns for user ownership
+    let recordsQuery = supabase.from(tableName).select("*")
+    
+    // Map database types to their user ownership columns
+    if (databaseType === "tasks" || databaseType === "rewards") {
+      // Tasks and Rewards: Get records where user is assigned_to OR assigned_by
+      recordsQuery = recordsQuery.or(`assigned_to.eq.${profile.id},assigned_by.eq.${profile.id}`)
+    } else if (databaseType === "scenes" || databaseType === "image_generations") {
+      // Scenes and Image Generations: Use user_id
+      recordsQuery = recordsQuery.eq("user_id", profile.id)
+    } else if (databaseType === "resources") {
+      // Resources: Use added_by
+      recordsQuery = recordsQuery.eq("added_by", profile.id)
+    } else {
+      // Default: Other tables use created_by
+      recordsQuery = recordsQuery.eq("created_by", profile.id)
+    }
+    
+    const { data: supabaseRecords, error: recordsError } = await recordsQuery
 
     if (recordsError) {
       return NextResponse.json(
@@ -155,7 +201,7 @@ export async function POST(request: NextRequest) {
 /**
  * Gets table name from database type
  */
-function getTableName(databaseType: string): string {
+function getTableName(databaseType: string): string | null {
   const tableMap: Record<string, string> = {
     tasks: "tasks",
     rules: "rules",
@@ -165,7 +211,15 @@ function getTableName(databaseType: string): string {
     kinksters: "kinksters",
     app_ideas: "app_ideas",
     image_generations: "image_generations",
+    rewards: "rewards",
+    scenes: "scenes",
+    resources: "resources",
+    boundaries: "boundaries",
+    // Unsupported types (will return null):
+    // - points -> points_ledger (different schema, uses user_id not created_by)
+    // - communication (table doesn't exist)
+    // - analytics (table doesn't exist)
   }
 
-  return tableMap[databaseType] || databaseType
+  return tableMap[databaseType] || null
 }

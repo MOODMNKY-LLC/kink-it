@@ -19,31 +19,9 @@ export function createClient() {
     throw new Error("Supabase environment variables not configured")
   }
 
-  // Show certificate instructions only once per session
-  if (process.env.NODE_ENV === "development" && !certificateWarningShown) {
-    certificateWarningShown = true
-    
-    // Note: Both localhost and 127.0.0.1 work, but ensure certificate is accepted for whichever you use
-    if (supabaseUrl.includes("localhost") && supabaseUrl.includes("127.0.0.1")) {
-      console.warn(
-        "⚠️ [Supabase] URL contains both 'localhost' and '127.0.0.1'. Use one consistently."
-      )
-    }
-    
-    // Show certificate acceptance instructions for local dev
-    if (supabaseUrl.includes("127.0.0.1") || supabaseUrl.includes("localhost")) {
-      console.group("🔒 [Supabase] Certificate Setup Required")
-      console.info("To fix 'Failed to fetch' errors:")
-      console.info("1. Open:", supabaseUrl)
-      const host = supabaseUrl.includes("localhost") ? "localhost" : "127.0.0.1"
-      console.info(`2. Click 'Advanced' → 'Proceed to ${host} (unsafe)'`)
-      console.info("3. Accept the certificate")
-      console.info("4. Refresh this page")
-      console.info("")
-      console.info("💡 Or run in console: testSupabaseConnection()")
-      console.groupEnd()
-    }
-  }
+  // Note: Certificate error detection is handled by CertificateCheck component
+  // This client no longer shows hardcoded warnings - only shows if there's an actual error
+  // The CertificateCheck component will detect and display certificate issues if they occur
 
   // createBrowserClient from @supabase/ssr with cookie-based storage for PKCE
   // According to Supabase docs: PKCE code verifier must be stored in cookies

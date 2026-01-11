@@ -109,6 +109,7 @@
     "recharts": "2.15.4",
     "sharp": "0.34.5",
     "shiki": "^3.20.0",
+    "simple-icons": "^16.5.0",
     "sonner": "^1.7.4",
     "sse.js": "^2.7.2",
     "streamdown": "^1.6.10",
@@ -119,6 +120,7 @@
     "use-sync-external-store": "latest",
     "vaul": "^1.1.2",
     "ws": "latest",
+    "youtube-transcript": "^1.2.1",
     "zod": "3.25.76",
     "zustand": "5.0.9"
   },
@@ -128,6 +130,7 @@
     "@types/node": "^22.0.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "chrome-devtools-mcp": "^0.12.1",
     "cross-env": "^10.1.0",
     "dotenv": "^17.2.3",
     "postcss": "^8.5",

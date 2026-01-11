@@ -103,7 +103,7 @@ export default function NotionRecoveryStep({
           <div className="space-y-2">
             {scenario.availableDatabases.map((db) => (
               <div
-                key={db.databaseType}
+                key={db.databaseId}
                 className="flex items-center justify-between p-3 rounded-lg border"
               >
                 <div>

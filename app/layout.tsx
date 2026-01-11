@@ -47,7 +47,25 @@ const isV0 = process.env["VERCEL_URL"]?.includes("vusercontent.net") ?? false
 // Force dynamic rendering since layout depends on user authentication state
 export const dynamic = 'force-dynamic'
 
+// Determine metadataBase URL based on environment
+const getMetadataBase = (): URL => {
+  // Use VERCEL_URL in production (Vercel deployment)
+  if (process.env.VERCEL_URL) {
+    return new URL(`https://${process.env.VERCEL_URL}`)
+  }
+  // Use NEXT_PUBLIC_SITE_URL if set
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return new URL(process.env.NEXT_PUBLIC_SITE_URL)
+  }
+  // Default to HTTPS localhost for development
+  return new URL(process.env.NODE_ENV === 'production' 
+    ? 'https://kink-it.app' // Replace with your production domain
+    : 'https://127.0.0.1:3000'
+  )
+}
+
 export const metadata: Metadata = {
+  metadataBase: getMetadataBase(),
   title: {
     template: "%s – KINK IT",
     default: "KINK IT",

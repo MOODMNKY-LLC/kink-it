@@ -9,16 +9,22 @@ import { GradientMesh } from "@/components/backgrounds/gradient-mesh"
 import { BokehEffect } from "@/components/backgrounds/bokeh-effect"
 import Link from "next/link"
 import { Mail } from "lucide-react"
+import { ThemeSwitcher } from "@/components/theme/theme-switcher"
 
 export default function VerifyEmailPage() {
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-background relative overflow-hidden">
+    <div className="flex min-h-screen w-full items-center justify-center p-3 sm:p-4 md:p-6 lg:p-10 bg-background relative overflow-hidden safe-area-insets">
       {/* Character-based backgrounds - dark mode first */}
       <CharacterBackground variant="hero" opacity={0.12} />
       <GradientMesh intensity="medium" />
       <BokehEffect count={20} />
       
-      <div className="w-full max-w-md relative z-10">
+      {/* Theme Switcher - Top Right */}
+      <div className="absolute top-3 right-3 sm:top-4 sm:right-4 md:top-6 md:right-6 z-20">
+        <ThemeSwitcher />
+      </div>
+      
+      <div className="w-full max-w-md relative z-10 px-1">
         <MagicCard
           className="border-primary/20 bg-card/80 backdrop-blur-2xl shadow-2xl shadow-primary/10"
           gradientSize={300}

@@ -55,10 +55,12 @@ export function useNotionRecoveryDetection(): UseNotionRecoveryDetectionReturn {
       }
 
       // Get user's Notion databases
+      // Only include databases that have valid database_id (synced)
       const { data: databases, error: dbError } = await supabase
         .from("notion_databases")
         .select("database_id, database_name, database_type")
         .eq("user_id", user.id)
+        .not("database_id", "is", null) // Exclude databases without database_id
 
       if (dbError) {
         throw dbError
@@ -74,6 +76,22 @@ export function useNotionRecoveryDetection(): UseNotionRecoveryDetectionReturn {
       }
 
       // Check record counts for each database type
+      // Only include database types that have corresponding Supabase tables
+      const SUPPORTED_DATABASE_TYPES = [
+        "tasks",
+        "rules",
+        "contracts",
+        "journal",
+        "calendar",
+        "kinksters",
+        "app_ideas",
+        "image_generations",
+        "rewards",
+        "scenes",
+        "resources",
+        "boundaries", // boundaries table exists
+      ] as const
+
       const tableMap: Record<string, string> = {
         tasks: "tasks",
         rules: "rules",
@@ -83,35 +101,73 @@ export function useNotionRecoveryDetection(): UseNotionRecoveryDetectionReturn {
         kinksters: "kinksters",
         app_ideas: "app_ideas",
         image_generations: "image_generations",
+        rewards: "rewards",
+        scenes: "scenes",
+        resources: "resources",
+        boundaries: "boundaries",
+        // Unsupported types (filtered out):
+        // - points (maps to points_ledger but different schema)
+        // - communication (table doesn't exist)
+        // - analytics (table doesn't exist)
       }
 
+      // Filter to only supported database types
+      const supportedDatabases = databases.filter((db) =>
+        SUPPORTED_DATABASE_TYPES.includes(db.database_type as any)
+      )
+
       const databaseChecks = await Promise.all(
-        databases.map(async (db) => {
+        supportedDatabases.map(async (db) => {
           const tableName = tableMap[db.database_type || ""]
           if (!tableName) {
-            return {
-              databaseType: db.database_type || "",
-              databaseName: db.database_name || "",
-              databaseId: db.database_id,
-              supabaseRecordCount: 0,
-              hasNotionData: true, // Assume true if we can't check
-            }
+            // This shouldn't happen since we filtered, but handle gracefully
+            return null
           }
 
           // Get record count
-          const { count, error: countError } = await supabase
+          // Different tables use different columns for user ownership
+          let countQuery = supabase
             .from(tableName)
             .select("*", { count: "exact", head: true })
-            .eq("created_by", user.id)
-
+          
+          if (db.database_type === "tasks" || db.database_type === "rewards") {
+            // Tasks and Rewards: Count records where user is assigned_to OR assigned_by
+            countQuery = countQuery.or(`assigned_to.eq.${user.id},assigned_by.eq.${user.id}`)
+          } else if (db.database_type === "scenes" || db.database_type === "image_generations") {
+            // Scenes and Image Generations: Use user_id
+            countQuery = countQuery.eq("user_id", user.id)
+          } else if (db.database_type === "resources") {
+            // Resources: Use added_by
+            countQuery = countQuery.eq("added_by", user.id)
+          } else {
+            // Default: Other tables use created_by
+            countQuery = countQuery.eq("created_by", user.id)
+          }
+          
+          const { count, error: countError } = await countQuery
           const recordCount = countError ? 0 : (count || 0)
 
           // Check for sync failures
-          const { count: failedCount } = await supabase
+          let failedCountQuery = supabase
             .from(tableName)
             .select("*", { count: "exact", head: true })
-            .eq("created_by", user.id)
             .eq("notion_sync_status", "failed")
+          
+          if (db.database_type === "tasks" || db.database_type === "rewards") {
+            // Tasks and Rewards: Check failures where user is assigned_to OR assigned_by
+            failedCountQuery = failedCountQuery.or(`assigned_to.eq.${user.id},assigned_by.eq.${user.id}`)
+          } else if (db.database_type === "scenes" || db.database_type === "image_generations") {
+            // Scenes and Image Generations: Use user_id
+            failedCountQuery = failedCountQuery.eq("user_id", user.id)
+          } else if (db.database_type === "resources") {
+            // Resources: Use added_by
+            failedCountQuery = failedCountQuery.eq("added_by", user.id)
+          } else {
+            // Default: Other tables (rules, contracts, journal, calendar, kinksters, app_ideas, boundaries) use created_by
+            failedCountQuery = failedCountQuery.eq("created_by", user.id)
+          }
+          
+          const { count: failedCount } = await failedCountQuery
 
           const hasFailures = (failedCount || 0) > 0
 
@@ -126,9 +182,14 @@ export function useNotionRecoveryDetection(): UseNotionRecoveryDetectionReturn {
         })
       )
 
+      // Filter out null results (unsupported types)
+      const validDatabaseChecks = databaseChecks.filter(
+        (db): db is NonNullable<typeof db> => db !== null
+      )
+
       // Determine if recovery is needed
-      const emptyDatabases = databaseChecks.filter((db) => db.supabaseRecordCount === 0)
-      const databasesWithFailures = databaseChecks.filter((db) => db.hasFailures)
+      const emptyDatabases = validDatabaseChecks.filter((db) => db.supabaseRecordCount === 0)
+      const databasesWithFailures = validDatabaseChecks.filter((db) => db.hasFailures)
 
       let needsRecovery = false
       let reason = ""
@@ -145,7 +206,7 @@ export function useNotionRecoveryDetection(): UseNotionRecoveryDetectionReturn {
 
       setScenario({
         needsRecovery,
-        availableDatabases: databaseChecks,
+        availableDatabases: validDatabaseChecks,
         reason,
       })
     } catch (err) {

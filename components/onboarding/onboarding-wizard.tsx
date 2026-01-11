@@ -9,11 +9,10 @@ import BondSetupStep from "./steps/bond-setup-step"
 import NotionSetupStep from "./steps/notion-setup-step"
 import NotionVerificationStep from "./steps/notion-verification-step"
 import NotionApiKeyStep from "./steps/notion-api-key-step"
-import NotionRecoveryStep from "./steps/notion-recovery-step"
 import WelcomeSplashStep from "./steps/welcome-splash-step"
 import OnboardingProgress from "./onboarding-progress"
 
-const TOTAL_STEPS = 7 // Added recovery step
+const TOTAL_STEPS = 6 // Removed recovery step - moved to account settings
 
 interface OnboardingWizardProps {
   initialStep?: number
@@ -60,7 +59,7 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
     // Priority: URL params > localStorage > initialStep
     if (urlParams?.step) {
       const urlStep = parseInt(urlParams.step, 10)
-      if (urlStep >= 1 && urlStep <= 6) {
+      if (urlStep >= 1 && urlStep <= TOTAL_STEPS) {
         setCurrentStep(urlStep)
         // Update localStorage to match URL
         localStorage.setItem("onboarding_step", urlStep.toString())
@@ -219,14 +218,6 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
           />
         )
       case 6:
-        return (
-          <NotionRecoveryStep
-            onNext={handleNext}
-            onBack={handleBack}
-            initialData={wizardData}
-          />
-        )
-      case 7:
         return (
           <WelcomeSplashStep
             onComplete={handleComplete}

@@ -5,7 +5,8 @@ export async function createClient() {
   const cookieStore = await cookies()
   const allCookies = cookieStore.getAll()
   
-  // Log cookies in development for debugging
+  // Log cookies in development for debugging (only on auth pages or when cookies exist)
+  // Don't log warnings on public pages like login - it's expected to have no auth cookies
   if (process.env.NODE_ENV === "development") {
     const authCookies = allCookies.filter(c => 
       c.name.includes("supabase") || 
@@ -14,9 +15,8 @@ export async function createClient() {
     )
     if (authCookies.length > 0) {
       console.log("[Supabase Server] Found auth cookies:", authCookies.map(c => c.name))
-    } else {
-      console.warn("[Supabase Server] No auth cookies found. Total cookies:", allCookies.length)
     }
+    // Removed warning - it's expected to have no auth cookies on login/public pages
   }
 
   return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {

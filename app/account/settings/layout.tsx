@@ -2,7 +2,7 @@ import { getUserProfile } from "@/lib/auth/get-user"
 import { redirect } from "next/navigation"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import Link from "next/link"
-import { Settings, Key } from "lucide-react"
+import { Settings, Key, Database } from "lucide-react"
 
 export default async function SettingsLayout({
   children,
@@ -30,7 +30,7 @@ export default async function SettingsLayout({
 
         {/* Tabs Navigation */}
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="general" asChild>
               <Link href="/account/settings" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
@@ -43,11 +43,20 @@ export default async function SettingsLayout({
                 Notion API Keys
               </Link>
             </TabsTrigger>
+            <TabsTrigger value="data-recovery" asChild>
+              <Link href="/account/settings/data-recovery" className="flex items-center gap-2">
+                <Database className="h-4 w-4" />
+                Data Recovery
+              </Link>
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="general" className="mt-6">
             {children}
           </TabsContent>
           <TabsContent value="notion-api-keys" className="mt-6">
+            {children}
+          </TabsContent>
+          <TabsContent value="data-recovery" className="mt-6">
             {children}
           </TabsContent>
         </Tabs>

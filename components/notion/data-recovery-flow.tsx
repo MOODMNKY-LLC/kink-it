@@ -181,7 +181,7 @@ export function DataRecoveryFlow({
                   <div className="grid gap-4">
                     <h3 className="font-semibold">Available Databases</h3>
                     {scenario.availableDatabases.map((db) => (
-                      <Card key={db.databaseType}>
+                      <Card key={db.databaseId}>
                         <CardHeader>
                           <CardTitle>{db.databaseName}</CardTitle>
                           <CardDescription>

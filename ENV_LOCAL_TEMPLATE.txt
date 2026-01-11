@@ -57,6 +57,25 @@ NEXT_PUBLIC_NOTION_CLIENT_ID=2dfd872b-594c-803e-a575-0037d97447ad
 NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=http://localhost:3000/auth/callback
 
 # ============================================
+# FLOWISE AI INTEGRATION (REQUIRED FOR CHAT)
+# ============================================
+# Flowise instance URL (required for chat integration)
+# Your Flowise host: https://flowise-dev.moodmnky.com
+NEXT_PUBLIC_FLOWISE_URL=https://flowise-dev.moodmnky.com
+FLOWISE_URL=https://flowise-dev.moodmnky.com
+
+# Flowise API Key (required)
+# Get from Flowise instance settings
+FLOWISE_API_KEY=3-5qP08qhP9NUOUw0-yAdIz78ZWt166orwnHvRM2c2s
+
+# Note: Kinky Kincade uses OpenAI, not Flowise
+# NEXT_PUBLIC_FLOWISE_KINKY_KINCADE_CHATFLOW_ID is deprecated and not used
+# FLOWISE_KINKY_KINCADE_CHATFLOW_ID is deprecated and not used
+
+# For Kinksters: Assign chatflow IDs via the kinksters.flowise_chatflow_id column in the database
+# Each Kinkster must have a flowise_chatflow_id configured (no fallback)
+
+# ============================================
 # DISCORD BOT INTEGRATION (OPTIONAL)
 # ============================================
 # Get these values from Discord Developer Portal:

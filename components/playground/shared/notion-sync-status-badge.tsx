@@ -26,7 +26,7 @@ const getStatusConfig = (status: SyncStatus) => {
     case "syncing":
       return {
         color: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
-        icon: Loader2,
+        icon: RefreshCw, // Use RefreshCw instead of Loader2 - spinner is in button only
         label: "Syncing",
         description: "Syncing databases...",
         glowColor: "shadow-blue-500/50 animate-pulse",
@@ -59,7 +59,7 @@ const getStatusConfig = (status: SyncStatus) => {
     default:
       return {
         color: "bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20",
-        icon: Loader2,
+        icon: RefreshCw, // Use RefreshCw instead of Loader2 - spinner is in button only
         label: "Checking",
         description: "Checking sync status...",
         glowColor: "",
@@ -150,11 +150,9 @@ export function NotionSyncStatusBadge({
                   isSyncing && "animate-pulse"
                 )}
               >
+                {/* Don't show spinner in badge - spinner is only in button */}
                 <Icon
-                  className={cn(
-                    "h-3 w-3",
-                    (status === "syncing" || status === "checking") && "animate-spin"
-                  )}
+                  className="h-3 w-3"
                 />
                 <span>{config.label}</span>
                 {syncedDatabasesCount > 0 && (

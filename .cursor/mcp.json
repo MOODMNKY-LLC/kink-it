@@ -92,10 +92,13 @@
       }
     },
     "chrome-devtools": {
-      "command": "npx",
       "args": [
-        "chrome-devtools-mcp@latest"
-      ]
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "scripts/chrome-devtools-mcp-wrapper.ps1"
+      ],
+      "command": "powershell"
     }
   },
   "registries": {

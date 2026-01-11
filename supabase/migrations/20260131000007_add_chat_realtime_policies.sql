@@ -31,6 +31,9 @@ ON realtime.messages(topic)
 WHERE topic LIKE 'conversation:%:messages';
 
 -- Function to broadcast message updates (for database triggers)
+-- Note: realtime.send() doesn't exist in PostgreSQL
+-- Broadcasting is handled via REST API from Edge Functions
+-- This trigger is disabled - broadcasting happens in chat-stream Edge Function
 CREATE OR REPLACE FUNCTION public.broadcast_message_update()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -38,26 +41,16 @@ SECURITY DEFINER
 SET search_path = ''
 AS $$
 BEGIN
-  -- Broadcast message update via Realtime
-  PERFORM realtime.send(
-    'conversation:' || NEW.conversation_id::text || ':messages',
-    'message_updated',
-    jsonb_build_object(
-      'message_id', NEW.id,
-      'content', NEW.content,
-      'is_streaming', NEW.is_streaming,
-      'updated_at', NEW.updated_at
-    ),
-    false
-  );
-  
+  -- Broadcasting is handled by Edge Functions via REST API
+  -- Database triggers cannot use realtime.send() - it doesn't exist
+  -- The chat-stream Edge Function handles broadcasting via /realtime/v1/api/broadcast
   RETURN NEW;
 END;
 $$;
 
--- Trigger for message updates
-DROP TRIGGER IF EXISTS broadcast_message_update_trigger ON public.messages;
-CREATE TRIGGER broadcast_message_update_trigger
-AFTER INSERT OR UPDATE ON public.messages
-FOR EACH ROW
-EXECUTE FUNCTION public.broadcast_message_update();
+-- Trigger for message updates (disabled - broadcasting handled in Edge Function)
+-- DROP TRIGGER IF EXISTS broadcast_message_update_trigger ON public.messages;
+-- CREATE TRIGGER broadcast_message_update_trigger
+-- AFTER INSERT OR UPDATE ON public.messages
+-- FOR EACH ROW
+-- EXECUTE FUNCTION public.broadcast_message_update();
