@@ -93,7 +93,7 @@ export default function MobileNotifications({
       </div>
 
       {/* Notifications List */}
-      <div className="flex-1 overflow-y-auto overflow-x-clip p-2 space-y-2 bg-muted">
+      <div className="flex-1 overflow-y-auto overflow-x-clip p-2 space-y-2 bg-muted scrollbar-hide">
         {notifications.length === 0 ? (
           <div className="flex items-center justify-center h-32">
             <p className="text-sm text-muted-foreground">No notifications</p>

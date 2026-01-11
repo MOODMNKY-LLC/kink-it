@@ -288,7 +288,7 @@ export function TerminalChatView({ className, userId: propUserId }: TerminalChat
       </div>
 
       {/* Messages Area - Using simple overflow div instead of ScrollArea */}
-      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
         <div className="p-3 space-y-4">
           {/* Welcome message if no messages */}
           {displayMessages.length === 0 && (

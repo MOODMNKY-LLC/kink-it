@@ -52,6 +52,21 @@ export default function TerminalNotificationsRealtime({
     }
   }, [userId])
 
+  // Auto-scroll to bottom when notifications change or load
+  useEffect(() => {
+    if (notifications.length > 0 && !isLoading) {
+      setTimeout(() => {
+        const terminalElement = document.querySelector('.terminal-notifications-scroll') as HTMLElement
+        if (terminalElement) {
+          terminalElement.scrollTo({
+            top: terminalElement.scrollHeight,
+            behavior: 'smooth'
+          })
+        }
+      }, 300)
+    }
+  }, [notifications.length, isLoading])
+
   // Set up Realtime subscription
   useEffect(() => {
     if (!userId || isLoading) return
@@ -103,6 +118,16 @@ export default function TerminalNotificationsRealtime({
             toast.info(newNotification.title, {
               description: newNotification.message,
             })
+            // Auto-scroll to bottom when new notification arrives
+            setTimeout(() => {
+              const terminalElement = document.querySelector('.terminal-notifications-scroll') as HTMLElement
+              if (terminalElement) {
+                terminalElement.scrollTo({
+                  top: terminalElement.scrollHeight,
+                  behavior: 'smooth'
+                })
+              }
+            }, 200)
           }
         })
         .on("broadcast", { event: "UPDATE" }, (payload) => {
@@ -280,114 +305,116 @@ export default function TerminalNotificationsRealtime({
       </div>
 
       {/* Terminal Display */}
-      <Terminal className="h-full max-h-[400px] flex flex-col" sequence={true} startOnView={true}>
-        {notifications.length === 0 ? (
-          <AnimatedSpan className="text-muted-foreground">
-            <TypingAnimation>No notifications</TypingAnimation>
-          </AnimatedSpan>
-        ) : (
-          <>
-            <AnimatedSpan>
-              <TypingAnimation>
-                {`$ ${unreadCount > 0 ? `${unreadCount} unread` : "All read"} | Total: ${notifications.length}`}
-              </TypingAnimation>
+      <div className="relative h-full max-h-[400px] overflow-hidden">
+        <Terminal className="h-full flex flex-col overflow-hidden" sequence={true} startOnView={true}>
+          {notifications.length === 0 ? (
+            <AnimatedSpan className="text-muted-foreground">
+              <TypingAnimation>No notifications</TypingAnimation>
             </AnimatedSpan>
-            <AnimatedSpan>
-              <TypingAnimation>{`$ cat notifications.log`}</TypingAnimation>
-            </AnimatedSpan>
-            <AnimatedSpan>
-              <TypingAnimation>{"─".repeat(50)}</TypingAnimation>
-            </AnimatedSpan>
+          ) : (
+            <>
+              <AnimatedSpan>
+                <TypingAnimation>
+                  {`$ ${unreadCount > 0 ? `${unreadCount} unread` : "All read"} | Total: ${notifications.length}`}
+                </TypingAnimation>
+              </AnimatedSpan>
+              <AnimatedSpan>
+                <TypingAnimation>{`$ cat notifications.log`}</TypingAnimation>
+              </AnimatedSpan>
+              <AnimatedSpan>
+                <TypingAnimation>{"─".repeat(50)}</TypingAnimation>
+              </AnimatedSpan>
 
-            <AnimatePresence initial={false} mode="popLayout">
-              {displayedNotifications.map((notification, index) => (
-                <AnimatedSpan key={notification.id}>
-                  <div className="flex flex-col gap-1 py-1">
-                    <div className="flex items-start gap-2">
-                      <span className={cn("font-mono text-sm", getTypeColor(notification.type))}>
-                        [{getTypeIcon(notification.type)}]
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={cn(
-                              "font-mono text-sm",
-                              !notification.read && "font-semibold text-foreground",
-                              notification.read && "text-muted-foreground"
+              <AnimatePresence initial={false} mode="popLayout">
+                {displayedNotifications.map((notification, index) => (
+                  <AnimatedSpan key={notification.id}>
+                    <div className="flex flex-col gap-1 py-1">
+                      <div className="flex items-start gap-2 w-full">
+                        <span className={cn("font-mono text-sm shrink-0", getTypeColor(notification.type))}>
+                          [{getTypeIcon(notification.type)}]
+                        </span>
+                        <div className="flex-1 min-w-0 w-full overflow-hidden">
+                          <div className="flex items-center gap-2 flex-wrap w-full">
+                            <span
+                              className={cn(
+                                "font-mono text-sm break-words break-all overflow-wrap-anywhere",
+                                !notification.read && "font-semibold text-foreground",
+                                notification.read && "text-muted-foreground"
+                              )}
+                            >
+                              {notification.title}
+                            </span>
+                            {notification.priority === "high" && (
+                              <Badge variant="destructive" className="text-xs font-mono shrink-0">
+                                HIGH
+                              </Badge>
                             )}
-                          >
-                            {notification.title}
-                          </span>
-                          {notification.priority === "high" && (
-                            <Badge variant="destructive" className="text-xs font-mono">
-                              HIGH
-                            </Badge>
-                          )}
-                          {notification.priority === "medium" && (
-                            <Badge variant="secondary" className="text-xs font-mono">
-                              MED
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="text-xs text-muted-foreground font-mono mt-0.5">
-                          {notification.message}
-                        </div>
-                        <div className="flex items-center justify-between mt-1">
-                          <span className="text-xs text-muted-foreground font-mono">
-                            {formatTimestamp(notification.timestamp)}
-                          </span>
-                          <div className="flex gap-1">
-                            {!notification.read && (
+                            {notification.priority === "medium" && (
+                              <Badge variant="secondary" className="text-xs font-mono shrink-0">
+                                MED
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-xs text-muted-foreground font-mono mt-0.5 break-words break-all overflow-wrap-anywhere word-break-break-all w-full">
+                            {notification.message}
+                          </div>
+                          <div className="flex items-center justify-between mt-1 flex-wrap gap-1 w-full">
+                            <span className="text-xs text-muted-foreground font-mono shrink-0">
+                              {formatTimestamp(notification.timestamp)}
+                            </span>
+                            <div className="flex gap-1 shrink-0">
+                              {!notification.read && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => markAsRead(notification.id)}
+                                  className="h-5 px-2 text-xs font-mono whitespace-nowrap"
+                                >
+                                  mark-read
+                                </Button>
+                              )}
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => markAsRead(notification.id)}
-                                className="h-5 px-2 text-xs font-mono"
+                                onClick={() => deleteNotification(notification.id)}
+                                className="h-5 px-2 text-xs font-mono text-destructive hover:text-destructive whitespace-nowrap"
                               >
-                                mark-read
+                                rm
                               </Button>
-                            )}
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => deleteNotification(notification.id)}
-                              className="h-5 px-2 text-xs font-mono text-destructive hover:text-destructive"
-                            >
-                              rm
-                            </Button>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </AnimatedSpan>
+                ))}
+              </AnimatePresence>
+
+              {notifications.length > 3 && (
+                <AnimatedSpan>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowAll(!showAll)}
+                    className="w-full mt-2 font-mono text-xs"
+                  >
+                    {showAll ? `$ less` : `$ more (${notifications.length - 3} hidden)`}
+                  </Button>
                 </AnimatedSpan>
-              ))}
-            </AnimatePresence>
+              )}
 
-            {notifications.length > 3 && (
               <AnimatedSpan>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowAll(!showAll)}
-                  className="w-full mt-2 font-mono text-xs"
-                >
-                  {showAll ? `$ less` : `$ more (${notifications.length - 3} hidden)`}
-                </Button>
+                <TypingAnimation>{"─".repeat(50)}</TypingAnimation>
               </AnimatedSpan>
-            )}
-
-            <AnimatedSpan>
-              <TypingAnimation>{"─".repeat(50)}</TypingAnimation>
-            </AnimatedSpan>
-            <AnimatedSpan>
-              <TypingAnimation className="text-muted-foreground">
-                {`$ _`}
-              </TypingAnimation>
-            </AnimatedSpan>
-          </>
-        )}
-      </Terminal>
+              <AnimatedSpan>
+                <TypingAnimation className="text-muted-foreground">
+                  {`$ _`}
+                </TypingAnimation>
+              </AnimatedSpan>
+            </>
+          )}
+        </Terminal>
+      </div>
     </div>
   )
 }

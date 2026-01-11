@@ -23,7 +23,7 @@ export async function GET(req: Request) {
     // Verify user can access this data
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("id, partner_id, system_role")
+      .select("id, partner_id, system_role, bond_id")
       .eq("id", user.id)
       .single()
 
@@ -44,11 +44,26 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
+    // Seed bond ID - include seed data for users in this bond
+    const SEED_BOND_ID = "40000000-0000-0000-0000-000000000001"
+    const SEED_USER_IDS = [
+      "00000000-0000-0000-0000-000000000001", // Simeon
+      "00000000-0000-0000-0000-000000000002", // Kevin
+    ]
+    const isInSeedBond = profile.bond_id === SEED_BOND_ID
+
     let query = supabase
       .from("rewards")
       .select("*")
-      .eq("assigned_to", userId)
-      .order("created_at", { ascending: false })
+    
+    // If requesting own rewards and in seed bond, include seed rewards
+    if (userId === user.id && isInSeedBond) {
+      query = query.or(`assigned_to.eq.${userId},assigned_to.in.(${SEED_USER_IDS.join(",")})`)
+    } else {
+      query = query.eq("assigned_to", userId)
+    }
+    
+    query = query.order("created_at", { ascending: false })
 
     if (status) {
       query = query.eq("status", status)

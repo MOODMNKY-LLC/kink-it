@@ -84,6 +84,7 @@ INSERT INTO auth.users (
 
 -- Simeon's profile (Dominant, User - NOT admin, so first authenticated Notion user can become admin)
 -- Note: Admin role will be assigned by handle_new_user() trigger to first authenticated Notion user
+-- Note: bond_id will be set later after bond is created (to avoid foreign key constraint)
 INSERT INTO public.profiles (
   id,
   email,
@@ -119,6 +120,7 @@ INSERT INTO public.profiles (
   system_role = CASE WHEN profiles.system_role = 'admin' THEN 'user' ELSE EXCLUDED.system_role END;
 
 -- Kevin's profile (Submissive)
+-- Note: bond_id will be set later after bond is created (to avoid foreign key constraint)
 INSERT INTO public.profiles (
   id,
   email,
@@ -416,19 +418,85 @@ INSERT INTO public.task_proof (
 ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================================
--- SUMMARY
+-- COMPREHENSIVE SEED DATA FOR ALL 12 MODULES
 -- ============================================================================
--- Seed data created:
--- - 2 test users (Simeon: dominant/admin, Kevin: submissive)
--- - 2 profiles with partner relationships
--- - 1 submission state log entry
--- - 3 task templates
--- - 6 sample tasks (various statuses and priorities)
--- - 2 task proof submissions
---
--- Test credentials:
--- - Simeon: simeon@kinkit.app / password123
--- - Kevin: kevin@kinkit.app / password123
---
--- Note: In production, use Supabase Auth API to create users properly.
--- This seed file is for local development only.
+-- Real-world examples for Bonds, Rules, Boundaries, Contracts, Communication, 
+-- Tasks, Rewards, Achievements, Calendar, Journal, Analytics, Library
+-- Date: 2026-02-15
+-- This seed data provides users with realistic, editable examples
+-- All seed data uses ON CONFLICT DO NOTHING to allow safe re-running
+
+-- ============================================================================
+-- MODULE 1: BONDS
+-- ============================================================================
+-- Create example bond with mission statement, roles, and symbols
+
+-- Example Bond: "Simeon & Kevin's Dynamic"
+-- Note: This bond has invite_code "SEED" for easy testing
+INSERT INTO public.bonds (
+  id,
+  name,
+  description,
+  bond_type,
+  bond_status,
+  created_by,
+  is_private,
+  invite_code,
+  metadata
+) VALUES (
+  '40000000-0000-0000-0000-000000000001'::uuid,
+  'Simeon & Kevin''s Dynamic',
+  'A 24/7 D/s dynamic focused on structure, service, and mutual growth. This bond represents our commitment to power exchange, consent, and intentional dominance.',
+  'dyad'::bond_type,
+  'active'::bond_status,
+  '00000000-0000-0000-0000-000000000001'::uuid, -- Created by Simeon
+  true,
+  'SEED', -- Invite code for easy testing
+  jsonb_build_object(
+    'mission', 'To create a structured, consensual power exchange that supports both partners'' growth and fulfillment',
+    'founded_date', '2025-01-15',
+    'symbols', jsonb_build_array(
+      'Morning coffee service ritual',
+      'Evening kneeling ceremony',
+      'Day collar (subtle reminder)'
+    ),
+    'honorifics', jsonb_build_object(
+      'dominant', jsonb_build_array('Sir', 'Master', 'Daddy'),
+      'submissive', jsonb_build_array('boy', 'pet', 'slave')
+    )
+  )
+) ON CONFLICT (id) DO NOTHING;
+
+-- Bond Members
+INSERT INTO public.bond_members (
+  id,
+  bond_id,
+  user_id,
+  role_in_bond,
+  is_active,
+  can_invite,
+  can_manage,
+  joined_at
+) VALUES
+-- Simeon as Dominant
+(
+  '41000000-0000-0000-0000-000000000001'::uuid,
+  '40000000-0000-0000-0000-000000000001'::uuid,
+  '00000000-0000-0000-0000-000000000001'::uuid, -- Simeon
+  'dominant',
+  true,
+  true,
+  true,
+  now() - INTERVAL '30 days'
+),
+-- Kevin as Submissive
+(
+  '41000000-0000-0000-0000-000000000002'::uuid,
+  '40000000-0000-0000-0000-000000000001'::uuid,
+  '00000000-0000-0000-0000-000000000002'::uuid, -- Kevin
+  'submissive',
+  true,
+  false,
+  false,
+  now() - INTERVAL '30 days'
+) ON CONFLICT (id) DO NOTHING;

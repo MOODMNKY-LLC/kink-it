@@ -58,13 +58,6 @@
         "mcp/memory"
       ]
     },
-    "shadcn": {
-      "command": "npx",
-      "args": [
-        "shadcn@latest",
-        "mcp"
-      ]
-    },
     "v0": {
       "command": "npx",
       "args": [
@@ -99,6 +92,13 @@
         "scripts/chrome-devtools-mcp-wrapper.ps1"
       ],
       "command": "powershell"
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": [
+        "shadcn@latest",
+        "mcp"
+      ]
     }
   },
   "registries": {

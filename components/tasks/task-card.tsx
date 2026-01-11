@@ -16,7 +16,7 @@ import {
 import type { Task, TaskStatus, TaskPriority } from "@/types/task"
 import type { DynamicRole } from "@/types/profile"
 import { useNotionSyncStatus } from "@/components/playground/shared/use-notion-sync-status"
-import { AddToNotionButtonGeneric } from "@/components/playground/shared/add-to-notion-button-generic"
+import { SeedDataActionsMenu } from "@/components/playground/shared/seed-data-actions-menu"
 import { toast } from "sonner"
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
@@ -228,9 +228,9 @@ export function TaskCard({ task, userRole, onAction, bondId, onReassign }: TaskC
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 space-y-2">
-            <h3 className="text-xl font-display font-semibold text-primary">{task.title}</h3>
+            <h3 className="text-xl font-display font-semibold text-primary break-words break-all overflow-wrap-anywhere">{task.title}</h3>
             {task.description && (
-              <p className="text-sm text-muted-foreground line-clamp-2">{task.description}</p>
+              <p className="text-sm text-muted-foreground break-words break-all overflow-wrap-anywhere line-clamp-2">{task.description}</p>
             )}
           </div>
           <div className="flex flex-col gap-2 shrink-0">

@@ -490,7 +490,7 @@ export default function KinkyTerminal({
     <div className={cn("flex flex-col h-full", className)}>
       {/* Custom Terminal Structure - macOS Screen Style */}
       <div className={cn(
-        "relative z-0 h-[600px] w-full rounded-xl border border-border/60 bg-background/95 backdrop-blur-md flex flex-col overflow-hidden shadow-xl shadow-black/10",
+        "relative z-0 h-[calc(100vh-8rem)] md:h-[600px] max-h-[600px] w-full rounded-xl border border-border/60 bg-background/95 backdrop-blur-md flex flex-col overflow-hidden shadow-xl shadow-black/10",
         className
       )}>
         {/* Subtle gradient overlay */}

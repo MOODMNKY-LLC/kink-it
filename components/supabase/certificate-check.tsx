@@ -75,12 +75,14 @@ export function CertificateCheck() {
           return
         }
         
-        const message = args.map(arg => 
-          typeof arg === 'string' ? arg : 
-          arg instanceof Error ? arg.message :
-          typeof arg === 'object' && arg !== null ? (arg.message || (Object.keys(arg).length > 0 ? JSON.stringify(arg) : "")) : 
-          String(arg)
-        ).filter(msg => msg.trim() !== "").join(" ")
+        const message = args.map(arg => {
+          // Skip undefined/null arguments to avoid "undefined" string errors
+          if (arg === undefined || arg === null) return ""
+          if (typeof arg === 'string') return arg
+          if (arg instanceof Error) return arg.message
+          if (typeof arg === 'object') return arg.message || (Object.keys(arg).length > 0 ? JSON.stringify(arg) : "")
+          return String(arg)
+        }).filter(msg => msg.trim() !== "").join(" ")
         const stack = args.find(arg => typeof arg === 'object' && arg?.stack)?.stack || ""
         
         // Only show certificate warning for actual certificate/network errors, not all Supabase errors

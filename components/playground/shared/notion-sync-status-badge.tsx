@@ -157,7 +157,7 @@ export function NotionSyncStatusBadge({
                 <span>{config.label}</span>
                 {syncedDatabasesCount > 0 && (
                   <span className="ml-1 font-mono text-[10px]">
-                    ({syncedDatabasesCount}/15)
+                    ({syncedDatabasesCount}{syncedDatabasesCount > 15 ? "+" : ""})
                   </span>
                 )}
               </Badge>

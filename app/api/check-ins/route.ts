@@ -18,13 +18,21 @@ export async function GET(req: Request) {
   // Get user profile to find partner
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, partner_id")
+    .select("id, partner_id, bond_id")
     .eq("id", user.id)
     .single()
 
   if (!profile) {
     return NextResponse.json({ error: "Profile not found" }, { status: 404 })
   }
+
+  // Seed bond ID - include seed check-ins for users in this bond
+  const SEED_BOND_ID = "40000000-0000-0000-0000-000000000001"
+  const SEED_USER_IDS = [
+    "00000000-0000-0000-0000-000000000001", // Simeon
+    "00000000-0000-0000-0000-000000000002", // Kevin
+  ]
+  const isInSeedBond = profile.bond_id === SEED_BOND_ID
 
   const { searchParams } = new URL(req.url)
   const limit = parseInt(searchParams.get("limit") || "30")
@@ -41,16 +49,22 @@ export async function GET(req: Request) {
   if (userId) {
     // Verify user can view this user's check-ins (must be self or partner)
     if (userId === user.id || userId === profile.partner_id) {
-      query = query.eq("user_id", userId)
+      const userIdsToShow = isInSeedBond ? [userId, ...SEED_USER_IDS] : [userId]
+      query = query.in("user_id", userIdsToShow)
     } else {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
   } else {
     // Default: show own and partner's check-ins
+    // If in seed bond, also include seed check-ins
     if (profile.partner_id) {
-      query = query.in("user_id", [user.id, profile.partner_id])
+      const userIdsToShow = isInSeedBond 
+        ? [user.id, profile.partner_id, ...SEED_USER_IDS]
+        : [user.id, profile.partner_id]
+      query = query.in("user_id", userIdsToShow)
     } else {
-      query = query.eq("user_id", user.id)
+      const userIdsToShow = isInSeedBond ? [user.id, ...SEED_USER_IDS] : [user.id]
+      query = query.in("user_id", userIdsToShow)
     }
   }
 

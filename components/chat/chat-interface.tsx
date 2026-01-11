@@ -140,7 +140,7 @@ export function ChatInterface({
   }
 
   return (
-    <Card className="flex flex-col h-[600px]">
+    <Card className="flex flex-col h-[calc(100vh-8rem)] md:h-[600px] max-h-[600px]">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           Chat with {agentName === "Assistant" || agentName === "KINK IT Assistant" || agentName === "Kinky" || agentName === "Kinky Kincade" ? "Kinky Kincade" : agentName}

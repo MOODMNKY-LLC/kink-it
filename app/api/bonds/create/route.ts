@@ -161,6 +161,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update user's bond_id
+    // CRITICAL: This must succeed for the bond to be usable
     const { error: profileError, data: updatedProfile } = await supabase
       .from("profiles")
       .update({
@@ -172,11 +173,47 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (profileError) {
-      console.error("[Bond Create] Error updating profile bond_id:", profileError)
-      // Non-critical - bond and member are created, but log for debugging
+      console.error("[Bond Create] ❌ CRITICAL: Error updating profile bond_id:", profileError)
+      console.error("[Bond Create] Error details:", {
+        message: profileError.message,
+        code: profileError.code,
+        details: profileError.details,
+        hint: profileError.hint,
+      })
+      // This is actually critical - if we can't set profile.bond_id, the bond won't work properly
+      // However, we've already created the bond and member, so we'll return success but log the error
+      // The onboarding progress API will handle setting bond_id later
+      console.warn("[Bond Create] ⚠ Profile update failed, but bond and member were created. Bond ID:", bond.id)
     } else {
       console.log(`[Bond Create] ✓ Successfully updated profile.bond_id: ${updatedProfile?.bond_id}`)
     }
+
+    // CRITICAL: Verify bond actually exists and is accessible before returning
+    // This catches RLS issues or transaction problems
+    const { data: verifyBond, error: verifyError } = await supabase
+      .from("bonds")
+      .select("id, name")
+      .eq("id", bond.id)
+      .single()
+
+    if (verifyError || !verifyBond) {
+      console.error("[Bond Create] ❌ CRITICAL: Bond verification failed after creation:", {
+        bond_id: bond.id,
+        error: verifyError,
+      })
+      // Bond was created but we can't verify it exists - this is a serious issue
+      // Return error so user knows something went wrong
+      return NextResponse.json(
+        {
+          error: "Bond created but verification failed",
+          details: "The bond was created but could not be verified. Please try again or contact support.",
+          code: "BOND_VERIFICATION_FAILED",
+        },
+        { status: 500 }
+      )
+    }
+
+    console.log(`[Bond Create] ✓ Bond verified: ${verifyBond.id} - ${verifyBond.name}`)
 
     return NextResponse.json({
       success: true,

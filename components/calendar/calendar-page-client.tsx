@@ -67,11 +67,45 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
   const [userGoogleEmail, setUserGoogleEmail] = useState<string | null>(null)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
   const [selectedEvents, setSelectedEvents] = useState<CalendarEvent[]>([])
+  const [syncingEventId, setSyncingEventId] = useState<string | null>(null)
+  const [isNotionSynced, setIsNotionSynced] = useState(false)
   const supabase = createClient()
+
+  const checkNotionSyncStatus = async () => {
+    try {
+      // Check if user has Notion API key and calendar database synced
+      const [apiKeyResult, dbResult] = await Promise.all([
+        supabase
+          .from("user_notion_api_keys")
+          .select("id")
+          .eq("user_id", userId)
+          .eq("is_active", true)
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from("notion_databases")
+          .select("id")
+          .eq("user_id", userId)
+          .eq("database_type", "calendar")
+          .limit(1)
+          .maybeSingle(),
+      ])
+
+      const hasApiKey = !!apiKeyResult.data
+      const hasCalendarDb = !!dbResult.data
+
+      setIsNotionSynced(hasApiKey && hasCalendarDb)
+    } catch (error) {
+      console.error("Error checking Notion sync status:", error)
+      setIsNotionSynced(false)
+    }
+  }
 
   useEffect(() => {
     loadEvents()
     loadUserGoogleEmail()
+    checkNotionSyncStatus()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bondId])
 
   useEffect(() => {
@@ -164,6 +198,39 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
           onClick: () => window.open("https://www.notion.so/calendar", "_blank"),
         },
       })
+    }
+  }
+
+  const handleSyncToNotion = async (event: CalendarEvent) => {
+    if (!isNotionSynced) {
+      toast.error("Notion sync not configured. Please sync your Notion template in Settings.")
+      return
+    }
+
+    setSyncingEventId(event.id)
+    try {
+      const response = await fetch("/api/notion/sync-calendar-event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          eventId: event.id,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to sync event to Notion")
+      }
+
+      toast.success("Event synced to Notion successfully")
+      // Reload events to get updated sync status
+      loadEvents()
+    } catch (error) {
+      console.error("Error syncing event to Notion:", error)
+      toast.error(error instanceof Error ? error.message : "Failed to sync event to Notion")
+    } finally {
+      setSyncingEventId(null)
     }
   }
 
@@ -541,7 +608,7 @@ export function CalendarPageClient({ userId, bondId }: CalendarPageClientProps) 
                 {selectedEvents.length} event{selectedEvents.length !== 1 ? "s" : ""}
               </CardDescription>
             </CardHeader>
-            <CardContent className="relative z-10 space-y-3 max-h-[600px] overflow-y-auto">
+            <CardContent className="relative z-10 space-y-3 max-h-[600px] overflow-y-auto scrollbar-hide">
               {selectedEvents.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 text-center">
                   <CalendarIcon className="h-12 w-12 text-foreground/60 mb-4" />

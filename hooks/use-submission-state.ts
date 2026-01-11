@@ -95,8 +95,9 @@ export function useSubmissionState({ userId, partnerId }: UseSubmissionStateOpti
         if (status === "SUBSCRIBED") {
           console.log("[SubmissionState] Successfully subscribed to", topic)
         } else if (status === "CHANNEL_ERROR") {
-          console.error("[SubmissionState] Channel error:", err)
-          setError(err || new Error("Failed to subscribe to submission state updates"))
+          const errorMessage = err?.message || err || "Failed to subscribe to submission state updates"
+          console.error("[SubmissionState] Channel error:", errorMessage)
+          setError(err instanceof Error ? err : new Error(errorMessage))
         } else if (status === "TIMED_OUT") {
           console.warn("[SubmissionState] Subscription timed out")
         } else if (status === "CLOSED") {

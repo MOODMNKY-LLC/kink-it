@@ -14,7 +14,7 @@ export async function GET(req: Request) {
   // Get user profile to determine role
   const { data: profile } = await supabase
     .from("profiles")
-    .select("dynamic_role, partner_id")
+    .select("dynamic_role, partner_id, bond_id")
     .eq("id", user.id)
     .single()
 
@@ -27,13 +27,27 @@ export async function GET(req: Request) {
   const assignedTo = searchParams.get("assigned_to")
   const assignedBy = searchParams.get("assigned_by")
 
+  // Seed bond ID - include seed data for users in this bond
+  const SEED_BOND_ID = "40000000-0000-0000-0000-000000000001"
+  const SEED_USER_IDS = [
+    "00000000-0000-0000-0000-000000000001", // Simeon
+    "00000000-0000-0000-0000-000000000002", // Kevin
+  ]
+  const isInSeedBond = profile.bond_id === SEED_BOND_ID
+
   // Build query
   let query = supabase.from("tasks").select("*")
 
   // Filter by role
   if (profile.dynamic_role === "submissive") {
     // Submissives see tasks assigned to them
-    query = query.eq("assigned_to", user.id)
+    // If in seed bond, also include seed tasks assigned to seed users
+    if (isInSeedBond) {
+      const userIdsToShow = [user.id, ...SEED_USER_IDS]
+      query = query.in("assigned_to", userIdsToShow)
+    } else {
+      query = query.eq("assigned_to", user.id)
+    }
     
     // Respect submission state - if paused, only show completed/approved
     const { data: userProfile } = await supabase
@@ -47,10 +61,28 @@ export async function GET(req: Request) {
     }
   } else if (profile.dynamic_role === "dominant") {
     // Dominants see tasks they assigned or assigned to their partner
+    // If in seed bond, also include seed tasks
     if (profile.partner_id) {
-      query = query.or(`assigned_by.eq.${user.id},assigned_to.eq.${profile.partner_id}`)
+      if (isInSeedBond) {
+        // Show tasks assigned by user/seed users OR assigned to partner/seed users
+        const allRelevantIds = [user.id, profile.partner_id, ...SEED_USER_IDS]
+        // Build or() with individual eq() conditions for each ID in both fields
+        const conditions: string[] = []
+        allRelevantIds.forEach(id => {
+          conditions.push(`assigned_by.eq.${id}`)
+          conditions.push(`assigned_to.eq.${id}`)
+        })
+        query = query.or(conditions.join(","))
+      } else {
+        query = query.or(`assigned_by.eq.${user.id},assigned_to.eq.${profile.partner_id}`)
+      }
     } else {
-      query = query.eq("assigned_by", user.id)
+      if (isInSeedBond) {
+        const assignedByIds = [user.id, ...SEED_USER_IDS]
+        query = query.in("assigned_by", assignedByIds)
+      } else {
+        query = query.eq("assigned_by", user.id)
+      }
     }
   }
 

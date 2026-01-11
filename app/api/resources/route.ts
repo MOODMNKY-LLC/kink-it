@@ -11,8 +11,15 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
+  // Get user profile for bond_id fallback
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("bond_id")
+    .eq("id", user.id)
+    .single()
+
   const { searchParams } = new URL(req.url)
-  const bondId = searchParams.get("bond_id")
+  const bondId = searchParams.get("bond_id") || profile?.bond_id || null
   const resourceType = searchParams.get("resource_type")
   const category = searchParams.get("category")
   const tag = searchParams.get("tag")

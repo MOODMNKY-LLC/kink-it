@@ -51,10 +51,11 @@ export default async function OnboardingPage({
   })
   
   // Step 1 validation: Check if dynamic_role was set through onboarding
-  // Also check if step 1 data exists in onboarding_data to allow progression
-  // Fallback: Check profile.dynamic_role if onboarding_data doesn't have it
+  // Primary: Check onboarding_data (source of truth for explicit user selection)
+  // Fallback: Check profile.dynamic_role (in case onboarding_data save failed or hasn't completed yet)
+  // This handles race conditions where the save hasn't completed before validation runs
   const hasStep1Data = (onboardingData?.dynamic_role !== undefined && onboardingData?.dynamic_role !== null) ||
-                       (profile?.dynamic_role !== undefined && profile?.dynamic_role !== null)
+                        (profile?.dynamic_role !== undefined && profile?.dynamic_role !== null)
   
   console.log(`[Onboarding] Step 1 data check:`, {
     onboardingData_dynamic_role: onboardingData?.dynamic_role,

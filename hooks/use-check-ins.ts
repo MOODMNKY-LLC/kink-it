@@ -117,8 +117,13 @@ export function useCheckIns({ userId, partnerId }: UseCheckInsOptions) {
         if (status === "SUBSCRIBED") {
           console.log("[CheckIns] Successfully subscribed to check-in updates")
         } else if (status === "CHANNEL_ERROR") {
-          console.error("[CheckIns] Channel error:", err)
-          setError(err || new Error("Failed to subscribe to check-in updates"))
+          const errorMessage = err?.message || err || "Failed to subscribe to check-in updates"
+          console.error("[CheckIns] Channel error:", errorMessage)
+          setError(err instanceof Error ? err : new Error(errorMessage))
+        } else if (status === "TIMED_OUT") {
+          console.warn("[CheckIns] Subscription timed out - will retry on next mount")
+        } else if (status === "CLOSED") {
+          console.log("[CheckIns] Channel closed")
         }
       })
 

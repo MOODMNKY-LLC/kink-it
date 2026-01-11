@@ -62,13 +62,30 @@ export async function GET(request: Request) {
       return NextResponse.json({ progress: [] })
     }
 
+    // Seed bond ID - include seed achievements for users in this bond
+    const SEED_BOND_ID = "40000000-0000-0000-0000-000000000001"
+    const SEED_USER_IDS = [
+      "00000000-0000-0000-0000-000000000001", // Simeon
+      "00000000-0000-0000-0000-000000000002", // Kevin
+    ]
+    const isInSeedBond = profile.bond_id === SEED_BOND_ID
+
     // Get user's unlocked achievements
+    // If in seed bond, also include seed user achievements
     console.log("[Achievements Progress] Fetching unlocked achievements...")
-    const { data: unlockedAchievements, error: unlockError } = await supabase
+    let unlockQuery = supabase
       .from("user_achievements")
-      .select("achievement_id, unlocked_at")
-      .eq("user_id", profile.id)
-      .is("bond_id", null)
+      .select("achievement_id, unlocked_at, user_id")
+    
+    if (isInSeedBond) {
+      unlockQuery = unlockQuery.in("user_id", [profile.id, ...SEED_USER_IDS])
+    } else {
+      unlockQuery = unlockQuery.eq("user_id", profile.id)
+    }
+    
+    unlockQuery = unlockQuery.is("bond_id", null)
+    
+    const { data: unlockedAchievements, error: unlockError } = await unlockQuery
 
     if (unlockError) {
       console.error("[Achievements Progress] Error fetching unlocked achievements:", unlockError)

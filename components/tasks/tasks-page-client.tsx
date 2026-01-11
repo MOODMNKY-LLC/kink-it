@@ -51,8 +51,13 @@ export function TasksPageClient({ userId, userRole, partnerId, bondId }: TasksPa
           await updateTask(taskId, { status: "cancelled" })
           toast.success("Task cancelled")
           break
+        case "delete":
+          // Delete handled by SeedDataActionsMenu component
+          await refetch()
+          break
         case "refresh":
           // Refresh task list - handled by useTasks hook automatically
+          await refetch()
           break
         default:
           console.warn("Unknown action:", action)

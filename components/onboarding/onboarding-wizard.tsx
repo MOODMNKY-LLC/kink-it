@@ -29,7 +29,7 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
   console.log(`[OnboardingWizard] Initialized with initialStep=${initialStep}, urlParams=`, urlParams)
 
   // Save progress to localStorage and backend
-  const saveProgress = async (step: number, data: Record<string, any>) => {
+  const saveProgress = async (step: number, data: Record<string, any>): Promise<void> => {
     const newData = { ...wizardData, ...data }
     console.log(`[OnboardingWizard] saveProgress called: step=${step}, data=`, data)
     console.log(`[OnboardingWizard] Merged data (newData)=`, newData)
@@ -39,28 +39,52 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
     localStorage.setItem("onboarding_step", step.toString())
     localStorage.setItem("onboarding_data", JSON.stringify(newData))
 
-    // Save to backend
-    try {
-      console.log(`[OnboardingWizard] Saving to backend: step=${step}, data=`, newData)
-      const response = await fetch("/api/onboarding/progress", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ step, data: newData }),
-      })
+    // Save to backend - CRITICAL: Must complete before proceeding
+    console.log(`[OnboardingWizard] Saving to backend: step=${step}, data=`, newData)
+    const response = await fetch("/api/onboarding/progress", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ step, data: newData }),
+    })
+    
+    if (!response.ok) {
+      let errorText = "Unknown error"
+      let errorData: any = null
       
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => "Unknown error")
-        console.error("[OnboardingWizard] ❌ Failed to save progress to backend:", {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorText,
-        })
-      } else {
-        const responseData = await response.json().catch(() => ({}))
-        console.log(`[OnboardingWizard] ✓ Successfully saved progress: step=${step}`, responseData)
+      // Try to get error details from response
+      try {
+        const contentType = response.headers.get("content-type")
+        if (contentType?.includes("application/json")) {
+          errorData = await response.json()
+          errorText = errorData?.error || errorData?.message || JSON.stringify(errorData) || "No error message"
+        } else {
+          const textResponse = await response.text()
+          errorText = textResponse || `HTTP ${response.status} ${response.statusText || "Unknown"}`
+        }
+      } catch (parseError) {
+        console.error("[OnboardingWizard] Failed to parse error response:", parseError)
+        errorText = `HTTP ${response.status || "Unknown"} ${response.statusText || "Unknown status"}`
       }
-    } catch (error) {
-      console.error("[OnboardingWizard] ❌ Error saving progress:", error instanceof Error ? error.message : String(error))
+      
+      // Ensure we have meaningful error information
+      const status = response.status || "Unknown"
+      const statusText = response.statusText || "Unknown"
+      const url = response.url || "/api/onboarding/progress"
+      
+      // Log error as separate arguments to avoid empty object detection by certificate-check
+      console.error(
+        "[OnboardingWizard] ❌ Failed to save progress to backend:",
+        `Status: ${status}`,
+        `StatusText: ${statusText}`,
+        `Error: ${errorText}`,
+        errorData ? `ErrorData: ${JSON.stringify(errorData)}` : "",
+        `URL: ${url}`
+      )
+      // Throw error so handleNext can catch it and prevent navigation
+      throw new Error(`Failed to save progress: ${errorText}`)
+    } else {
+      const responseData = await response.json().catch(() => ({}))
+      console.log(`[OnboardingWizard] ✓ Successfully saved progress: step=${step}`, responseData)
     }
   }
 
@@ -118,33 +142,49 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
     }
     
     // Load saved data from localStorage
+    // CRITICAL: Validate that localStorage data matches server state
+    // If server says we're on step 1 but localStorage has step 2+ data, clear it
+    // This prevents stale data from previous sessions after database resets
     const savedData = localStorage.getItem("onboarding_data")
     if (savedData) {
       try {
         const parsed = JSON.parse(savedData)
-        setWizardData(parsed)
         
-        // Infer completed steps from saved step number
-        const savedStep = localStorage.getItem("onboarding_step")
-        if (savedStep) {
-          const stepNum = parseInt(savedStep, 10)
-          // All steps before the saved step are considered completed
-          const inferredCompleted = Array.from({ length: stepNum - 1 }, (_, i) => i + 1)
-          setCompletedSteps(inferredCompleted)
-        }
-        
-        // Legacy: Handle Discord installation URL param (for backward compatibility)
-        // Note: Discord step has been replaced with Notion API key step
-        if (urlParams?.discord_installed === "true" && !parsed.discord_installed) {
-          const updatedData = { ...parsed, discord_installed: true }
-          setWizardData(updatedData)
-          localStorage.setItem("onboarding_data", JSON.stringify(updatedData))
-          // Auto-save to backend
-          const step = urlParams?.step ? parseInt(urlParams.step, 10) : currentStep
-          saveProgress(step, updatedData)
+        // Validate localStorage data matches server state
+        // If server says we're on step 1, we shouldn't have bond_id or other step 2+ data
+        if (initialStep === 1 && (parsed.bond_id || parsed.bond_name || parsed.bond_mode)) {
+          console.warn(`[OnboardingWizard] ⚠ Clearing stale localStorage data - server step is 1 but localStorage has step 2+ data:`, parsed)
+          localStorage.removeItem("onboarding_data")
+          localStorage.removeItem("onboarding_step")
+          // Don't set wizardData - start fresh
+        } else {
+          setWizardData(parsed)
+          
+          // Infer completed steps from saved step number
+          const savedStep = localStorage.getItem("onboarding_step")
+          if (savedStep) {
+            const stepNum = parseInt(savedStep, 10)
+            // All steps before the saved step are considered completed
+            const inferredCompleted = Array.from({ length: stepNum - 1 }, (_, i) => i + 1)
+            setCompletedSteps(inferredCompleted)
+          }
+          
+          // Legacy: Handle Discord installation URL param (for backward compatibility)
+          // Note: Discord step has been replaced with Notion API key step
+          if (urlParams?.discord_installed === "true" && !parsed.discord_installed) {
+            const updatedData = { ...parsed, discord_installed: true }
+            setWizardData(updatedData)
+            localStorage.setItem("onboarding_data", JSON.stringify(updatedData))
+            // Auto-save to backend
+            const step = urlParams?.step ? parseInt(urlParams.step, 10) : currentStep
+            saveProgress(step, updatedData)
+          }
         }
       } catch (e) {
         console.error("Failed to parse saved onboarding data", e)
+        // Clear corrupted localStorage data
+        localStorage.removeItem("onboarding_data")
+        localStorage.removeItem("onboarding_step")
       }
     } else if (urlParams?.discord_installed === "true") {
       // Legacy: Handle Discord installation URL param (for backward compatibility)
@@ -163,15 +203,22 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
     // Save progress for the NEW step (the step we're moving TO)
     // This ensures the backend has the correct step number when validation runs
     if (stepData) {
+      console.log(`[OnboardingWizard] handleNext: Current step=${currentStep}, Moving to step=${newStep}`)
       console.log(`[OnboardingWizard] handleNext: Saving step ${newStep} with data:`, stepData)
+      
       try {
+        // Wait for save to complete before proceeding
+        // This ensures the backend has the data before page reload/validation
         await saveProgress(newStep, stepData)
-        console.log(`[OnboardingWizard] handleNext: Save completed, proceeding to step ${newStep}`)
+        console.log(`[OnboardingWizard] handleNext: ✓ Save completed, proceeding to step ${newStep}`)
       } catch (error) {
         console.error(`[OnboardingWizard] handleNext: Failed to save progress:`, error)
         toast.error("Failed to save progress. Please try again.")
         return // Don't navigate if save failed
       }
+    } else {
+      // No step data, just mark current step as complete
+      console.log(`[OnboardingWizard] handleNext: No step data, just advancing to step ${newStep}`)
     }
 
     setCurrentStep(newStep)
@@ -182,10 +229,10 @@ export default function OnboardingWizard({ initialStep = 1, urlParams }: Onboard
     }
     
     // Use replace instead of push to avoid triggering unnecessary server-side renders
-    // Also add a small delay to ensure database write completes
+    // Increased delay to ensure database write completes and is visible to validation
     setTimeout(() => {
       updateUrlStep(newStep)
-    }, 100)
+    }, 300) // Increased from 100ms to 300ms to ensure save completes
   }
 
   const handleBack = () => {

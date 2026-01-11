@@ -33,7 +33,7 @@ export function MessageBubble({
             : "bg-sidebar text-foreground border border-border"
         )}
       >
-        <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+        <p className="text-sm whitespace-pre-wrap break-words break-all overflow-wrap-anywhere">{message.content}</p>
         <div className="flex items-center justify-end gap-1 text-xs opacity-70">
           <span>{timestamp}</span>
           {isOwn && (

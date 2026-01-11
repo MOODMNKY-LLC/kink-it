@@ -120,8 +120,13 @@ export function useMessages({ userId, partnerId }: UseMessagesOptions) {
         if (status === "SUBSCRIBED") {
           console.log("[Messages] Successfully subscribed to message updates")
         } else if (status === "CHANNEL_ERROR") {
-          console.error("[Messages] Channel error:", err)
-          setError(err || new Error("Failed to subscribe to message updates"))
+          const errorMessage = err?.message || err || "Failed to subscribe to message updates"
+          console.error("[Messages] Channel error:", errorMessage)
+          setError(err instanceof Error ? err : new Error(errorMessage))
+        } else if (status === "TIMED_OUT") {
+          console.warn("[Messages] Subscription timed out - will retry on next mount")
+        } else if (status === "CLOSED") {
+          console.log("[Messages] Channel closed")
         }
       })
 

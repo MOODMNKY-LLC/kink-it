@@ -122,4 +122,144 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Mobile-responsive text wrapping utilities */
+  .word-break-break-all {
+    word-break: break-all;
+    overflow-wrap: anywhere;
+  }
+
+  .overflow-wrap-anywhere {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  /* Terminal-specific text wrapping for monospace fonts */
+  .terminal-text-wrap {
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+
+  /* Mobile-responsive container utilities */
+  @media (max-width: 640px) {
+    .terminal-text-wrap {
+      font-size: 0.75rem; /* 12px on mobile */
+      line-height: 1.4;
+    }
+  }
+
+  /* Global Scrollbar Styling - Invisible but functional */
+  /* Webkit browsers (Chrome, Safari, Edge) */
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 4px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  /* Show scrollbar only on hover of scrollable containers */
+  *:hover::-webkit-scrollbar-thumb {
+    background: rgba(128, 128, 128, 0.05);
+    backdrop-filter: blur(2px);
+    transition: background 0.2s ease;
+  }
+
+  *:hover::-webkit-scrollbar-thumb:hover {
+    background: rgba(128, 128, 128, 0.1);
+    backdrop-filter: blur(4px);
+  }
+
+  *:hover::-webkit-scrollbar-thumb:active {
+    background: rgba(128, 128, 128, 0.15);
+  }
+
+  /* Dark mode scrollbar */
+  .dark *:hover::-webkit-scrollbar-thumb {
+    background: rgba(180, 180, 180, 0.04);
+  }
+
+  .dark *:hover::-webkit-scrollbar-thumb:hover {
+    background: rgba(180, 180, 180, 0.08);
+  }
+
+  .dark *:hover::-webkit-scrollbar-thumb:active {
+    background: rgba(180, 180, 180, 0.12);
+  }
+
+  /* Firefox - invisible by default */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  *:hover {
+    scrollbar-color: rgba(128, 128, 128, 0.05) transparent;
+  }
+
+  .dark *:hover {
+    scrollbar-color: rgba(180, 180, 180, 0.04) transparent;
+  }
+
+  /* Hide scrollbar utility (for when you want completely invisible) */
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
+  /* Glass morphic scrollbar utility (more visible but still transparent) */
+  .scrollbar-glass {
+    scrollbar-width: thin;
+    scrollbar-color: oklch(0.5 0 0 / 0.3) transparent;
+  }
+
+  .scrollbar-glass::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .scrollbar-glass::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 5px;
+  }
+
+  .scrollbar-glass::-webkit-scrollbar-thumb {
+    background: oklch(0.5 0 0 / 0.25);
+    border-radius: 5px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    backdrop-filter: blur(10px) saturate(180%);
+    box-shadow: inset 0 0 6px oklch(0.5 0 0 / 0.1);
+  }
+
+  .scrollbar-glass::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.5 0 0 / 0.4);
+    backdrop-filter: blur(12px) saturate(200%);
+  }
+
+  .dark .scrollbar-glass {
+    scrollbar-color: oklch(0.7 0 0 / 0.2) transparent;
+  }
+
+  .dark .scrollbar-glass::-webkit-scrollbar-thumb {
+    background: oklch(0.7 0 0 / 0.2);
+    box-shadow: inset 0 0 6px oklch(0.7 0 0 / 0.1);
+  }
+
+  .dark .scrollbar-glass::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.7 0 0 / 0.3);
+  }
 }

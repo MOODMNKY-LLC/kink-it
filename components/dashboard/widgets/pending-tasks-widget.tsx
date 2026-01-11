@@ -188,7 +188,7 @@ export function PendingTasksWidget({
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h4 className="text-sm font-medium truncate">{task.title}</h4>
+                      <h4 className="text-sm font-medium break-words break-all overflow-wrap-anywhere">{task.title}</h4>
                       <Badge
                         variant="outline"
                         className={`text-xs ${getPriorityColor(task.priority)}`}
@@ -202,7 +202,7 @@ export function PendingTasksWidget({
                       )}
                     </div>
                     {task.description && (
-                      <p className="text-xs text-muted-foreground line-clamp-1 mb-1">
+                      <p className="text-xs text-muted-foreground break-words break-all overflow-wrap-anywhere line-clamp-1 mb-1">
                         {task.description}
                       </p>
                     )}

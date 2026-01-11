@@ -58,7 +58,7 @@ export default function Notifications({
         )}
       </CardHeader>
 
-      <CardContent className="bg-accent p-1.5 overflow-y-auto flex-1 min-h-0">
+      <CardContent className="bg-accent p-1.5 overflow-y-auto flex-1 min-h-0 scrollbar-hide">
         <div className="space-y-2">
           <AnimatePresence initial={false} mode="popLayout">
             {displayedNotifications.map((notification) => (

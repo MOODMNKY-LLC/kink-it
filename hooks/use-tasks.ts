@@ -180,8 +180,13 @@ export function useTasks({ userId, filters }: UseTasksOptions) {
         if (status === "SUBSCRIBED") {
           console.log("[Tasks] Successfully subscribed to task updates")
         } else if (status === "CHANNEL_ERROR") {
-          console.error("[Tasks] Channel error:", err)
-          setError(err || new Error("Failed to subscribe to task updates"))
+          const errorMessage = err?.message || err || "Failed to subscribe to task updates"
+          console.error("[Tasks] Channel error:", errorMessage)
+          setError(err instanceof Error ? err : new Error(errorMessage))
+        } else if (status === "TIMED_OUT") {
+          console.warn("[Tasks] Subscription timed out - will retry on next mount")
+        } else if (status === "CLOSED") {
+          console.log("[Tasks] Channel closed")
         }
       })
 
