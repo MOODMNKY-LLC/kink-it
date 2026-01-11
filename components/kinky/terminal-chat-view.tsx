@@ -260,6 +260,20 @@ export function TerminalChatView({
     return false
   }, [profile])
 
+  // Use chat stream hook for sendMessage function
+  const { sendMessage } = useChatStream({
+    conversationId: conversationId || undefined,
+    userId,
+    onMessageComplete: (message) => {
+      // Sync hook messages with local state if needed
+      setMessages((prev) => [...prev, message])
+    },
+    onError: (error) => {
+      console.error("[TerminalChatView] Chat error:", error)
+      setIsStreaming(false)
+    },
+  })
+
   // Setup Supabase Realtime subscription for live message updates
   useEffect(() => {
     if (!conversationId || !realtimeEnabled) {
