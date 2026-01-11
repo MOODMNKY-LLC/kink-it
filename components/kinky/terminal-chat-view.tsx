@@ -8,7 +8,7 @@
  * the terminal aesthetic.
  */
 
-import React, { useState, useEffect, useRef, useCallback } from "react"
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Trash2, Sparkles, Send, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
