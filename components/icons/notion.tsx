@@ -4,13 +4,12 @@ import { siNotion } from "simple-icons"
 interface NotionIconProps {
   className?: string
   size?: number
-  variant?: "gradient" | "solid" | "outline" | "official" | "brand"
+  variant?: "gradient" | "solid" | "outline" | "brand"
 }
 
 /**
  * Notion icon component with multiple variants
- * - "brand": Official Notion brand icon from simple-icons (recommended)
- * - "official": Uses the actual Notion app icon SVG file
+ * - "brand": Official Notion brand icon from simple-icons (recommended, theme-aware)
  * - "gradient": Custom gradient variant matching app's color scheme
  * - "solid": Solid variant using currentColor
  * - "outline": Outline variant using stroke
@@ -31,6 +30,7 @@ export function NotionIcon({ className, size, variant = "brand" }: NotionIconPro
   finalSize = finalSize || 24 // Default to 24px
   
   // Official Notion brand icon from simple-icons (recommended)
+  // Uses currentColor to be theme-aware (inherits text color from parent)
   if (variant === "brand") {
     return (
       <svg
@@ -39,7 +39,7 @@ export function NotionIcon({ className, size, variant = "brand" }: NotionIconPro
         width={finalSize}
         height={finalSize}
         className={className}
-        fill={siNotion.hex ? `#${siNotion.hex}` : "currentColor"}
+        fill="currentColor"
         xmlns="http://www.w3.org/2000/svg"
       >
         <title>{siNotion.title}</title>
@@ -48,20 +48,6 @@ export function NotionIcon({ className, size, variant = "brand" }: NotionIconPro
     )
   }
 
-  // Official Notion icon from SVG file
-  // Using regular img tag instead of Next.js Image to avoid loader issues with SVG files
-  if (variant === "official") {
-    return (
-      <img
-        src="/icons/notion-app-icon.svg"
-        alt="Notion"
-        width={finalSize}
-        height={Math.round(finalSize * 0.66)}
-        className={className}
-        style={{ display: "inline-block" }}
-      />
-    )
-  }
   const iconId = `notion-gradient-${finalSize}`
   
   if (variant === "gradient") {

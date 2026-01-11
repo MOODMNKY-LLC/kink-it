@@ -9,7 +9,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { MoreVertical, FileUp, ExternalLink, Trash2, Loader2 } from "lucide-react"
+import { MoreVertical, ExternalLink, Trash2, Loader2 } from "lucide-react"
+import { NotionIcon } from "@/components/icons/notion"
 import { toast } from "sonner"
 import { AddToNotionButtonGeneric } from "./add-to-notion-button-generic"
 import { useNotionItemSyncStatus } from "./use-notion-item-sync-status"
@@ -169,7 +170,7 @@ export function SeedDataActionsMenu({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={handleSync} disabled={isLoadingItemStatus}>
-          <FileUp className="h-4 w-4 mr-2" />
+          <NotionIcon className="h-4 w-4 mr-2" variant="brand" />
           Sync Options
         </DropdownMenuItem>
         {status === "synced" && notionPageId && (

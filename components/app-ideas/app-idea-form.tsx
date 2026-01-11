@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -25,6 +25,7 @@ interface AppIdeaFormProps {
 }
 
 export function AppIdeaForm({ userId }: AppIdeaFormProps) {
+  const [mounted, setMounted] = useState(false)
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
@@ -33,6 +34,11 @@ export function AppIdeaForm({ userId }: AppIdeaFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const { addIdea } = useAppIdeas()
+
+  // Prevent hydration mismatch by only rendering Dialog after mount
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -59,6 +65,16 @@ export function AppIdeaForm({ userId }: AppIdeaFormProps) {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  // Render button immediately, but only render Dialog after mount to prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <Button className="gap-2" disabled>
+        <Lightbulb className="h-4 w-4" />
+        Add Idea
+      </Button>
+    )
   }
 
   return (

@@ -1,7 +1,7 @@
 "use client"
 
 import { format, isToday, isTomorrow, parseISO } from "date-fns"
-import { CheckCircle2, Clock, AlertCircle, Camera, Video, FileText, Play, X, Loader2, ExternalLink, User } from "lucide-react"
+import { CheckCircle2, Clock, AlertCircle, Camera, Video, FileText, Play, X, Loader2, ExternalLink, User, FileUp, Trash2 } from "lucide-react"
 import { MagicCard } from "@/components/ui/magic-card"
 import { BorderBeam } from "@/components/ui/border-beam"
 import { Badge } from "@/components/ui/badge"
@@ -16,7 +16,8 @@ import {
 import type { Task, TaskStatus, TaskPriority } from "@/types/task"
 import type { DynamicRole } from "@/types/profile"
 import { useNotionSyncStatus } from "@/components/playground/shared/use-notion-sync-status"
-import { SeedDataActionsMenu } from "@/components/playground/shared/seed-data-actions-menu"
+import { useNotionItemSyncStatus } from "@/components/playground/shared/use-notion-item-sync-status"
+import { NotionIcon } from "@/components/icons/notion"
 import { toast } from "sonner"
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
@@ -45,7 +46,14 @@ export function TaskCard({ task, userRole, onAction, bondId, onReassign }: TaskC
   const [bondMembers, setBondMembers] = useState<BondMember[]>([])
   const [loadingMembers, setLoadingMembers] = useState(false)
   const [reassigning, setReassigning] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isSyncing, setIsSyncing] = useState(false)
   const supabase = createClient()
+  const { isSynced, isLoading: isLoadingSyncStatus } = useNotionSyncStatus()
+  const { status, notionPageId, isLoading: isLoadingItemStatus } = useNotionItemSyncStatus({
+    tableName: "tasks",
+    itemId: task.id,
+  })
 
   useEffect(() => {
     if (userRole === "dominant") {
@@ -145,6 +153,122 @@ export function TaskCard({ task, userRole, onAction, bondId, onReassign }: TaskC
 
   const getMemberDisplayName = (member: BondMember) => {
     return member.user.display_name || member.user.full_name || member.user.email || "Unknown"
+  }
+
+  const handleSyncToNotion = async () => {
+    if (!task.id) {
+      toast.error("Task ID is required")
+      return
+    }
+
+    // Check if database is synced
+    if (!isLoadingSyncStatus && !isSynced) {
+      toast.error("Notion database not synced", {
+        description: "Please sync your Notion template to enable syncing.",
+        action: {
+          label: "Sync Template",
+          onClick: () => window.open("/onboarding?step=notion", "_blank"),
+        },
+      })
+      return
+    }
+
+    setIsSyncing(true)
+
+    try {
+      const response = await fetch("/api/notion/sync-task", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ taskId: task.id }),
+      })
+
+      if (!response.ok) {
+        let errorMessage = "Failed to sync to Notion"
+        try {
+          const errorText = await response.text()
+          if (errorText) {
+            const errorData = JSON.parse(errorText)
+            errorMessage = errorData.error || errorMessage
+          }
+        } catch (parseError) {
+          errorMessage = response.statusText || errorMessage
+        }
+        throw new Error(errorMessage)
+      }
+
+      const responseText = await response.text()
+      const result = responseText ? JSON.parse(responseText) : { success: false }
+
+      if (result.success) {
+        toast.success(result.message || "Synced to Notion successfully!", {
+          action: result.pageUrl
+            ? {
+                label: "Open",
+                onClick: () => window.open(result.pageUrl, "_blank"),
+              }
+            : undefined,
+        })
+      } else {
+        throw new Error(result.error || "Unknown error")
+      }
+    } catch (error) {
+      console.error("Failed to sync to Notion:", error)
+      toast.error(
+        error instanceof Error ? error.message : "Failed to sync to Notion"
+      )
+    } finally {
+      setIsSyncing(false)
+    }
+  }
+
+  const handleOpenInNotion = () => {
+    if (notionPageId) {
+      const notionPageUrl = `https://notion.so/${notionPageId.replace(/-/g, "")}`
+      window.open(notionPageUrl, "_blank")
+    }
+  }
+
+  const handleDeleteTask = async () => {
+    if (!task.id) {
+      toast.error("Task ID is required")
+      return
+    }
+
+    // Confirm deletion
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this task? This action cannot be undone."
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    setIsDeleting(true)
+
+    try {
+      const response = await fetch(`/api/tasks/${task.id}`, {
+        method: "DELETE",
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: "Failed to delete task" }))
+        throw new Error(errorData.error || "Failed to delete task")
+      }
+
+      toast.success("Task deleted successfully")
+      
+      // Trigger refresh
+      onAction("refresh", task.id)
+    } catch (error) {
+      console.error("Failed to delete task:", error)
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete task"
+      )
+    } finally {
+      setIsDeleting(false)
+    }
   }
 
   const formatDueDate = (dateString: string | null) => {
@@ -316,14 +440,46 @@ export function TaskCard({ task, userRole, onAction, bondId, onReassign }: TaskC
 
         {/* Actions */}
         <div className="flex items-center gap-2 pt-2 border-t border-border">
-          <AddToNotionButtonGeneric
-            tableName="tasks"
-            itemId={task.id}
-            syncEndpoint="/api/notion/sync-task"
-            variant="ghost"
-            size="sm"
-            className="ml-auto"
-          />
+          {/* Notion Sync & Delete Actions */}
+          <div className="flex items-center gap-2 ml-auto">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSyncToNotion}
+              disabled={isSyncing || isLoadingItemStatus}
+              title="Sync to Notion"
+            >
+              {isSyncing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <NotionIcon className="h-4 w-4" variant="brand" />
+              )}
+            </Button>
+            {status === "synced" && notionPageId && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleOpenInNotion}
+                title="Open in Notion"
+              >
+                <ExternalLink className="h-4 w-4" />
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDeleteTask}
+              disabled={isDeleting}
+              className="text-destructive hover:text-destructive"
+              title="Delete task"
+            >
+              {isDeleting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
           {userRole === "submissive" && (
             <>
               {task.status === "pending" && (

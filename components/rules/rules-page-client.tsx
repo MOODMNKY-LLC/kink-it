@@ -9,6 +9,7 @@ import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 import type { DynamicRole } from "@/types/profile"
 import { SeedDataActionsMenu } from "@/components/playground/shared/seed-data-actions-menu"
+import { AddToNotionButtonGeneric } from "@/components/playground/shared/add-to-notion-button-generic"
 import {
   Dialog,
   DialogContent,

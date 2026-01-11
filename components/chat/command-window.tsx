@@ -162,7 +162,7 @@ export function CommandWindow({
       {
         id: "notion-query-database",
         label: "Query Notion Database",
-        icon: Layers,
+        icon: NotionIcon as any,
         category: "notion",
         action: "notion-query-database",
         requiresNotionKey: true,
@@ -171,7 +171,7 @@ export function CommandWindow({
       {
         id: "notion-create-task",
         label: "Create Notion Task",
-        icon: Layers,
+        icon: NotionIcon as any,
         category: "notion",
         action: "notion-create-task",
         requiresNotionKey: true,

@@ -85,6 +85,13 @@ export function useChatReducer({ conversationId, userId, onError }: UseChatReduc
   // Use ref for Supabase client to ensure stability
   const supabaseRef = useRef(createClient())
   const channelRef = useRef<any>(null)
+  // Use ref for onError to prevent infinite loops from dependency changes
+  const onErrorRef = useRef(onError)
+
+  // Keep ref in sync
+  if (onErrorRef.current !== onError) {
+    onErrorRef.current = onError
+  }
 
   // Load chat history when conversationId changes
   const loadHistory = useCallback(async () => {
@@ -104,7 +111,7 @@ export function useChatReducer({ conversationId, userId, onError }: UseChatReduc
 
       if (error) {
         console.error("Error loading chat history:", error)
-        onError?.(error.message)
+        onErrorRef.current?.(error.message)
         dispatch({ type: "SET_LOADING_HISTORY", payload: false })
         return
       }
@@ -122,10 +129,10 @@ export function useChatReducer({ conversationId, userId, onError }: UseChatReduc
       }
     } catch (error: any) {
       console.error("Error loading chat history:", error)
-      onError?.(error.message || "Failed to load chat history")
+      onErrorRef.current?.(error.message || "Failed to load chat history")
       dispatch({ type: "SET_LOADING_HISTORY", payload: false })
     }
-  }, [conversationId, userId, onError])
+  }, [conversationId, userId])
 
   // Setup Realtime subscription for multi-client sync
   const setupRealtime = useCallback(() => {
@@ -190,7 +197,7 @@ export function useChatReducer({ conversationId, userId, onError }: UseChatReduc
           console.log("✅ Realtime subscription active for conversation:", conversationId)
         } else if (status === "CHANNEL_ERROR") {
           console.error("❌ Realtime channel error")
-          onError?.("Realtime connection error")
+          onErrorRef.current?.("Realtime connection error")
         } else if (status === "TIMED_OUT") {
           console.warn("⚠️ Realtime subscription timed out")
         } else if (status === "CLOSED") {
@@ -206,7 +213,7 @@ export function useChatReducer({ conversationId, userId, onError }: UseChatReduc
         channelRef.current = null
       }
     }
-  }, [conversationId, onError])
+  }, [conversationId])
 
   // Load history when conversationId or userId changes
   useEffect(() => {

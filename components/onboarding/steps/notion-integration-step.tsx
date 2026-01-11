@@ -11,7 +11,6 @@ import {
   CheckCircle2, 
   Loader2, 
   AlertCircle, 
-  Key, 
   ExternalLink, 
   HelpCircle, 
   Database,
@@ -20,6 +19,7 @@ import {
   XCircle,
   Link as LinkIcon
 } from "lucide-react"
+import { NotionIcon } from "@/components/icons/notion"
 import { toast } from "sonner"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
@@ -393,7 +393,7 @@ export default function NotionIntegrationStep({ onNext, onBack, initialData }: N
                   </>
                 ) : (
                   <>
-                    <Key className="w-4 h-4 mr-2" />
+                    <NotionIcon className="w-4 h-4 mr-2" variant="brand" />
                     Validate
                   </>
                 )}

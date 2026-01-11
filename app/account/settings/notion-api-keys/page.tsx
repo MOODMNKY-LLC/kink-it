@@ -25,7 +25,8 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
-import { Plus, Trash2, TestTube, Key, Shield, AlertCircle, BarChart3, Unlink, CheckCircle2, Loader2 } from "lucide-react"
+import { Plus, Trash2, TestTube, Shield, AlertCircle, BarChart3, Unlink, CheckCircle2, Loader2 } from "lucide-react"
+import { NotionIcon } from "@/components/icons/notion"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Link from "next/link"
 import {
@@ -367,7 +368,7 @@ export default function NotionApiKeysPage() {
         <div className="text-center py-8 text-muted-foreground">Loading API keys...</div>
       ) : apiKeys.length === 0 ? (
         <div className="text-center py-12 border rounded-lg">
-          <Key className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <NotionIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" variant="brand" />
           <h3 className="text-lg font-semibold mb-2">No API keys configured</h3>
           <p className="text-muted-foreground mb-4">
             Add your first Notion API key to enable enhanced integration features.

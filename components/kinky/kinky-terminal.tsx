@@ -403,9 +403,16 @@ export default function KinkyTerminal({
       if (!response.ok) {
         throw new Error("Failed to mark as read")
       }
+      // Update local state immediately
       setNotifications((prev) =>
         prev.map((notif) => (notif.id === id ? { ...notif, read: true } : notif))
       )
+      // Refresh from database to ensure sync
+      const refreshResponse = await fetch("/api/notifications")
+      if (refreshResponse.ok) {
+        const data = await refreshResponse.json()
+        setNotifications(data.notifications || [])
+      }
     } catch (error) {
       console.error("[KinkyTerminal] Error marking as read:", error)
       toast.error("Failed to mark notification as read")
@@ -420,7 +427,14 @@ export default function KinkyTerminal({
       if (!response.ok) {
         throw new Error("Failed to delete notification")
       }
+      // Update local state immediately
       setNotifications((prev) => prev.filter((notif) => notif.id !== id))
+      // Refresh from database to ensure sync
+      const refreshResponse = await fetch("/api/notifications")
+      if (refreshResponse.ok) {
+        const data = await refreshResponse.json()
+        setNotifications(data.notifications || [])
+      }
     } catch (error) {
       console.error("[KinkyTerminal] Error deleting notification:", error)
       toast.error("Failed to delete notification")
@@ -429,16 +443,49 @@ export default function KinkyTerminal({
 
   const clearAll = async () => {
     try {
-      const response = await fetch("/api/notifications/read-all", {
+      const response = await fetch("/api/notifications/delete-all", {
         method: "POST",
       })
       if (!response.ok) {
         throw new Error("Failed to clear all")
       }
-      setNotifications((prev) => prev.map((notif) => ({ ...notif, read: true })))
+      // Clear local state
+      setNotifications([])
+      toast.success("All notifications cleared")
+      
+      // Refresh from database to ensure sync
+      const refreshResponse = await fetch("/api/notifications")
+      if (refreshResponse.ok) {
+        const data = await refreshResponse.json()
+        setNotifications(data.notifications || [])
+      }
     } catch (error) {
       console.error("[KinkyTerminal] Error clearing all:", error)
       toast.error("Failed to clear all notifications")
+    }
+  }
+
+  const markAllAsRead = async () => {
+    try {
+      const response = await fetch("/api/notifications/read-all", {
+        method: "POST",
+      })
+      if (!response.ok) {
+        throw new Error("Failed to mark all as read")
+      }
+      // Update local state
+      setNotifications((prev) => prev.map((notif) => ({ ...notif, read: true })))
+      toast.success("All notifications marked as read")
+      
+      // Refresh from database to ensure sync
+      const refreshResponse = await fetch("/api/notifications")
+      if (refreshResponse.ok) {
+        const data = await refreshResponse.json()
+        setNotifications(data.notifications || [])
+      }
+    } catch (error) {
+      console.error("[KinkyTerminal] Error marking all as read:", error)
+      toast.error("Failed to mark all notifications as read")
     }
   }
 
@@ -538,10 +585,17 @@ export default function KinkyTerminal({
           </div>
         </div>
 
-        {/* Terminal Content Area - Hidden Scrollbar */}
-        <div className="relative flex-1 min-h-0 overflow-auto scrollbar-hide p-4 font-mono text-xs bg-gradient-to-b from-background/20 to-background/40">
-          <div className="space-y-1">
-            {/* Notifications View (with merged Status content) */}
+        {/* Terminal Content Area - Conditional layout based on view */}
+        {activeView === "chat" ? (
+          <TerminalChatView 
+            userId={effectiveUserId}
+            profile={profile}
+            className="flex-1 min-h-0"
+          />
+        ) : (
+          <div className="relative flex-1 min-h-0 overflow-auto scrollbar-hide p-4 font-mono text-xs bg-gradient-to-b from-background/20 to-background/40">
+            <div className="space-y-1">
+              {/* Notifications View (with merged Status content) */}
             {activeView === "notifications" && (
               <>
                 {/* Welcome & Status Section */}
@@ -1013,18 +1067,9 @@ export default function KinkyTerminal({
                 </AnimatedSpan>
               </>
             )}
-
-            {/* Chat View */}
-            {activeView === "chat" && (
-              <div className="h-full -m-4">
-                <TerminalChatView 
-                  userId={effectiveUserId}
-                  className="h-full"
-                />
-              </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* macOS-style Dock Inside Terminal */}
         <div className="border-t border-border/40 bg-gradient-to-t from-muted/20 to-transparent backdrop-blur-sm p-2.5 flex-shrink-0">
@@ -1040,10 +1085,16 @@ export default function KinkyTerminal({
               <DockIcon onClick={() => setActiveView("notifications")}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className={cn(
-                      "flex items-center justify-center rounded-lg p-1.5 transition-colors relative",
-                      activeView === "notifications" ? "bg-primary/20" : "hover:bg-muted/50"
-                    )}>
+                    <div 
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setActiveView("notifications")
+                      }}
+                      className={cn(
+                        "flex items-center justify-center rounded-lg p-1.5 transition-colors relative cursor-pointer",
+                        activeView === "notifications" ? "bg-primary/20" : "hover:bg-muted/50"
+                      )}
+                    >
                       <Bell className={cn(
                         "h-5 w-5",
                         activeView === "notifications" ? "text-primary" : "text-muted-foreground"
@@ -1125,13 +1176,19 @@ export default function KinkyTerminal({
               </DockIcon>
 
               {/* Kinky Avatar - Last */}
-              <DockIcon onClick={() => setActiveView("notifications")}>
+              <DockIcon onClick={() => setActiveView("chat")}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className={cn(
-                      "flex items-center justify-center rounded-full transition-all",
-                      activeView === "notifications" && "ring-2 ring-primary ring-offset-2 ring-offset-background"
-                    )}>
+                    <div 
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setActiveView("chat")
+                      }}
+                      className={cn(
+                        "flex items-center justify-center rounded-full transition-all cursor-pointer",
+                        activeView === "chat" && "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                      )}
+                    >
                       <AvatarRing 
                         isOnline={realtimeConnected && isOnline && !isLoadingStatus} 
                         size={36}
@@ -1144,7 +1201,7 @@ export default function KinkyTerminal({
                   </TooltipTrigger>
                   <TooltipContent className="font-mono text-xs">
                     <div className="space-y-1">
-                      <div className="font-semibold">Kinky Kincade</div>
+                      <div className="font-semibold">Chat with Kinky</div>
                       <div className={cn(
                         realtimeConnected ? "text-green-500" : "text-red-500"
                       )}>

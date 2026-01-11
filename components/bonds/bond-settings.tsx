@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
-import { Save, Shield } from "lucide-react"
+import { Save, Shield, Sparkles, Loader2 } from "lucide-react"
 import type { Profile } from "@/types/profile"
 
 interface BondSettingsProps {
@@ -50,6 +50,7 @@ export function BondSettings({ bondId, profile }: BondSettingsProps) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [canManage, setCanManage] = useState(false)
+  const [copyingSeedData, setCopyingSeedData] = useState(false)
 
   useEffect(() => {
     fetchSettings()
@@ -132,6 +133,76 @@ export function BondSettings({ bondId, profile }: BondSettingsProps) {
 
     toast.success("Settings saved successfully")
     setSaving(false)
+  }
+
+  const handleCopySeedData = async () => {
+    if (!profile) return
+
+    setCopyingSeedData(true)
+    try {
+      const response = await fetch("/api/bonds/copy-seed-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bond_id: bondId }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        const errorMsg = data.error || "Failed to copy seed data"
+        const details = data.details
+        console.error("[BondSettings] Copy seed data error:", errorMsg, details)
+        
+        if (details?.seed_data_exists === false) {
+          toast.error("Seed data not found. Please run: supabase db reset")
+        } else if (details?.copied_counts) {
+          const counts = details.copied_counts
+          toast.warning(`Only some items were copied: Rules: ${counts.rules || 0}, Tasks: ${counts.tasks || 0}, Boundaries: ${counts.boundaries || 0}`)
+        } else {
+          toast.error(errorMsg)
+        }
+        throw new Error(errorMsg)
+      }
+
+      const copiedCount = data.data?.copied?.total || 0
+      const copiedDetails = data.data?.copied || {}
+      const alreadyExists = data.data?.already_exists || false
+      
+      console.log("[BondSettings] Seed data copied:", {
+        total: copiedCount,
+        details: copiedDetails,
+        alreadyExists,
+      })
+
+      if (alreadyExists) {
+        toast.success("Example data is already in your bond!", {
+          description: "The example data has already been added previously.",
+          duration: 5000,
+        })
+        // Refresh the page to show existing data
+        setTimeout(() => {
+          window.location.reload()
+        }, 2000)
+      } else if (copiedCount === 0) {
+        toast.warning("No items were copied. Seed data may not exist or may have already been copied.")
+        console.warn("[BondSettings] No items copied. Details:", copiedDetails)
+      } else {
+        toast.success(`Added ${copiedCount} example items to your bond!`, {
+          description: `Rules: ${copiedDetails.rules || 0}, Tasks: ${copiedDetails.tasks || 0}, Boundaries: ${copiedDetails.boundaries || 0}`,
+          duration: 5000,
+        })
+        // Refresh the page to show new data after a short delay
+        setTimeout(() => {
+          window.location.reload()
+        }, 2000)
+      }
+    } catch (error) {
+      console.error("[BondSettings] Error copying seed data:", error)
+      const errorMessage = error instanceof Error ? error.message : "Failed to copy seed data"
+      toast.error(errorMessage)
+    } finally {
+      setCopyingSeedData(false)
+    }
   }
 
   if (loading || !settings) {
@@ -398,6 +469,56 @@ export function BondSettings({ bondId, profile }: BondSettingsProps) {
               }
             />
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Example Data */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5" />
+            Example Data
+          </CardTitle>
+          <CardDescription>
+            Add example data to help you understand how KINK IT works
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">
+              If you skipped adding example data during onboarding, you can add it here. This will
+              populate your bond with realistic examples including:
+            </p>
+            <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1 ml-2">
+              <li>Example rules and protocols</li>
+              <li>Sample tasks and rewards</li>
+              <li>Boundary examples</li>
+              <li>Journal entries and calendar events</li>
+              <li>Educational resources</li>
+            </ul>
+            <p className="text-xs text-muted-foreground mt-3">
+              All examples are fully editable and can be deleted anytime. This is a one-time copy
+              operation.
+            </p>
+          </div>
+          <Button
+            onClick={handleCopySeedData}
+            disabled={copyingSeedData}
+            variant="outline"
+            className="w-full"
+          >
+            {copyingSeedData ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Adding Examples...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4 mr-2" />
+                Add Example Data
+              </>
+            )}
+          </Button>
         </CardContent>
       </Card>
 

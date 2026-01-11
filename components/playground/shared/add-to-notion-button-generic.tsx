@@ -9,7 +9,8 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Loader2, FileUp, ExternalLink } from "lucide-react"
+import { Loader2, ExternalLink } from "lucide-react"
+import { NotionIcon } from "@/components/icons/notion"
 import { toast } from "sonner"
 import { useNotionSyncStatus } from "./use-notion-sync-status"
 import { useNotionItemSyncStatus } from "./use-notion-item-sync-status"
@@ -181,7 +182,7 @@ export function AddToNotionButtonGeneric({
           isLoading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <FileUp className="h-4 w-4" />
+            <NotionIcon className="h-4 w-4" variant="brand" />
           )
         ) : isLoading ? (
           <>
@@ -192,7 +193,7 @@ export function AddToNotionButtonGeneric({
           <>
             {children || (
               <>
-                <FileUp className="h-3 w-3 mr-1.5" />
+                <NotionIcon className="h-3 w-3 mr-1.5" variant="brand" />
                 Sync to Notion
               </>
             )}

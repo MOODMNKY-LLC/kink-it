@@ -2,7 +2,8 @@ import { getUserProfile } from "@/lib/auth/get-user"
 import { redirect } from "next/navigation"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import Link from "next/link"
-import { Settings, Key, Database } from "lucide-react"
+import { Settings, Database } from "lucide-react"
+import { NotionIcon } from "@/components/icons/notion"
 
 export default async function SettingsLayout({
   children,
@@ -39,7 +40,7 @@ export default async function SettingsLayout({
             </TabsTrigger>
             <TabsTrigger value="notion-api-keys" asChild>
               <Link href="/account/settings/notion-api-keys" className="flex items-center gap-2">
-                <Key className="h-4 w-4" />
+                <NotionIcon className="h-4 w-4" variant="brand" />
                 Notion API Keys
               </Link>
             </TabsTrigger>

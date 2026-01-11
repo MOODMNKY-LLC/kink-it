@@ -9,7 +9,8 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Loader2, FileUp, ExternalLink, AlertCircle } from "lucide-react"
+import { Loader2, ExternalLink, AlertCircle } from "lucide-react"
+import { NotionIcon } from "@/components/icons/notion"
 import { toast } from "sonner"
 import { useNotionSyncStatus } from "./use-notion-sync-status"
 import {
@@ -173,7 +174,7 @@ export function AddToNotionButton({
         ) : isNotSynced ? (
           <AlertCircle className="h-4 w-4" />
         ) : (
-          <FileUp className="h-4 w-4" />
+          <NotionIcon className="h-4 w-4" variant="brand" />
         )
       ) : isLoading ? (
         <>
@@ -187,7 +188,7 @@ export function AddToNotionButton({
         </>
       ) : (
         <>
-          <FileUp className="h-3 w-3 mr-1.5" />
+          <NotionIcon className="h-3 w-3 mr-1.5" variant="brand" />
           Add to Notion
         </>
       )}

@@ -13,6 +13,7 @@ import {
 import type { AppIdea } from "@/types/app-ideas"
 import { formatDistanceToNow } from "date-fns"
 import { Clock, User, MoreVertical, Archive, Trash2, Edit, CheckCircle2, PlayCircle } from "lucide-react"
+import { NotionIcon } from "@/components/icons/notion"
 import { useAppIdeas } from "@/hooks/use-app-ideas"
 import { syncIdeaToNotion } from "@/lib/notion-sync"
 import { useState } from "react"
@@ -124,7 +125,7 @@ export function AppIdeaCard({ idea }: AppIdeaCardProps) {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSyncToNotion} disabled={isSyncing || !!idea.notion_page_id}>
-              <Edit className="h-4 w-4 mr-2" />
+              <NotionIcon className="h-4 w-4 mr-2" variant="brand" />
               {isSyncing ? "Syncing..." : idea.notion_page_id ? "Already Synced" : "Sync to Notion"}
             </DropdownMenuItem>
             <DropdownMenuSeparator />

@@ -179,14 +179,27 @@ export function useTasks({ userId, filters }: UseTasksOptions) {
       .subscribe((status, err) => {
         if (status === "SUBSCRIBED") {
           console.log("[Tasks] Successfully subscribed to task updates")
+          setError(null) // Clear any previous errors
         } else if (status === "CHANNEL_ERROR") {
-          const errorMessage = err?.message || err || "Failed to subscribe to task updates"
-          console.error("[Tasks] Channel error:", errorMessage)
-          setError(err instanceof Error ? err : new Error(errorMessage))
+          // Only log error if err is provided (connection retries pass undefined)
+          // Realtime will automatically retry connection errors
+          if (err) {
+            const errorMessage = err?.message || err || "Failed to subscribe to task updates"
+            console.warn("[Tasks] Channel error (will retry):", errorMessage)
+            // Don't set error state for connection issues - Realtime handles retries automatically
+            // Only set error for actual subscription rejections (e.g., RLS blocking)
+            if (errorMessage.includes("permission") || errorMessage.includes("policy") || errorMessage.includes("RLS")) {
+              setError(err instanceof Error ? err : new Error(errorMessage))
+            }
+          } else {
+            // Connection retry - Realtime handles this automatically
+            console.log("[Tasks] Connection retry in progress...")
+          }
         } else if (status === "TIMED_OUT") {
-          console.warn("[Tasks] Subscription timed out - will retry on next mount")
+          console.warn("[Tasks] Subscription timed out - Realtime will retry automatically")
+          // Don't set error - Realtime handles retries
         } else if (status === "CLOSED") {
-          console.log("[Tasks] Channel closed")
+          console.log("[Tasks] Channel closed - will reconnect on next mount")
         }
       })
 

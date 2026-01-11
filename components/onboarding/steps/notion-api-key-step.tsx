@@ -11,7 +11,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text"
-import { CheckCircle2, Loader2, AlertCircle, Key, ExternalLink, HelpCircle, Sparkles, Bot, Users, Database, Zap, Lock } from "lucide-react"
+import { CheckCircle2, Loader2, AlertCircle, ExternalLink, HelpCircle, Sparkles, Bot, Users, Database, Zap, Lock } from "lucide-react"
+import { NotionIcon } from "@/components/icons/notion"
 import { toast } from "sonner"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
@@ -199,7 +200,7 @@ export default function NotionApiKeyStep({ onNext, onBack, initialData }: Notion
               <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2">
-                    <Key className="w-5 h-5 text-primary" />
+                    <NotionIcon className="w-5 h-5 text-primary" variant="brand" />
                     Understanding Your Notion API Key
                   </DialogTitle>
                   <DialogDescription>
@@ -374,7 +375,7 @@ export default function NotionApiKeyStep({ onNext, onBack, initialData }: Notion
                   </>
                 ) : (
                   <>
-                    <Key className="w-4 h-4 mr-2" />
+                    <NotionIcon className="w-4 h-4 mr-2" variant="brand" />
                     Add API Key
                   </>
                 )}

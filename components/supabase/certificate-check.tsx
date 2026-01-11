@@ -55,27 +55,24 @@ export function CertificateCheck() {
     const originalError = console.error
     console.error = (...args: any[]) => {
       try {
-        // Check if error object is empty first - skip processing entirely if so
-        const hasEmptyErrorObject = args.some(arg => 
-          typeof arg === 'object' && 
-          arg !== null && 
-          !(arg instanceof Error) &&
-          Object.keys(arg).length === 0 &&
-          JSON.stringify(arg) === '{}'
-        )
+        // Filter out empty error objects from args before processing
+        const filteredArgs = args.filter(arg => {
+          // Keep strings, Errors, and non-empty objects
+          if (typeof arg === 'string') return true
+          if (arg instanceof Error) return true
+          if (arg === null || arg === undefined) return false
+          // Skip empty objects (but keep objects with properties)
+          if (typeof arg === 'object' && Object.keys(arg).length === 0) return false
+          return true
+        })
         
-        // If all args are empty objects or null/undefined, just pass through without processing
-        if (hasEmptyErrorObject && args.every(arg => 
-          (typeof arg === 'object' && arg !== null && Object.keys(arg).length === 0) ||
-          arg === null ||
-          arg === undefined
-        )) {
-          // Skip certificate check for empty objects - just log normally
+        // If all args were filtered out (all empty/null/undefined), just pass through
+        if (filteredArgs.length === 0) {
           originalError.apply(console, args)
           return
         }
         
-        const message = args.map(arg => {
+        const message = filteredArgs.map(arg => {
           // Skip undefined/null arguments to avoid "undefined" string errors
           if (arg === undefined || arg === null) return ""
           if (typeof arg === 'string') return arg
@@ -83,7 +80,7 @@ export function CertificateCheck() {
           if (typeof arg === 'object') return arg.message || (Object.keys(arg).length > 0 ? JSON.stringify(arg) : "")
           return String(arg)
         }).filter(msg => msg.trim() !== "").join(" ")
-        const stack = args.find(arg => typeof arg === 'object' && arg?.stack)?.stack || ""
+        const stack = filteredArgs.find(arg => typeof arg === 'object' && arg?.stack)?.stack || ""
         
         // Only show certificate warning for actual certificate/network errors, not all Supabase errors
         // CRITICAL: Skip empty error objects completely - they're handled by components using console.warn
@@ -106,6 +103,15 @@ export function CertificateCheck() {
           message.includes("Error saving progress")
         )
         
+        const isEdgeFunctionError = (
+          message.includes("Cannot connect to Edge Function") ||
+          message.includes("Edge Function not found") ||
+          message.includes("functions:serve") ||
+          message.includes("supabase functions serve") ||
+          message.includes("SSE connection error") ||
+          message.includes("SSE error details")
+        )
+        
         const isCertificateError = (
           // Must have explicit certificate/network error message
           (message.includes("Failed to fetch") || 
@@ -121,10 +127,12 @@ export function CertificateCheck() {
            message.includes("@supabase") ||
            stack.includes("supabase") ||
            stack.includes("auth")) &&
-          // CRITICAL: Never trigger on empty error objects, database schema errors, or generic backend errors
-          !hasEmptyErrorObject &&
+          // CRITICAL: Never trigger on database schema errors, generic backend errors, or Edge Function errors
           !isDatabaseSchemaError &&
-          !isGenericBackendError
+          !isGenericBackendError &&
+          !isEdgeFunctionError &&
+          // Must have actual error message content (not just empty objects)
+          message.trim().length > 0
         )
         
         if (isCertificateError) {

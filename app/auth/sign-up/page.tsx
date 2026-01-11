@@ -131,7 +131,7 @@ export default function SignUpPage() {
                   </span>
                 ) : (
                   <span className="flex items-center justify-center gap-4">
-                    <NotionIcon variant="official" size={32} className="w-8 h-8 drop-shadow-lg" />
+                    <NotionIcon variant="brand" size={32} className="w-8 h-8 drop-shadow-lg" />
                     <span className="text-base">Sign up with Notion</span>
                   </span>
                 )}

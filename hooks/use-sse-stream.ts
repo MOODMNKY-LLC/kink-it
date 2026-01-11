@@ -129,9 +129,17 @@ export function useSSEStream() {
           const statusText = xhr?.statusText
           const responseText = xhr?.responseText
 
-          console.error("❌ SSE connection error:", error)
+          // Only log error object if it has meaningful content
+          const errorHasContent = error && typeof error === 'object' && Object.keys(error).length > 0
+          if (errorHasContent) {
+            console.error("❌ SSE connection error:", error)
+          } else {
+            console.error("❌ SSE connection error")
+          }
+          
+          // Log error details (this is useful information, not an empty error object)
           console.error("📋 SSE error details:", {
-            type: error.type,
+            type: error?.type,
             readyState: eventSource.readyState,
             url: functionUrl,
             httpStatus: status,

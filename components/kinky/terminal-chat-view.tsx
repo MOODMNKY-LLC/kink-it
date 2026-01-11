@@ -10,7 +10,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Trash2, Sparkles } from "lucide-react"
+import { Trash2, Sparkles, Send, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text"
@@ -18,8 +18,6 @@ import { useChatStream, type ChatMessage } from "@/hooks/use-chat-stream"
 import { createClient } from "@/lib/supabase/client"
 import { kinkyKincadeProfile } from "@/lib/kinky/kinky-kincade-profile"
 import { buildKinksterPersonalityPrompt } from "@/lib/chat/kinkster-personality"
-import { EnhancedChatInputBar } from "@/components/chat/enhanced-chat-input-bar"
-import type { FileAttachment } from "@/components/chat/file-upload-handler"
 import type { Profile } from "@/types/profile"
 
 // ============================================================================
@@ -29,18 +27,35 @@ import type { Profile } from "@/types/profile"
 interface TerminalChatViewProps {
   className?: string
   userId?: string
+  profile?: Profile | null
+}
+
+interface ChatMessageAttachment {
+  url: string
+  fileName: string
+  fileSize: number
+  mimeType: string
+  type: "image" | "video" | "audio" | "document" | "file"
+}
+
+interface ChatMessage {
+  id: string
+  role: "user" | "assistant"
+  content: string
+  timestamp: Date
+  attachments?: ChatMessageAttachment[]
 }
 
 interface MessageBubbleProps {
   message: ChatMessage
   isStreaming?: boolean
+  profile?: Profile | null
+  conversationId?: string | null
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
-
-const KINKY_INSTRUCTIONS = buildKinksterPersonalityPrompt(kinkyKincadeProfile as any)
 
 const WELCOME_MESSAGES = [
   "Ready to chat! How can I assist you today?",
@@ -53,7 +68,12 @@ const WELCOME_MESSAGES = [
 // Sub-components
 // ============================================================================
 
-const MessageBubble = React.memo(function MessageBubble({ message, isStreaming }: MessageBubbleProps) {
+const MessageBubble = React.memo(function MessageBubble({ 
+  message, 
+  isStreaming, 
+  profile,
+  conversationId 
+}: MessageBubbleProps) {
   const isUser = message.role === "user"
   const isAssistant = message.role === "assistant"
 
@@ -64,7 +84,7 @@ const MessageBubble = React.memo(function MessageBubble({ message, isStreaming }
       exit={{ opacity: 0, y: -5 }}
       transition={{ duration: 0.2 }}
       className={cn(
-        "flex flex-col gap-1",
+        "flex flex-col gap-1 group",
         isUser ? "items-end" : "items-start"
       )}
     >
@@ -86,8 +106,30 @@ const MessageBubble = React.memo(function MessageBubble({ message, isStreaming }
             : "bg-muted/50 text-foreground border border-border/50"
         )}
       >
+        {/* Attachments */}
+        {message.attachments && message.attachments.length > 0 && (
+          <div className={cn(
+            "mb-2 flex flex-wrap gap-2",
+            isUser && "justify-end"
+          )}>
+            {message.attachments.map((attachment, idx) => (
+              <div key={idx} className="text-[10px] text-muted-foreground">
+                [{attachment.type}] {attachment.fileName}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Message Content */}
         <div className="whitespace-pre-wrap break-words leading-relaxed">
-          {message.content}
+          {isAssistant ? (
+            <MarkdownMessage 
+              content={message.content} 
+              className="font-mono text-xs"
+            />
+          ) : (
+            <span>{message.content}</span>
+          )}
           {isStreaming && isAssistant && (
             <motion.span
               className="inline-block w-2 h-3 ml-0.5 bg-primary"
@@ -96,6 +138,17 @@ const MessageBubble = React.memo(function MessageBubble({ message, isStreaming }
             />
           )}
         </div>
+
+        {/* Message Actions (only for assistant messages) */}
+        {isAssistant && !isStreaming && (
+          <MessageActions
+            messageId={message.id}
+            content={message.content}
+            conversationId={conversationId}
+            userId={profile?.id}
+            className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity"
+          />
+        )}
       </div>
     </motion.div>
   )
@@ -132,15 +185,27 @@ function TypingIndicator() {
 // Main Component
 // ============================================================================
 
-export function TerminalChatView({ className, userId: propUserId }: TerminalChatViewProps) {
-  const [input, setInput] = useState("")
+export function TerminalChatView({ 
+  className, 
+  userId: propUserId,
+  profile: propProfile 
+}: TerminalChatViewProps) {
+  const [inputValue, setInputValue] = useState("")
   const [userId, setUserId] = useState(propUserId || "")
-  const [profile, setProfile] = useState<Profile | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(propProfile || null)
+  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [isStreaming, setIsStreaming] = useState(false)
+  const [currentStreamingMessage, setCurrentStreamingMessage] = useState<string>("")
   const [realtimeEnabled, setRealtimeEnabled] = useState(false)
+  const [conversationId, setConversationId] = useState<string | null>(null)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [helpOpen, setHelpOpen] = useState(false)
+  const [agentMode, setAgentMode] = useState(false)
   // Use first message as default to avoid hydration mismatch, randomize on client
   const [welcomeMessage, setWelcomeMessage] = useState(WELCOME_MESSAGES[0])
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const supabaseRef = useRef(createClient())
+  const channelRef = useRef<any>(null)
   
   // Randomize welcome message on client side only
   useEffect(() => {
@@ -150,9 +215,14 @@ export function TerminalChatView({ className, userId: propUserId }: TerminalChat
   // Fetch user ID and profile if not provided
   useEffect(() => {
     const fetchUserData = async () => {
+      if (propProfile) {
+        setProfile(propProfile)
+        setUserId(propProfile.id)
+        return
+      }
+
       if (propUserId) {
         setUserId(propUserId)
-        // Fetch profile
         const { data: { user } } = await supabaseRef.current.auth.getUser()
         if (user) {
           const { data: profileData } = await supabaseRef.current
@@ -181,20 +251,99 @@ export function TerminalChatView({ className, userId: propUserId }: TerminalChat
       }
     }
     fetchUserData()
-  }, [propUserId])
+  }, [propUserId, propProfile])
 
-  // Chat stream hook
-  const {
-    messages,
-    sendMessage,
-    isStreaming,
-    currentStreamingMessage,
-    stopStreaming,
-    clearMessages,
-  } = useChatStream({
-    userId,
-    onError: (error) => console.error("[TerminalChat] Error:", error),
-  })
+  // Check if user has Notion API key
+  const hasNotionKey = useMemo(() => {
+    // This would check profile or make an API call
+    // For now, return false as placeholder
+    return false
+  }, [profile])
+
+  // Setup Supabase Realtime subscription for live message updates
+  useEffect(() => {
+    if (!conversationId || !realtimeEnabled) {
+      if (channelRef.current) {
+        supabaseRef.current.removeChannel(channelRef.current)
+        channelRef.current = null
+      }
+      return
+    }
+
+    const channel = supabaseRef.current
+      .channel(`conversation:${conversationId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload: any) => {
+          const newMessage = payload.new
+          if (!newMessage.is_streaming && newMessage.role === "assistant") {
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === newMessage.id)) {
+                return prev
+              }
+              return [
+                ...prev,
+                {
+                  id: newMessage.id,
+                  role: newMessage.role as "user" | "assistant",
+                  content: newMessage.content,
+                  timestamp: new Date(newMessage.created_at),
+                },
+              ]
+            })
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload: any) => {
+          const updatedMessage = payload.new
+          if (!updatedMessage.is_streaming) {
+            setMessages((prev) =>
+              prev.map((msg) =>
+                msg.id === updatedMessage.id
+                  ? {
+                      ...msg,
+                      content: updatedMessage.content,
+                    }
+                  : msg
+              )
+            )
+          }
+        }
+      )
+      .subscribe()
+
+    channelRef.current = channel
+
+    return () => {
+      if (channelRef.current) {
+        supabaseRef.current.removeChannel(channelRef.current)
+        channelRef.current = null
+      }
+    }
+  }, [conversationId, realtimeEnabled])
+
+  // Clear/Refresh chat function
+  const handleClearChat = useCallback(() => {
+    setMessages([])
+    setCurrentStreamingMessage("")
+    setConversationId(null)
+    setInputValue("")
+    setIsStreaming(false)
+  }, [])
 
   // Scroll to bottom when messages change
   const scrollToBottom = useCallback(() => {
@@ -222,24 +371,35 @@ export function TerminalChatView({ className, userId: propUserId }: TerminalChat
     }
   }, [currentStreamingMessage, scrollToBottom])
 
-  // Focus input on mount
-  useEffect(() => {
-    inputRef.current?.focus()
-  }, [])
+  const inputRef = useRef<HTMLInputElement>(null)
 
-  const handleSend = useCallback(
-    async (data: { text: string; files: FileAttachment[] }) => {
-      if (!data.text.trim() || isStreaming || !userId) return
+  const handleSend = useCallback(async () => {
+    if (!input.trim() || isStreaming || !userId) return
 
-      // TODO: Handle file attachments (upload to Supabase Storage and include URLs)
-      await sendMessage(data.text.trim(), {
-        agentName: "Kinky Kincade",
-        agentInstructions: KINKY_INSTRUCTIONS,
-        model: "gpt-4o-mini",
-        temperature: 0.8,
-      })
+    const messageText = input.trim()
+    setInput("") // Clear input immediately
+
+    await sendMessage(messageText, {
+      agentName: "Kinky Kincade",
+      agentInstructions: KINKY_INSTRUCTIONS,
+      model: "gpt-4o-mini",
+      temperature: 0.8,
+    })
+
+    // Refocus input after sending
+    setTimeout(() => {
+      inputRef.current?.focus()
+    }, 100)
+  }, [input, isStreaming, userId, sendMessage])
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault()
+        handleSend()
+      }
     },
-    [isStreaming, userId, sendMessage]
+    [handleSend]
   )
 
   // Build display messages - avoid useMemo to prevent re-render issues
@@ -274,17 +434,37 @@ export function TerminalChatView({ className, userId: propUserId }: TerminalChat
             Chat with Kinky Kincade
           </AnimatedGradientText>
         </div>
-        {messages.length > 0 && (
+        <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             size="sm"
-            onClick={clearMessages}
-            className="h-6 px-2 text-[10px] font-mono text-muted-foreground hover:text-destructive"
+            onClick={() => setHelpOpen(true)}
+            className="h-6 px-2 text-[10px] font-mono"
+            title="Help & Info"
           >
-            <Trash2 className="h-3 w-3 mr-1" />
-            clear
+            <Info className="h-3 w-3" />
           </Button>
-        )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSettingsOpen(true)}
+            className="h-6 px-2 text-[10px] font-mono"
+            title="AI Configuration"
+          >
+            <MoreHorizontal className="h-3 w-3" />
+          </Button>
+          {messages.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClearChat}
+              className="h-6 px-2 text-[10px] font-mono text-muted-foreground hover:text-destructive"
+            >
+              <Trash2 className="h-3 w-3 mr-1" />
+              clear
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Messages Area - Using simple overflow div instead of ScrollArea */}
@@ -336,22 +516,46 @@ export function TerminalChatView({ className, userId: propUserId }: TerminalChat
         </div>
       </div>
 
-      {/* Enhanced Input Bar */}
+      {/* Terminal Input - Using EnhancedChatInputBar styled for terminal */}
       <div className="border-t border-border/50">
-        <EnhancedChatInputBar
-          value={input}
-          onChange={setInput}
-          onSend={handleSend}
-          disabled={isStreaming || !userId}
-          isStreaming={isStreaming}
-          realtimeEnabled={realtimeEnabled}
-          onRealtimeToggle={setRealtimeEnabled}
-          profile={profile}
-          hasNotionKey={false}
-          placeholder="you@kink-it:~$ Type your message..."
-          className="bg-muted/30 border-0"
-        />
+        <div className="px-3 py-2">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-mono text-primary/70 shrink-0">
+              you@kink-it:~$
+            </span>
+          </div>
+          <EnhancedChatInputBar
+            value={inputValue}
+            onChange={setInputValue}
+            onSend={handleSendMessage}
+            onClearChat={handleClearChat}
+            disabled={isStreaming}
+            isStreaming={isStreaming}
+            realtimeEnabled={realtimeEnabled}
+            onRealtimeToggle={setRealtimeEnabled}
+            profile={profile}
+            hasNotionKey={hasNotionKey}
+            placeholder="Type your message..."
+            agentMode={agentMode}
+            onAgentModeChange={setAgentMode}
+            className="font-mono text-xs"
+          />
+        </div>
       </div>
+
+      {/* Settings Panel */}
+      <ComprehensiveAISettingsPanel
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        profile={profile}
+        agentName="Kinky Kincade"
+      />
+
+      {/* Help Dialog */}
+      <ChatHelpDialog
+        open={helpOpen}
+        onOpenChange={setHelpOpen}
+      />
     </div>
   )
 }
