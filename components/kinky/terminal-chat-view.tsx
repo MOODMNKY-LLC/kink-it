@@ -374,10 +374,10 @@ export function TerminalChatView({
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleSend = useCallback(async () => {
-    if (!input.trim() || isStreaming || !userId) return
+    if (!inputValue.trim() || isStreaming || !userId) return
 
-    const messageText = input.trim()
-    setInput("") // Clear input immediately
+    const messageText = inputValue.trim()
+    setInputValue("") // Clear input immediately
 
     await sendMessage(messageText, {
       agentName: "Kinky Kincade",
@@ -390,7 +390,7 @@ export function TerminalChatView({
     setTimeout(() => {
       inputRef.current?.focus()
     }, 100)
-  }, [input, isStreaming, userId, sendMessage])
+  }, [inputValue, isStreaming, userId, sendMessage])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
