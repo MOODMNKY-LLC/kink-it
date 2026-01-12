@@ -10,7 +10,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Trash2, Sparkles, Send, Loader2 } from "lucide-react"
+import { Trash2, Sparkles, Send, Loader2, Info } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text"
