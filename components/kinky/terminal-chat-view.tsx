@@ -18,6 +18,7 @@ import { useChatStream, type ChatMessage } from "@/hooks/use-chat-stream"
 import { createClient } from "@/lib/supabase/client"
 import { kinkyKincadeProfile } from "@/lib/kinky/kinky-kincade-profile"
 import { buildKinksterPersonalityPrompt } from "@/lib/chat/kinkster-personality"
+import { KINKY_KINCADE_INSTRUCTIONS } from "@/lib/ai/kinky-kincade-instructions"
 import { MarkdownMessage } from "@/components/chat/markdown-message"
 import { MessageActions } from "@/components/chat/message-actions"
 import { EnhancedChatInputBar } from "@/components/chat/enhanced-chat-input-bar"
@@ -400,7 +401,7 @@ export function TerminalChatView({
 
     await sendMessage(messageText, {
       agentName: "Kinky Kincade",
-      agentInstructions: KINKY_INSTRUCTIONS,
+      agentInstructions: KINKY_KINCADE_INSTRUCTIONS,
       model: "gpt-4o-mini",
       temperature: 0.8,
     })
@@ -420,7 +421,7 @@ export function TerminalChatView({
 
     await sendMessage(messageText, {
       agentName: "Kinky Kincade",
-      agentInstructions: KINKY_INSTRUCTIONS,
+      agentInstructions: KINKY_KINCADE_INSTRUCTIONS,
       model: "gpt-4o-mini",
       temperature: 0.8,
     })
