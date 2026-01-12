@@ -20,6 +20,9 @@ import { kinkyKincadeProfile } from "@/lib/kinky/kinky-kincade-profile"
 import { buildKinksterPersonalityPrompt } from "@/lib/chat/kinkster-personality"
 import { MarkdownMessage } from "@/components/chat/markdown-message"
 import { MessageActions } from "@/components/chat/message-actions"
+import { EnhancedChatInputBar } from "@/components/chat/enhanced-chat-input-bar"
+import { ComprehensiveAISettingsPanel } from "@/components/chat/comprehensive-ai-settings-panel"
+import { ChatHelpDialog } from "@/components/chat/chat-help-dialog"
 import type { Profile } from "@/types/profile"
 
 // ============================================================================
@@ -543,7 +546,7 @@ export function TerminalChatView({
           <EnhancedChatInputBar
             value={inputValue}
             onChange={setInputValue}
-            onSend={handleSend}
+            onSend={handleSendMessage}
             onClearChat={handleClearChat}
             disabled={isStreaming}
             isStreaming={isStreaming}
