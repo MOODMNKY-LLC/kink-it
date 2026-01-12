@@ -411,6 +411,26 @@ export function TerminalChatView({
     }, 100)
   }, [inputValue, isStreaming, userId, sendMessage])
 
+  // Wrapper for EnhancedChatInputBar's onSend signature
+  const handleSendMessage = useCallback(async (message: { text: string; files?: any[]; tools?: any[] }) => {
+    if (!message.text.trim() || isStreaming || !userId) return
+
+    const messageText = message.text.trim()
+    setInputValue("") // Clear input immediately
+
+    await sendMessage(messageText, {
+      agentName: "Kinky Kincade",
+      agentInstructions: KINKY_INSTRUCTIONS,
+      model: "gpt-4o-mini",
+      temperature: 0.8,
+    })
+
+    // Refocus input after sending
+    setTimeout(() => {
+      inputRef.current?.focus()
+    }, 100)
+  }, [isStreaming, userId, sendMessage])
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Enter" && !e.shiftKey) {
