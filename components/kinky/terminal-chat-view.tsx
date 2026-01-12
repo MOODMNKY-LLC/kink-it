@@ -10,7 +10,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Trash2, Sparkles, Send, Loader2, Info } from "lucide-react"
+import { Trash2, Sparkles, Send, Loader2, Info, MoreHorizontal } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text"
@@ -18,6 +18,8 @@ import { useChatStream, type ChatMessage } from "@/hooks/use-chat-stream"
 import { createClient } from "@/lib/supabase/client"
 import { kinkyKincadeProfile } from "@/lib/kinky/kinky-kincade-profile"
 import { buildKinksterPersonalityPrompt } from "@/lib/chat/kinkster-personality"
+import { MarkdownMessage } from "@/components/chat/markdown-message"
+import { MessageActions } from "@/components/chat/message-actions"
 import type { Profile } from "@/types/profile"
 
 // ============================================================================
