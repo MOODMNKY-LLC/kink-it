@@ -543,7 +543,7 @@ export function TerminalChatView({
           <EnhancedChatInputBar
             value={inputValue}
             onChange={setInputValue}
-            onSend={handleSendMessage}
+            onSend={handleSend}
             onClearChat={handleClearChat}
             disabled={isStreaming}
             isStreaming={isStreaming}
